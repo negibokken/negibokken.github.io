@@ -1,7 +1,7 @@
 ## Achievement
 
 * 2016 Best Presentation Award for Young Scientists at Dependable Computing IEICE ([HP (Japanese)](http://isw3.naist.jp/IS/PubWG/Events-ja/award20161129_ogawa.html))
-* 2014 Research Excellence Award 2014 at Nara National College of Technology [paper (JP)](https://www.nara-k.ac.jp/life/pdf/117_04.pdf)
+* 2014 Research Excellence Award 2014 at Nara National College of Technology ([paper (Japanese)](https://www.nara-k.ac.jp/life/pdf/117_04.pdf))
 
 ## International Conferences
 
