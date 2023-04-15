@@ -1,0 +1,23 @@
+name: intent to ship feed
+on:
+  schedule:
+    - cron:  '0 21 * * *'
+  workflow_dispatch:
+
+jobs:
+  commits_crawler:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 16
+        cache: 'npm'
+    - run: npm ci
+    - run: npx prisma generate
+    - run: npm run feed:intent
+      env:
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    - run: |
+      ls feeds/intent_to_ship

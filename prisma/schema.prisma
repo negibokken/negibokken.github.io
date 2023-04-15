@@ -1,0 +1,38 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["referentialIntegrity", "fullTextSearch", "fullTextIndex"]
+}
+datasource db {
+  provider = "mysql"
+  url = env("DATABASE_URL")
+  referentialIntegrity = "prisma"
+}
+model commits {
+  commit String @id
+  title String? @db.Text
+  message String? @db.MediumText
+  commitAt DateTime
+  authorName String @default("")
+  authorMail String @default("")
+  createdAt  DateTime @default(now()) @db.Timestamp(0)
+  updatedAt  DateTime @default(now()) @updatedAt @db.Timestamp(0)
+
+  @@index([commitAt(sort: Desc)])
+  @@index([authorName])
+  @@index([authorMail])
+  @@fulltext([message])
+  @@fulltext([title, message])
+}
+
+model intents {
+  guid String @id
+  title String @db.Text
+  link String @db.Text
+  pubDate DateTime
+  createdAt  DateTime @default(now()) @db.Timestamp(0)
+  updatedAt  DateTime @default(now()) @updatedAt @db.Timestamp(0)
+
+  @@fulltext([title])
+  @@index([pubDate(sort: Desc)])
+  @@index([guid])
+}
