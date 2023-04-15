@@ -44,7 +44,7 @@ function sanitize(str: string) {
         });
 
         const entries = res.map((entry) => {
-            return new AtomEntry({ id: entry.guid, title: sanitize(entry.title), author: { name: "Intent to Ship" }, updated: entry.pubDate.toISOString(), link: entry.link, summary: entry.link, content: entry.link });
+            return new AtomEntry({ id: entry.guid, title: sanitize(entry.title), author: { name: "Intent to Ship" }, updated: entry.pubDate.toISOString(), link: entry.link, summary: entry.link + " summary", content: entry.link + " content" });
         });
         const latest = entries[0];
         const link = 'https://negibokken.github.io/feeds/intent_to_ship/atom.xml'
