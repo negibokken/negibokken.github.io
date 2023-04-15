@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import fs from 'fs';
 import { format } from 'prettier';
 
-import { AtomEntry, AtomFeed } from './atom';
+import { AtomEntry, AtomFeed } from '../modules/atom';
 
 import convert from 'xml-js';
 
