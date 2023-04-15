@@ -93,7 +93,7 @@ async function sleep(time: number): Promise<void> {
             return { ...entry, content: { _attributes: { type: 'html' }, _text: Buffer.from(entry.content._text, 'base64').toString('utf8') } };
         });
 
-        currentAtom.feed.entry = newAtom.feed.entry.concat(currentAtom.feed.entry);
+        currentAtom.feed.entry = newAtom.feed.entry.concat(currentAtom.feed.entry).slice(50);
 
         const newAtomXML = convert.json2xml(currentAtom, { compact: true, spaces: 4 });
 
