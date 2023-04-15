@@ -34,7 +34,6 @@ async function sleep(time: number): Promise<void> {
 
 (async () => {
     try {
-
         const xmlPath = "./feeds/intent_to_ship/atom.xml";
         const atomXML = fs.readFileSync(xmlPath).toString();
         var currentAtom = JSON.parse(convert.xml2json(atomXML, { compact: true, spaces: 4 }));
