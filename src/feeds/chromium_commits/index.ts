@@ -52,7 +52,7 @@ function sanitize(str: string) {
 
         const entries = res.map((entry) => {
             const link = `${chromiumBaseURL}${entry.commit}%5E%21/`
-            return new AtomEntry({ id: link, title: sanitize(entry.title ?? ''), author: { name: "Chromium commit feed" }, updated: entry.commitAt.toISOString(), link: link, summary: link, content: Buffer.from(entry.message ?? '').toString('base64') });
+            return new AtomEntry({ id: link, title: sanitize(entry.title ?? ''), author: { name: "Chromium commit feed" }, updated: entry.commitAt.toISOString(), link: link, summary: link, content: Buffer.from((entry.message ?? '').replaceAll("\n", "<br/><br/>")).toString('base64') });
         });
 
         const latest = entries[0];
