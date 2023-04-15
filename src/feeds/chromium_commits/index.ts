@@ -19,6 +19,7 @@ function sanitize(str: string) {
         var currentAtom = JSON.parse(convert.xml2json(atomXML, { compact: true, spaces: 4 }));
 
         let where = {};
+        if (!currentAtom.feed.entry) currentAtom.feed.entry = [];
         if (currentAtom.feed.entry.length !== 0) {
             where = {
                 where: {
@@ -68,7 +69,9 @@ function sanitize(str: string) {
             return { ...entry, content: { _attributes: { type: 'html' }, _text: Buffer.from(entry.content._text, 'base64').toString('utf8') } };
         });
 
-        currentAtom.feed.entry = newAtom.feed.entry.concat(currentAtom.feed.entry).slice(200);
+
+        currentAtom.feed.entry = newAtom.feed.entry.concat(currentAtom.feed.entry).slice(0, 200);
+
 
         const newAtomXML = convert.json2xml(currentAtom, { compact: true, spaces: 4 });
 
