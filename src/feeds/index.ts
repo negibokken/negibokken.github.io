@@ -62,12 +62,17 @@ async function sleep(time: number): Promise<void> {
             ...where,
         });
 
+        if (res.length === 0) {
+            console.log('Updates nothing');
+            return;
+        }
+
         let contents = new Map();
         for await (const entry of res) {
             const root = parse(await fetchContent(entry.link));
             const head = root.querySelector('.msgHead')?.toString() ?? '';
             const body = root.querySelector('.msgBody')?.toString() ?? '';
-            const description = `<![CDATA[${head + body}]]`
+            const description = `${head + body}`
             contents.set(entry.guid, Buffer.from(description).toString('base64'));
             await sleep(250);
         }
@@ -75,6 +80,7 @@ async function sleep(time: number): Promise<void> {
         const entries = res.map((entry) => {
             return new AtomEntry({ id: entry.guid, title: sanitize(entry.title), author: { name: "Intent to Ship" }, updated: entry.pubDate.toISOString(), link: entry.link, summary: entry.link + " summary", content: contents.get(entry.guid) ?? entry.link });
         });
+
         const latest = entries[0];
         const link = 'https://negibokken.github.io/feeds/intent_to_ship/atom.xml'
         const feed = new AtomFeed({ id: link, title: "intent to ship feed", link, updated: latest.updated, entries });
@@ -85,13 +91,14 @@ async function sleep(time: number): Promise<void> {
             newAtom.feed.entry = [newAtom.feed.entry];
         }
         newAtom.feed.entry = newAtom.feed.entry.map((entry: any) => {
-            return { ...entry, content: { _text: Buffer.from(entry.content._text, 'base64').toString('utf8') } };
+            return { ...entry, content: { _attributes: { type: 'html' }, _text: Buffer.from(entry.content._text, 'base64').toString('utf8') } };
         });
 
         currentAtom.feed.entry = newAtom.feed.entry.concat(currentAtom.feed.entry);
 
         const newAtomXML = convert.json2xml(currentAtom, { compact: true, spaces: 4 });
 
+        console.log(`Contents is written in ${xmlPath}.new`);
         fs.writeFileSync(`${xmlPath}.new`, newAtomXML);
     } catch (e) {
         console.error(e)

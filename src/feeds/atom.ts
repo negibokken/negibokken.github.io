@@ -24,7 +24,12 @@ export class AtomEntry {
         }
     };
     summary: string;
-    content: string;
+    content: {
+        _attr: {
+            type: string
+        };
+        _text: string;
+    };
     constructor({ id, title, author, updated, link, summary, content }: AtomEntryProps) {
         this.id = id;
         this.title = title;
@@ -36,7 +41,12 @@ export class AtomEntry {
         };
         this.updated = updated;
         this.summary = summary;
-        this.content = content;
+        this.content = {
+            _attr: {
+                type: 'html',
+            },
+            _text: content
+        }
     }
 
     toXML(): string {
@@ -100,9 +110,13 @@ function transformToXML(obj: any): string {
     }
 
     // We should close tag if element doesn't have the inner contents.
-    const innerContent = Object.entries(obj).filter(([key, value]) => !key.startsWith("_")).length;
+    const innerContent = Object.entries(obj).filter(([key, value]) => !key.startsWith("_") || key === "_text").length;
     if (!innerContent) {
         return `<${obj._name}${attr} />`;
+    }
+
+    if (typeof obj === 'object' && '_text' in obj) {
+        return `<${obj._name}${attr}>${obj._text}</${obj._name}>`;
     }
 
     let xml = obj._name ? `<${obj._name}${attr}>` : '';
