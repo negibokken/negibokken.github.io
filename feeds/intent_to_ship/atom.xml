@@ -5,6 +5,344 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg05847.html</id>
+        <title>[blink-dev] Intent to Prototype: BYOB support for Fetch</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg05847.html"/>
+        <updated>2023-04-17T07:03:10.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg05847.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Prototype%5C%3A+BYOB+support+for+Fetch%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Prototype: BYOB support for Fetch&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Nidhi+Jaju%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Nidhi Jaju&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230417" rel="nofollow"&gt;Mon, 17 Apr 2023 00:03:10 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Contact emailsnidhij...@chromium.org
+
+ExplainerNone&lt;/pre&gt;&lt;pre&gt;
+
+Specification&lt;a  rel="nofollow" href="https://fetch.spec.whatwg.org/#http-network-fetch"&gt;https://fetch.spec.whatwg.org/#http-network-fetch&lt;/a&gt;
+
+Summary
+
+Makes Response.body be a readable byte stream instead of a &amp;quot;default&amp;quot;
+readable stream. This enables it to be used with bring-your-own-buffer
+(BYOB) readers, reducing garbage collection overhead and copies.
+
+
+Blink componentBlink&amp;gt;Network&amp;gt;FetchAPI
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ENetwork%3EFetchAPI"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ENetwork%3EFetchAPI&lt;/a&gt;&amp;gt;
+
+Motivation
+
+Using readable byte streams for Response.body allows more precise memory
+allocation, minimizes buffer copies, and reduces GC overhead.
+
+Initial public proposalNone
+
+TAG reviewNone
+
+TAG review statusNot applicable
+
+Risks
+
+
+Interoperability and Compatibility
+
+Low risk because streams and fetch have already been standardized for a
+long time. Other browsers have implemented other parts of the standard, and
+Firefox has already shipped this behavior for many months and others will
+most likely also adapt this feature as well soon.
+
+
+*Gecko*: Shipped/Shipping (
+&lt;a  rel="nofollow" href="https://github.com/whatwg/fetch/issues/267#issuecomment-1350303670"&gt;https://github.com/whatwg/fetch/issues/267#issuecomment-1350303670&lt;/a&gt;) Already
+shipped in Firefox in 2022.
+
+*WebKit*: Positive (&lt;a  rel="nofollow" href="https://github.com/whatwg/fetch/pull/1593"&gt;https://github.com/whatwg/fetch/pull/1593&lt;/a&gt;) @annevk from
+Apple approved the PR to update the spec with relevant changes and
+expressed interest as an implementer on behalf of Apple.
+
+*Web developers*: No signals
+
+*Other signals*: Deno is also interested in, and somewhat shipped, this
+behavior (&lt;a  rel="nofollow" href="https://github.com/denoland/deno/issues/17386"&gt;https://github.com/denoland/deno/issues/17386&lt;/a&gt;).
+
+Activation
+
+Currently, to clone a body, we tee the body's stream, but teeing always
+returns two &amp;quot;default&amp;quot; streams, where the chunks are not cloned for both
+streams. Making Response.body into a byte stream, will mean that cloning it
+will result in cloning the chunks for the second stream, which is different
+behavior. In order to mitigate activation risks, we are splitting this
+change into two releases. One where the default teeing behavior will also
+start to clone for the second stream behind the
+&amp;quot;ReadableStreamTeeCloneForBranch2&amp;quot; feature flag, and then make
+Response.body a readable byte stream behind the &amp;quot;FetchBYOB&amp;quot; feature flag.
+
+
+WebView application risks
+
+Does this intent deprecate or change behavior of existing APIs, such that
+it has potentially high risk for Android WebView-based applications?
+
+
+
+Debuggability
+
+No special support needed.
+
+
+Is this feature fully tested by web-platform-tests
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+?Yes
+&lt;a  rel="nofollow" href="https://wpt.fyi/results/fetch/api/response/response-consume-stream.any.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/fetch/api/response/response-consume-stream.any.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
+
+Flag nameReadableStreamTeeCloneForBranch2 and FetchBYOB
+
+Requires code in //chrome?False
+
+Tracking bug&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1243329"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1243329&lt;/a&gt;
+
+Estimated milestones
+Shipping on desktop 115
+Shipping on Android 115
+Shipping on WebView 115
+
+Link to entry on the Chrome Platform Status
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5192003450568704"&gt;https://chromestatus.com/feature/5192003450568704&lt;/a&gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMZNYAPyZ-TJsC5%3DtgYp_hBbrQtaspep2HRmDyLX7tJQFNGp%3Dw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMZNYAPyZ-TJsC5%3DtgYp_hBbrQtaspep2HRmDyLX7tJQFNGp%3Dw%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg05846.html</id>
+        <title>Re: [blink-dev] Intent to remove: zoom CSS property</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg05846.html"/>
+        <updated>2023-04-17T06:45:13.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg05846.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+remove%5C%3A+zoom+CSS+property%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to remove: zoom CSS property&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Morten+Stenshorne%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Morten Stenshorne&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230416" rel="nofollow"&gt;Sun, 16 Apr 2023 23:45:13 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Chris Harrelson &amp;lt;chris...@chromium.org&amp;gt; writes:
+
+&amp;gt; On Fri, Apr 14, 2023 at 5:09 PM PhistucK &amp;lt;phist...@gmail.com&amp;gt; wrote:
+&amp;gt;
+&amp;gt;  Any alternatives? I thought there was a section in the intent templates for 
+&amp;gt; that...
+&amp;gt;
+&amp;gt; One alternative for the use case mentioned in my earlier email is to
+&amp;gt; apply a CSS transform instead. This will magnify the subtree visually
+&amp;gt; but not cause a zoom-style layout change.&lt;/pre&gt;&lt;pre&gt;
+
+The fact that a CSS transform doesn't affect layout, whereas 'zoom'
+does, means that we'll paginate (fragment) properly with 'zoom', but not
+with transforms, since they are applied after fragmentation [1], causing
+content to be sliced across fragmentainer boundaries, and the actual
+page/column breaks (as far as layout is concerned) are shifted away from
+the fragmentainer edges visually, and will appear in the middle of a
+page/column, for instance.
+
+[1] &lt;a  rel="nofollow" href="https://www.w3.org/TR/css-break-3/#transforms"&gt;https://www.w3.org/TR/css-break-3/#transforms&lt;/a&gt; (never mind the
+example there; it's not too relevant for this discussion, but I can
+provide one if you want)
+
+&amp;gt; Another alternative is for the developer to multiply the numbers in
+&amp;gt; their CSS properties via calc + variables.
+
+That alternative should always work, but more cumbersome for the
+authors, I suppose?
+
+
+&amp;gt;  On Sat, Apr 15, 2023 at 1:03 AM Chris Harrelson &amp;lt;chris...@chromium.org&amp;gt; 
+&amp;gt; wrote:
+&amp;gt;
+&amp;gt;  Contact emails
+&amp;gt;
+&amp;gt;  chris...@chromium.org
+&amp;gt;
+&amp;gt;  Specification
+&amp;gt;
+&amp;gt;  &lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/CSS/zoom"&gt;https://developer.mozilla.org/en-US/docs/Web/CSS/zoom&lt;/a&gt;
+&amp;gt;
+&amp;gt;  Summary
+&amp;gt;
+&amp;gt;  Removes support for the non-standard &amp;quot;zoom&amp;quot; CSS property. This CSS property 
+&amp;gt; causes computed lengths for an element to be multiplied by
+&amp;gt;  the specified zoom factor. 
+&amp;gt;
+&amp;gt;  Blink component
+&amp;gt;
+&amp;gt;  Blink&amp;gt;CSS
+&amp;gt;
+&amp;gt;  TAG review
+&amp;gt;
+&amp;gt;  None
+&amp;gt;
+&amp;gt;  TAG review status
+&amp;gt;
+&amp;gt;  Not applicable
+&amp;gt;
+&amp;gt;  Risks
+&amp;gt;
+&amp;gt;  Interoperability and Compatibility
+&amp;gt;
+&amp;gt;  This feature is only available in Webkit and Blink-based browsers, and has 
+&amp;gt; been present in Chrome since the beginning. Usage is a little above
+&amp;gt;  0.5% of page loads: 
+&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/metrics/feature/timeline/popularity/3578"&gt;https://chromestatus.com/metrics/feature/timeline/popularity/3578&lt;/a&gt; However, 
+&amp;gt; research shows that sites in HTTPArchive
+&amp;gt;  triggering the feature mostly don't even seem to use it, and those that do 
+&amp;gt; appear to always use it in a way that works fine without zoom applied
+&amp;gt;  - worst case, just a very minor change to the size of a tiny number of UI 
+&amp;gt; elements, but the UX is basically the same. See:
+&amp;gt;  
+&amp;gt; &lt;a  rel="nofollow" href="https://docs.google.com/document/d/1cmbXpjAcXAht2ufi7bNKy-rbVNveqaf0UzeYg_DIMNA/edit#"&gt;https://docs.google.com/document/d/1cmbXpjAcXAht2ufi7bNKy-rbVNveqaf0UzeYg_DIMNA/edit#&lt;/a&gt;
+&amp;gt;
+&amp;gt;  Gecko: Shipped/Shipping (Firefox never supported the feature.)
+&amp;gt;
+&amp;gt;  WebKit: No signal (&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/170"&gt;https://github.com/WebKit/standards-positions/issues/170&lt;/a&gt;)
+&amp;gt;
+&amp;gt;  Web developers: Some web developers like the feature, in particular for the 
+&amp;gt; use case of zooming in content in a legible way with responsive
+&amp;gt;  design. See comments regarding that in this issue; 
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/5623"&gt;https://github.com/w3c/csswg-drafts/issues/5623&lt;/a&gt;
+&amp;gt;
+&amp;gt;  Other signals: The CSSWG has decided to not specify this feature: 
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/5623"&gt;https://github.com/w3c/csswg-drafts/issues/5623&lt;/a&gt;
+&amp;gt;
+&amp;gt;  Ergonomics
+&amp;gt;
+&amp;gt;  See &amp;quot;other views&amp;quot; section.
+&amp;gt;
+&amp;gt;  Activation
+&amp;gt;
+&amp;gt;  N/A
+&amp;gt;
+&amp;gt;  Security
+&amp;gt;
+&amp;gt;  None
+&amp;gt;
+&amp;gt;  WebView application risks
+&amp;gt;
+&amp;gt;  Does this intent deprecate or change behavior of existing APIs, such that it 
+&amp;gt; has potentially high risk for Android WebView-based applications?
+&amp;gt;
+&amp;gt;  Maybe. WebView-based apps might use this feature.
+&amp;gt;
+&amp;gt;  Debuggability
+&amp;gt;
+&amp;gt;  Sites should be able to see that zoom no longer applies to elements in 
+&amp;gt; devtools, though there is no warning planned.
+&amp;gt;
+&amp;gt;  Will this feature be supported on all six Blink platforms (Windows, Mac, 
+&amp;gt; Linux, Chrome OS, Android, and Android WebView)?
+&amp;gt;
+&amp;gt;  Yes
+&amp;gt;
+&amp;gt;  Is this feature fully tested by web-platform-tests?
+&amp;gt;
+&amp;gt;  No
+&amp;gt;
+&amp;gt;  Flag name
+&amp;gt;
+&amp;gt;  CSSZoom
+&amp;gt;
+&amp;gt;  Requires code in //chrome?
+&amp;gt;
+&amp;gt;  False
+&amp;gt;
+&amp;gt;  Sample links
+&amp;gt;
+&amp;gt;  &lt;a  rel="nofollow" href="https://output.jsbin.com/yimuwax"&gt;https://output.jsbin.com/yimuwax&lt;/a&gt;
+&amp;gt;
+&amp;gt;  Estimated milestones
+&amp;gt;
+&amp;gt;   Shipping on desktop  114  
+&amp;gt;   DevTrial on desktop  114  
+&amp;gt;
+&amp;gt;   Shipping on Android  114  
+&amp;gt;   DevTrial on Android  114  
+&amp;gt;
+&amp;gt;   Shipping on WebView  114  
+&amp;gt;
+&amp;gt;  Anticipated spec changes
+&amp;gt;
+&amp;gt;  Open questions about a feature may be a source of future web compat or 
+&amp;gt; interop issues. Please list open issues (e.g. links to known github
+&amp;gt;  issues in the project for the feature specification) whose resolution may 
+&amp;gt; introduce web compat/interop risk (e.g., changing to naming or
+&amp;gt;  structure of the API in a non-backward-compatible way).
+&amp;gt;
+&amp;gt;  None
+&amp;gt;
+&amp;gt;  Link to entry on the Chrome Platform Status
+&amp;gt;
+&amp;gt;  &lt;a  rel="nofollow" href="https://chromestatus.com/feature/6535859207143424"&gt;https://chromestatus.com/feature/6535859207143424&lt;/a&gt;
+&amp;gt;
+&amp;gt;  Links to previous Intent discussions
+&amp;gt;
+&amp;gt;  This intent message was generated by Chrome Platform Status.
+&amp;gt;
+&amp;gt;  -- 
+&amp;gt;  You received this message because you are subscribed to the Google Groups 
+&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;  To unsubscribe from this group and stop receiving emails from it, send an 
+&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt;  To view this discussion on the web visit
+&amp;gt;  
+&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw_2izF%2BTzHvALsKSxD_uLds%2BPAD7fLtvpX4Cwe7sTwU7g%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw_2izF%2BTzHvALsKSxD_uLds%2BPAD7fLtvpX4Cwe7sTwU7g%40mail.gmail.com&lt;/a&gt;.
+&amp;gt;  
+&amp;gt;
+&amp;gt;  -- 
+&amp;gt;  You received this message because you are subscribed to the Google Groups 
+&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;  To unsubscribe from this group and stop receiving emails from it, send an 
+&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt;  To view this discussion on the web visit
+&amp;gt;  
+&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABc02_%2Br8k-q-bKWGFKxgNbSy97UKGf7VUSMnrnURBJHor-x_w%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABc02_%2Br8k-q-bKWGFKxgNbSy97UKGf7VUSMnrnURBJHor-x_w%40mail.gmail.com&lt;/a&gt;.
+
+-- 
+Morten Stenshorne, Software developer,
+Blink/Layout, Google, Oslo, Norway
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/87pm83knwv.fsf%40bud.servebeer.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/87pm83knwv.fsf%40bud.servebeer.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg05845.html</id>
         <title>Re: [blink-dev] Intent to remove: zoom CSS property</title>
         <author>
