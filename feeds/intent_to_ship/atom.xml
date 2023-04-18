@@ -5,6 +5,344 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg05859.html</id>
+        <title>Re: [blink-dev] Intent to remove: zoom CSS property</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg05859.html"/>
+        <updated>2023-04-18T15:19:05.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg05859.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+remove%5C%3A+zoom+CSS+property%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to remove: zoom CSS property&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Christoph+Nakazawa%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Christoph Nakazawa&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230418" rel="nofollow"&gt;Tue, 18 Apr 2023 08:19:05 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Hey everyone,
+
+I currently depend on the `zoom` CSS property since using `scale` in 
+conjunction with perspective transforms results in a significant color 
+washout in Chrome. My primary goal is to achieve pixel-perfect precision, 
+and I'd be more than willing to transition away from `zoom` if this issue 
+were resolved or if there is a viable alternative. It would be quite 
+concerning if zoom was removed from Blink without an equivalent solution 
+for this usecase.&lt;/pre&gt;&lt;pre&gt;
+
+Here are some examples (please download originals and compare locally):
+Original with `zoom: 3` and `transform: perspective(125px) rotateX(2deg)`:
+&lt;a  rel="nofollow" href="https://photos.app.goo.gl/GTPqE7kEotMPS7E36"&gt;https://photos.app.goo.gl/GTPqE7kEotMPS7E36&lt;/a&gt;
+
+With `transform: scale(3) perspective(125px) rotateX(2deg)`:
+&lt;a  rel="nofollow" href="https://photos.app.goo.gl/R4nruLLYKC9TEtyu5"&gt;https://photos.app.goo.gl/R4nruLLYKC9TEtyu5&lt;/a&gt;
+
+For comparison, here is what it looks like with just `transform: scale(3)` 
+and without the perspective transform which does not have this problem:
+&lt;a  rel="nofollow" href="https://photos.app.goo.gl/uwnhGEYobD448r2u6"&gt;https://photos.app.goo.gl/uwnhGEYobD448r2u6&lt;/a&gt;
+
+You'll best see the difference near outlines, like the outlines for trees, 
+mountains and streets look washed out in the version using `scale`. 
+Similarly, fonts are not upscaled correctly with scale and a perspective 
+transform either, compare &lt;a  rel="nofollow" href="https://photos.app.goo.gl/PFzzBbaJFLY4Sb7T6"&gt;https://photos.app.goo.gl/PFzzBbaJFLY4Sb7T6&lt;/a&gt; 
+(zoom) with &lt;a  rel="nofollow" href="https://photos.app.goo.gl/L82MfqmwRwpvqRHp8"&gt;https://photos.app.goo.gl/L82MfqmwRwpvqRHp8&lt;/a&gt; (scale).
+
+In my example, the canvas and DOM elements all have `image-rendering: 
+pixelated` applied to them.
+
+Thanks for considering this usecase.
+
+Christoph
+
+On Tuesday, April 18, 2023 at 6:39:38 AM UTC+9 Rick Byers wrote:
+
+&amp;gt; I'm supportive of aligning with the CSSWG and Firefox here. But this does 
+&amp;gt; seem at least a little risky to me, so I think we need to carefully 
+&amp;gt; consider the launch plan.
+&amp;gt;
+&amp;gt; First, you'll have a flag so we can kill-switch it if we see any 
+&amp;gt; non-trivial breakage in practice, right?
+&amp;gt; WebView seems particularly risky, perhaps we should separate that out and 
+&amp;gt; leave it enabled on WebView at least to start?
+&amp;gt; What about enterprise, likely to be higher risk / needing a mitigation 
+&amp;gt; strategy?
+&amp;gt; From the HA analysis, were you able to get any upper bound on the fraction 
+&amp;gt; of sites with significant (i.e. usability impacting) breakage? Eg. can we 
+&amp;gt; spot check 100 pages that hit the counter to see if any look really broken? 
+&amp;gt; Alternately the UKM analysis Yoav suggests could help. I've been planning 
+&amp;gt; on figuring out how to do a UKM usage distribution analysis - this might 
+&amp;gt; make a good candidate. 
+&amp;gt;
+&amp;gt; Rick
+&amp;gt;
+&amp;gt; On Mon, Apr 17, 2023 at 4:55 PM Morten Stenshorne &amp;lt;mste...@chromium.org&amp;gt; 
+&amp;gt; wrote:
+&amp;gt;
+&amp;gt;&amp;gt; Chris Harrelson &amp;lt;chri...@chromium.org&amp;gt; writes:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; &amp;gt; On Sun, Apr 16, 2023 at 11:45 PM Morten Stenshorne &amp;lt;
+&amp;gt;&amp;gt; mste...@chromium.org&amp;gt; wrote:
+&amp;gt;&amp;gt; &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  Chris Harrelson &amp;lt;chri...@chromium.org&amp;gt; writes:
+&amp;gt;&amp;gt; &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt; On Fri, Apr 14, 2023 at 5:09 PM PhistucK &amp;lt;phis...@gmail.com&amp;gt; wrote:
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  Any alternatives? I thought there was a section in the intent 
+&amp;gt;&amp;gt; templates for that...
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt; One alternative for the use case mentioned in my earlier email is to
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt; apply a CSS transform instead. This will magnify the subtree visually
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt; but not cause a zoom-style layout change.
+&amp;gt;&amp;gt; &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  The fact that a CSS transform doesn't affect layout, whereas 'zoom'
+&amp;gt;&amp;gt; &amp;gt;  does, means that we'll paginate (fragment) properly with 'zoom', but 
+&amp;gt;&amp;gt; not
+&amp;gt;&amp;gt; &amp;gt;  with transforms, since they are applied after fragmentation [1], 
+&amp;gt;&amp;gt; causing
+&amp;gt;&amp;gt; &amp;gt;  content to be sliced across fragmentainer boundaries, and the actual
+&amp;gt;&amp;gt; &amp;gt;  page/column breaks (as far as layout is concerned) are shifted away 
+&amp;gt;&amp;gt; from
+&amp;gt;&amp;gt; &amp;gt;  the fragmentainer edges visually, and will appear in the middle of a
+&amp;gt;&amp;gt; &amp;gt;  page/column, for instance.
+&amp;gt;&amp;gt; &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  [1] &lt;a  rel="nofollow" href="https://www.w3.org/TR/css-break-3/#transforms"&gt;https://www.w3.org/TR/css-break-3/#transforms&lt;/a&gt; (never mind the
+&amp;gt;&amp;gt; &amp;gt;  example there; it's not too relevant for this discussion, but I can
+&amp;gt;&amp;gt; &amp;gt;  provide one if you want)
+&amp;gt;&amp;gt; &amp;gt;
+&amp;gt;&amp;gt; &amp;gt; Agreed that this is a difference. If a developer wants the result to
+&amp;gt;&amp;gt; &amp;gt; flow through fragmentation, they'll have to use the second alternative
+&amp;gt;&amp;gt; &amp;gt; I suggested.
+&amp;gt;&amp;gt; &amp;gt;
+&amp;gt;&amp;gt; &amp;gt; But in terms of web compat, I don't think this situation is anything
+&amp;gt;&amp;gt; &amp;gt; to worry about (e.g. I didn't see any fragmentation when reviewing 25
+&amp;gt;&amp;gt; &amp;gt; random sites linked to from chromestatus.com).
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; But as soon as someone prints any of those sites, there'll be
+&amp;gt;&amp;gt; fragmentation.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; That said, I couldn't find anything bad on those sites, either. I was
+&amp;gt;&amp;gt; thinking that if it's actually okay to replace zoom with a scale
+&amp;gt;&amp;gt; transform, we really need authors to make such elements monolithic
+&amp;gt;&amp;gt; (because any break point inserted inside a transformed element will more
+&amp;gt;&amp;gt; likely than not end up in the middle of some page, rather than at an
+&amp;gt;&amp;gt; actual page boundary). So I changed the engine locally to treat zoom !=
+&amp;gt;&amp;gt; 1 as monolithic. But that didn't make any of sites that I tried look any
+&amp;gt;&amp;gt; worse.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt; Another alternative is for the developer to multiply the numbers in
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt; their CSS properties via calc + variables.
+&amp;gt;&amp;gt; &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  That alternative should always work, but more cumbersome for the
+&amp;gt;&amp;gt; &amp;gt;  authors, I suppose?
+&amp;gt;&amp;gt; &amp;gt;
+&amp;gt;&amp;gt; &amp;gt; Yes, a bit more cumbersome, but interoperable across all browser 
+&amp;gt;&amp;gt; engines.
+&amp;gt;&amp;gt; &amp;gt;  
+&amp;gt;&amp;gt; &amp;gt;  
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  On Sat, Apr 15, 2023 at 1:03 AM Chris Harrelson &amp;lt;
+&amp;gt;&amp;gt; chri...@chromium.org&amp;gt; wrote:
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  Contact emails
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  chri...@chromium.org
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  Specification
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  &lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/CSS/zoom"&gt;https://developer.mozilla.org/en-US/docs/Web/CSS/zoom&lt;/a&gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  Summary
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  Removes support for the non-standard &amp;quot;zoom&amp;quot; CSS property. This CSS 
+&amp;gt;&amp;gt; property causes computed lengths for an element to be multiplied by
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  the specified zoom factor. 
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  Blink component
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  Blink&amp;gt;CSS
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  TAG review
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  None
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  TAG review status
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  Not applicable
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  Risks
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  Interoperability and Compatibility
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  This feature is only available in Webkit and Blink-based browsers, 
+&amp;gt;&amp;gt; and has been present in Chrome since the beginning. Usage is a little above
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  0.5% of page loads: 
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/metrics/feature/timeline/popularity/3578"&gt;https://chromestatus.com/metrics/feature/timeline/popularity/3578&lt;/a&gt; 
+&amp;gt;&amp;gt; However, research shows that sites in HTTPArchive
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  triggering the feature mostly don't even seem to use it, and those 
+&amp;gt;&amp;gt; that do appear to always use it in a way that works fine without zoom 
+&amp;gt;&amp;gt; applied
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  - worst case, just a very minor change to the size of a tiny number 
+&amp;gt;&amp;gt; of UI elements, but the UX is basically the same. See:
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://docs.google.com/document/d/1cmbXpjAcXAht2ufi7bNKy-rbVNveqaf0UzeYg_DIMNA/edit#"&gt;https://docs.google.com/document/d/1cmbXpjAcXAht2ufi7bNKy-rbVNveqaf0UzeYg_DIMNA/edit#&lt;/a&gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  Gecko: Shipped/Shipping (Firefox never supported the feature.)
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  WebKit: No signal (
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/170"&gt;https://github.com/WebKit/standards-positions/issues/170&lt;/a&gt;)
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  Web developers: Some web developers like the feature, in particular 
+&amp;gt;&amp;gt; for the use case of zooming in content in a legible way with responsive
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  design. See comments regarding that in this issue; 
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/5623"&gt;https://github.com/w3c/csswg-drafts/issues/5623&lt;/a&gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  Other signals: The CSSWG has decided to not specify this feature: 
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/5623"&gt;https://github.com/w3c/csswg-drafts/issues/5623&lt;/a&gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  Ergonomics
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  See &amp;quot;other views&amp;quot; section.
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  Activation
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  N/A
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  Security
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  None
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  WebView application risks
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  Does this intent deprecate or change behavior of existing APIs, 
+&amp;gt;&amp;gt; such that it has potentially high risk for Android WebView-based 
+&amp;gt;&amp;gt; applications?
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  Maybe. WebView-based apps might use this feature.
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  Debuggability
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  Sites should be able to see that zoom no longer applies to elements 
+&amp;gt;&amp;gt; in devtools, though there is no warning planned.
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  Will this feature be supported on all six Blink platforms (Windows, 
+&amp;gt;&amp;gt; Mac, Linux, Chrome OS, Android, and Android WebView)?
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  Yes
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  Is this feature fully tested by web-platform-tests?
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  No
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  Flag name
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  CSSZoom
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  Requires code in //chrome?
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  False
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  Sample links
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  &lt;a  rel="nofollow" href="https://output.jsbin.com/yimuwax"&gt;https://output.jsbin.com/yimuwax&lt;/a&gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  Estimated milestones
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;   Shipping on desktop  114  
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;   DevTrial on desktop  114  
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;   Shipping on Android  114  
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;   DevTrial on Android  114  
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;   Shipping on WebView  114  
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  Anticipated spec changes
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  Open questions about a feature may be a source of future web compat 
+&amp;gt;&amp;gt; or interop issues. Please list open issues (e.g. links to known github
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  issues in the project for the feature specification) whose 
+&amp;gt;&amp;gt; resolution may introduce web compat/interop risk (e.g., changing to naming 
+&amp;gt;&amp;gt; or
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  structure of the API in a non-backward-compatible way).
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  None
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  Link to entry on the Chrome Platform Status
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  &lt;a  rel="nofollow" href="https://chromestatus.com/feature/6535859207143424"&gt;https://chromestatus.com/feature/6535859207143424&lt;/a&gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  Links to previous Intent discussions
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  This intent message was generated by Chrome Platform Status.
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  -- 
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  You received this message because you are subscribed to the Google 
+&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  To unsubscribe from this group and stop receiving emails from it, 
+&amp;gt;&amp;gt; send an email to blink-dev+...@chromium.org.
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  To view this discussion on the web visit
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt; 
+&amp;gt;&amp;gt; &amp;gt;  
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw_2izF%2BTzHvALsKSxD_uLds%2BPAD7fLtvpX4Cwe7sTwU7g%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw_2izF%2BTzHvALsKSxD_uLds%2BPAD7fLtvpX4Cwe7sTwU7g%40mail.gmail.com&lt;/a&gt;
+&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt; &amp;gt;  
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  -- 
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  You received this message because you are subscribed to the Google 
+&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  To unsubscribe from this group and stop receiving emails from it, 
+&amp;gt;&amp;gt; send an email to blink-dev+...@chromium.org.
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt;  To view this discussion on the web visit
+&amp;gt;&amp;gt; &amp;gt;  &amp;gt; 
+&amp;gt;&amp;gt; &amp;gt;  
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABc02_%2Br8k-q-bKWGFKxgNbSy97UKGf7VUSMnrnURBJHor-x_w%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABc02_%2Br8k-q-bKWGFKxgNbSy97UKGf7VUSMnrnURBJHor-x_w%40mail.gmail.com&lt;/a&gt;
+&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt; &amp;gt;  
+&amp;gt;&amp;gt; &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  -- 
+&amp;gt;&amp;gt; &amp;gt;  Morten Stenshorne, Software developer,
+&amp;gt;&amp;gt; &amp;gt;  Blink/Layout, Google, Oslo, Norway
+&amp;gt;&amp;gt; &amp;gt;
+&amp;gt;&amp;gt; &amp;gt;  -- 
+&amp;gt;&amp;gt; &amp;gt;  You received this message because you are subscribed to the Google 
+&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt; &amp;gt;  To unsubscribe from this group and stop receiving emails from it, send 
+&amp;gt;&amp;gt; an email to blink-dev+...@chromium.org.
+&amp;gt;&amp;gt; &amp;gt;  To view this discussion on the web visit 
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/87pm83knwv.fsf%40bud.servebeer.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/87pm83knwv.fsf%40bud.servebeer.com&lt;/a&gt;
+&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt; &amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; -- 
+&amp;gt;&amp;gt; Morten Stenshorne, Software developer,
+&amp;gt;&amp;gt; Blink/Layout, Google, Oslo, Norway
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; -- 
+&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups 
+&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an 
+&amp;gt;&amp;gt; email to blink-dev+...@chromium.org.
+&amp;gt;&amp;gt;
+&amp;gt; To view this discussion on the web visit 
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/87leiqkz3o.fsf%40bud.servebeer.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/87leiqkz3o.fsf%40bud.servebeer.com&lt;/a&gt;
+&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/aff83eb4-4a28-469f-a06c-5dba3e5d7cfan%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/aff83eb4-4a28-469f-a06c-5dba3e5d7cfan%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg05858.html</id>
         <title>[blink-dev] Re: [Call for feedback] Proposal to gradually skip unload events: already unreliable, top back/forward cache blocker, better alternatives available!</title>
         <author>
