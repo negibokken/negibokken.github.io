@@ -5,6 +5,163 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg05860.html</id>
+        <title>[blink-dev] Fwd: Intent to Ship: Remove WebGPU limit maxFragmentCombinedOutputResources</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg05860.html"/>
+        <updated>2023-04-18T18:32:04.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg05860.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Fwd%5C%3A+Intent+to+Ship%5C%3A+Remove+WebGPU+limit+maxFragmentCombinedOutputResources%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Fwd: Intent to Ship: Remove WebGPU limit maxFragmentCombinedOutputResources&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Kai+Ninomiya%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Kai Ninomiya&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230418" rel="nofollow"&gt;Tue, 18 Apr 2023 11:32:04 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;(sending from correct email address this time)
+Due to the nature of this removal I've elected to send this as an Intent to
+Ship because we are seeking LGTMs. Please let me know if this is
+inappropriate.
+Contact emailskain...@chromium.org&lt;/pre&gt;&lt;pre&gt;
+
+Explainer&lt;a  rel="nofollow" href="https://github.com/gpuweb/gpuweb/issues/4018"&gt;https://github.com/gpuweb/gpuweb/issues/4018&lt;/a&gt;
+
+Specification&lt;a  rel="nofollow" href="https://gpuweb.github.io/gpuweb/#limits"&gt;https://gpuweb.github.io/gpuweb/#limits&lt;/a&gt;
+
+Summary
+
+Removes the maxFragmentCombinedOutputResources limit from WebGPU, which has
+been deemed to be unnecessary. This limit applies additional restrictions
+on use of the WebGPU API, but is being removed from the standard. This
+removal is a minor breaking change.
+
+
+Blink componentBlink&amp;gt;WebGPU
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EWebGPU"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EWebGPU&lt;/a&gt;&amp;gt;
+
+TAG reviewNone
+
+TAG review statusNot applicable
+
+Risks
+
+
+Interoperability and Compatibility
+
+Minimal but not zero. There are two changes here: - Remove
+GPUSupportedFeatures.maxFragmentCombinedOutputResources. - Remove
+&amp;quot;maxFragmentCombinedOutputResources&amp;quot; as an allowed key in
+GPUDeviceDescriptor.requiredLimits. Due to the way the API is used, it's
+very unlikely that anyone is using
+GPUSupportedFeatures.maxFragmentCombinedOutputResources. It's also
+unlikely, but possible, that anyone is explicitly passing
+&amp;quot;maxFragmentCombinedOutputResources&amp;quot; in GPUDeviceDescriptor.requiredLimits.
+- adapter.requestDevice({ requiredLimits: adapter.limits }). Expected to be
+common. - adapter.requestDevice({ requiredLimits: {
+maxFragmentCombinedOutputResources: 12 }}). Expected to be rare. - Code
+using adapter.limits.maxFragmentCombinedOutputResources. Expected to be
+extremely rare. Hence the proposal is to *just remove* the
+GPUSupportedFeatures member but *deprecate then remove* the requiredLimits
+key. Finally, note WebGPU hasn't reached Chrome Stable yet (it's in M113).
+The faster we remove this the better, because fewer sites will come to rely
+on it. We could merge a deprecation back to M113, but didn't think it was
+probably worthwhile.
+
+
+*Gecko*: In development (
+&lt;a  rel="nofollow" href="https://github.com/gpuweb/gpuweb/wiki/Minutes-2023-04-12#remove-validation-of-maxfragmentcombinedoutputresources-4018"&gt;https://github.com/gpuweb/gpuweb/wiki/Minutes-2023-04-12#remove-validation-of-maxfragmentcombinedoutputresources-4018&lt;/a&gt;)
+Accepted in standardization meeting
+
+*WebKit*: In development (
+&lt;a  rel="nofollow" href="https://github.com/gpuweb/gpuweb/wiki/Minutes-2023-04-12#remove-validation-of-maxfragmentcombinedoutputresources-4018"&gt;https://github.com/gpuweb/gpuweb/wiki/Minutes-2023-04-12#remove-validation-of-maxfragmentcombinedoutputresources-4018&lt;/a&gt;)
+Accepted in standardization meeting
+
+*Web developers*: No signals
+
+*Other signals*:
+
+Ergonomics
+
+None
+
+
+Activation
+
+None
+
+
+Security
+
+None
+
+
+WebView application risks
+
+Does this intent deprecate or change behavior of existing APIs, such that
+it has potentially high risk for Android WebView-based applications?
+
+None
+
+
+Debuggability
+
+Warnings/error messages upon use of the removed limit
+
+
+Will this feature be supported on all six Blink platforms (Windows, Mac,
+Linux, Chrome OS, Android, and Android WebView)?Yes
+
+Will affect only Windows and Mac because WebGPU has not shipped yet on
+other platforms.
+
+
+Is this feature fully tested by web-platform-tests
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+?No
+
+Flag name
+
+Requires code in //chrome?False
+
+Tracking bug&lt;a  rel="nofollow" href="https://crbug.com/dawn/1756"&gt;https://crbug.com/dawn/1756&lt;/a&gt;
+
+Estimated milestones
+Shipping on desktop 114
+
+Anticipated spec changes
+
+Open questions about a feature may be a source of future web compat or
+interop issues. Please list open issues (e.g. links to known github issues
+in the project for the feature specification) whose resolution may
+introduce web compat/interop risk (e.g., changing to naming or structure of
+the API in a non-backward-compatible way).
+None
+
+Link to entry on the Chrome Platform Status
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5182904243585024"&gt;https://chromestatus.com/feature/5182904243585024&lt;/a&gt;
+
+Links to previous Intent discussions
+
+This intent message was generated by Chrome Platform Status
+&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CANxMeyBMuz0SiW8rUzZBC2n34Gfw0ggrLNwQxfzbfMuhOxArGA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CANxMeyBMuz0SiW8rUzZBC2n34Gfw0ggrLNwQxfzbfMuhOxArGA%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg05859.html</id>
         <title>Re: [blink-dev] Intent to remove: zoom CSS property</title>
         <author>
