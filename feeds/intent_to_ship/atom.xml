@@ -5,6 +5,323 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg05861.html</id>
+        <title>[blink-dev] Re: [Call for feedback] Proposal to gradually skip unload events: already unreliable, top back/forward cache blocker, better alternatives available!</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg05861.html"/>
+        <updated>2023-04-18T23:34:19.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg05861.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+%5C%5BCall+for+feedback%5C%5D+Proposal+to+gradually+skip+unload+events%5C%3A+already+unreliable%2C+top+back%5C%2Fforward+cache+blocker%2C+better+alternatives+available%5C%21%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Re: [Call for feedback] Proposal to gradually skip unload events: already unreliable, top back/forward cache blocker, better alternatives available!&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Fergal+Daly%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Fergal Daly' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230418" rel="nofollow"&gt;Tue, 18 Apr 2023 16:34:19 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;[+iclelland]
+
+On Tue, 18 Apr 2023 at 23:19, Nic Jansma &amp;lt;nicjan...@gmail.com&amp;gt; wrote:&lt;/pre&gt;&lt;pre&gt;
+
+&amp;gt; Hi Kenji,
+&amp;gt;
+&amp;gt; Will there be a way to detect whether or not unload will fire from JS?
+&amp;gt;
+
+I don't believe there is a way to query the policies that currently apply
+to a document.
+
+Ian, is there? Should there be?
+
+You could attempt to add an unload handler then use
+
+getEventListeners(window).hasOwnProperty(&amp;quot;unload&amp;quot;)
+
+to see if it worked and then remove it.
+
+That would not detect when the current origin is disallowed but some other
+origin used in a subframe is allowed, however I don't think that case is
+relevant to you since you don't have any access to that origin,
+
+
+&amp;gt; We (Akamai) have some security products that may hook into unload, *only*
+&amp;gt; if they detect that *another* script has hooked into unload.  When this
+&amp;gt; happens, we also shift some &amp;quot;cleanup&amp;quot; work to that unload handler that we
+&amp;gt; need to execute.  Otherwise the cleanup work executes in
+&amp;gt; beforeunload/pagehide/etc.
+&amp;gt;
+&amp;gt; If we have knowledge that unload *won't* execute, we would skip hooking
+&amp;gt; unload and keep our cleanup behavior earlier.  (we don't hook unload for
+&amp;gt; any other reason).
+&amp;gt;
+&amp;gt; For browsers that don't reliably execute unload today (e.g. Safari), we a
+&amp;gt; combination of UA sniffing and feature detection.   But that could be
+&amp;gt; tricky if Chrome transitions from reliably firing it to not over time.
+&amp;gt;
+
+In the Safari case, what do you do? If an unload handler was installed, you
+cannot tell whether it will fire since it depends on whether the page is
+BFCacheable. Do you add it just in case but also do stuff in pagehide?
+
+F
+
+
+&amp;gt;
+&amp;gt; On Friday, April 7, 2023 at 5:03:45 AM UTC-4 Kenji Baheux wrote:
+&amp;gt;
+&amp;gt;&amp;gt; In light of this feedback, we are landing a metric to understand how
+&amp;gt;&amp;gt; often subframe unload handlers run without main frame navigation.
+&amp;gt;&amp;gt; We'll use the data to adjust our plans accordingly.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Since it takes time to get &amp; analyze the data, *we are pushing the
+&amp;gt;&amp;gt; proposed behavior change to M115*.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *Adjustments based on feedback received thus far*
+&amp;gt;&amp;gt; We'll offer a &amp;quot;deprecation flag&amp;quot; (a flag to temporarily keep unload
+&amp;gt;&amp;gt; working as it currently does) which should be more convenient than the
+&amp;gt;&amp;gt; Extension suggestion (e.g. unmanaged devices where group policy can't be
+&amp;gt;&amp;gt; deployed).
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; We are also removing the following aspect &amp;quot;This policy will also be
+&amp;gt;&amp;gt; enabled by default if Chrome detects that it is in an enterprise /
+&amp;gt;&amp;gt; education environment, as hinted by the presence of one or more existing
+&amp;gt;&amp;gt; group policies.&amp;quot; from the proposal since we got feedback that it's better
+&amp;gt;&amp;gt; to keep group policy free of any automated logic.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; I've reached out to a few more communities and have only heard supportive
+&amp;gt;&amp;gt; comments so far (touching wood).
+&amp;gt;&amp;gt; Please continue to help us get the word out so that we can further
+&amp;gt;&amp;gt; minimize the risk of oversights.
+&amp;gt;&amp;gt; Thanks!
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; On Thursday, March 30, 2023 at 3:23:16 PM UTC+9 Fergal Daly wrote:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; [+sm...@mozilla.com]
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; I'm relaying a piece of feedback from Mozilla in this github issue
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/691#issuecomment-1484997320"&gt;https://github.com/mozilla/standards-positions/issues/691#issuecomment-1484997320&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; It's possible that pages are depending on `unload` handlers in subframes
+&amp;gt;&amp;gt;&amp;gt; for functionality even without any main frame navigation. E.g a page
+&amp;gt;&amp;gt;&amp;gt; creates a subframe with an unload handler, when the subframe is destroyed
+&amp;gt;&amp;gt;&amp;gt; or navigates to somewhere else, that unload handler does something
+&amp;gt;&amp;gt;&amp;gt; interesting, e.g. notifies the outer frame that this has happened.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; This is definitely possible. It's also pretty easy to switch to pagehide
+&amp;gt;&amp;gt;&amp;gt; for this case but we should try to understand how common this is before
+&amp;gt;&amp;gt;&amp;gt; breaking it. It should be possible to measure how often subframe unloads
+&amp;gt;&amp;gt;&amp;gt; fire when the mainframe is not navigating. This will give us an upper bound
+&amp;gt;&amp;gt;&amp;gt; on the size of the problem,
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; F
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; On Fri, 24 Mar 2023 at 10:16, Kenji Baheux &amp;lt;kenji...@chromium.org&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Tl;dr: the presence of unload event listeners is a primary blocker for
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; back/forward cache on Chromium based browsers and for Firefox on desktop
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; platforms. On the other hand, for mobile platforms, almost all browsers
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; prioritize the bfcache by not firing unload events in most cases. To
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; improve the situation, we’ve been working with lots of partners and
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; successfully reduced the use of unload event listeners over the last
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; few years. To further accelerate this migration, we propose to have Chrome
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; for desktop gradually skip unload events. If this call for feedback
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; doesn’t unearth critical showstoppers and if the proposal makes it through
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; the blink process, the behavior change could be starting from M114 at the
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; earliest (note: beforeunload will remain unchanged). We’d like
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; feedback on this plan, in particular use cases that don’t yet have a viable
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; alternative.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Hi,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; This is a call for feedback about a tentative plan regarding unload
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; events. Our goal is to identify use cases for which there isn’t any good
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; alternative to unload events, and would therefore prevent this plan
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; from moving forward.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; The unload event is extremely unreliable. It is ignored in most cases
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; by all mobile browsers with the exception of Firefox on Android.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Furthermore, in Safari, the unload event is ignored on both desktop &amp;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; mobile platforms. In addition to being unreliable, the presence of
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; unload event listeners on a page is a major back/forward cache blocker
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; on desktop for Chromium browsers and Firefox. Based on Chrome stats, we
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; believe that unload event listeners reduce bfcache’s ability to
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; deliver instant back/forward navigation by ~18 percentage points 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; (hit-rate).
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Over the course of 2021~2022, we ran a large collaborative effort to
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; reduce the usage of unload event listeners, in particular across
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; popular third parties. We’ve seen great progress with many sites and third
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; parties having already completed their migration.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Given how unreliable unload events are, the potential user experience
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; upsides, and the great progress achieved by the ecosystem on switching away
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; from unload, we’d like to help accelerate the migration by gradually
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; skipping unload events on Chrome for desktop.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; 👉 Please note that beforeunload will remain unchanged as this event
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; doesn’t have reliability issues and doesn’t block BFCache. 👈
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; We are interested in hearing your feedback about this plan. In
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; particular, please let us know if you are aware of unload event
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; listener use cases that lack a viable alternative. Your feedback will
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; inform the proposal (e.g. behavior and timeline).
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; If this call for feedback doesn’t unearth any critical showstoppers,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; and if the proposal makes it through the blink process, we’d start the plan
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; from M114 at the earliest by having a small likelihood of ignoring unload
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; events while providing access to fine-tuning control (e.g. 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Permission-Policy:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; unload API &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5760325231050752"&gt;https://chromestatus.com/feature/5760325231050752&lt;/a&gt;&amp;gt;) and
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Enterprise/Edu carve outs. From there, we’ll continue to monitor the
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; community’s feedback and gradually increase the likelihood over time. We
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; are hoping to make significant progress by the end of this year, and hope
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; to reach a satisfying state sometime in 2024.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; See the sections below for more context, our guidance for a post-unload
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; web, an API to exert control over unload event listeners, and our
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; approach to ease-in enterprise/edu products into this change.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Background about bfcache
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Back/forward cache &amp;lt;&lt;a  rel="nofollow" href="https://web.dev/bfcache/"&gt;https://web.dev/bfcache/&lt;/a&gt;&amp;gt; is a browser
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; optimization that enables instant back and forward navigation. It’s an
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; in-memory cache that stores a complete snapshot of a page (including the
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; JavaScript heap) as the user is navigating away. With the entire page in
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; memory, the browser can quickly and easily restore it
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://www.youtube.com/watch?v=cuPsdRckkF0"&gt;https://www.youtube.com/watch?v=cuPsdRckkF0&lt;/a&gt;&amp;gt; if the user decides to
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; return.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; The multiple behaviors of bfcache with unload events
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Unfortunately, not all pages can be stored in bfcache. For instance,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; using certain APIs prevent pages from entering the bfcache. In particular,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; the presence of unload listeners on a page is the most common bfcache
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; blocker.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; The use of unload listeners is highly discouraged because it’s a
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; fundamentally unreliable event:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    -
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    On desktop, Chrome and Firefox are currently firing unload events
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    at the cost of the user experience, while Safari will attempt to cache 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; some
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    pages with an unload event listener (skipping the event in doing
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    so).
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    -
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    On mobile, Chrome and Safari will attempt to cache pages with an
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    unload event listener. On the other hand, Firefox treats pages that
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    use unload event listeners as ineligible for the bfcache, except on
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    iOS, which requires all browsers to use the WebKit rendering engine 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; (i.e.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    all browsers inherently behave like Safari on this platform).
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Alternatives to unload event listener
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; The recommended alternatives to unload event listeners are to:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    -
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    Use the pagehide event listener
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://web.dev/bfcache/#only-add-beforeunload-listeners-conditionally:~:text=Instead%20of%20using%20the%20unload%20event%2C%20use%20the%20pagehide%20event.%20The%20pagehide%20event%20fires%20in%20all%20cases%20where%20the%20unload%20event%20currently%20fires%2C%20and%20it%20also%20fires%20when%20a%20page%20is%20put%20in%20the%20bfcache"&gt;https://web.dev/bfcache/#only-add-beforeunload-listeners-conditionally:~:text=Instead%20of%20using%20the%20unload%20event%2C%20use%20the%20pagehide%20event.%20The%20pagehide%20event%20fires%20in%20all%20cases%20where%20the%20unload%20event%20currently%20fires%2C%20and%20it%20also%20fires%20when%20a%20page%20is%20put%20in%20the%20bfcache&lt;/a&gt;.&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    (note: despite the name, this serves a different purpose than the page
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    visibility API).
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    -
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    For the cases where user interaction would be useful, conditionally
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    use the beforeunload event listener
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    &amp;lt;&lt;a  rel="nofollow" href="https://web.dev/bfcache/#only-add-beforeunload-listeners-conditionally"&gt;https://web.dev/bfcache/#only-add-beforeunload-listeners-conditionally&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    .
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    -
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    Use sendBeacon
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    &amp;lt;&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/API/Navigator/sendBeacon"&gt;https://developer.mozilla.org/en-US/docs/Web/API/Navigator/sendBeacon&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    or fetch keepalive
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/API/fetch#:~:text=keepalive,Navigator.sendBeacon"&gt;https://developer.mozilla.org/en-US/docs/Web/API/fetch#:~:text=keepalive,Navigator.sendBeacon&lt;/a&gt;()%20API.&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    to send analytics data.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; In addition, you may be interested in the origin trial
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.chrome.com/origintrials/#/view_trial/1581889369113886721"&gt;https://developer.chrome.com/origintrials/#/view_trial/1581889369113886721&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; for the Pending Beacon API
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5690553554436096"&gt;https://chromestatus.com/feature/5690553554436096&lt;/a&gt;&amp;gt;. This
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; bfcache-friendly API allows sending a bundle of data to a backend server,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; ideally at the ‘end’ of a user’s visit to a page. From our observations, we
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; believe this is the most common use case for unload event listeners.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Compared to the methods highlighted above, this API has better ergonomics.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Test driving a web free of unload event listeners!
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; To understand how the plan might play out, please consider joining the 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; origin
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; trial
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.chrome.com/origintrials/#/view_trial/1012184016251518977"&gt;https://developer.chrome.com/origintrials/#/view_trial/1012184016251518977&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; for the Permissions-Policy: unload API
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5760325231050752"&gt;https://chromestatus.com/feature/5760325231050752&lt;/a&gt;&amp;gt;. This API allows
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; any site to:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    -
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    Exert control over unload event listeners (e.g. completely disallow
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    them, or selectively allow them for specific origins).
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    -
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    Report the use of unload event listeners to an endpoint for
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    assessment purposes.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Chrome for Enterprise &amp; Education
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; We also acknowledge that providers of enterprise &amp; education solutions
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; may not always have the flexibility to quickly update existing deployments.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; To minimize concerns, we’ll offer a group policy to keep the current
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; behavior for unload events. This policy will also be enabled by
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; default if Chrome detects that it is in an enterprise / education
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; environment, as hinted by the presence of one or more existing group
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; policies. For unmanaged Enterprise/Edu environments, a simple Chrome
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; extension could inject the relevant calls to the Permission-Policy:unload
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; API for temporarily opting-out the relevant origin(s).
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAozHL%3DuBSruKpPhcP84iojEJ8Pqe4O7fn9OZadESBwXLT%2BMaw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAozHL%3DuBSruKpPhcP84iojEJ8Pqe4O7fn9OZadESBwXLT%2BMaw%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg05860.html</id>
         <title>[blink-dev] Fwd: Intent to Ship: Remove WebGPU limit maxFragmentCombinedOutputResources</title>
         <author>
