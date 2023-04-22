@@ -5,6 +5,266 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg05929.html</id>
+        <title>[blink-dev] Intent to Prototype: Disabling UA transitions on same-document navigations</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg05929.html"/>
+        <updated>2023-04-21T23:55:01.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg05929.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Prototype%5C%3A+Disabling+UA+transitions+on+same%5C-document+navigations%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Prototype: Disabling UA transitions on same-document navigations&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Khushal+Sagar%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Khushal Sagar' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230421" rel="nofollow"&gt;Fri, 21 Apr 2023 16:55:01 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Contact emailskhushalsa...@google.com, liuwill...@google.com
+
+Explainer
+&lt;a  rel="nofollow" href="https://github.com/WICG/view-transitions/blob/main/default-ua-transitions.md"&gt;https://github.com/WICG/view-transitions/blob/main/default-ua-transitions.md&lt;/a&gt;&lt;/pre&gt;&lt;pre&gt;
+
+SpecificationNone
+
+Summary
+
+Smooth visual transitions as users navigate on the web can lower cognitive
+load by helping users stay in context. It can also provide a visual cue
+about the destination before initiating the navigation. Both site authors
+and user-agents (UAs) add visual transitions to their navigations for these
+use-cases. However, the user experience is bad if both the site author and
+the UA add these transitions: the transitions may conflict and cause
+confusion for the user. The goal of this proposal is to avoid such cases to
+ensure only one visual transition is executed at a time.
+
+Blink componentBlink&amp;gt;DefaultNavigationTransitions
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EDefaultNavigationTransitions"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EDefaultNavigationTransitions&lt;/a&gt;&amp;gt;
+
+Initial public proposal&lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/8747"&gt;https://github.com/w3c/csswg-drafts/issues/8747&lt;/a&gt;
+
+TAG review&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/835"&gt;https://github.com/w3ctag/design-reviews/issues/835&lt;/a&gt;
+
+TAG review statusPending
+
+Risks
+
+Interoperability and Compatibility
+
+The main interop risk with this proposal is whether UA transitions should
+be allowed by default or not. Allowing them by default has a compat risk of
+breaking sites which ship with custom transitions already. We could try to
+assess the impact with heuristics like &amp;quot;detect whether the Document is
+constantly animating for x seconds after firing popstate/navigate event&amp;quot;
+but it's likely to have false positives. Also note that Safari/Chrome on
+iOS already ship with UA transitions by default.
+
+*Gecko*: No signal (
+&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/784"&gt;https://github.com/mozilla/standards-positions/issues/784&lt;/a&gt;)
+
+*WebKit*: No signal (
+&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/177"&gt;https://github.com/WebKit/standards-positions/issues/177&lt;/a&gt;)
+
+*Web developers*: No signals
+
+*Other signals*:
+
+Ergonomics
+
+If an author chooses to disable UA transitions for a subset of navigations,
+they will need to use the API proposed here
+&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/UJMYZXoSQ4A"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/UJMYZXoSQ4A&lt;/a&gt;&amp;gt; to
+detect whether a UA transition was executed for a navigation.
+
+Security
+
+The API lets the site author selectively disable UA transitions based on
+whether the navigation was predictive (swipe) vs atomic (button click). The
+author can then detect whether a transition occurred using the API proposed
+in &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5204831477694464"&gt;https://chromestatus.com/feature/5204831477694464&lt;/a&gt;. This effectively
+means site authors can detect whether the navigation was swipe or atomic;
+and in turn whether the device supports a category of navigations. However,
+this information can already be derived using the UA string.
+
+WebView application risks
+
+Does this intent deprecate or change behavior of existing APIs, such that
+it has potentially high risk for Android WebView-based applications?
+
+None
+
+Debuggability
+Is this feature fully tested by web-platform-tests
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+?No
+
+Since the feature depends on whether the UA performs a visual transition on
+navigations (as a part of browser UX), it's difficult to write an
+interoperable WPT for this. The exact gesture which causes a UA transition
+is a browser's internal detail.
+
+Flag name
+Requires code in //chrome?False
+
+Estimated milestones
+
+No milestones specified
+
+Link to entry on the Chrome Platform Status
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5206595333521408"&gt;https://chromestatus.com/feature/5206595333521408&lt;/a&gt;
+
+Links to previous Intent discussions
+
+This intent message was generated by Chrome Platform Status
+&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMLuWUyd%2B5sjatyU2BiqPD6RZXTemvn2o23BkbSkkvZu%3DpYhCw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMLuWUyd%2B5sjatyU2BiqPD6RZXTemvn2o23BkbSkkvZu%3DpYhCw%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg05928.html</id>
+        <title>[blink-dev] Intent to Prototype: Detect UA Transitions on same-document Navigations</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg05928.html"/>
+        <updated>2023-04-21T23:50:56.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg05928.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Prototype%5C%3A+Detect+UA+Transitions+on+same%5C-document+Navigations%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Prototype: Detect UA Transitions on same-document Navigations&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Khushal+Sagar%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Khushal Sagar' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230421" rel="nofollow"&gt;Fri, 21 Apr 2023 16:50:56 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Contact emailskhushalsa...@google.com, liuwill...@google.com,
+hvanops...@google.com&lt;/pre&gt;&lt;pre&gt;
+
+Explainer
+&lt;a  rel="nofollow" href="https://github.com/WICG/view-transitions/blob/main/default-ua-transitions.md"&gt;https://github.com/WICG/view-transitions/blob/main/default-ua-transitions.md&lt;/a&gt;
+
+SpecificationNone
+
+Summary
+
+Smooth visual transitions as users navigate on the web can lower cognitive
+load by helping users stay in context. However, the user experience is bad
+if both the site author and the UA add these transitions: the transitions
+may conflict and cause confusion for the user. This API avoids such cases
+to ensure only one visual transition is executed at a time. The API adds a
+boolean on `PopStateEvent` and `NavigateEvent` to indicate whether the UA
+has executed a visual transition for this navigation. Authors can use this
+to skip their custom transition.
+
+Blink componentBlink&amp;gt;DefaultNavigationTransitions
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EDefaultNavigationTransitions"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EDefaultNavigationTransitions&lt;/a&gt;&amp;gt;
+
+Motivation
+
+Smooth visual transitions as users navigate on the web can lower cognitive
+load by helping users stay in context. It can also provide a visual cue
+about the destination before initiating the navigation. Both site authors
+and user-agents (UAs) add visual transitions to their navigations for these
+use-cases. However, the user experience is bad if both the site author and
+the UA add these transitions: the transitions may conflict and cause
+confusion for the user. The goal of this proposal is to avoid such cases to
+ensure only one visual transition is executed at a time.
+
+Initial public proposal&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/8782"&gt;https://github.com/whatwg/html/issues/8782&lt;/a&gt;
+
+TAG review&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/834"&gt;https://github.com/w3ctag/design-reviews/issues/834&lt;/a&gt;
+
+TAG review statusPending
+
+Risks
+
+
+Interoperability and Compatibility
+
+This feature is a progressive enhancement. In the absence of the feature,
+the author has to either conservatively assume there is a UA transition
+(and not do a custom transition) or risk visual glitches from double
+transition. As such there is no interop risk.
+
+*Gecko*: No signal (
+&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/783"&gt;https://github.com/mozilla/standards-positions/issues/783&lt;/a&gt;)
+
+*WebKit*: No signal (
+&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/176"&gt;https://github.com/WebKit/standards-positions/issues/176&lt;/a&gt;)
+
+*Web developers*: Strongly positive Issues like this:
+&lt;a  rel="nofollow" href="https://stackoverflow.com/questions/66867737/iphone-safari-detect-swipe-navigation"&gt;https://stackoverflow.com/questions/66867737/iphone-safari-detect-swipe-navigation&lt;/a&gt;.
+This is likely to happen more as authors can now use ViewTransitions to add
+custom transitions in SPAs.
+
+*Other signals*:
+
+Activation
+
+None
+
+Security
+
+None. The API is limited to same-document navigations.
+
+WebView application risks
+
+Does this intent deprecate or change behavior of existing APIs, such that
+it has potentially high risk for Android WebView-based applications?
+
+None
+
+Debuggability
+Is this feature fully tested by web-platform-tests
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+?No
+
+Since the feature depends on whether the UA performs a visual transition on
+navigations (as a part of browser UX), it's difficult to write an
+interoperable WPT for this. The exact gesture which causes a UA transition
+is a browser's internal detail.
+
+Flag name
+Requires code in //chrome?False
+
+Estimated milestones
+
+No milestones specified
+
+Link to entry on the Chrome Platform Status
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5204831477694464"&gt;https://chromestatus.com/feature/5204831477694464&lt;/a&gt;
+
+Links to previous Intent discussions
+
+This intent message was generated by Chrome Platform Status
+&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMLuWUywo8jmzXBYViNwKjOvQNwvweP%2BZRZLZ_XnOaczZ%2BjJyw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMLuWUywo8jmzXBYViNwKjOvQNwvweP%2BZRZLZ_XnOaczZ%2BjJyw%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg05927.html</id>
         <title>Re: [blink-dev] Intent to Deprecate and Remove: data: URL in SVGUseElement</title>
         <author>
@@ -18463,497 +18723,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CANxMeyDtoHUqZvn%2B1E3-N_CoVGsSfhLS2p1%2B0c21HvH8xmxMZw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CANxMeyDtoHUqZvn%2B1E3-N_CoVGsSfhLS2p1%2B0c21HvH8xmxMZw%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg05879.html</id>
-        <title>Re: [blink-dev] Intent to Prototype &amp; Ship: Expanded Wildcards in Permissions Policy Origins</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg05879.html"/>
-        <updated>2023-04-19T16:06:03.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg05879.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Prototype+%5C%26+Ship%5C%3A+Expanded+Wildcards+in+Permissions+Policy+Origins%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Prototype &amp; Ship: Expanded Wildcards in Permissions Policy Origins&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Rick+Byers%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Rick Byers&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230419" rel="nofollow"&gt;Wed, 19 Apr 2023 09:06:03 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Hi Ari,
-Given the discussion on your other intent
-&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/f28WWMD8HVE/m/xCrQN-8hAgAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/f28WWMD8HVE/m/xCrQN-8hAgAJ&lt;/a&gt;&amp;gt;,
-can you try to get spec PRs and WPTs landed for this before shipping this
-too?&lt;/pre&gt;&lt;pre&gt;
-
-Thanks,
-   Rick
-
-On Wed, Apr 12, 2023 at 12:06 PM Ari Chivukula &amp;lt;aric...@chromium.org&amp;gt; wrote:
-
-&amp;gt; I don't have a draft of the CSP or Permissions Policy spec changes yet.
-&amp;gt; There won't be any breaking changes for either needed, the change is to a
-&amp;gt; superset of supported matching options for Permissions Policy.
-&amp;gt;
-&amp;gt; ~ Ari Chivukula (Their/There/They're)
-&amp;gt;
-&amp;gt;
-&amp;gt; On Wed, Apr 5, 2023 at 11:22 AM Alex Russell &amp;lt;slightly...@chromium.org&amp;gt;
-&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; I'm not sure I understand this response. Do you have a draft change to
-&amp;gt;&amp;gt; the CSP spec posted someplace? Will that update be a breaking change to the
-&amp;gt;&amp;gt; wildcard support being requested for launch in this thread?
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Best,
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Alex
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Wednesday, April 5, 2023 at 6:29:27 AM UTC-7 Ari Chivukula wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; The PR needs to be updated to depend on CSP logic but I don't want to
-&amp;gt;&amp;gt;&amp;gt; make that change until this expansion of wildcard support is approved and
-&amp;gt;&amp;gt;&amp;gt; launched with some WPTs. It'll require making changes to the CSP spec
-&amp;gt;&amp;gt;&amp;gt; itself and it all feels a bit too speculative until the launch in chrome is
-&amp;gt;&amp;gt;&amp;gt; unblocked.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; On Wed, Apr 5, 2023, 4:57 AM Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Tue, Mar 14, 2023 at 3:34 PM Ari Chivukula &amp;lt;aric...@chromium.org&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Contact emails
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; aric...@chromium.org, miketa...@chromium.org, iclell...@chromium.org
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Prior Work
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Wildcards in Permissions Policy Origins
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5170361717489664"&gt;https://chromestatus.com/feature/5170361717489664&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Specification
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/webappsec-permissions-policy/pull/482"&gt;https://github.com/w3c/webappsec-permissions-policy/pull/482&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Any blockers for the PR to land?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Background
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; In M108 Chrome added support for wildcards in permissions policy
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; structured like SCHEME://*.HOST:PORT (e.g., &lt;a  rel="nofollow" href="https://*.foo.com/"&gt;https://*.foo.com/&lt;/a&gt;) where
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; a valid Origin could be constructed from SCHEME://HOST:PORT (e.g.,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://foo.com/"&gt;https://foo.com/&lt;/a&gt;). This required that the HOST was at least eTLD+1 (a
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; registrable domain). This meant that &lt;a  rel="nofollow" href="https://*.bar.foo.com/"&gt;https://*.bar.foo.com/&lt;/a&gt; works but
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://*.com/"&gt;https://*.com/&lt;/a&gt; won’t (if you wanted to allow all domains to use the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; feature, you had to delegate to *). Wildcards in the scheme and port
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; section were unsupported and &lt;a  rel="nofollow" href="https://*.foo.com/"&gt;https://*.foo.com/&lt;/a&gt; did not delegate to
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://foo.com/"&gt;https://foo.com/&lt;/a&gt;.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Before, a permissions policy might need to look like:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; permissions-policy: ch-ua-platform-version=(self &amp;quot;&lt;a  rel="nofollow" href="https://foo.com&amp;quot"&gt;https://foo.com&amp;quot&lt;/a&gt;; &amp;quot;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://cdn1.foo.com&amp;quot"&gt;https://cdn1.foo.com&amp;quot&lt;/a&gt;; &amp;quot;&lt;a  rel="nofollow" href="https://cdn2.foo.com&amp;quot"&gt;https://cdn2.foo.com&amp;quot&lt;/a&gt;;)
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; In M108 and later, it could look like:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; permissions-policy: ch-ua-platform-version=(self &amp;quot;&lt;a  rel="nofollow" href="https://foo.com&amp;quot"&gt;https://foo.com&amp;quot&lt;/a&gt;;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;quot;&lt;a  rel="nofollow" href="https://*.foo.com&amp;quot"&gt;https://*.foo.com&amp;quot&lt;/a&gt;;)
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Summary
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Subdomain wildcards in allowlists provided some valuable flexibility,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; but differed from existing wildcard parsers and required novel code and
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; spec work. This intent will reduce that overhead by reusing parts of the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; existing Content Security Policy spec
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://www.w3.org/TR/CSP/#framework-directive-source-list"&gt;https://www.w3.org/TR/CSP/#framework-directive-source-list&lt;/a&gt;&amp;gt; and
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; permitting ‘scheme + wildcard domain’ and ‘wildcard port’ in the 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; allowlist.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Specifically, this intent would adopt the definition of host-source
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://www.w3.org/TR/CSP/#grammardef-host-source"&gt;https://www.w3.org/TR/CSP/#grammardef-host-source&lt;/a&gt;&amp;gt; and scheme-source
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://www.w3.org/TR/CSP/#grammardef-scheme-source"&gt;https://www.w3.org/TR/CSP/#grammardef-scheme-source&lt;/a&gt;&amp;gt; instead of
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; origin &amp;lt;&lt;a  rel="nofollow" href="https://www.w3.org/TR/permissions-policy/#allowlists"&gt;https://www.w3.org/TR/permissions-policy/#allowlists&lt;/a&gt;&amp;gt; in the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Allowlist definition while requiring that the path-part
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://www.w3.org/TR/CSP/#grammardef-path-part"&gt;https://www.w3.org/TR/CSP/#grammardef-path-part&lt;/a&gt;&amp;gt; is empty (as
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Permissions Policies apply to matching origins). This would change three
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; things from the prior wildcard implementation (all of which expand the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; range of allowed wildcards and none of which add new restrictions):
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (1) Removing the eTLD+1 requirement for subdomain wildcards
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Previously, you could not have a subdomain wildcard like “&lt;a  rel="nofollow" href="https://*.com”"&gt;https://*.com”&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; but could have one like “&lt;a  rel="nofollow" href="https://*.example.com”"&gt;https://*.example.com”&lt;/a&gt;.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Now, you can have subdomain wildcards both like “&lt;a  rel="nofollow" href="https://*.com”"&gt;https://*.com”&lt;/a&gt; and
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; “&lt;a  rel="nofollow" href="https://*.example.com”"&gt;https://*.example.com”&lt;/a&gt;.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (2) Allowing scheme restrictions on wildcard domains.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Previously, you could allow “*” but not restrict to a specific scheme
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; like “&lt;a  rel="nofollow" href="https://*”"&gt;https://*”&lt;/a&gt; or “https:”.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Now, you can still allow “*” but have the option of delegating to just
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; a specific scheme like “&lt;a  rel="nofollow" href="https://*”"&gt;https://*”&lt;/a&gt; or “https:” (the behavior of these
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; is identical).
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (3) Allowing port wildcards.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Previously you could delegate to the default https port like “
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://example.com”"&gt;https://example.com”&lt;/a&gt; or “&lt;a  rel="nofollow" href="https://example.com:443”"&gt;https://example.com:443”&lt;/a&gt; (the behavior of
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; these is identical), but there was no way to explicitly delegate to all
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ports like “&lt;a  rel="nofollow" href="https://example.com:*”"&gt;https://example.com:*”&lt;/a&gt;.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Now, you can still delegate to “&lt;a  rel="nofollow" href="https://example.com”"&gt;https://example.com”&lt;/a&gt; or
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; “&lt;a  rel="nofollow" href="https://example.com:443”"&gt;https://example.com:443”&lt;/a&gt; but delegation is also permitted to a
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wildcard port like “&lt;a  rel="nofollow" href="https://example.com:*”"&gt;https://example.com:*”&lt;/a&gt;.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink component
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink&amp;gt;PermissionsAPI
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EPermissionsAPI"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EPermissionsAPI&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Motivation
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; The Permissions Policy specification
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://w3c.github.io/webappsec-permissions-policy/"&gt;https://w3c.github.io/webappsec-permissions-policy/&lt;/a&gt;&amp;gt; “defines a
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; mechanism that allows developers to selectively enable and disable use of
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; various browser features and APIs.” One capability of this mechanism 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; allows
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; features to be enabled only on explicitly enumerated origins (e.g.,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://foo.com/"&gt;https://foo.com/&lt;/a&gt;). This mechanism is not flexible enough for the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; design of some CDNs, which deliver content via an origin that might be
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; hosted on one of several hundred possible subdomains. Rather than 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; designing
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; a novel wildcard system we should reuse an existing one
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://www.w3.org/TR/CSP/#framework-directive-source-list"&gt;https://www.w3.org/TR/CSP/#framework-directive-source-list&lt;/a&gt;&amp;gt; to
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; reduce developer overhead and promote code/spec component reuse.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; There has not been a prior discussion on specifically which new types
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; of wildcards should be added when we switched to using the CSP parser, so
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; that discussion should be resolved in the approval of this intent and in
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the interoperability/TAG issues below.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/765"&gt;https://github.com/w3ctag/design-reviews/issues/765&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Compatibility
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Depending on their user base, sites may want to entertain a transition
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; period for older Chromium clients where they enumerate all desired origins
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; for some versions and use wildcards for others.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Interoperability
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; We would be the first to implement if approved.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Gecko: &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/760"&gt;https://github.com/mozilla/standards-positions/issues/760&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; WebKit: &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/51"&gt;https://github.com/WebKit/standards-positions/issues/51&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Not necessarily a blocker to shipping IMO, but Anne raised a few
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; reasonably-looking issues on CSP related to this feature's integration with
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; it.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Debuggability
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Future work might flag syntax errors in the Issues tab
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1lDEvj8tMeuvUs1HTTqL-44YiI-7ljeQkusM_WhUfIeE/edit"&gt;https://docs.google.com/document/d/1lDEvj8tMeuvUs1HTTqL-44YiI-7ljeQkusM_WhUfIeE/edit&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; No, but it will be.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Tracking bug
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://crbug.com/1418009"&gt;https://crbug.com/1418009&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5170361717489664"&gt;https://chromestatus.com/feature/5170361717489664&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+unsubscr...@chromium.org.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5DJRu2--NqZdPKjeF9HRc%3DcQaNFxCpYb%3DUvfsmperXPTFg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5DJRu2--NqZdPKjeF9HRc%3DcQaNFxCpYb%3DUvfsmperXPTFg%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5DJRu2--NqZdPKjeF9HRc%3DcQaNFxCpYb%3DUvfsmperXPTFg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5DJRu2--NqZdPKjeF9HRc%3DcQaNFxCpYb%3DUvfsmperXPTFg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
-&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt; To view this discussion on the web visit
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5DJ%2Bhr8chAOPiTvaSwYzJF%2B2A1ZiVG7CUR3scv1DgEreag%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5DJ%2Bhr8chAOPiTvaSwYzJF%2B2A1ZiVG7CUR3scv1DgEreag%40mail.gmail.com&lt;/a&gt;
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5DJ%2Bhr8chAOPiTvaSwYzJF%2B2A1ZiVG7CUR3scv1DgEreag%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5DJ%2Bhr8chAOPiTvaSwYzJF%2B2A1ZiVG7CUR3scv1DgEreag%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt; .
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY_DK1NSVLrA4gMTFHmgiDVUV6iU4WKu2ZbZdicaHbhEug%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY_DK1NSVLrA4gMTFHmgiDVUV6iU4WKu2ZbZdicaHbhEug%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg05878.html</id>
-        <title>Re: [blink-dev] Intent to Ship : Content-type in Resource Timing</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg05878.html"/>
-        <updated>2023-04-19T16:03:50.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg05878.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship+%5C%3A+Content%5C-type+in+Resource+Timing%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship : Content-type in Resource Timing&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Rick+Byers%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Rick Byers&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230419" rel="nofollow"&gt;Wed, 19 Apr 2023 09:03:50 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Hi Abin (or Yoav?),
-What's blocking this spec PR from landing? As discussed here
-&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/f28WWMD8HVE/m/xCrQN-8hAgAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/f28WWMD8HVE/m/xCrQN-8hAgAJ&lt;/a&gt;&amp;gt;,
-our standard process is to do what we can to get spec changes fully landed
-if possible.&lt;/pre&gt;&lt;pre&gt;
-
-Thanks,
-   Rick
-
-On Wed, Apr 12, 2023 at 11:25 AM Daniel Bratell &amp;lt;bratel...@gmail.com&amp;gt; wrote:
-
-&amp;gt; /LGTM2
-&amp;gt;
-&amp;gt; /Daniel
-&amp;gt; On 2023-04-12 00:54, Mike Taylor wrote:
-&amp;gt;
-&amp;gt; LGTM1
-&amp;gt; On 4/11/23 5:27 AM, Yoav Weiss wrote:
-&amp;gt;
-&amp;gt; Thanks for working on this Abin and for pushing this over the line!! (I'm
-&amp;gt; recusing myself as an API owner, as I was involved in that work)
-&amp;gt;
-&amp;gt; On Sat, Apr 8, 2023 at 1:11 AM Abin Paul &amp;lt;abin.pa...@gmail.com&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; Contact emails
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; abin.pa...@gmail.com
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Explainer
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/abinpaul1/resource-timing/blob/explainer-content-type/Explainers/Content-Type.md"&gt;https://github.com/abinpaul1/resource-timing/blob/explainer-content-type/Explainers/Content-Type.md&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Specification
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Resource Timing PR : &lt;a  rel="nofollow" href="https://github.com/w3c/resource-timing/pull/341"&gt;https://github.com/w3c/resource-timing/pull/341&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Fetch PR : &lt;a  rel="nofollow" href="https://github.com/whatwg/fetch/pull/1481"&gt;https://github.com/whatwg/fetch/pull/1481&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Summary
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Adds a field to PerformanceResourceTiming that holds a string
-&amp;gt;&amp;gt; corresponding to the Content-type header of the fetched resource when the
-&amp;gt;&amp;gt; resource was fetched.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Blink component
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Blink&amp;gt;PerformanceAPIs&amp;gt;ResourceTiming
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EPerformanceAPIs%3EResourceTiming"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EPerformanceAPIs%3EResourceTiming&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; TAG review
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/785"&gt;https://github.com/w3ctag/design-reviews/issues/785&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; TAG review status
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Issues addressed
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Risks
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Interoperability and Compatibility
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Gecko: Positive (
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/705"&gt;https://github.com/mozilla/standards-positions/issues/705&lt;/a&gt;)
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; WebKit: No signal (
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/88"&gt;https://github.com/WebKit/standards-positions/issues/88&lt;/a&gt;)
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Web developers:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Developer interest for the feature :
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/resource-timing/issues/203"&gt;https://github.com/w3c/resource-timing/issues/203&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Other signals:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Ergonomics
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; No
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Activation
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; No risks
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Security
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; No risks
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; WebView application risks
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Does this intent deprecate or change behaviour of existing APIs, such
-&amp;gt;&amp;gt; that it has potentially high risk for Android WebView-based applications?
-&amp;gt;&amp;gt; No
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Debuggability
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; The new attribute shows up in Devtools. No implementation changes are
-&amp;gt;&amp;gt; required.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows, Mac,
-&amp;gt;&amp;gt; Linux, Chrome OS, Android, and Android WebView)?
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Yes
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; ?
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Yes
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/resource-timing/content-type.html?label=master&amp;label=experimental&amp;aligned"&gt;https://wpt.fyi/results/resource-timing/content-type.html?label=master&amp;label=experimental&amp;aligned&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/resource-timing/content-type-parsing.html?label=master&amp;label=experimental&amp;aligned"&gt;https://wpt.fyi/results/resource-timing/content-type-parsing.html?label=master&amp;label=experimental&amp;aligned&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Flag name
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; #enable-experimental-web-platform-features
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Requires code in //chrome?
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; False
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Tracking bug
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1366706"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1366706&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Non-OSS dependencies
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Does the feature depend on any code or APIs outside the Chromium open
-&amp;gt;&amp;gt; source repository and its open-source dependencies to function?
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; No
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Estimated milestones
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Chrome for desktop 115
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Chrome for Android 115
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Android Webview 115
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Anticipated spec changes
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; No ongoing discussion that could lead to future changes
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5156068351541248"&gt;https://chromestatus.com/feature/5156068351541248&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Links to previous Intent discussions
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Intent to prototype:
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/Dk2uL_gXpZc/m/OhY2ZomeAwAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/Dk2uL_gXpZc/m/OhY2ZomeAwAJ&lt;/a&gt;
-&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt;&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt;&amp;gt; To view this discussion on the web visit
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAM2ZH3c1k1fLSb-GmSPEs9MsZDY-O3TaGn9PuvT7DL2NATWFPQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAM2ZH3c1k1fLSb-GmSPEs9MsZDY-O3TaGn9PuvT7DL2NATWFPQ%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAM2ZH3c1k1fLSb-GmSPEs9MsZDY-O3TaGn9PuvT7DL2NATWFPQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAM2ZH3c1k1fLSb-GmSPEs9MsZDY-O3TaGn9PuvT7DL2NATWFPQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;
-&amp;gt; --
-&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt; To view this discussion on the web visit
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfUjfO88eOh3k1xdp1dSJKDdx%3DA2-6_qQD1KoowbfkGZmQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfUjfO88eOh3k1xdp1dSJKDdx%3DA2-6_qQD1KoowbfkGZmQ%40mail.gmail.com&lt;/a&gt;
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfUjfO88eOh3k1xdp1dSJKDdx%3DA2-6_qQD1KoowbfkGZmQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfUjfO88eOh3k1xdp1dSJKDdx%3DA2-6_qQD1KoowbfkGZmQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt; .
-&amp;gt;
-&amp;gt; --
-&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt; To view this discussion on the web visit
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/7dd0e397-123b-57f6-bab6-8df4087529ee%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/7dd0e397-123b-57f6-bab6-8df4087529ee%40chromium.org&lt;/a&gt;
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/7dd0e397-123b-57f6-bab6-8df4087529ee%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/7dd0e397-123b-57f6-bab6-8df4087529ee%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt; .
-&amp;gt;
-&amp;gt; --
-&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt; To view this discussion on the web visit
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/9b8cf680-9647-1ca7-a6fe-d034e737e9da%40gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/9b8cf680-9647-1ca7-a6fe-d034e737e9da%40gmail.com&lt;/a&gt;
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/9b8cf680-9647-1ca7-a6fe-d034e737e9da%40gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/9b8cf680-9647-1ca7-a6fe-d034e737e9da%40gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt; .
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY9oSSwSjRFxS5YThenbRV4DTJ6_FUc%3Ds5RJ1DzOQrrbYQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY9oSSwSjRFxS5YThenbRV4DTJ6_FUc%3Ds5RJ1DzOQrrbYQ%40mail.gmail.com&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
