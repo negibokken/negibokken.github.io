@@ -5,6 +5,785 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06026.html</id>
+        <title>[blink-dev] Intent to Deprecate and Remove Web SQL</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06026.html"/>
+        <updated>2023-04-28T20:26:29.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06026.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Deprecate+and+Remove+Web+SQL%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Deprecate and Remove Web SQL&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Ayu+Ishii%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Ayu Ishii&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230428" rel="nofollow"&gt;Fri, 28 Apr 2023 13:26:29 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Contact emails a...@chromium.org, mo...@chromium.org 
+
+Specification &lt;a  rel="nofollow" href="https://www.w3.org/TR/webdatabase"&gt;https://www.w3.org/TR/webdatabase&lt;/a&gt;&lt;/pre&gt;&lt;pre&gt;
+
+Design docs
+&lt;a  rel="nofollow" href="https://developer.chrome.com/blog/deprecating-web-sql"&gt;https://developer.chrome.com/blog/deprecating-web-sql&lt;/a&gt;
+
+[Google Internal] 
+&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1bTj_nDqbdvE102sCm3KuwvN5c_HneLNPl9mmPeUjG4M/edit?usp=sharing"&gt;https://docs.google.com/document/d/1bTj_nDqbdvE102sCm3KuwvN5c_HneLNPl9mmPeUjG4M/edit?usp=sharing&lt;/a&gt;
+[Google Internal] 
+&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1CDdEO65pCIo60NM8CWHNNN7EunJ-wd8v1dGUxTOBJrM/edit?resourcekey=0-R0fxP199QQ-8gnMqzmQyrw"&gt;https://docs.google.com/document/d/1CDdEO65pCIo60NM8CWHNNN7EunJ-wd8v1dGUxTOBJrM/edit?resourcekey=0-R0fxP199QQ-8gnMqzmQyrw&lt;/a&gt;
+
+Summary 
+The Web SQL Database standard was first proposed in April 2009 and 
+abandoned in November 2010. It was implemented in WebKit in 2008 and 
+shipped in Chrome and Safari, on both desktop and mobile. Gecko and 
+EdgeHTML never implemented this feature and WebKit unshipped it in 2019. 
+The W3C encouraged those needing web databases to adopt Indexed Database. 
+Since its release, it has been incredibly difficult to keep our users 
+secure. SQLite was not designed to run untrusted SQL statements, and yet 
+with Web SQL we have to do exactly this. Keeping up with security and 
+stability fixes dictates updating SQLite in Chromium and impacts the 
+feature’s stability. In 2022 alone, we updated SQLite 11 times. This comes 
+in direct conflict with Web SQL’s requirement of behaving exactly as SQLite 
+3.6.19, and with the lack of a SQL specification in Web SQL, we cannot make 
+any such compatibility guarantees. 
+With SQLite WASM 
+&amp;lt;&lt;a  rel="nofollow" href="https://developer.chrome.com/blog/sqlite-wasm-in-the-browser-backed-by-the-origin-private-file-system/"&gt;https://developer.chrome.com/blog/sqlite-wasm-in-the-browser-backed-by-the-origin-private-file-system/&lt;/a&gt;&amp;gt;
+ 
+as an effective replacement for web developers requiring a relational 
+database, we would like to remove Web SQL entirely. 
+
+Target timeline
+
+M101 - 123 - Enterprise Policy 
+&amp;lt;&lt;a  rel="nofollow" href="https://chromeenterprise.google/policies/#WebSQLAccess"&gt;https://chromeenterprise.google/policies/#WebSQLAccess&lt;/a&gt;&amp;gt;
+
+M115 - Add deprecation message
+
+M118-123  - Deprecation trial
+
+M119 - Ship removal
+
+Usage and Risk
+
+Overall usage still shows a high percentage of 0.34% of page loads 
+&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/metrics/feature/timeline/popularity/2962"&gt;https://chromestatus.com/metrics/feature/timeline/popularity/2962&lt;/a&gt;&amp;gt;, 
+however our analysis has concluded that very little usage is for actual 
+storage.
+
+Through analyzing sites from HTTPArchives, we found a majority of its usage 
+is from outdated incognito detection 
+&amp;lt;&lt;a  rel="nofollow" href="https://stackoverflow.com/questions/48169810/how-to-detect-private-browsing-in-ios-11-safari-as-well-as-older-versions-of-sa"&gt;https://stackoverflow.com/questions/48169810/how-to-detect-private-browsing-in-ios-11-safari-as-well-as-older-versions-of-sa&lt;/a&gt;&amp;gt;
+ 
+(e.g. Criteo &amp;lt;&lt;a  rel="nofollow" href="https://static.criteo.net/js/ld/ld.js"&gt;https://static.criteo.net/js/ld/ld.js&lt;/a&gt;&amp;gt;, Reddit 
+&amp;lt;&lt;a  rel="nofollow" href="https://gist.github.com/ayuishii/b64b9c41152940089f8ac480f82d4e3e"&gt;https://gist.github.com/ayuishii/b64b9c41152940089f8ac480f82d4e3e&lt;/a&gt;&amp;gt;),  and 
+fingerprinting (e.g. Fingerprintjs 
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/fingerprintjs/fingerprintjs"&gt;https://github.com/fingerprintjs/fingerprintjs&lt;/a&gt;&amp;gt;, evercookie 
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/samyk/evercookie"&gt;https://github.com/samyk/evercookie&lt;/a&gt;&amp;gt;).
+
+There are JS storage libraries that became popular around the time that Web 
+SQL was introduced which use the feature. Oftentimes their usage is part of 
+a fallback chain, where on modern browsers other storage technologies like 
+localStorage or IndexedDB would be chosen before Web SQL. Examples of such 
+libraries are localForage &amp;lt;&lt;a  rel="nofollow" href="https://github.com/localForage/localForage"&gt;https://github.com/localForage/localForage&lt;/a&gt;&amp;gt;, 
+cordova-sqlite-storage &amp;lt;&lt;a  rel="nofollow" href="https://github.com/storesafe/cordova-sqlite-storage"&gt;https://github.com/storesafe/cordova-sqlite-storage&lt;/a&gt;&amp;gt;, 
+Sencha Touch 
+&amp;lt;&lt;a  rel="nofollow" href="https://docs.sencha.com/touch/2.4/2.4.2-apidocs/#!/api/Ext.data.proxy.Sql"&gt;https://docs.sencha.com/touch/2.4/2.4.2-apidocs/#!/api/Ext.data.proxy.Sql&lt;/a&gt;&amp;gt;. 
+Many, like localForage and cordova-sqlite-storage, gate its usage on 
+feature detection due to its availability only on Chromium browsers. 
+However older versions of Sencha Touch look as though they may not have 
+been gated. Sencha Touch has since removed its SQL feature which depends on 
+Web SQL in their version released in 2015 
+&amp;lt;&lt;a  rel="nofollow" href="https://docs.sencha.com/extjs/6.0.0/guides/upgrades_migrations/modern_upgrade_guide.html#upgrades_migrations-_-modern_upgrade_guide_-_ext_data_proxy_sql_has_been_removed"&gt;https://docs.sencha.com/extjs/6.0.0/guides/upgrades_migrations/modern_upgrade_guide.html#upgrades_migrations-_-modern_upgrade_guide_-_ext_data_proxy_sql_has_been_removed&lt;/a&gt;&amp;gt;
+.
+
+Our conclusion from our HTTPArchives analysis 
+&amp;lt;&lt;a  rel="nofollow" href="https://docs.google.com/document/d/18AGCT9YgfacSxZ5pPAkym6iUWGl72zVXkELKMQKnEPM/edit#bookmark=id.tmke6f1n07cr"&gt;https://docs.google.com/document/d/18AGCT9YgfacSxZ5pPAkym6iUWGl72zVXkELKMQKnEPM/edit#bookmark=id.tmke6f1n07cr&lt;/a&gt;&amp;gt;
+ 
+is that we were only able to identify one site that is not gated by feature 
+detection, and one site with significant breakage. We’ve notified open 
+source libraries of Web SQL deprecation, and plan to reach out to site 
+owners we’ve classified as breakage.
+
+Analyzing extensions usage, we’ve identified 74% of extensions that use Web 
+SQL 
+&amp;lt;&lt;a  rel="nofollow" href="https://docs.google.com/document/d/18AGCT9YgfacSxZ5pPAkym6iUWGl72zVXkELKMQKnEPM/edit#bookmark=id.rxdibl42y942"&gt;https://docs.google.com/document/d/18AGCT9YgfacSxZ5pPAkym6iUWGl72zVXkELKMQKnEPM/edit#bookmark=id.rxdibl42y942&lt;/a&gt;&amp;gt;
+ 
+are from JS storage libraries like localForage 
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/localForage/localForage"&gt;https://github.com/localForage/localForage&lt;/a&gt;&amp;gt; and cordova-sqlite-storage 
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/storesafe/cordova-sqlite-storage"&gt;https://github.com/storesafe/cordova-sqlite-storage&lt;/a&gt;&amp;gt;. However there were a 
+higher number of usages that rely on Web SQL heavily 
+&amp;lt;&lt;a  rel="nofollow" href="https://docs.google.com/document/d/18AGCT9YgfacSxZ5pPAkym6iUWGl72zVXkELKMQKnEPM/edit#bookmark=id.hrkiilgxtp1y"&gt;https://docs.google.com/document/d/18AGCT9YgfacSxZ5pPAkym6iUWGl72zVXkELKMQKnEPM/edit#bookmark=id.hrkiilgxtp1y&lt;/a&gt;&amp;gt;,
+ 
+and many that are not gated by feature detection 
+&amp;lt;&lt;a  rel="nofollow" href="https://docs.google.com/document/d/18AGCT9YgfacSxZ5pPAkym6iUWGl72zVXkELKMQKnEPM/edit#bookmark=id.vw9prsbuovyq"&gt;https://docs.google.com/document/d/18AGCT9YgfacSxZ5pPAkym6iUWGl72zVXkELKMQKnEPM/edit#bookmark=id.vw9prsbuovyq&lt;/a&gt;&amp;gt;
+ 
+as well. We have identified these extensions and plan to contact the 
+developers on this deprecation.
+
+Further analysis for the web platform and extensions can be found in our 
+public facing Web SQL usage analysis doc 
+&amp;lt;&lt;a  rel="nofollow" href="https://docs.google.com/document/d/18AGCT9YgfacSxZ5pPAkym6iUWGl72zVXkELKMQKnEPM/edit?usp=sharing"&gt;https://docs.google.com/document/d/18AGCT9YgfacSxZ5pPAkym6iUWGl72zVXkELKMQKnEPM/edit?usp=sharing&lt;/a&gt;&amp;gt;
+.
+
+For those that would need to migrate, we expect a significant amount of 
+work will be required. Therefore we would like to show deprecation messages 
+early, and make a long deprecation trial available to allow developers to 
+plan for their migration before full removal. We’ve provided steps for 
+testing Web SQL removal for a website 
+&amp;lt;&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1EMJSmKDVGVv0sbsRDz1b8-tTkzv9yi4S30-rzEiK9AQ/edit?usp=sharing"&gt;https://docs.google.com/document/d/1EMJSmKDVGVv0sbsRDz1b8-tTkzv9yi4S30-rzEiK9AQ/edit?usp=sharing&lt;/a&gt;&amp;gt;,
+ 
+and a guide to SQLite WASM 
+&amp;lt;&lt;a  rel="nofollow" href="https://developer.chrome.com/blog/sqlite-wasm-in-the-browser-backed-by-the-origin-private-file-system/"&gt;https://developer.chrome.com/blog/sqlite-wasm-in-the-browser-backed-by-the-origin-private-file-system/&lt;/a&gt;&amp;gt;
+ 
+and for migrating a database 
+&amp;lt;&lt;a  rel="nofollow" href="https://developer.chrome.com/blog/from-web-sql-to-sqlite-wasm/"&gt;https://developer.chrome.com/blog/from-web-sql-to-sqlite-wasm/&lt;/a&gt;&amp;gt; for 
+developers to follow to start their migration. 
+
+Communications
+
+What we’ve done so far:
+
+   - 
+   
+   Worked with internal partners to move major products off of Web SQL 
+   (Completed in 2022)
+   - 
+   
+   Communicated to edu/enterprise partners of its planned removal (Aug, 
+   2022)
+   - 
+      
+      No usages found from this process
+      - 
+   
+   Communicated with known external partners using Web SQL on its planned 
+   removal
+   - 
+      
+      All on board with migrating to WASM + SQLite
+      - 
+   
+   Published an article on the state of Web SQL and its deprecation 
+   &amp;lt;&lt;a  rel="nofollow" href="https://developer.chrome.com/blog/deprecating-web-sql/"&gt;https://developer.chrome.com/blog/deprecating-web-sql/&lt;/a&gt;&amp;gt; (Aug, 2022)
+   - 
+   
+   Published an article on its recommended replacement, SQLite WASM 
+   
+&amp;lt;&lt;a  rel="nofollow" href="https://developer.chrome.com/blog/sqlite-wasm-in-the-browser-backed-by-the-origin-private-file-system/"&gt;https://developer.chrome.com/blog/sqlite-wasm-in-the-browser-backed-by-the-origin-private-file-system/&lt;/a&gt;&amp;gt;
+ 
+   (Jan, 2023)
+   - 
+   
+   Removed Web SQL in third party contexts in M97
+   - 
+   
+   Removed Web SQL in non-secure contexts in M110
+   - 
+   
+   Published an article for migrating a database from Web SQL to SQLite Wasm 
+   &amp;lt;&lt;a  rel="nofollow" href="https://developer.chrome.com/blog/from-web-sql-to-sqlite-wasm/"&gt;https://developer.chrome.com/blog/from-web-sql-to-sqlite-wasm/&lt;/a&gt;&amp;gt; (Mar, 
+   2023)
+   - 
+   
+   [InProgress] Communicate to identified developers in extensions / 
+   HTTPArchives usage
+   
+
+Related Intents
+
+Intent to Deprecate and Remove Web SQL in 3rd Party Contexts 
+&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/TM6YDx1Hh08"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/TM6YDx1Hh08&lt;/a&gt;&amp;gt;
+
+Intent to Deprecate and Remove Web SQL in Non-Secure contexts 
+&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/u/1/a/chromium.org/g/blink-dev/c/xdcl4yc8Ihk"&gt;https://groups.google.com/u/1/a/chromium.org/g/blink-dev/c/xdcl4yc8Ihk&lt;/a&gt;&amp;gt;
+
+Blink component Blink&amp;gt;Storage&amp;gt;Web SQL 
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EStorage%3EWebSQL"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EStorage%3EWebSQL&lt;/a&gt;&amp;gt;
+Search tags Web SQL &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:websql"&gt;https://chromestatus.com/features#tags:websql&lt;/a&gt;&amp;gt;
+Risks
+Interoperability and Compatibility Removing Web SQL will align Chromium 
+based browser behavior to all other browser engines. Currently Chromium is 
+the only browser engine that supports Web SQL. Because of this, most 
+websites gate the usage of Web SQL by feature detection. 
+Gecko: N/A Never implemented
+WebKit: Unshipped (
+&lt;a  rel="nofollow" href="https://github.com/WebKit/WebKit/commit/761bce943c0696a6bb93116eb0576ed07dbfdc65"&gt;https://github.com/WebKit/WebKit/commit/761bce943c0696a6bb93116eb0576ed07dbfdc65&lt;/a&gt;)
+ 
+Removed in 2019
+Web developers: N/A
+
+Security Currently SQLite in Chromium is updated very frequently, sometimes 
+in multiple consecutive milestones. The frequency is defined by stability 
+or security issues found in the SQLite library. Bad security issues have 
+historically surfaced such as Magellan 2.0 
+&amp;lt;&lt;a  rel="nofollow" href="https://threatpost.com/google-chrome-affected-by-magellan-2-0-flaws/151446/"&gt;https://threatpost.com/google-chrome-affected-by-magellan-2-0-flaws/151446/&lt;/a&gt;&amp;gt; 
+that had been publicized in tech news in 2019, among others.The storage 
+team needs to respond quickly to these issues, and update the library when 
+issues are found with help from the SQLite team and Release and Security 
+TPMs.  
+Removing Web SQL will permanently remove the attack vector of malicious SQL 
+statements.   
+WebView application risks
+While we see a 0.02% usage on WebView, we are unable to verify the nature 
+of this usage. However now that Deprecation Trials are supported for 
+WebView, we think the risk of removal is significantly reduced. 
+Goals for Deprecation Trial
+
+The goal for the deprecation trial is to allow for a 6 month window after 
+removal to let developers remove their usage of Web SQL. We may extend this 
+window depending on feedback from participating developers. Our 
+recommendation is for developers to switch to SQLite compiled to 
+WebAssembly backed by the Origin Private File System. We’ve published guidance 
+for this migration 
+&amp;lt;&lt;a  rel="nofollow" href="https://developer.chrome.com/blog/sqlite-wasm-in-the-browser-backed-by-the-origin-private-file-system/"&gt;https://developer.chrome.com/blog/sqlite-wasm-in-the-browser-backed-by-the-origin-private-file-system/&lt;/a&gt;&amp;gt;
+ 
+in our developer blog.
+
+Debuggability Planning to add a deprecation message in the console.
+Will this feature be supported on all six Blink platforms (Windows, Mac, 
+Linux, Chrome OS, Android, and Android WebView)? Yes, removal in all
+Is this feature fully tested by web-platform-tests 
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;?
+ 
+No (Web SQL tested in web_tests 
+&amp;lt;&lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/web_tests/storage/websql/"&gt;https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/web_tests/storage/websql/&lt;/a&gt;&amp;gt;)
+ 
+
+DevTrial instructions Steps on how to test your site with Web SQL removed.  
+&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1EMJSmKDVGVv0sbsRDz1b8-tTkzv9yi4S30-rzEiK9AQ/edit?usp=sharing"&gt;https://docs.google.com/document/d/1EMJSmKDVGVv0sbsRDz1b8-tTkzv9yi4S30-rzEiK9AQ/edit?usp=sharing&lt;/a&gt;
+
+Flag name web-sql-access
+Requires code in //chrome? False
+Tracking bug &lt;a  rel="nofollow" href="https://crbug.com/695592"&gt;https://crbug.com/695592&lt;/a&gt;
+
+Link to entry on the Chrome Platform Status 
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5134293578285056"&gt;https://chromestatus.com/feature/5134293578285056&lt;/a&gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/ded3bc96-ab03-490d-8991-dbfc6df7bf0bn%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/ded3bc96-ab03-490d-8991-dbfc6df7bf0bn%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06025.html</id>
+        <title>Re: [blink-dev] Intent-to-Ship: MediaRecorder keyframe configurability</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06025.html"/>
+        <updated>2023-04-28T20:24:19.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06025.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent%5C-to%5C-Ship%5C%3A+MediaRecorder+keyframe+configurability%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent-to-Ship: MediaRecorder keyframe configurability&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Chris+Harrelson%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Chris Harrelson&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230428" rel="nofollow"&gt;Fri, 28 Apr 2023 13:24:19 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;LGTM2
+
+On Thu, Apr 27, 2023 at 7:02 AM Philip Jägenstedt &amp;lt;foo...@chromium.org&amp;gt;
+wrote:&lt;/pre&gt;&lt;pre&gt;
+
+&amp;gt; Great, with &lt;a  rel="nofollow" href="https://github.com/w3c/mediacapture-record/issues/219"&gt;https://github.com/w3c/mediacapture-record/issues/219&lt;/a&gt; filed
+&amp;gt; and the discussion you linked to, I don't think this needs to block.
+&amp;gt;
+&amp;gt; LGTM1 to ship given a surface-level test in WPT as discussed.
+&amp;gt;
+&amp;gt; On Thu, Apr 27, 2023 at 1:40 PM Markus Handell &amp;lt;hande...@google.com&amp;gt;
+&amp;gt; wrote:
+&amp;gt;
+&amp;gt;&amp;gt; Yep this topic was discussed on
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/mediacapture-record/pull/216#discussion_r1159521616"&gt;https://github.com/w3c/mediacapture-record/pull/216#discussion_r1159521616&lt;/a&gt;
+&amp;gt;&amp;gt; and earlier. In the end I backed out of my proposed semantics due to
+&amp;gt;&amp;gt; scepticism so the PR leaves it unspecified.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; During the interim that hbos@ speaks to where the PR was merged, it was
+&amp;gt;&amp;gt; decided that a separate spec issue be filed on that topic,
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/mediacapture-record/issues/219"&gt;https://github.com/w3c/mediacapture-record/issues/219&lt;/a&gt;.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; On Thu, Apr 27, 2023 at 12:38 PM Philip Jägenstedt &amp;lt;foo...@chromium.org&amp;gt;
+&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; On Thu, Apr 27, 2023 at 9:24 AM Markus Handell &amp;lt;hande...@google.com&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Thanks for filing
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/issues/39642"&gt;https://github.com/web-platform-tests/wpt/issues/39642&lt;/a&gt;, I've asked
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; there for more details on what it would take to test this.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; I added some more detail there.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; The spec change added two dictionary members to
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://w3c.github.io/mediacapture-record/#mediarecorderoptions-section"&gt;https://w3c.github.io/mediacapture-record/#mediarecorderoptions-section&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; which means that it would at least be possible to add a test for
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; videoKeyFrameIntervalDuration and videoKeyFrameIntervalCount being
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; present. Can you write such a test?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Yes!
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Thanks! It won't test the behavior, but will at least let the tests show
+&amp;gt;&amp;gt;&amp;gt; if there's some support or not, and catch typos in IDL, which happens.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Also, I think vendor signals here aren't needed given the reviews on
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/mediacapture-record/pull/216"&gt;https://github.com/w3c/mediacapture-record/pull/216&lt;/a&gt;, but can you file
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; bugs for Gecko and WebKit?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Bugs filed:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.webkit.org/show_bug.cgi?id=256031"&gt;https://bugs.webkit.org/show_bug.cgi?id=256031&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1830236"&gt;https://bugzilla.mozilla.org/show_bug.cgi?id=1830236&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Thank you!
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Skimming
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://w3c.github.io/mediacapture-record/#mediarecorderoptions-section"&gt;https://w3c.github.io/mediacapture-record/#mediarecorderoptions-section&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt; I have just one more question about interop here. The spec says &amp;quot;If both
+&amp;gt;&amp;gt;&amp;gt; videoKeyFrameIntervalDuration and videoKeyFrameIntervalCount are not null,
+&amp;gt;&amp;gt;&amp;gt; the UA may ignore either.&amp;quot; It seems to me an implementation will definitely
+&amp;gt;&amp;gt;&amp;gt; pick one of them to ignore and it will be deterministic. Is there any
+&amp;gt;&amp;gt;&amp;gt; reason to leave this up to the UA instead of writing in the spec which
+&amp;gt;&amp;gt;&amp;gt; takes precedent?
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Best regards,
+&amp;gt;&amp;gt;&amp;gt; Philip
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
+&amp;gt; You received this message because you are subscribed to the Google Groups
+&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt; To view this discussion on the web visit
+&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAARdPYf5CAXSME%2B4nmBT%2B2upB-2-hGh3MMJUn8j1M5%3DV4EYLxQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAARdPYf5CAXSME%2B4nmBT%2B2upB-2-hGh3MMJUn8j1M5%3DV4EYLxQ%40mail.gmail.com&lt;/a&gt;
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAARdPYf5CAXSME%2B4nmBT%2B2upB-2-hGh3MMJUn8j1M5%3DV4EYLxQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAARdPYf5CAXSME%2B4nmBT%2B2upB-2-hGh3MMJUn8j1M5%3DV4EYLxQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt; .
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw9cp4%3D6KfVqJv31b_K_3ONVSjAbF9E9kvqB9Z0bPOLNPg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw9cp4%3D6KfVqJv31b_K_3ONVSjAbF9E9kvqB9Z0bPOLNPg%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06024.html</id>
+        <title>Re: [blink-dev] Intent to Ship: Scroll-driven animations</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06024.html"/>
+        <updated>2023-04-28T19:21:23.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06024.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Scroll%5C-driven+animations%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Scroll-driven animations&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Alex+Russell%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Alex Russell&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230428" rel="nofollow"&gt;Fri, 28 Apr 2023 12:21:23 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;The easiest LGTM1 ever. Thank you for shipping this!
+
+On Fri, Apr 28, 2023, 7:44 PM Robert Flack &amp;lt;fla...@chromium.org&amp;gt; wrote:&lt;/pre&gt;&lt;pre&gt;
+
+&amp;gt; Contact emailsfla...@chromium.org, kev...@chromium.org,
+&amp;gt; gir...@chromium.org, andr...@chromium.org
+&amp;gt;
+&amp;gt; Explainer
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/blob/main/scroll-animations-1/EXPLAINER.md"&gt;https://github.com/w3c/csswg-drafts/blob/main/scroll-animations-1/EXPLAINER.md&lt;/a&gt;
+&amp;gt;
+&amp;gt; Specification&lt;a  rel="nofollow" href="https://drafts.csswg.org/scroll-animations-1"&gt;https://drafts.csswg.org/scroll-animations-1&lt;/a&gt;
+&amp;gt;
+&amp;gt; Summary
+&amp;gt;
+&amp;gt; ScrollTimeline and ViewTimeline are an extension to the Web Animations
+&amp;gt; spec which allow developers to use the position of a scroller or the
+&amp;gt; position of an element within a scroller as an input 'time' rather than the
+&amp;gt; default monotonic clock time. This enables fast scroll-based animations,
+&amp;gt; such as a shrinking navigation bar, without requiring user script
+&amp;gt; execution. They can be declared and instantiated both via CSS and
+&amp;gt; Javascript used in CSS animations and Web Animations.
+&amp;gt;
+&amp;gt;
+&amp;gt; Blink componentBlink&amp;gt;Animation
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EAnimation"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EAnimation&lt;/a&gt;&amp;gt;
+&amp;gt;
+&amp;gt; Search tagsanimation &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:animation"&gt;https://chromestatus.com/features#tags:animation&lt;/a&gt;&amp;gt;,
+&amp;gt; scroll &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:scroll"&gt;https://chromestatus.com/features#tags:scroll&lt;/a&gt;&amp;gt;, scrolling
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:scrolling"&gt;https://chromestatus.com/features#tags:scrolling&lt;/a&gt;&amp;gt;
+&amp;gt;
+&amp;gt; TAG review&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/828The"&gt;https://github.com/w3ctag/design-reviews/issues/828The&lt;/a&gt; concerns
+&amp;gt; raised in the initial review
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/521"&gt;https://github.com/w3ctag/design-reviews/issues/521&lt;/a&gt;&amp;gt; have been addressed
+&amp;gt; with resolutions called out in the subsequent review.
+&amp;gt;
+&amp;gt; TAG review statusPending
+&amp;gt;
+&amp;gt; Link to origin trial feedback summary
+&amp;gt; &lt;a  rel="nofollow" href="https://docs.google.com/document/d/1OLouOhe122Fb9hPkArpbe3I7fcOglmrKcI4yRVPQ1D4/edit"&gt;https://docs.google.com/document/d/1OLouOhe122Fb9hPkArpbe3I7fcOglmrKcI4yRVPQ1D4/edit&lt;/a&gt;
+&amp;gt;
+&amp;gt; Risks
+&amp;gt;
+&amp;gt;
+&amp;gt; Interoperability and Compatibility
+&amp;gt;
+&amp;gt; # animation-duration A notable change was made to the animation-duration
+&amp;gt; property. In particular the animation-duration now supports 'auto' values
+&amp;gt; and the initial value of animation-duration is changed to 'auto'[1] which
+&amp;gt; aligns a CSS animation's default duration with one constructed via the web
+&amp;gt; animations API[2], and allows the default duration to be automatically
+&amp;gt; computed for scroll driven animations as well as the upcoming group and
+&amp;gt; sequence effects. Visually this is identical for existing animations
+&amp;gt; because an &amp;quot;auto&amp;quot; duration on a plain document timeline results in an
+&amp;gt; intrinsic iteration duration[3] of 0. However, the &amp;quot;auto&amp;quot; value will now be
+&amp;gt; visible in the developer observed style so code which may have parsed the
+&amp;gt; time value expecting a 0 could now break. E.g.
+&amp;gt; parseFloat(getComputedStyle(elem).animationDuration) results in NaN for
+&amp;gt; &amp;quot;auto&amp;quot; duration compared to 0. On Canary the computed duration for
+&amp;gt; 0-duration animations is accessed on 0.05% of page loads. As a baseline,
+&amp;gt; computed webkit-font-smoothing property (i.e. a property often not
+&amp;gt; intentionally accessed) is accessed on 0.02% of page loads for the same
+&amp;gt; set. [1] &lt;a  rel="nofollow" href="https://drafts.csswg.org/css-animations-2/#animation-duration"&gt;https://drafts.csswg.org/css-animations-2/#animation-duration&lt;/a&gt;
+&amp;gt; [2]
+&amp;gt; &lt;a  rel="nofollow" href="https://drafts.csswg.org/web-animations-1/#the-effecttiming-dictionaries"&gt;https://drafts.csswg.org/web-animations-1/#the-effecttiming-dictionaries&lt;/a&gt;
+&amp;gt; [3]
+&amp;gt; &lt;a  rel="nofollow" href="https://drafts.csswg.org/web-animations-2/#intrinsic-iteration-duration"&gt;https://drafts.csswg.org/web-animations-2/#intrinsic-iteration-duration&lt;/a&gt;
+&amp;gt;
+&amp;gt;
+&amp;gt; *Gecko*: In development (
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/347"&gt;https://github.com/mozilla/standards-positions/issues/347&lt;/a&gt;)
+&amp;gt;
+&amp;gt; *WebKit*: Positive (
+&amp;gt; &lt;a  rel="nofollow" href="https://lists.webkit.org/pipermail/webkit-dev/2020-June/031228.html"&gt;https://lists.webkit.org/pipermail/webkit-dev/2020-June/031228.html&lt;/a&gt;)
+&amp;gt; Updated request posted at
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/152"&gt;https://github.com/WebKit/standards-positions/issues/152&lt;/a&gt;
+&amp;gt;
+&amp;gt; *Web developers*: Positive
+&amp;gt;
+&amp;gt; *Other signals*:
+&amp;gt;
+&amp;gt; Activation
+&amp;gt;
+&amp;gt; Scroll driven animations can be built as a progressive enhancement to an
+&amp;gt; otherwise static scrolling page. It is also possible to polyfill the API -
+&amp;gt; see &lt;a  rel="nofollow" href="https://github.com/flackr/scroll-timeline/"&gt;https://github.com/flackr/scroll-timeline/&lt;/a&gt; for a wpt-tested polyfill
+&amp;gt; that is slightly out of date.
+&amp;gt;
+&amp;gt;
+&amp;gt; Security
+&amp;gt;
+&amp;gt; No known risks.
+&amp;gt;
+&amp;gt;
+&amp;gt; WebView application risks
+&amp;gt;
+&amp;gt; Does this intent deprecate or change behavior of existing APIs, such that
+&amp;gt; it has potentially high risk for Android WebView-based applications?
+&amp;gt;
+&amp;gt; None
+&amp;gt;
+&amp;gt;
+&amp;gt; Debuggability
+&amp;gt;
+&amp;gt; The current tooling provided by DevTools supports showing/editing of the
+&amp;gt; used keyframes and the newly introduced CSS properties. There is active
+&amp;gt; work being done to improve dedicated tooling over time.
+&amp;gt;
+&amp;gt;
+&amp;gt; Will this feature be supported on all six Blink platforms (Windows, Mac,
+&amp;gt; Linux, Chrome OS, Android, and Android WebView)?Yes
+&amp;gt;
+&amp;gt; Is this feature fully tested by web-platform-tests
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+&amp;gt; ?Yes
+&amp;gt;
+&amp;gt; Flag nameScrollTimeline
+&amp;gt;
+&amp;gt; Requires code in //chrome?False
+&amp;gt;
+&amp;gt; Tracking bug&lt;a  rel="nofollow" href="http://crbug.com/1023424"&gt;http://crbug.com/1023424&lt;/a&gt;
+&amp;gt;
+&amp;gt; Sample links
+&amp;gt; &lt;a  rel="nofollow" href="https://scroll-driven-animations.style"&gt;https://scroll-driven-animations.style&lt;/a&gt;
+&amp;gt;
+&amp;gt; Estimated milestones
+&amp;gt; Shipping on desktop 115
+&amp;gt; Shipping on Android 115
+&amp;gt; Shipping on WebView 115
+&amp;gt;
+&amp;gt; Anticipated spec changes
+&amp;gt;
+&amp;gt; Open questions about a feature may be a source of future web compat or
+&amp;gt; interop issues. Please list open issues (e.g. links to known github issues
+&amp;gt; in the project for the feature specification) whose resolution may
+&amp;gt; introduce web compat/interop risk (e.g., changing to naming or structure of
+&amp;gt; the API in a non-backward-compatible way).
+&amp;gt; There a few issues still being resolved:-
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/8694"&gt;https://github.com/w3c/csswg-drafts/issues/8694&lt;/a&gt; Awaiting consensus on
+&amp;gt; specific timing and conditions regarding when we repeat style/layout to
+&amp;gt; avoid animation flicker. - &lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/7759"&gt;https://github.com/w3c/csswg-drafts/issues/7759&lt;/a&gt; We
+&amp;gt; agree on roughly how deferred timelines should work, just need resolution
+&amp;gt; on the specific syntax. Minor API Tweaks: -
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/8656"&gt;https://github.com/w3c/csswg-drafts/issues/8656&lt;/a&gt; Support explicit auto
+&amp;gt; duration in shorthand - &lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/8746"&gt;https://github.com/w3c/csswg-drafts/issues/8746&lt;/a&gt; 
+&amp;gt; Requiring
+&amp;gt; &amp;lt;dashed-ident&amp;gt; timeline names
+&amp;gt; We expect to resolve these before the branch to ensure they don't
+&amp;gt; represent a source of compat risk. The remaining scroll-animations issues
+&amp;gt; are expected not to change the existing syntax / behavior and will be
+&amp;gt; considered as extensions for the API in the future.
+&amp;gt;
+&amp;gt; Link to entry on the Chrome Platform Status
+&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/6752840701706240"&gt;https://chromestatus.com/feature/6752840701706240&lt;/a&gt;
+&amp;gt;
+&amp;gt; Links to previous Intent discussionsIntent to prototype:
+&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/8V4ixKVmNY4/m/vJQdo9GCBgAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/8V4ixKVmNY4/m/vJQdo9GCBgAJ&lt;/a&gt;
+&amp;gt;  Intent
+&amp;gt; to Experiment:
+&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/AZ-PYPMS7EA/m/DEqbe2u5BQAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/AZ-PYPMS7EA/m/DEqbe2u5BQAJ&lt;/a&gt;
+&amp;gt;
+&amp;gt;
+&amp;gt; This intent message was generated by Chrome Platform Status
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+&amp;gt;
+&amp;gt; --
+&amp;gt; You received this message because you are subscribed to the Google Groups
+&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt; To view this discussion on the web visit
+&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAJh39TOwKQLH_By5y5GQGiHPmkfnu2COC_geD1JA8E13kj8N7A%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAJh39TOwKQLH_By5y5GQGiHPmkfnu2COC_geD1JA8E13kj8N7A%40mail.gmail.com&lt;/a&gt;
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAJh39TOwKQLH_By5y5GQGiHPmkfnu2COC_geD1JA8E13kj8N7A%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAJh39TOwKQLH_By5y5GQGiHPmkfnu2COC_geD1JA8E13kj8N7A%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt; .
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAA44PQjZaQf9iLaqY-T-riD9QbOXHrTT2MG0aGOB%3DQk9MBMVDw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAA44PQjZaQf9iLaqY-T-riD9QbOXHrTT2MG0aGOB%3DQk9MBMVDw%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06023.html</id>
+        <title>[blink-dev] Intent to Ship: Scroll-driven animations</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06023.html"/>
+        <updated>2023-04-28T18:44:12.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06023.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Scroll%5C-driven+animations%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Ship: Scroll-driven animations&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Robert+Flack%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Robert Flack&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230428" rel="nofollow"&gt;Fri, 28 Apr 2023 11:44:12 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Contact emailsfla...@chromium.org, kev...@chromium.org, gir...@chromium.org
+, andr...@chromium.org&lt;/pre&gt;&lt;pre&gt;
+
+Explainer
+&lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/blob/main/scroll-animations-1/EXPLAINER.md"&gt;https://github.com/w3c/csswg-drafts/blob/main/scroll-animations-1/EXPLAINER.md&lt;/a&gt;
+
+Specification&lt;a  rel="nofollow" href="https://drafts.csswg.org/scroll-animations-1"&gt;https://drafts.csswg.org/scroll-animations-1&lt;/a&gt;
+
+Summary
+
+ScrollTimeline and ViewTimeline are an extension to the Web Animations spec
+which allow developers to use the position of a scroller or the position of
+an element within a scroller as an input 'time' rather than the default
+monotonic clock time. This enables fast scroll-based animations, such as a
+shrinking navigation bar, without requiring user script execution. They can
+be declared and instantiated both via CSS and Javascript used in CSS
+animations and Web Animations.
+
+
+Blink componentBlink&amp;gt;Animation
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EAnimation"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EAnimation&lt;/a&gt;&amp;gt;
+
+Search tagsanimation &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:animation"&gt;https://chromestatus.com/features#tags:animation&lt;/a&gt;&amp;gt;,
+scroll &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:scroll"&gt;https://chromestatus.com/features#tags:scroll&lt;/a&gt;&amp;gt;, scrolling
+&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:scrolling"&gt;https://chromestatus.com/features#tags:scrolling&lt;/a&gt;&amp;gt;
+
+TAG review&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/828The"&gt;https://github.com/w3ctag/design-reviews/issues/828The&lt;/a&gt; concerns
+raised in the initial review
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/521"&gt;https://github.com/w3ctag/design-reviews/issues/521&lt;/a&gt;&amp;gt; have been addressed
+with resolutions called out in the subsequent review.
+
+TAG review statusPending
+
+Link to origin trial feedback summary
+&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1OLouOhe122Fb9hPkArpbe3I7fcOglmrKcI4yRVPQ1D4/edit"&gt;https://docs.google.com/document/d/1OLouOhe122Fb9hPkArpbe3I7fcOglmrKcI4yRVPQ1D4/edit&lt;/a&gt;
+
+Risks
+
+
+Interoperability and Compatibility
+
+# animation-duration A notable change was made to the animation-duration
+property. In particular the animation-duration now supports 'auto' values
+and the initial value of animation-duration is changed to 'auto'[1] which
+aligns a CSS animation's default duration with one constructed via the web
+animations API[2], and allows the default duration to be automatically
+computed for scroll driven animations as well as the upcoming group and
+sequence effects. Visually this is identical for existing animations
+because an &amp;quot;auto&amp;quot; duration on a plain document timeline results in an
+intrinsic iteration duration[3] of 0. However, the &amp;quot;auto&amp;quot; value will now be
+visible in the developer observed style so code which may have parsed the
+time value expecting a 0 could now break. E.g.
+parseFloat(getComputedStyle(elem).animationDuration) results in NaN for
+&amp;quot;auto&amp;quot; duration compared to 0. On Canary the computed duration for
+0-duration animations is accessed on 0.05% of page loads. As a baseline,
+computed webkit-font-smoothing property (i.e. a property often not
+intentionally accessed) is accessed on 0.02% of page loads for the same
+set. [1] &lt;a  rel="nofollow" href="https://drafts.csswg.org/css-animations-2/#animation-duration"&gt;https://drafts.csswg.org/css-animations-2/#animation-duration&lt;/a&gt; [2]
+&lt;a  rel="nofollow" href="https://drafts.csswg.org/web-animations-1/#the-effecttiming-dictionaries"&gt;https://drafts.csswg.org/web-animations-1/#the-effecttiming-dictionaries&lt;/a&gt;
+[3] &lt;a  rel="nofollow" href="https://drafts.csswg.org/web-animations-2/#intrinsic-iteration-duration"&gt;https://drafts.csswg.org/web-animations-2/#intrinsic-iteration-duration&lt;/a&gt;
+
+
+*Gecko*: In development (
+&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/347"&gt;https://github.com/mozilla/standards-positions/issues/347&lt;/a&gt;)
+
+*WebKit*: Positive (
+&lt;a  rel="nofollow" href="https://lists.webkit.org/pipermail/webkit-dev/2020-June/031228.html"&gt;https://lists.webkit.org/pipermail/webkit-dev/2020-June/031228.html&lt;/a&gt;)
+Updated request posted at
+&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/152"&gt;https://github.com/WebKit/standards-positions/issues/152&lt;/a&gt;
+
+*Web developers*: Positive
+
+*Other signals*:
+
+Activation
+
+Scroll driven animations can be built as a progressive enhancement to an
+otherwise static scrolling page. It is also possible to polyfill the API -
+see &lt;a  rel="nofollow" href="https://github.com/flackr/scroll-timeline/"&gt;https://github.com/flackr/scroll-timeline/&lt;/a&gt; for a wpt-tested polyfill
+that is slightly out of date.
+
+
+Security
+
+No known risks.
+
+
+WebView application risks
+
+Does this intent deprecate or change behavior of existing APIs, such that
+it has potentially high risk for Android WebView-based applications?
+
+None
+
+
+Debuggability
+
+The current tooling provided by DevTools supports showing/editing of the
+used keyframes and the newly introduced CSS properties. There is active
+work being done to improve dedicated tooling over time.
+
+
+Will this feature be supported on all six Blink platforms (Windows, Mac,
+Linux, Chrome OS, Android, and Android WebView)?Yes
+
+Is this feature fully tested by web-platform-tests
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+?Yes
+
+Flag nameScrollTimeline
+
+Requires code in //chrome?False
+
+Tracking bug&lt;a  rel="nofollow" href="http://crbug.com/1023424"&gt;http://crbug.com/1023424&lt;/a&gt;
+
+Sample links
+&lt;a  rel="nofollow" href="https://scroll-driven-animations.style"&gt;https://scroll-driven-animations.style&lt;/a&gt;
+
+Estimated milestones
+Shipping on desktop 115
+Shipping on Android 115
+Shipping on WebView 115
+
+Anticipated spec changes
+
+Open questions about a feature may be a source of future web compat or
+interop issues. Please list open issues (e.g. links to known github issues
+in the project for the feature specification) whose resolution may
+introduce web compat/interop risk (e.g., changing to naming or structure of
+the API in a non-backward-compatible way).
+There a few issues still being resolved:-
+&lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/8694"&gt;https://github.com/w3c/csswg-drafts/issues/8694&lt;/a&gt; Awaiting consensus on
+specific timing and conditions regarding when we repeat style/layout to
+avoid animation flicker. - &lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/7759"&gt;https://github.com/w3c/csswg-drafts/issues/7759&lt;/a&gt; We
+agree on roughly how deferred timelines should work, just need resolution
+on the specific syntax. Minor API Tweaks: -
+&lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/8656"&gt;https://github.com/w3c/csswg-drafts/issues/8656&lt;/a&gt; Support explicit auto
+duration in shorthand -
+&lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/8746"&gt;https://github.com/w3c/csswg-drafts/issues/8746&lt;/a&gt; Requiring
+&amp;lt;dashed-ident&amp;gt; timeline names
+We expect to resolve these before the branch to ensure they don't represent
+a source of compat risk. The remaining scroll-animations issues are
+expected not to change the existing syntax / behavior and will be
+considered as extensions for the API in the future.
+
+Link to entry on the Chrome Platform Status
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/6752840701706240"&gt;https://chromestatus.com/feature/6752840701706240&lt;/a&gt;
+
+Links to previous Intent discussionsIntent to prototype:
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/8V4ixKVmNY4/m/vJQdo9GCBgAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/8V4ixKVmNY4/m/vJQdo9GCBgAJ&lt;/a&gt;
+Intent
+to Experiment:
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/AZ-PYPMS7EA/m/DEqbe2u5BQAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/AZ-PYPMS7EA/m/DEqbe2u5BQAJ&lt;/a&gt;
+
+
+This intent message was generated by Chrome Platform Status
+&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAJh39TOwKQLH_By5y5GQGiHPmkfnu2COC_geD1JA8E13kj8N7A%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAJh39TOwKQLH_By5y5GQGiHPmkfnu2COC_geD1JA8E13kj8N7A%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06022.html</id>
         <title>Re: [blink-dev] Intent to Ship: Private State Tokens API</title>
         <author>
@@ -9911,568 +10690,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGH7WqGtug1xy1Bkhs5DDM%2B%2Bg3UvHRH2Lgrw9AJHJE9%3Dc4SVXA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGH7WqGtug1xy1Bkhs5DDM%2B%2Bg3UvHRH2Lgrw9AJHJE9%3Dc4SVXA%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg05963.html</id>
-        <title>Re: [blink-dev] Re: Intent to Implement &amp; Ship: User-Agent Reduction Phase 6 (deviceModel and androidVersion reduction in Android)</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg05963.html"/>
-        <updated>2023-04-25T20:42:42.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg05963.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Implement+%5C%26+Ship%5C%3A+User%5C-Agent+Reduction+Phase+6+%5C%28deviceModel+and+androidVersion+reduction+in+Android%5C%29%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Re: Intent to Implement &amp; Ship: User-Agent Reduction Phase 6 (deviceModel and androidVersion reduction in Android)&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Victor+Tan%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Victor Tan&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230425" rel="nofollow"&gt;Tue, 25 Apr 2023 13:42:42 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Hi blink-dev,
-UA Reduction Phase 6  is ramping up to 50% of the stable release population 
-today. &lt;/pre&gt;&lt;pre&gt;
-
-Thanks.
-Victor
-
-On Tuesday, April 4, 2023 at 2:04:37 PM UTC-4 Victor Tan wrote:
-
-&amp;gt; Hi blink-dev,
-&amp;gt; UA Reduction Phase 6  is currently ramping up to 10% of the stable release 
-&amp;gt; population. 
-&amp;gt;
-&amp;gt; Thanks.
-&amp;gt; Victor
-&amp;gt;
-&amp;gt; On Tuesday, March 21, 2023 at 6:41:47 PM UTC-4 Victor Tan wrote:
-&amp;gt;
-&amp;gt;&amp;gt; Hi blink-dev,
-&amp;gt;&amp;gt; UA Reduction Phase 6  is currently ramping up to 5% of the stable release 
-&amp;gt;&amp;gt; population. We will keep monitor the change during the 2 week experiment. 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Thanks.
-&amp;gt;&amp;gt; Victor
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Monday, March 20, 2023 at 12:09:41 PM UTC-4 Mike Taylor wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Hi all,
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Correcting my message on 3/3 to be consistent with the rollout timeline I 
-&amp;gt;&amp;gt;&amp;gt; posted on Feb 16 
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/zVOEHwgyyu4/m/e70R8E_kBQAJ?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/zVOEHwgyyu4/m/e70R8E_kBQAJ?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;&amp;gt; We intend to begin the ramp up to 5% of stable traffic tomorrow.
-&amp;gt;&amp;gt;&amp;gt; [done] Stable 1%: Feb 21, 2023
-&amp;gt;&amp;gt;&amp;gt; [tomorrow] Stable 5%: Mar 21, 2023 (~4 weeks after previous)
-&amp;gt;&amp;gt;&amp;gt; Stable 10%: Apr 4, 2023 (~2 weeks after previous)
-&amp;gt;&amp;gt;&amp;gt; Stable 50%: Apr 18, 2023 (~2 weeks after previous)
-&amp;gt;&amp;gt;&amp;gt; ToT Default: May 2, 2023 (~2 weeks after previous)
-&amp;gt;&amp;gt;&amp;gt; Stable 100%: May 2, 2023
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; thanks,
-&amp;gt;&amp;gt;&amp;gt; Mike
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; On 3/3/23 1:28 PM, Mike Taylor wrote:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;    - 
-&amp;gt;&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt;&amp;gt;    [done] February 21: Phase 6 roll-out starts one week after the 
-&amp;gt;&amp;gt;&amp;gt;    launch of Chrome 110 Stable with 1% traffic. 
-&amp;gt;&amp;gt;&amp;gt;    - 
-&amp;gt;&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt;&amp;gt;    March 21: Roll-out increases to 10% traffic. 
-&amp;gt;&amp;gt;&amp;gt;    - 
-&amp;gt;&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt;&amp;gt;    April 4: Roll-out increases to 50% traffic.
-&amp;gt;&amp;gt;&amp;gt;    - 
-&amp;gt;&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt;&amp;gt;    April 18: Roll-out reaches full Stable population with 100% traffic.
-&amp;gt;&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt;&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/ac262019-4c02-48bb-b8e0-e583d7314ba5n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/ac262019-4c02-48bb-b8e0-e583d7314ba5n%40chromium.org&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg05962.html</id>
-        <title>[blink-dev] Re: Intent to Prototype: Disabling UA transitions on same-document navigations</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg05962.html"/>
-        <updated>2023-04-25T17:07:04.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg05962.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Prototype%5C%3A+Disabling+UA+transitions+on+same%5C-document+navigations%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Re: Intent to Prototype: Disabling UA transitions on same-document navigations&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Khushal+Sagar%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Khushal Sagar' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230425" rel="nofollow"&gt;Tue, 25 Apr 2023 10:07:04 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;FYI, I added a visual example to the problem statement
-&amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/view-transitions/blob/main/default-ua-transitions.md#problem-statement"&gt;https://github.com/WICG/view-transitions/blob/main/default-ua-transitions.md#problem-statement&lt;/a&gt;&amp;gt;
-to
-clarify the current status.&lt;/pre&gt;&lt;pre&gt;
-
-On Fri, Apr 21, 2023, 7:54 PM Khushal Sagar &amp;lt;khushalsa...@google.com&amp;gt; wrote:
-
-&amp;gt; Contact emailskhushalsa...@google.com, liuwill...@google.com
-&amp;gt;
-&amp;gt; Explainer
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/view-transitions/blob/main/default-ua-transitions.md"&gt;https://github.com/WICG/view-transitions/blob/main/default-ua-transitions.md&lt;/a&gt;
-&amp;gt;
-&amp;gt; SpecificationNone
-&amp;gt;
-&amp;gt; Summary
-&amp;gt;
-&amp;gt; Smooth visual transitions as users navigate on the web can lower cognitive
-&amp;gt; load by helping users stay in context. It can also provide a visual cue
-&amp;gt; about the destination before initiating the navigation. Both site authors
-&amp;gt; and user-agents (UAs) add visual transitions to their navigations for these
-&amp;gt; use-cases. However, the user experience is bad if both the site author and
-&amp;gt; the UA add these transitions: the transitions may conflict and cause
-&amp;gt; confusion for the user. The goal of this proposal is to avoid such cases to
-&amp;gt; ensure only one visual transition is executed at a time.
-&amp;gt;
-&amp;gt; Blink componentBlink&amp;gt;DefaultNavigationTransitions
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EDefaultNavigationTransitions"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EDefaultNavigationTransitions&lt;/a&gt;&amp;gt;
-&amp;gt;
-&amp;gt; Initial public proposal&lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/8747"&gt;https://github.com/w3c/csswg-drafts/issues/8747&lt;/a&gt;
-&amp;gt;
-&amp;gt; TAG review&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/835"&gt;https://github.com/w3ctag/design-reviews/issues/835&lt;/a&gt;
-&amp;gt;
-&amp;gt; TAG review statusPending
-&amp;gt;
-&amp;gt; Risks
-&amp;gt;
-&amp;gt; Interoperability and Compatibility
-&amp;gt;
-&amp;gt; The main interop risk with this proposal is whether UA transitions should
-&amp;gt; be allowed by default or not. Allowing them by default has a compat risk of
-&amp;gt; breaking sites which ship with custom transitions already. We could try to
-&amp;gt; assess the impact with heuristics like &amp;quot;detect whether the Document is
-&amp;gt; constantly animating for x seconds after firing popstate/navigate event&amp;quot;
-&amp;gt; but it's likely to have false positives. Also note that Safari/Chrome on
-&amp;gt; iOS already ship with UA transitions by default.
-&amp;gt;
-&amp;gt; *Gecko*: No signal (
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/784"&gt;https://github.com/mozilla/standards-positions/issues/784&lt;/a&gt;)
-&amp;gt;
-&amp;gt; *WebKit*: No signal (
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/177"&gt;https://github.com/WebKit/standards-positions/issues/177&lt;/a&gt;)
-&amp;gt;
-&amp;gt; *Web developers*: No signals
-&amp;gt;
-&amp;gt; *Other signals*:
-&amp;gt;
-&amp;gt; Ergonomics
-&amp;gt;
-&amp;gt; If an author chooses to disable UA transitions for a subset of
-&amp;gt; navigations, they will need to use the API proposed here
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/UJMYZXoSQ4A"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/UJMYZXoSQ4A&lt;/a&gt;&amp;gt; to
-&amp;gt; detect whether a UA transition was executed for a navigation.
-&amp;gt;
-&amp;gt; Security
-&amp;gt;
-&amp;gt; The API lets the site author selectively disable UA transitions based on
-&amp;gt; whether the navigation was predictive (swipe) vs atomic (button click). The
-&amp;gt; author can then detect whether a transition occurred using the API proposed
-&amp;gt; in &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5204831477694464"&gt;https://chromestatus.com/feature/5204831477694464&lt;/a&gt;. This effectively
-&amp;gt; means site authors can detect whether the navigation was swipe or atomic;
-&amp;gt; and in turn whether the device supports a category of navigations. However,
-&amp;gt; this information can already be derived using the UA string.
-&amp;gt;
-&amp;gt; WebView application risks
-&amp;gt;
-&amp;gt; Does this intent deprecate or change behavior of existing APIs, such that
-&amp;gt; it has potentially high risk for Android WebView-based applications?
-&amp;gt;
-&amp;gt; None
-&amp;gt;
-&amp;gt; Debuggability
-&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt; ?No
-&amp;gt;
-&amp;gt; Since the feature depends on whether the UA performs a visual transition
-&amp;gt; on navigations (as a part of browser UX), it's difficult to write an
-&amp;gt; interoperable WPT for this. The exact gesture which causes a UA transition
-&amp;gt; is a browser's internal detail.
-&amp;gt;
-&amp;gt; Flag name
-&amp;gt; Requires code in //chrome?False
-&amp;gt;
-&amp;gt; Estimated milestones
-&amp;gt;
-&amp;gt; No milestones specified
-&amp;gt;
-&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5206595333521408"&gt;https://chromestatus.com/feature/5206595333521408&lt;/a&gt;
-&amp;gt;
-&amp;gt; Links to previous Intent discussions
-&amp;gt;
-&amp;gt; This intent message was generated by Chrome Platform Status
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMLuWUyxF-YoX-WVvyYGe8epS6bQ-FBg9dBvkJU6w2yHD7EYsw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMLuWUyxF-YoX-WVvyYGe8epS6bQ-FBg9dBvkJU6w2yHD7EYsw%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg05961.html</id>
-        <title>[blink-dev] FYI: HSTS preload enforcing continued requirements</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg05961.html"/>
-        <updated>2023-04-25T16:44:21.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg05961.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+FYI%5C%3A+HSTS+preload+enforcing+continued+requirements%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] FYI: HSTS preload enforcing continued requirements&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Joe+DeBlasio%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Joe DeBlasio&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230425" rel="nofollow"&gt;Tue, 25 Apr 2023 09:44:21 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Hi folks,
-
-This is a heads-up that the HSTS preload list (&lt;a  rel="nofollow" href="https://hstspreload.org"&gt;https://hstspreload.org&lt;/a&gt;) has
-started enforcing its requirements
-&amp;lt;&lt;a  rel="nofollow" href="https://hstspreload.org/#continued-requirements"&gt;https://hstspreload.org/#continued-requirements&lt;/a&gt;&amp;gt; that domains maintain
-their preload eligibility after enrollment.&lt;/pre&gt;&lt;pre&gt;
-
-While these requirements have always been present, we haven't previously
-enforced them. However, the HSTS preload list has grown to more than 1MB in
-binary size (and more than 20MB in source). Enforcing existing requirements
-resulted in an immediate reduction in size by almost half
-&amp;lt;&lt;a  rel="nofollow" href="http://crrev.com/c/4455622"&gt;http://crrev.com/c/4455622&lt;/a&gt;&amp;gt;.
-
-Removing HSTS preloading will not cause breakage, though impacted sites
-will lose protections against downgrade attacks. Impacted sites can regain
-protections by following instructions at &lt;a  rel="nofollow" href="https://hstspreload.org"&gt;https://hstspreload.org&lt;/a&gt; to re-add
-their sites to the preload list.
-
-Comments, either on-list or directly to me, are most welcome,
-Joe
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFZs0S4753ZiQqZf%3D6o4TU6heMBudhRrsd03er_j%3DQ5mNFcN1g%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFZs0S4753ZiQqZf%3D6o4TU6heMBudhRrsd03er_j%3DQ5mNFcN1g%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg05960.html</id>
-        <title>Re: [blink-dev] Intent to Ship: Partitioning Storage, Service Workers, and Communication APIs</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg05960.html"/>
-        <updated>2023-04-25T16:00:31.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg05960.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Partitioning+Storage%2C+Service+Workers%2C+and+Communication+APIs%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Partitioning Storage, Service Workers, and Communication APIs&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Rick+Byers%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Rick Byers&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230425" rel="nofollow"&gt;Tue, 25 Apr 2023 09:00:31 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;I share the concerns around compat risk and making the platform less
-predictable for businesses. But I also don't see any alternative given that
-at least Google Chrome is going ahead with strong tracking protection and
-Firefox and Safari already have this. I assume the codebase will support
-both partitioned and unpartitioned storage for some time into the future
-due to enterprise policy and perhaps other knobs that might impact Chrome,
-and so other embedders like Edge are free to apply their own policy around
-when the partition storage and when not, right Mike? The existing
-deployment experience, data from other browsers, finch-controlled rollout &amp;
-killswitch, dev trials, enterprise policy knob and webview opt-out seem
-like the complete suite of relevant compat mitigation risks. So I'm OK with
-this proceeding from a web compat perspective as you see fit Mike.&lt;/pre&gt;&lt;pre&gt;
-
-In terms of the standards / process piece, it looks as if the spec PRs have
-all stalled for several months. What do you think is necessary to get these
-unblocked and landed? As the last engine to implement this behavior,
-perhaps we shouldn't feel too compelled to block shipping on PRs landing?
-What about WPT or other interop testing? Are there any known cases where
-behavior is observably different between engines and any test cases we can
-provide to help quantify that and encourage alignment?
-
-Thanks,
-   Rick
-
-
-On Tue, Apr 25, 2023 at 10:52 AM Mike Taylor &amp;lt;miketa...@chromium.org&amp;gt; wrote:
-
-&amp;gt; On 4/24/23 2:11 PM, Yoav Weiss wrote:
-&amp;gt;
-&amp;gt; Apologies for my slowness!
-&amp;gt;
-&amp;gt; On Thu, Apr 6, 2023 at 2:01 AM Mike Taylor &amp;lt;miketa...@chromium.org&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; On 4/4/23 11:51 PM, Yoav Weiss wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Thanks for working on this!!
-&amp;gt;&amp;gt; Aligning with Safari and Firefox on this means that this is important not
-&amp;gt;&amp;gt; just for user privacy, but also from an interop perspective. It also gives
-&amp;gt;&amp;gt; us some confidence that this deprecation can be successful.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; This is effectively a deprecation, but one where I can't think of a
-&amp;gt;&amp;gt; reasonable way to measure usage, so it seems to me that a careful rollout +
-&amp;gt;&amp;gt; deprecation trial (as you're suggesting) is the way to go here.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Yeah, I'm hopeful that the web has adjusted to this as the norm given
-&amp;gt;&amp;gt; Firefox and Safari's behavior, but we know that Firefox had some site
-&amp;gt;&amp;gt; breakage to deal with when they first introduced the feature, so I'd rather
-&amp;gt;&amp;gt; be cautious with the rollout to avoid any major incidents.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Is the deprecation trial enabled as a 3P OT? That may ease the deployment
-&amp;gt;&amp;gt; for platform providers that have a hard time shipping header changes to a
-&amp;gt;&amp;gt; large set of origins.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; We made the decision to not support 3Ps for the deprecation trial.
-&amp;gt;&amp;gt; Instead, when a site enables the Deprecation trial, all of its embedded
-&amp;gt;&amp;gt; frames will have a 1st party StorageKey. Our thinking was that we wanted
-&amp;gt;&amp;gt; the embedder to be in control of its users' storage, rather than the
-&amp;gt;&amp;gt; embeddee. But if this turns out to be untenable, we're open to considering
-&amp;gt;&amp;gt; making this work as a 3P trial as well.
-&amp;gt;&amp;gt;
-&amp;gt;
-&amp;gt; The scenario I'm slightly concerned about is a large platform (ecommerce,
-&amp;gt; CRM, etc) with a ~gazillion different customer origins, that is currently
-&amp;gt; relying on any of these APIs to communicate common state (e.g. checkout
-&amp;gt; flows).
-&amp;gt; Such a platform would most probably be able to opt-in using a 3P OT (by
-&amp;gt; delivering a common origin script that does the opt-in), but may not be
-&amp;gt; able to opt-in each origin individually.
-&amp;gt; It's probably fine to make sure that only the top-level frame can
-&amp;gt; participate in the 3P OT, although I'm not 100% sure if that's how 3P OTs
-&amp;gt; are currently wired.
-&amp;gt; +Panos Astithas &amp;lt;pastit...@google.com&amp;gt; may know.
-&amp;gt;
-&amp;gt; Yeah, that's a fair concern. To date, we're not aware of any such use
-&amp;gt; cases or site breakage - but that doesn't mean it's not out there. :) We
-&amp;gt; have engaged with one large enterprise SaaS platform to encourage early
-&amp;gt; testing last September, and thus far haven't heard anything concerning from
-&amp;gt; them.
-&amp;gt;
-&amp;gt; We're hoping that turning this on at 1% might flush out some of these
-&amp;gt; possible scenarios and help us decide if we need to re-think how the
-&amp;gt; Deprecation Trial works, or even the launch plan (perhaps launching behind
-&amp;gt; the &amp;quot;Block 3P cookies&amp;quot; setting to start with). After thinking a bit more,
-&amp;gt; it probably makes sense to hold at 1% for longer than the original 2 weeks,
-&amp;gt; perhaps 4 weeks instead. Given that Gecko and WebKit have already shipped
-&amp;gt; partitioned storage, I'm hopeful that things aren't so dire - but we may
-&amp;gt; just discover how much of the web isn't tested or supported in those
-&amp;gt; engines.
-&amp;gt;
-&amp;gt;
-&amp;gt; Also, have we reached out to the usual suspects to make sure they test
-&amp;gt;&amp;gt; this change ahead of time?
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; We have been in touch with some partners through our partnership team,
-&amp;gt;&amp;gt; and other top sites as well. :)
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Wed, Apr 5, 2023 at 12:44 AM Mike Taylor &amp;lt;miketa...@chromium.org&amp;gt;
-&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; *Contact emails*
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; * wanderv...@chromium.org &amp;lt;wanderv...@chromium.org&amp;gt;, m...@chromium.org
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;m...@chromium.org&amp;gt;, mikety...@chromium.org &amp;lt;mikety...@chromium.org&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Explainer
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/wanderview/quota-storage-partitioning/blob/main/explainer.md"&gt;https://github.com/wanderview/quota-storage-partitioning/blob/main/explainer.md&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/wanderview/quota-storage-partitioning/blob/main/explainer.md"&gt;https://github.com/wanderview/quota-storage-partitioning/blob/main/explainer.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Specification Partitioned Storage is roughly specified at
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://privacycg.github.io/storage-partitioning/"&gt;https://privacycg.github.io/storage-partitioning/&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://privacycg.github.io/storage-partitioning/"&gt;https://privacycg.github.io/storage-partitioning/&lt;/a&gt;&amp;gt;. As part of this work,
-&amp;gt;&amp;gt;&amp;gt; we have started to codify the necessary concepts in HTML, DOM, and Storage
-&amp;gt;&amp;gt;&amp;gt; in the following PRs: &lt;a  rel="nofollow" href="https://github.com/whatwg/storage/pull/144"&gt;https://github.com/whatwg/storage/pull/144&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/storage/pull/144"&gt;https://github.com/whatwg/storage/pull/144&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/whatwg/dom/pull/1142"&gt;https://github.com/whatwg/dom/pull/1142&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/dom/pull/1142/files"&gt;https://github.com/whatwg/dom/pull/1142/files&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/whatwg/html/pull/8447"&gt;https://github.com/whatwg/html/pull/8447&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/pull/8447"&gt;https://github.com/whatwg/html/pull/8447&lt;/a&gt;&amp;gt;  We have also updated other APIs
-&amp;gt;&amp;gt;&amp;gt; to use StorageKey (ServiceWorker [1
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/ServiceWorker/pulls?q=is%3Apr+is%3Aclosed+partition"&gt;https://github.com/w3c/ServiceWorker/pulls?q=is%3Apr+is%3Aclosed+partition&lt;/a&gt;&amp;gt;],
-&amp;gt;&amp;gt;&amp;gt; BroadcastChannel [1 &amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/pull/7567"&gt;https://github.com/whatwg/html/pull/7567&lt;/a&gt;&amp;gt;],
-&amp;gt;&amp;gt;&amp;gt; SharedWorker[1 &amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/pull/7995"&gt;https://github.com/whatwg/html/pull/7995&lt;/a&gt;&amp;gt;]), and landed
-&amp;gt;&amp;gt;&amp;gt; necessary additions to Storage itself ([1
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/storage/commit/bea19b70f497d7059c920b9f0a81ac8f49bd36ed"&gt;https://github.com/whatwg/storage/commit/bea19b70f497d7059c920b9f0a81ac8f49bd36ed&lt;/a&gt;&amp;gt;][2
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/storage/commit/c68c38413c02496114d51af28caa83d11689d300"&gt;https://github.com/whatwg/storage/commit/c68c38413c02496114d51af28caa83d11689d300&lt;/a&gt;&amp;gt;]).
-&amp;gt;&amp;gt;&amp;gt; What we thought to be a straightforward set of changes has evolved to be a
-&amp;gt;&amp;gt;&amp;gt; more complex refactoring, per the request of HTML editors. We propose to
-&amp;gt;&amp;gt;&amp;gt; ship with a WIP spec spread out across the PRs above (noting that Firefox
-&amp;gt;&amp;gt;&amp;gt; and Safari have already shipped partitioned storage). That said, we intend
-&amp;gt;&amp;gt;&amp;gt; to finish this work. Summary We intend to partition a number of APIs in
-&amp;gt;&amp;gt;&amp;gt; third-party contexts. This effort is focused on partitioning APIs above the
-&amp;gt;&amp;gt;&amp;gt; network stack. This includes quota-managed storage, service workers, and
-&amp;gt;&amp;gt;&amp;gt; communication APIs (like BroadcastChannel). See the explainer for more
-&amp;gt;&amp;gt;&amp;gt; details:
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/wanderview/quota-storage-partitioning/blob/main/explainer.md"&gt;https://github.com/wanderview/quota-storage-partitioning/blob/main/explainer.md&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/wanderview/quota-storage-partitioning/blob/main/explainer.md"&gt;https://github.com/wanderview/quota-storage-partitioning/blob/main/explainer.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Blink component Blink&amp;gt;Storage TAG review
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/629"&gt;https://github.com/w3ctag/design-reviews/issues/629&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/629"&gt;https://github.com/w3ctag/design-reviews/issues/629&lt;/a&gt;&amp;gt;  TAG review status
-&amp;gt;&amp;gt;&amp;gt; Resolution: Satisfied Risks Interoperability and Compatibility Given that
-&amp;gt;&amp;gt;&amp;gt; Firefox and Safari have already shipped this feature, we expect our
-&amp;gt;&amp;gt;&amp;gt; implementation to be interoperable. We are aware of breakage
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/privacycg/storage-partitioning/issues/34#issuecomment-1194358637"&gt;https://github.com/privacycg/storage-partitioning/issues/34#issuecomment-1194358637&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; for sites that use Firebase for authentication (because it relies on being
-&amp;gt;&amp;gt;&amp;gt; able to access unpartitioned sessionStorage). Firebase has blogged on how
-&amp;gt;&amp;gt;&amp;gt; sites can mitigate this issue
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://firebase.google.com/docs/auth/web/redirect-best-practices"&gt;https://firebase.google.com/docs/auth/web/redirect-best-practices&lt;/a&gt;&amp;gt;. We
-&amp;gt;&amp;gt;&amp;gt; built a deprecation trial specifically for the sessionStorage redirect use
-&amp;gt;&amp;gt;&amp;gt; case, which should work for Firebase users. In addition, we have a general
-&amp;gt;&amp;gt;&amp;gt; deprecation trial available and enterprise policies in place. See below for
-&amp;gt;&amp;gt;&amp;gt; more info on the deprecation trials. We’ve made storage partitioning
-&amp;gt;&amp;gt;&amp;gt; available for local testing in Chrome for the past 6 months
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.chrome.com/en/blog/storage-partitioning-dev-trial/"&gt;https://developer.chrome.com/en/blog/storage-partitioning-dev-trial/&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt;&amp;gt; Apart from Firebase, we’re not aware of any existing compatibility issues
-&amp;gt;&amp;gt;&amp;gt; that can’t be solved by the deprecation trials
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.chrome.com/blog/storage-partitioning-deprecation-trial/"&gt;https://developer.chrome.com/blog/storage-partitioning-deprecation-trial/&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt;&amp;gt; There may be unforeseen contexts and use cases that rely on unpartitioned
-&amp;gt;&amp;gt;&amp;gt; storage and as such, we propose to roll this feature out carefully via
-&amp;gt;&amp;gt;&amp;gt; Finch, according to the following proposed schedule: May 9th: 1% of Stable
-&amp;gt;&amp;gt;&amp;gt; population (approximately 1 week after M113 is released) May 23rd: 10% June
-&amp;gt;&amp;gt;&amp;gt; 6th: 50% June 20th: 100% As usual, if we identify concerning metrics,
-&amp;gt;&amp;gt;&amp;gt; regressions, or site breakage reports, we may pause or roll back to
-&amp;gt;&amp;gt;&amp;gt; investigate or address issues. Deprecation trial instructions:
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://developer.chrome.com/blog/storage-partitioning-deprecation-trial/"&gt;https://developer.chrome.com/blog/storage-partitioning-deprecation-trial/&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.chrome.com/blog/storage-partitioning-deprecation-trial/"&gt;https://developer.chrome.com/blog/storage-partitioning-deprecation-trial/&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Gecko: Shipped/Shipping WebKit: Shipped/Shipping Web developers: Mixed
-&amp;gt;&amp;gt;&amp;gt; signals. Some developers have expressed compatibility concerns, others have
-&amp;gt;&amp;gt;&amp;gt; been supportive. Other signals: WebView application risks Does this intent
-&amp;gt;&amp;gt;&amp;gt; deprecate or change behavior of existing APIs, such that it has potentially
-&amp;gt;&amp;gt;&amp;gt; high risk for Android WebView-based applications? No, we don’t intend to
-&amp;gt;&amp;gt;&amp;gt; turn this on for WebView yet. Debuggability DevTools has support for
-&amp;gt;&amp;gt;&amp;gt; partitioned storage. Will this feature be supported on all six Blink
-&amp;gt;&amp;gt;&amp;gt; platforms (Windows, Mac, Linux, Chrome OS, Android, and Android WebView)?
-&amp;gt;&amp;gt;&amp;gt; No (not WebView) Is this feature fully tested by web-platform-tests? Yes.
-&amp;gt;&amp;gt;&amp;gt; We’ve written WPTs to verify our 3rd party storage partitioning. Flag name
-&amp;gt;&amp;gt;&amp;gt; ThirdPartyStoragePartitioning Requires code in //chrome? Nope Tracking bug
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1191114"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1191114&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1191114"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1191114&lt;/a&gt;&amp;gt;  Launch bug
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://launch.corp.google.com/launch/4214498"&gt;https://launch.corp.google.com/launch/4214498&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://launch.corp.google.com/launch/4214498"&gt;https://launch.corp.google.com/launch/4214498&lt;/a&gt;&amp;gt;  Anticipated spec changes
-&amp;gt;&amp;gt;&amp;gt; Open questions about a feature may be a source of future web compat or
-&amp;gt;&amp;gt;&amp;gt; interop issues. Please list open issues (in other words, links to known
-&amp;gt;&amp;gt;&amp;gt; GitHub issues in the project, for the feature specification) whose
-&amp;gt;&amp;gt;&amp;gt; resolution may introduce web compat/interop risk (such as changes to naming
-&amp;gt;&amp;gt;&amp;gt; or structure of the API in a non-backward-compatible way). None Link to
-&amp;gt;&amp;gt;&amp;gt; entry on the Chrome Platform Status
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5723617717387264"&gt;https://chromestatus.com/feature/5723617717387264&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5723617717387264"&gt;https://chromestatus.com/feature/5723617717387264&lt;/a&gt;&amp;gt;  Links to previous
-&amp;gt;&amp;gt;&amp;gt; Intent discussions Intent to Prototype:
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/WXNzM0WiQ-s/m/l10NGhaoAQAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/WXNzM0WiQ-s/m/l10NGhaoAQAJ&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/WXNzM0WiQ-s/m/l10NGhaoAQAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/WXNzM0WiQ-s/m/l10NGhaoAQAJ&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Intent to Experiment:
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/FNi-nNC8fiw/m/gNftPAzUBgAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/FNi-nNC8fiw/m/gNftPAzUBgAJ&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/FNi-nNC8fiw/m/gNftPAzUBgAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/FNi-nNC8fiw/m/gNftPAzUBgAJ&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; *
-&amp;gt;&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
-&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send
-&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+unsubscr...@chromium.org.
-&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/e8540107-85b2-a113-6347-1290c23f6379%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/e8540107-85b2-a113-6347-1290c23f6379%40chromium.org&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/e8540107-85b2-a113-6347-1290c23f6379%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/e8540107-85b2-a113-6347-1290c23f6379%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; --
-&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt; To view this discussion on the web visit
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/482f0215-8ded-fe8b-9765-423567625f41%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/482f0215-8ded-fe8b-9765-423567625f41%40chromium.org&lt;/a&gt;
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/482f0215-8ded-fe8b-9765-423567625f41%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/482f0215-8ded-fe8b-9765-423567625f41%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt; .
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY-7qzcCaDaNvTd-7d9wZCD3%2Bqj6OyYUqKy2P3Oex3dawA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY-7qzcCaDaNvTd-7d9wZCD3%2Bqj6OyYUqKy2P3Oex3dawA%40mail.gmail.com&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
