@@ -5,6 +5,259 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06056.html</id>
+        <title>[blink-dev] Intent to Experiment: "is-cross-site" bit in the HTTP Cache Partitioning Key</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06056.html"/>
+        <updated>2023-05-02T14:41:23.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06056.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Experiment%5C%3A+%5C%22is%5C-cross%5C-site%5C%22+bit+in+the+HTTP+Cache+Partitioning+Key%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Experiment: "is-cross-site" bit in the HTTP Cache Partitioning Key&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Andrew+Williams%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Andrew Williams&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230502" rel="nofollow"&gt;Tue, 02 May 2023 07:41:23 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Contact emails
+
+awil...@chromium.org&lt;/pre&gt;&lt;pre&gt;
+
+Explainer
+
+This change is not covered by an explainer, but the following are related:
+
+&lt;a  rel="nofollow" href="https://github.com/shivanigithub/http-cache-partitioning"&gt;https://github.com/shivanigithub/http-cache-partitioning&lt;/a&gt;
+
+&lt;a  rel="nofollow" href="https://github.com/MattMenke2/Explainer---Partition-Network-State/blob/main/README.md"&gt;https://github.com/MattMenke2/Explainer---Partition-Network-State/blob/main/README.md&lt;/a&gt;
+
+Spec
+
+&lt;a  rel="nofollow" href="https://fetch.spec.whatwg.org/#http-cache-partitions"&gt;https://fetch.spec.whatwg.org/#http-cache-partitions&lt;/a&gt;
+
+&lt;a  rel="nofollow" href="https://fetch.spec.whatwg.org/#network-partition-keys"&gt;https://fetch.spec.whatwg.org/#network-partition-keys&lt;/a&gt;
+
+Summary
+
+To protect users from multiple types of cross-site data leak attacks, the
+HTTP cache was partitioned
+&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5730772021411840"&gt;https://chromestatus.com/feature/5730772021411840&lt;/a&gt;&amp;gt; based on the top-level
+site and the frame site. In other words, cache entries for a given URL
+created from third-party contexts (e.g., a ‘b.com’ iframe embedded on ‘a.com’)
+are stored separately from those from first-party contexts (‘a.com’, or an ‘
+a.com’ iframe embedded on ‘a.com’) and other third-party contexts (a ‘c.com’
+iframe embedded on ‘a.com’).
+
+Other shared network state was recently partitioned
+&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/feature/6713488334389248"&gt;https://chromestatus.com/feature/6713488334389248&lt;/a&gt;&amp;gt; as well, but using a
+different partitioning scheme - instead of using the top-level site and the
+frame site, network state in third-party contexts is partitioned by the
+top-level site and whether the frame site is cross-site from the top-level
+site. Using this &amp;quot;is-cross-site&amp;quot; bit instead of the frame site was chosen
+as a balance between security and performance after running experiments and
+measuring the results.
+
+The change proposed here is to replace the frame site in the HTTP cache
+partitioning scheme with an &amp;quot;is-cross-site&amp;quot; bit to perform similar
+experimentation. Using the examples above, this change means that a ‘b.com’
+iframe embedded on ‘a.com’ would now share an HTTP cache partition with a ‘
+c.com’ iframe embedded on ‘a.com’, since the “is-cross-site” bit for both
+would be set to true (and since the top-level site for both is ‘a.com’).
+
+Blink component
+
+Internals&amp;gt;Network&amp;gt;Cache
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component%3AInternals%3ENetwork%3ECache&amp;can=2"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component%3AInternals%3ENetwork%3ECache&amp;can=2&lt;/a&gt;&amp;gt;
+
+TAG review
+
+Not requested at this time
+
+TAG review status
+
+N/A
+
+RisksInteroperability and Compatibility
+
+No interoperability / compatibility risks are expected, since the caching
+behavior generally only affects site performance , and in this case the
+change should result in performance improvements
+
+Gecko: N/A, but their implementation doesn’t partition by frame site or
+“is-cross-site”;
+
+WebKit: N/A, but their implementation doesn’t partition by frame site or
+“is-cross-site”;
+
+Web developers: No signals
+
+Other signals: N/A
+
+WebView application risks
+
+None, since HTTP cache partitioning is not enabled for WebView
+
+Security
+
+One side effect of this change is that a malicious cross-site iframe will
+now share an HTTP cache partition with other cross-site iframes under the
+same top-level site. This allows the malicious cross-site iframe to perform
+data leak attacks against the other cross-site iframes via HTTP cache
+probing. It’s unclear how useful this attack primitive would be in
+practice, since the data available to the attacker would still be
+partitioned by the top-level site, and since construction of a page to take
+advantage of this weakness (for instance, a phishing page where a victim
+site is in one cross-site iframe) could be thwarted by X-Frame-Options /
+CSP’s frame-ancestors option.
+
+Goals for experimentation
+
+This experiment aims to identify what effect the new partitioning scheme
+has on the Chrome guiding metrics/vital metrics, and on other metrics that
+are influenced by the performance of the HTTP cache.
+
+Also, one specific side-effect of this change is that iframes with opaque
+origins (for instance, those created using data: URLs) may now be eligible
+to have their resources added to the HTTP cache. We aim to measure what
+changes in performance result from this.
+
+Will this feature be supported on all six Blink platforms (Windows, Mac,
+Linux, Chrome OS, Android, and Android WebView)?
+
+This feature will be supported on all six Blink platforms, but note that
+HTTP cache partitioning is only enabled-by-default for Chrome desktop and
+mobile platforms (but not WebView).
+
+Flag name
+
+--enable-features=EnableCrossSiteFlagNetworkIsolationKey
+
+Proposed experiment timeline
+
+We plan to roll out the experiment as follows:
+
+   -
+
+   April 27th - 50% of Canary and Dev users (M114)
+   -
+
+   May 4th - 50% of Canary, Dev, and Beta users (M114)
+   -
+
+   May 11th - 1% of Stable users and 50% of Canary, Dev, and Beta users
+   -
+
+   June 15th - End the experiment
+
+
+Is this feature fully tested by web-platform-tests?
+
+No - for this experiment, testing is only implemented via unit tests and
+Chrome browser tests
+
+Link to entry on the feature dashboard &amp;lt;&lt;a  rel="nofollow" href="https://www.chromestatus.com/"&gt;https://www.chromestatus.com/&lt;/a&gt;&amp;gt;
+
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/6169233265786880"&gt;https://chromestatus.com/feature/6169233265786880&lt;/a&gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAEa0%2BkVFqn2BxfXhtGjYbb6%3DVA8MpTnD%2BNx4bcQqt3a3a0s%3DCw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAEa0%2BkVFqn2BxfXhtGjYbb6%3DVA8MpTnD%2BNx4bcQqt3a3a0s%3DCw%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06055.html</id>
+        <title>[blink-dev] Intent to Ship: timestamp field on RTCEncodedVideoFrameMetadata</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06055.html"/>
+        <updated>2023-05-02T14:29:21.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06055.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+timestamp+field+on+RTCEncodedVideoFrameMetadata%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Ship: timestamp field on RTCEncodedVideoFrameMetadata&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Tony+Herre%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Tony Herre' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230502" rel="nofollow"&gt;Tue, 02 May 2023 07:29:21 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Contact emails
+
+he...@google.com, gui...@chromium.com&lt;/pre&gt;&lt;pre&gt;
+
+Spec
+&lt;a  rel="nofollow" href="https://w3c.github.io/webrtc-encoded-transform/#RTCEncodedVideoFrameMetadata"&gt;https://w3c.github.io/webrtc-encoded-transform/#RTCEncodedVideoFrameMetadata&lt;/a&gt;
+particularly
+PR#173 &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/webrtc-encoded-transform/pull/173"&gt;https://github.com/w3c/webrtc-encoded-transform/pull/173&lt;/a&gt;&amp;gt;.
+
+
+Summary
+
+Add a 'timestamp' field to RTCEncodedVideoFrameMetadata containing the
+presentation timestamp of the associated encoded video frame.
+
+Is this feature supported on all six Blink platforms (Windows, Mac, Linux,
+Chrome OS, Android, and Android WebView)?
+
+Yes
+
+Risks
+
+Interoperability and Compatibility
+
+Positive response from all members at W3C WebRTC WG April 2023 Interim, PR
+landed with no open issues.
+
+Ergonomics
+
+Added specifically to align with the timestamp field on the WebCodecs
+&amp;lt;&lt;a  rel="nofollow" href="https://www.w3.org/TR/webcodecs/#encodedvideochunk-interface"&gt;https://www.w3.org/TR/webcodecs/#encodedvideochunk-interface&lt;/a&gt;&amp;gt;
+EncodedVideoChunk
+&amp;lt;&lt;a  rel="nofollow" href="https://www.w3.org/TR/webcodecs/#encodedvideochunk-interface"&gt;https://www.w3.org/TR/webcodecs/#encodedvideochunk-interface&lt;/a&gt;&amp;gt;, and allow
+matching video frames with the timestamp in the WebCodecs VideoFrame
+&amp;lt;&lt;a  rel="nofollow" href="https://www.w3.org/TR/webcodecs/#videoframe-interface"&gt;https://www.w3.org/TR/webcodecs/#videoframe-interface&lt;/a&gt;&amp;gt; object.
+
+Will also provide the same timestamp already exposed in
+requestVideoFrameCallback's 'mediaTime'.
+
+Is this feature fully tested by web-platform-tests
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+?
+
+Tested internally by RTCEncodedVideoFrame-capture-timestamp-id.html
+&amp;lt;&lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/web_tests/fast/peerconnection/RTCEncodedVideoFrame-capture-timestamp-id.html"&gt;https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/web_tests/fast/peerconnection/RTCEncodedVideoFrame-capture-timestamp-id.html&lt;/a&gt;&amp;gt;,
+upstreaming to WPT tracked in crbug.com/1441888.
+
+
+
+Entry on the feature dashboard
+
+None, small delta to launched API.
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAArnMxH%2BNJKi80S4822wmjtQUqid8czA9AefCC_fm%3DHk3sTuiw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAArnMxH%2BNJKi80S4822wmjtQUqid8czA9AefCC_fm%3DHk3sTuiw%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06054.html</id>
         <title>[blink-dev] Re: Intent to Experiment: Compute Pressure</title>
         <author>
@@ -7910,428 +8163,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/fc72248b-b860-0fc1-d191-83ae5d8502bd%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/fc72248b-b860-0fc1-d191-83ae5d8502bd%40chromium.org&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06006.html</id>
-        <title>Re: [blink-dev] Intent to Ship: Partitioning Storage, Service Workers, and Communication APIs</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06006.html"/>
-        <updated>2023-04-27T14:23:53.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06006.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Partitioning+Storage%2C+Service+Workers%2C+and+Communication+APIs%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Partitioning Storage, Service Workers, and Communication APIs&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Rick+Byers%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Rick Byers&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230427" rel="nofollow"&gt;Thu, 27 Apr 2023 07:23:53 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;On Wed, Apr 26, 2023 at 2:02 PM Mike Taylor &amp;lt;miketa...@chromium.org&amp;gt; wrote:&lt;/pre&gt;&lt;pre&gt;
-
-&amp;gt; On 4/26/23 9:36 AM, Mike Taylor wrote:
-&amp;gt;
-&amp;gt; &amp;gt; On 4/25/23 12:00 PM, Rick Byers wrote:
-&amp;gt; &amp;gt;
-&amp;gt; &amp;gt;&amp;gt; In terms of the standards / process piece, it looks as if the spec
-&amp;gt; &amp;gt;&amp;gt; PRs have all stalled for several months. What do you think is
-&amp;gt; &amp;gt;&amp;gt; necessary to get these unblocked and landed? As the last engine to
-&amp;gt; &amp;gt;&amp;gt; implement this behavior, perhaps we shouldn't feel too compelled to
-&amp;gt; &amp;gt;&amp;gt; block shipping on PRs landing?
-&amp;gt;
-&amp;gt; I was gently reminded offline that I didn't answer this part of your
-&amp;gt; question - oops.
-&amp;gt;
-&amp;gt; Right now it seems to me that the costs of landing these spec PRs is
-&amp;gt; higher than we're willing to block on, given the requested refactoring
-&amp;gt; (and yes, it's unfortunate that 3 engines would be shipping essentially
-&amp;gt; unspecced behavior, but that's where we're at). That said, I'm happy to
-&amp;gt; devote my few IC hours to pushing these along as a personal project over
-&amp;gt; the coming months.
-&amp;gt;
-
-Thanks Mike. I trust your and wanderview@'s judgement here - I know how
-hard y'all have been willing to work in the past to get the right thing
-done in specs. Thanks for being willing to keep pushing in parallel. But
-given two other implementations have already shipped this, it was clearly
-already a spec bug that the spec didn't reflect reality. I agree that we
-shouldn't block shipping a 3rd implementation on spec refactoring work.
-
-LGTM1 to ship from my perspective. Obviously this will need a very
-thoughtful and careful roll-out. But I trust Mike and his team to engage
-with impacted folks to make sure it goes smoothly, as they did with UA
-reduction.
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY-DOfvJkUM5tCuBj2%2B1DD%2BvzQFksm5qG6c%3DdXJXNb8vxg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY-DOfvJkUM5tCuBj2%2B1DD%2BvzQFksm5qG6c%3DdXJXNb8vxg%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06005.html</id>
-        <title>Re: [blink-dev] Re: Intent to Ship: Local Network Access allowing same-origin fetches to potentially trustworthy origins</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06005.html"/>
-        <updated>2023-04-27T14:14:05.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06005.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Ship%5C%3A+Local+Network+Access+allowing+same%5C-origin+fetches+to+potentially+trustworthy+origins%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Re: Intent to Ship: Local Network Access allowing same-origin fetches to potentially trustworthy origins&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Mike+Taylor%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Mike Taylor&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230427" rel="nofollow"&gt;Thu, 27 Apr 2023 07:14:05 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre style="margin: 0em;"&gt;
-LGTM2 (sorry for the delay, it seems this fell out of our review queue).&lt;/pre&gt;&lt;pre&gt;
-
-On 4/27/23 9:56 AM, Jonathan Hao wrote:
-&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;
-Hi Yoav,
-
-&lt;/pre&gt;&lt;tt&gt;It's been 2 weeks but no other API owners have replied.  Do you know 
-&lt;/tt&gt;&lt;tt&gt;if there's any blockers?  Should we ping the other API owners or could 
-&lt;/tt&gt;&lt;tt&gt;you help us?
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-
-Best,
-Jonathan
-
-On Wed, Apr 12, 2023 at 1:26 PM Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt; wrote:
-
-    LGTM1
-
-    Thanks for explaining! :)
-
-    On Wed, Apr 12, 2023 at 2:24 PM Jonathan Hao &amp;lt;p...@chromium.org&amp;gt;
-    wrote:
-
-
-
-        On Wed, Apr 12, 2023, 12:45 Yoav Weiss
-        &amp;lt;yoavwe...@chromium.org&amp;gt; wrote:
-
-
-
-            On Wed, Apr 5, 2023 at 2:02 PM Jonathan Hao
-            &amp;lt;p...@chromium.org&amp;gt; wrote:
-
-                Sorry for the confusion about the spec name.  We've
-                recently changed our stance
-                
-&lt;a  rel="nofollow" href="https://github.com/WICG/local-network-access/issues/91#issuecomment-1494704528"&gt;https://github.com/WICG/local-network-access/issues/91#issuecomment-1494704528&lt;/a&gt;
-                and the spec name is still unsettled until we hear
-                back from other browser vendors. Both Private Network
-                Access and Local Network Access mean the same thing
-                for now.
-
-                On Wed, Apr 5, 2023, 12:22 Jonathan Hao
-                &amp;lt;p...@chromium.org&amp;gt; wrote:
-
-
-                            Note that Private Network Access is in the
-                            process of being renamed to Local Network
-                            Access, so you may see inconsistent names
-                            for the time being.
-
-
-                            Explainer
-
-
-                            
-&lt;a  rel="nofollow" href="https://github.com/WICG/local-network-access/blob/main/explainer.md"&gt;https://github.com/WICG/local-network-access/blob/main/explainer.md&lt;/a&gt;
-                            
-&amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/local-network-access/blob/main/explainer.md"&gt;https://github.com/WICG/local-network-access/blob/main/explainer.md&lt;/a&gt;&amp;gt;
-
-
-                            Specification
-
-
-                            
-&lt;a  rel="nofollow" href="https://wicg.github.io/local-network-access/#secure-context-restriction"&gt;https://wicg.github.io/local-network-access/#secure-context-restriction&lt;/a&gt;
-                            &amp;lt;&lt;a  rel="nofollow" href="https://wicg.github.io/local-network-access"&gt;https://wicg.github.io/local-network-access&lt;/a&gt;&amp;gt;
-
-
-                            Design docs
-
-
-                            Local Network Access: Allow Potentially
-                            Trustworthy Same-Origin Fetches
-                            
-&amp;lt;&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1XopQKc6sR-2URgKqEleb-XNjcSPOjTI-E5qRxWGBuTY/edit#heading=h.y2euwddkcot"&gt;https://docs.google.com/document/d/1XopQKc6sR-2URgKqEleb-XNjcSPOjTI-E5qRxWGBuTY/edit#heading=h.y2euwddkcot&lt;/a&gt;&amp;gt;
-
-                            Private Network Access: Preflight requests
-                            for subresources
-                            
-&amp;lt;&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1FYPIeP90MQ_pQ6UAo0mCB3g2Z_AynfPWHbDnHIST6VI/edit"&gt;https://docs.google.com/document/d/1FYPIeP90MQ_pQ6UAo0mCB3g2Z_AynfPWHbDnHIST6VI/edit&lt;/a&gt;&amp;gt;
-
-
-                            Summary
-
-
-                            Allow same-origin local network fetches to
-                            potentially-trustworthy origins and do not
-                            send preflights for them. We currently
-                            send preflights before all local network
-                            requests, but ignore the results, as
-                            proposed in Intent to Ship: Private
-                            Network Access preflight requests for
-                            subresources
-                            
-&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/u/1/a/chromium.org/g/blink-dev/c/72CK2mxD47c/m/5mkboUneAwAJ"&gt;https://groups.google.com/u/1/a/chromium.org/g/blink-dev/c/72CK2mxD47c/m/5mkboUneAwAJ&lt;/a&gt;&amp;gt;.
-
-
-            Can you expand on this change? Would this result in not
-            sending preflights IFF their origin is the same as the
-            document's origin?
-
-
-        Yes. Preflights will not be sent iff the origin is the same as
-        the documents' origin and the origin is potentially trustworthy.
-
-            Would this also work for embedded documents? (resulting in
-            a single preflight for the document's resource, but not
-            subresource)
-            Or would it be restricted to cases where the user
-            explicitly went to a local network top-level document? (Or
-            something else entirely, and I misunderstood)
-
-
-        Yes it works for embedded documents too. The preflight for
-        iframe navigation is being worked on separately in
-        &lt;a  rel="nofollow" href="https://crbug.com/1291252"&gt;https://crbug.com/1291252&lt;/a&gt;. If the subresource is same origin
-        to the embedded document then it doesn't require additional
-        preflights.
-
-
-                            Blink component
-
-                    Blink&amp;gt;SecurityFeature&amp;gt;CORS&amp;gt;PrivateNetworkAccess
-                    
-&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ESecurityFeature%3ECORS%3EPrivateNetworkAccess"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ESecurityFeature%3ECORS%3EPrivateNetworkAccess&lt;/a&gt;&amp;gt;
-
-
-                            TAG review
-
-                    &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/572"&gt;https://github.com/w3ctag/design-reviews/issues/572&lt;/a&gt;
-
-
-                            TAG review status
-
-                    Issues addressed
-
-
-                            Risks
-
-
-                            Interoperability and Compatibility
-
-
-                            This change reduces the compatibility risk
-                            of enforcing preflight results on private
-                            network requests as we now send fewer
-                            preflights for private network requests,
-                            so it’s less likely to break websites.
-
-
-                            Gecko: No signal about this specific change.
-
-
-                            WebKit: No signal about this specific change.
-
-
-                            Web developers: No signal about this
-                            specific change, but they should be happy
-                            since this reduces compatibility risks.
-
-
-                            Other signals:
-
-
-
-                            Ergonomics
-
-
-                            None.
-
-
-
-                            Activation
-
-
-                            We plan to ship this change directly to
-                            M114 as this relaxes the previous
-                            restrictions.
-
-
-                            Security
-
-
-                            This change is limited to potentially
-                            trustworthy origins. Proof of certificate
-                            protects users from DNS rebinding.
-
-
-                            WebView application risks
-
-
-                            There’s no plan to ship Local Network
-                            Access on WebView.
-
-
-
-                            Debuggability
-
-                    Relevant information (client and resource IP
-                    address space) is already piped into the DevTools
-                    network panel. Deprecation warnings and errors
-                    will be surfaced in the DevTools issues panel
-                    explaining the problem when it arises.
-
-
-
-                            Will this feature be supported on all six
-                            Blink platforms (Windows, Mac, Linux,
-                            Chrome OS, Android, and Android WebView)?
-
-                    No
-
-                    Not on Android WebView given previous difficulty
-                    in supporting PNA changes due to the lack of
-                    support for deprecation trials. Support for
-                    WebView will be considered separately.
-
-
-
-                            Is this feature fully tested by
-                            web-platform-tests
-                            
-&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;?
-
-                    No
-
-
-                            DevTrial instructions
-
-                    No DevTrial for this change
-
-
-                            Flag name
-
-
-                            
-LocalNetworkAccessAllowPotentiallyTrustworthySameOrigin
-
-
-                            Requires code in //chrome?
-
-
-                            Only for metric logging
-
-
-                            Tracking bug
-
-
-                            &lt;a  rel="nofollow" href="https://crbug.com/1382068"&gt;https://crbug.com/1382068&lt;/a&gt;
-                            &amp;lt;&lt;a  rel="nofollow" href="https://crbug.com/1382068"&gt;https://crbug.com/1382068&lt;/a&gt;&amp;gt;
-
-
-                            Launch bug
-
-
-                            &lt;a  rel="nofollow" href="https://crbug.com/1274149"&gt;https://crbug.com/1274149&lt;/a&gt;
-                            &amp;lt;&lt;a  rel="nofollow" href="https://crbug.com/1274149"&gt;https://crbug.com/1274149&lt;/a&gt;&amp;gt;
-
-
-                            Estimated milestones
-
-                    DevTrial on desktop         114
-
-                    DevTrial on Android         114
-
-
-                            Anticipated spec changes
-
-                    Open questions about a feature may be a source of
-                    future web compat or interop issues. Please list
-                    open issues (e.g. links to known github issues in
-                    the project for the feature specification) whose
-                    resolution may introduce web compat/interop risk
-                    (e.g., changing to naming or structure of the API
-                    in a non-backward-compatible way).
-
-
-                    None
-
-
-                            Link to entry on the Chrome Platform Status
-
-                    &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5737414355058688"&gt;https://chromestatus.com/feature/5737414355058688&lt;/a&gt;
-
-
-                            Links to previous Intent discussions
-
-                    Intent to prototype:
-                    
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/ArrhiKB8XF0/m/cGO-5B1IAwAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/ArrhiKB8XF0/m/cGO-5B1IAwAJ&lt;/a&gt;
-                    Intent to prototype (all preflights):
-                    
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/PrB0xnNxaHs/m/jeoxvNjXCAAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/PrB0xnNxaHs/m/jeoxvNjXCAAJ&lt;/a&gt;
-
-                    Intent to Experiment (all preflights):
-                    
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOC%3DiP%2Bew8hADZkdQ3AO6P9WzfGuzLPp9JjJZqztV5oZmaK8oQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOC%3DiP%2Bew8hADZkdQ3AO6P9WzfGuzLPp9JjJZqztV5oZmaK8oQ%40mail.gmail.com&lt;/a&gt;
-
-
-                    This intent message was generated by Chrome
-                    Platform Status &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.v
-
-&lt;/pre&gt;&lt;tt&gt;                -- 
-&lt;/tt&gt;&lt;tt&gt;                You received this message because you are subscribed
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-                to the Google Groups &amp;quot;blink-dev&amp;quot; group.
-                To unsubscribe from this group and stop receiving
-                emails from it, send an email to
-                blink-dev+unsubscr...@chromium.org.
-                To view this discussion on the web visit
-                
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABsQ2jGAcTV4CUKKwsYYfnQRiQ_W6KK9L4OQ5uNHNGn3WMhZ5Q%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABsQ2jGAcTV4CUKKwsYYfnQRiQ_W6KK9L4OQ5uNHNGn3WMhZ5Q%40mail.gmail.com&lt;/a&gt;
-                
-&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABsQ2jGAcTV4CUKKwsYYfnQRiQ_W6KK9L4OQ5uNHNGn3WMhZ5Q%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABsQ2jGAcTV4CUKKwsYYfnQRiQ_W6KK9L4OQ5uNHNGn3WMhZ5Q%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-
---
-&lt;/pre&gt;&lt;tt&gt;You received this message because you are subscribed to the Google 
-&lt;/tt&gt;&lt;tt&gt;Groups &amp;quot;blink-dev&amp;quot; group.
-&lt;/tt&gt;&lt;tt&gt;To unsubscribe from this group and stop receiving emails from it, send 
-&lt;/tt&gt;&lt;tt&gt;an email to blink-dev+unsubscr...@chromium.org.
-&lt;/tt&gt;&lt;tt&gt;To view this discussion on the web visit 
-&lt;/tt&gt;&lt;tt&gt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOC%3DiPLfTRMRBp56AY-DTAAke5kx6dKVfKqc8c6RXVr7tu3MqQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOC%3DiPLfTRMRBp56AY-DTAAke5kx6dKVfKqc8c6RXVr7tu3MqQ%40mail.gmail.com&lt;/a&gt; 
-&lt;/tt&gt;&lt;tt&gt;&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOC%3DiPLfTRMRBp56AY-DTAAke5kx6dKVfKqc8c6RXVr7tu3MqQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOC%3DiPLfTRMRBp56AY-DTAAke5kx6dKVfKqc8c6RXVr7tu3MqQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-&lt;/tt&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;
-
---
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/288b0a13-287a-0716-13a6-d878bbf73fe4%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/288b0a13-287a-0716-13a6-d878bbf73fe4%40chromium.org&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
