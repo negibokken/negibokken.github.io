@@ -5,6 +5,420 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06105.html</id>
+        <title>Re: [blink-dev] Intent to Deprecate: Deprecate unload event</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06105.html"/>
+        <updated>2023-05-08T08:51:23.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06105.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Deprecate%5C%3A+Deprecate+unload+event%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Deprecate: Deprecate unload event&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Rick+Byers%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Rick Byers&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230508" rel="nofollow"&gt;Mon, 08 May 2023 01:51:23 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Hi Fergal,
+It's exciting to see this moving forward! Just to clarify, this is
+effectively an I2S for the unload permissions-policy, is that right? Or are
+you also requesting permission to stop firing unload events now too?  The
+latter is going to require some significant compat analysis, but could be
+greatly informed by the experience of having some top-level sites opt-out
+of unload for their frame tree.&lt;/pre&gt;&lt;pre&gt;
+
+Any plan to trigger a deprecation warning / report for the installation of
+unload handlers? It might be tricky to find a good balance of useful
+warnings without being too spammy.
+
+A couple more questions / comments inline:
+
+On Mon, May 8, 2023 at 7:43 AM Fergal Daly &amp;lt;fer...@chromium.org&amp;gt; wrote:
+
+&amp;gt; Contact emails
+&amp;gt;
+&amp;gt; fer...@chromium.org, kenjibah...@chromium.org
+&amp;gt;
+&amp;gt; Explainer
+&amp;gt;
+&amp;gt;
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/fergald/docs/blob/master/explainers/permissions-policy-deprecate-unload.md"&gt;https://github.com/fergald/docs/blob/master/explainers/permissions-policy-deprecate-unload.md&lt;/a&gt;
+&amp;gt;
+&amp;gt; Specification
+&amp;gt;
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/whatwg/html/pull/7915"&gt;https://github.com/whatwg/html/pull/7915&lt;/a&gt;
+&amp;gt;
+
+This is still marked as draft. Can you get this ready for review? If it's
+blocked only on having a 2nd implementor show support, then I'd be fine
+shipping based on a PR. But we should at least do what we can to solicit
+feedback on the spec change prior to shipping.
+
+Summary
+&amp;gt;
+&amp;gt; A Permission-Policy for creating unload event listeners will be added.
+&amp;gt;
+&amp;gt; Initially, the default policy will be set to allow. From there, Chrome
+&amp;gt; will gradually migrate the default policy to deny (i.e. increasingly
+&amp;gt; disallow the creation of unload event listeners, eventually reaching a
+&amp;gt; state where deny fully becomes the default policy). The ultimate goal is
+&amp;gt; to remove support for unload event.
+&amp;gt;
+&amp;gt; Blink component
+&amp;gt;
+&amp;gt; Blink&amp;gt;PermissionsAPI
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EPermissionsAPI"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EPermissionsAPI&lt;/a&gt;&amp;gt;
+&amp;gt;
+&amp;gt; Motivation
+&amp;gt;
+&amp;gt; The unload event is extremely unreliable. It is ignored in most cases by
+&amp;gt; all mobile browsers except Firefox on Android. Furthermore, in Safari, the
+&amp;gt; unload event is ignored on both desktop &amp; mobile platforms.
+&amp;gt;
+&amp;gt; In the current state, unload is a major BFCache blocker (~18 percentage
+&amp;gt; points reduction of hit rate for Chrome).
+&amp;gt;
+&amp;gt; The change  will unlock a large fraction of that hit-rate while providing
+&amp;gt; an opt-out for those who need more time to migrate. It also sends a clear
+&amp;gt; signal that unload should not be used in new development.
+&amp;gt;
+&amp;gt; Sidenote: the spec was changed to say that unload should only run if the
+&amp;gt; page cannot enter BFCache, which reflects Safari’s behavior, However
+&amp;gt; neither Chrome nor Mozilla have implemented this behavior. In Chrome's
+&amp;gt; case, we believe that this would suddenly break various sites and would
+&amp;gt; make it hard for developers to know if/when unload may run.
+&amp;gt;
+&amp;gt;
+&amp;gt; Initial public proposal
+&amp;gt;
+&amp;gt; None
+&amp;gt;
+&amp;gt; TAG review
+&amp;gt;
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/738"&gt;https://github.com/w3ctag/design-reviews/issues/738&lt;/a&gt;
+&amp;gt;
+&amp;gt; TAG review status
+&amp;gt;
+&amp;gt; Pending
+&amp;gt;
+&amp;gt; Risks
+&amp;gt;
+&amp;gt; Interoperability and Compatibility
+&amp;gt;
+&amp;gt; If no other browsers implement this, there is a risk that devs continue to
+&amp;gt; use unload widely and pages malfunction on chrome. However given that
+&amp;gt; alternatives to unload exist it seems entirely possible for sites that are
+&amp;gt; actively maintained to move off unload.
+&amp;gt;
+&amp;gt; Gecko: (
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/691#issuecomment-1484997320"&gt;https://github.com/mozilla/standards-positions/issues/691#issuecomment-1484997320&lt;/a&gt;)
+&amp;gt; It's possible that pages are depending on `unload` handlers in subframes
+&amp;gt; for functionality even without any main frame navigation. We should try to
+&amp;gt; understand how common this is before breaking it. It should be possible to
+&amp;gt; measure how often subframe unloads fire when the mainframe is not
+&amp;gt; navigating. This will give us an upper bound on the size of the problem, -
+&amp;gt; Chrome: we have landed code to measure the occurrence of unload in
+&amp;gt; different scenarios. We will report back the findings.
+&amp;gt;
+&amp;gt; WebKit: &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/127"&gt;https://github.com/WebKit/standards-positions/issues/127&lt;/a&gt;
+&amp;gt;
+
+&amp;gt;From a quick skim, it sounds like WebKit is already happy with their
+tradeoff of not firing unload and doesn't see a need for an API that
+reduces unload further, is that about right? WebKit has mostly shipped
+heuristics here without trying to spec them first, right? In general I'm
+not too concerned
+
+Web developers: Positive (
+&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/bfcache-dev/c/zTIMx7u4uxo/m/-M4IS6LDBgAJ"&gt;https://groups.google.com/a/chromium.org/g/bfcache-dev/c/zTIMx7u4uxo/m/-M4IS6LDBgAJ&lt;/a&gt;)
+&amp;gt; The web communities we reached out had positive reactions to our proposal
+&amp;gt; and we have not heard about any concrete blockers.
+&amp;gt;
+&amp;gt; Other signals:
+&amp;gt;
+&amp;gt; WebView application risks
+&amp;gt;
+&amp;gt; Does this intent deprecate or change behavior of existing APIs, such that
+&amp;gt; it has potentially high risk for Android WebView-based applications?
+&amp;gt;
+&amp;gt; On WebView, we will introduce the Permissions-Policy but not move the
+&amp;gt; default to &amp;quot;deny&amp;quot;. BFCache does not work on WebView, so the benefit is
+&amp;gt; lower. Meanwhile the risk seems higher as we have far less visibility into
+&amp;gt; the HTML being run in WebViews. A roll-out to WebView should be done
+&amp;gt; independently and in consultation with the WebView team.
+&amp;gt;
+
+Sounds like the right strategy to me, thanks!
+
+
+&amp;gt; Debuggability
+&amp;gt;
+&amp;gt; None
+&amp;gt;
+&amp;gt; Is this feature fully tested by web-platform-tests
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+&amp;gt; ?
+&amp;gt;
+&amp;gt; Yes
+&amp;gt;
+&amp;gt; Flag name
+&amp;gt;
+&amp;gt; None
+&amp;gt;
+
+Please put the new policy behind a RuntimeEnabledFeature
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/third_party/blink/renderer/platform/RuntimeEnabledFeatures.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/third_party/blink/renderer/platform/RuntimeEnabledFeatures.md&lt;/a&gt;&amp;gt;.
+It's effectively a new API so is required
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/flag_guarding_guidelines.md#When-is-a-flag-required"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/flag_guarding_guidelines.md#When-is-a-flag-required&lt;/a&gt;&amp;gt;
+to have a finch killswitch. It sounds to me like it should be unlikely that
+simply adding the new policy could break things, but maybe some scenario is
+possible where we decide breakage in 3p iframes is bad enough to warrant an
+emergency fix?
+
+
+&amp;gt; Requires code in //chrome?
+&amp;gt;
+&amp;gt; False
+&amp;gt;
+&amp;gt; Estimated milestones
+&amp;gt;
+&amp;gt; M115 for availability of Permissions-Policy
+&amp;gt;
+&amp;gt; M115 is the earliest we would start to disable unload, however
+&amp;gt;
+
+Is this a typo? Or are you considering disabling the event in the same
+release we first make the permissions policy available?
+
+Link to entry on the Chrome Platform Status
+&amp;gt;
+&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5579556305502208"&gt;https://chromestatus.com/feature/5579556305502208&lt;/a&gt;
+&amp;gt;
+&amp;gt; --
+&amp;gt; You received this message because you are subscribed to the Google Groups
+&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt; To view this discussion on the web visit
+&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAozHLm7CR6EeL2KmBFyFpYT%3DNPXmTg4roLKV%3D7dRcCE%2BOoGwg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAozHLm7CR6EeL2KmBFyFpYT%3DNPXmTg4roLKV%3D7dRcCE%2BOoGwg%40mail.gmail.com&lt;/a&gt;
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAozHLm7CR6EeL2KmBFyFpYT%3DNPXmTg4roLKV%3D7dRcCE%2BOoGwg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAozHLm7CR6EeL2KmBFyFpYT%3DNPXmTg4roLKV%3D7dRcCE%2BOoGwg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt; .
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY_vHhq5wGkTxV48p4-Tf50VWBK7-yhyqdm8T7Uyg7k--w%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY_vHhq5wGkTxV48p4-Tf50VWBK7-yhyqdm8T7Uyg7k--w%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06104.html</id>
+        <title>Re: [blink-dev] PSA: Adding WebDriver commands for interacting with FedCM dialogs</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06104.html"/>
+        <updated>2023-05-08T08:46:16.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06104.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+PSA%5C%3A+Adding+WebDriver+commands+for+interacting+with+FedCM+dialogs%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] PSA: Adding WebDriver commands for interacting with FedCM dialogs&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Philip+J%C3%A4genstedt%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Philip Jägenstedt&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230508" rel="nofollow"&gt;Mon, 08 May 2023 01:46:16 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Hi Christian,
+
+Thanks for sending this PSA, and thank you for careful attention to
+testability of FedCM. It's extra work, but if history is any guide it will
+make FedCM more interoperable, and web developers will rejoice!&lt;/pre&gt;&lt;pre&gt;
+
+WebDriver changes don't need to go through the Blink launch process, but a
+few comments that I'd say if this was an Intent to Ship :)
+
+I see that &lt;a  rel="nofollow" href="https://github.com/fedidcg/FedCM/pull/465"&gt;https://github.com/fedidcg/FedCM/pull/465&lt;/a&gt; isn't merged yet, do
+you expect it to be before this is shipped, or is something blocking it?
+
+And can this be tested in web-platform-tests using pytest similar to how
+other WebDriver classic endpoints are tested?
+
+Finally, a bleeding edge question. There are currently no WebDriver BiDi
+extensions in other specs at all, but I wonder if anything about your API
+would change if this was an extension to
+&lt;a  rel="nofollow" href="https://w3c.github.io/webdriver-bidi/"&gt;https://w3c.github.io/webdriver-bidi/&lt;/a&gt; and events sent from the browser to
+the automation client become possible? In particular, would you want an
+event that says a FedCM dialog has been opened?
+
+Best regards,
+Philip
+
+On Thu, May 4, 2023 at 9:32 PM Christian Biesinger &amp;lt;cbiesin...@chromium.org&amp;gt;
+wrote:
+
+&amp;gt; This would be an Intent to Ship, but since this is not web-exposed, my
+&amp;gt; understanding is that the intent process does not apply. Nonetheless, I
+&amp;gt; wanted to give y’all a heads-up about this.
+&amp;gt;
+&amp;gt; Contact emails
+&amp;gt;
+&amp;gt; cbiesin...@chromium.org
+&amp;gt;
+&amp;gt; Explainer
+&amp;gt;
+&amp;gt; None
+&amp;gt;
+&amp;gt; Specification
+&amp;gt;
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/fedidcg/FedCM/pull/465"&gt;https://github.com/fedidcg/FedCM/pull/465&lt;/a&gt;
+&amp;gt;
+&amp;gt; Design docs
+&amp;gt;
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/fedidcg/FedCM/blob/main/proposals/webdriver.md"&gt;https://github.com/fedidcg/FedCM/blob/main/proposals/webdriver.md&lt;/a&gt;
+&amp;gt;
+&amp;gt; Summary
+&amp;gt;
+&amp;gt; This exposes several WebDriver commands to allow browser automation, such
+&amp;gt; as automated testing, to interact with FedCM dialogs.
+&amp;gt;
+&amp;gt;
+&amp;gt; Blink component
+&amp;gt;
+&amp;gt; Blink&amp;gt;Identity&amp;gt;FedCM
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EIdentity%3EFedCM"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EIdentity%3EFedCM&lt;/a&gt;&amp;gt;
+&amp;gt;
+&amp;gt; TAG review
+&amp;gt;
+&amp;gt; None
+&amp;gt;
+&amp;gt; TAG review status
+&amp;gt;
+&amp;gt; Not applicable
+&amp;gt;
+&amp;gt; Risks
+&amp;gt;
+&amp;gt; Interoperability and Compatibility
+&amp;gt;
+&amp;gt; This is not web-exposed.
+&amp;gt;
+&amp;gt;
+&amp;gt; Gecko: Positive (
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/fedidcg/FedCM/pull/395#issuecomment-1384466751"&gt;https://github.com/fedidcg/FedCM/pull/395#issuecomment-1384466751&lt;/a&gt;) Since
+&amp;gt; this is not web-exposed, I do not think it makes sense to file a standards
+&amp;gt; position request.
+&amp;gt;
+&amp;gt; WebKit: No signal We have no signal from Safari for FedCM in general; as
+&amp;gt; such, we have no signal for this part either
+&amp;gt;
+&amp;gt; Web developers: Positive At least one user is interested and sees the
+&amp;gt; lack of this as a blocker to rolling out FedCM support
+&amp;gt;
+&amp;gt; Other signals:
+&amp;gt;
+&amp;gt; Ergonomics
+&amp;gt;
+&amp;gt; n/a
+&amp;gt;
+&amp;gt;
+&amp;gt; Activation
+&amp;gt;
+&amp;gt; I am planning to also change Selenium to expose Java APIs for these
+&amp;gt; commands, making them easy to use.
+&amp;gt;
+&amp;gt;
+&amp;gt; Security
+&amp;gt;
+&amp;gt; n/a, this is only exposed through WebDriver.
+&amp;gt;
+&amp;gt;
+&amp;gt; WebView application risks
+&amp;gt;
+&amp;gt; Does this intent deprecate or change behavior of existing APIs, such that
+&amp;gt; it has potentially high risk for Android WebView-based applications?
+&amp;gt;
+&amp;gt;
+&amp;gt; Debuggability
+&amp;gt;
+&amp;gt; This is a debugging feature.
+&amp;gt;
+&amp;gt;
+&amp;gt; Will this feature be supported on all six Blink platforms (Windows, Mac,
+&amp;gt; Linux, Chrome OS, Android, and Android WebView)?
+&amp;gt;
+&amp;gt; Yes
+&amp;gt;
+&amp;gt; Is this feature fully tested by web-platform-tests
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+&amp;gt; ?
+&amp;gt;
+&amp;gt; No -- it will be tested by chromedriver tests
+&amp;gt;
+&amp;gt; Flag name
+&amp;gt;
+&amp;gt; Requires code in //chrome?
+&amp;gt;
+&amp;gt; True
+&amp;gt;
+&amp;gt; Estimated milestones
+&amp;gt;
+&amp;gt; Shipping on desktop
+&amp;gt;
+&amp;gt; 115
+&amp;gt;
+&amp;gt; Shipping on Android
+&amp;gt;
+&amp;gt; 115
+&amp;gt;
+&amp;gt;
+&amp;gt;
+&amp;gt;
+&amp;gt; Anticipated spec changes
+&amp;gt;
+&amp;gt; Open questions about a feature may be a source of future web compat or
+&amp;gt; interop issues. Please list open issues (e.g. links to known github issues
+&amp;gt; in the project for the feature specification) whose resolution may
+&amp;gt; introduce web compat/interop risk (e.g., changing to naming or structure of
+&amp;gt; the API in a non-backward-compatible way).
+&amp;gt;
+&amp;gt;
+&amp;gt; Link to entry on the Chrome Platform Status
+&amp;gt;
+&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5103072721764352"&gt;https://chromestatus.com/feature/5103072721764352&lt;/a&gt;
+&amp;gt;
+&amp;gt; --
+&amp;gt; You received this message because you are subscribed to the Google Groups
+&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt; To view this discussion on the web visit
+&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPTJ0XFZdXiLw7c6ama%3DE6zm3aVcm377%2B5XAhYqEHa%3D7z%2Bgecg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPTJ0XFZdXiLw7c6ama%3DE6zm3aVcm377%2B5XAhYqEHa%3D7z%2Bgecg%40mail.gmail.com&lt;/a&gt;
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPTJ0XFZdXiLw7c6ama%3DE6zm3aVcm377%2B5XAhYqEHa%3D7z%2Bgecg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPTJ0XFZdXiLw7c6ama%3DE6zm3aVcm377%2B5XAhYqEHa%3D7z%2Bgecg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt; .
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAARdPYcLkXTG%2B-uZ4p2HiHZeY0bjPe%2BY4Gt-V9n-bGJD%3DX0a1g%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAARdPYcLkXTG%2B-uZ4p2HiHZeY0bjPe%2BY4Gt-V9n-bGJD%3DX0a1g%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06103.html</id>
         <title>[blink-dev] Intent to Deprecate: Deprecate unload event</title>
         <author>
@@ -9288,235 +9702,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAEa0%2BkVFqn2BxfXhtGjYbb6%3DVA8MpTnD%2BNx4bcQqt3a3a0s%3DCw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAEa0%2BkVFqn2BxfXhtGjYbb6%3DVA8MpTnD%2BNx4bcQqt3a3a0s%3DCw%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06055.html</id>
-        <title>[blink-dev] Intent to Ship: timestamp field on RTCEncodedVideoFrameMetadata</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06055.html"/>
-        <updated>2023-05-02T14:29:21.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06055.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+timestamp+field+on+RTCEncodedVideoFrameMetadata%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Ship: timestamp field on RTCEncodedVideoFrameMetadata&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Tony+Herre%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Tony Herre' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230502" rel="nofollow"&gt;Tue, 02 May 2023 07:29:21 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Contact emails
-
-he...@google.com, gui...@chromium.com&lt;/pre&gt;&lt;pre&gt;
-
-Spec
-&lt;a  rel="nofollow" href="https://w3c.github.io/webrtc-encoded-transform/#RTCEncodedVideoFrameMetadata"&gt;https://w3c.github.io/webrtc-encoded-transform/#RTCEncodedVideoFrameMetadata&lt;/a&gt;
-particularly
-PR#173 &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/webrtc-encoded-transform/pull/173"&gt;https://github.com/w3c/webrtc-encoded-transform/pull/173&lt;/a&gt;&amp;gt;.
-
-
-Summary
-
-Add a 'timestamp' field to RTCEncodedVideoFrameMetadata containing the
-presentation timestamp of the associated encoded video frame.
-
-Is this feature supported on all six Blink platforms (Windows, Mac, Linux,
-Chrome OS, Android, and Android WebView)?
-
-Yes
-
-Risks
-
-Interoperability and Compatibility
-
-Positive response from all members at W3C WebRTC WG April 2023 Interim, PR
-landed with no open issues.
-
-Ergonomics
-
-Added specifically to align with the timestamp field on the WebCodecs
-&amp;lt;&lt;a  rel="nofollow" href="https://www.w3.org/TR/webcodecs/#encodedvideochunk-interface"&gt;https://www.w3.org/TR/webcodecs/#encodedvideochunk-interface&lt;/a&gt;&amp;gt;
-EncodedVideoChunk
-&amp;lt;&lt;a  rel="nofollow" href="https://www.w3.org/TR/webcodecs/#encodedvideochunk-interface"&gt;https://www.w3.org/TR/webcodecs/#encodedvideochunk-interface&lt;/a&gt;&amp;gt;, and allow
-matching video frames with the timestamp in the WebCodecs VideoFrame
-&amp;lt;&lt;a  rel="nofollow" href="https://www.w3.org/TR/webcodecs/#videoframe-interface"&gt;https://www.w3.org/TR/webcodecs/#videoframe-interface&lt;/a&gt;&amp;gt; object.
-
-Will also provide the same timestamp already exposed in
-requestVideoFrameCallback's 'mediaTime'.
-
-Is this feature fully tested by web-platform-tests
-&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-?
-
-Tested internally by RTCEncodedVideoFrame-capture-timestamp-id.html
-&amp;lt;&lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/web_tests/fast/peerconnection/RTCEncodedVideoFrame-capture-timestamp-id.html"&gt;https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/web_tests/fast/peerconnection/RTCEncodedVideoFrame-capture-timestamp-id.html&lt;/a&gt;&amp;gt;,
-upstreaming to WPT tracked in crbug.com/1441888.
-
-
-
-Entry on the feature dashboard
-
-None, small delta to launched API.
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAArnMxH%2BNJKi80S4822wmjtQUqid8czA9AefCC_fm%3DHk3sTuiw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAArnMxH%2BNJKi80S4822wmjtQUqid8czA9AefCC_fm%3DHk3sTuiw%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06054.html</id>
-        <title>[blink-dev] Re: Intent to Experiment: Compute Pressure</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06054.html"/>
-        <updated>2023-05-01T22:15:35.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06054.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Experiment%5C%3A+Compute+Pressure%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Re: Intent to Experiment: Compute Pressure&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Ajay+Rahatekar%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Ajay Rahatekar' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230501" rel="nofollow"&gt;Mon, 01 May 2023 15:15:35 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;+ajayrahte...@google.com
-
-Friendly ping for review.&lt;/pre&gt;&lt;pre&gt;
-
-On Thursday, April 20, 2023 at 3:20:21 AM UTC-7 arnaud...@intel.com wrote:
-
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; * Contact emails kenneth.r.c...@intel.com, arnaud...@intel.com, 
-&amp;gt; wei4...@intel.com Explainer 
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/blob/main/README.md"&gt;https://github.com/w3c/compute-pressure/blob/main/README.md&lt;/a&gt; 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/blob/main/README.md"&gt;https://github.com/w3c/compute-pressure/blob/main/README.md&lt;/a&gt;&amp;gt; Specification 
-&amp;gt; &lt;a  rel="nofollow" href="https://www.w3.org/TR/compute-pressure"&gt;https://www.w3.org/TR/compute-pressure&lt;/a&gt; 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://www.w3.org/TR/compute-pressure"&gt;https://www.w3.org/TR/compute-pressure&lt;/a&gt;&amp;gt; Design docs 
-&amp;gt; &lt;a  rel="nofollow" href="https://developer.chrome.com/docs/web-platform/compute-pressure"&gt;https://developer.chrome.com/docs/web-platform/compute-pressure&lt;/a&gt; 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.chrome.com/docs/web-platform/compute-pressure"&gt;https://developer.chrome.com/docs/web-platform/compute-pressure&lt;/a&gt;&amp;gt; Summary 
-&amp;gt; The Compute Pressure API offers high-level states that represent the 
-&amp;gt; pressure on the system. It allows the implementation to use the right 
-&amp;gt; underlying hardware metrics to ensure that users can take advantage of all 
-&amp;gt; the processing power available to them as long as the system is not under 
-&amp;gt; unmanageable stress. “Pressure” is a generic term by design – at the moment 
-&amp;gt; it is calculated based on CPU load, but future plans include using signals 
-&amp;gt; from temperature and battery status, for example. Blink component 
-&amp;gt; Blink&amp;gt;PerformanceAPIs&amp;gt;ComputePressure Search tags compute pressure TAG 
-&amp;gt; review spec review: &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/795"&gt;https://github.com/w3ctag/design-reviews/issues/795&lt;/a&gt; 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/795"&gt;https://github.com/w3ctag/design-reviews/issues/795&lt;/a&gt;&amp;gt; wide review tracker: 
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/issues/177"&gt;https://github.com/w3c/compute-pressure/issues/177&lt;/a&gt; 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/issues/177"&gt;https://github.com/w3c/compute-pressure/issues/177&lt;/a&gt;&amp;gt; TAG review status 
-&amp;gt; Issues addressed 
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/795#issuecomment-1513997968"&gt;https://github.com/w3ctag/design-reviews/issues/795#issuecomment-1513997968&lt;/a&gt; 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/795#issuecomment-1513997968"&gt;https://github.com/w3ctag/design-reviews/issues/795#issuecomment-1513997968&lt;/a&gt;&amp;gt; 
-&amp;gt; Risks       Interoperability and Compatibility       Gecko: No signal 
-&amp;gt; (&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/521"&gt;https://github.com/mozilla/standards-positions/issues/521&lt;/a&gt; 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/521"&gt;https://github.com/mozilla/standards-positions/issues/521&lt;/a&gt;&amp;gt;)       WebKit: 
-&amp;gt; Negative 
-&amp;gt; (&lt;a  rel="nofollow" href="https://lists.webkit.org/pipermail/webkit-dev/2021-May/031845.html"&gt;https://lists.webkit.org/pipermail/webkit-dev/2021-May/031845.html&lt;/a&gt; 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://lists.webkit.org/pipermail/webkit-dev/2021-May/031845.html"&gt;https://lists.webkit.org/pipermail/webkit-dev/2021-May/031845.html&lt;/a&gt;&amp;gt;) This 
-&amp;gt; issue has been taken into account: 
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/issues/24"&gt;https://github.com/w3c/compute-pressure/issues/24&lt;/a&gt; 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/issues/24"&gt;https://github.com/w3c/compute-pressure/issues/24&lt;/a&gt;&amp;gt;       Web developers: 
-&amp;gt; Positive (&lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/issues/14"&gt;https://github.com/w3c/compute-pressure/issues/14&lt;/a&gt; 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/issues/14"&gt;https://github.com/w3c/compute-pressure/issues/14&lt;/a&gt;&amp;gt;)       Security       
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/issues/79"&gt;https://github.com/w3c/compute-pressure/issues/79&lt;/a&gt; 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/issues/79"&gt;https://github.com/w3c/compute-pressure/issues/79&lt;/a&gt;&amp;gt;       WebView 
-&amp;gt; application risks       Does this intent deprecate or change behavior of 
-&amp;gt; existing APIs, such that it has potentially high risk for Android 
-&amp;gt; WebView-based applications? Goals for experimentation We want developer 
-&amp;gt; feedback around the feature's performance and applicability in real usage 
-&amp;gt; scenarios.   The API shape has changed significantly since the first Origin 
-&amp;gt; Trial (M92-M94), and we would like to get additional developer feedback 
-&amp;gt; before shipping. 
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/blob/main/CHANGES.md"&gt;https://github.com/w3c/compute-pressure/blob/main/CHANGES.md&lt;/a&gt; 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/blob/main/CHANGES.md"&gt;https://github.com/w3c/compute-pressure/blob/main/CHANGES.md&lt;/a&gt;&amp;gt; Ongoing 
-&amp;gt; technical constraints Debuggability Will this feature be supported on all 
-&amp;gt; six Blink platforms (Windows, Mac, Linux, Chrome OS, Android, and Android 
-&amp;gt; WebView)? No, supported for Windows, Mac, Linux, Chrome OS. Is this feature 
-&amp;gt; fully tested by web-platform-tests? Yes 
-&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/compute-pressure?label=master&amp;label=experimental&amp;aligned&amp;view=subtest&amp;q=compute-pressure"&gt;https://wpt.fyi/results/compute-pressure?label=master&amp;label=experimental&amp;aligned&amp;view=subtest&amp;q=compute-pressure&lt;/a&gt;
-&amp;gt;  
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/compute-pressure?label=master&amp;label=experimental&amp;aligned&amp;view=subtest&amp;q=compute-pressure"&gt;https://wpt.fyi/results/compute-pressure?label=master&amp;label=experimental&amp;aligned&amp;view=subtest&amp;q=compute-pressure&lt;/a&gt;&amp;gt;
-&amp;gt;  
-&amp;gt; DevTrial instructions 
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/blob/main/HOWTO.md"&gt;https://github.com/w3c/compute-pressure/blob/main/HOWTO.md&lt;/a&gt; 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/blob/main/HOWTO.md"&gt;https://github.com/w3c/compute-pressure/blob/main/HOWTO.md&lt;/a&gt;&amp;gt; Flag name 
-&amp;gt; --enable-features=ComputePressure see 
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/blob/main/HOWTO.md"&gt;https://github.com/w3c/compute-pressure/blob/main/HOWTO.md&lt;/a&gt; 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/blob/main/HOWTO.md"&gt;https://github.com/w3c/compute-pressure/blob/main/HOWTO.md&lt;/a&gt;&amp;gt; Requires code 
-&amp;gt; in //chrome? False Tracking bug &lt;a  rel="nofollow" href="https://crbug.com/1067627"&gt;https://crbug.com/1067627&lt;/a&gt; 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://crbug.com/1067627"&gt;https://crbug.com/1067627&lt;/a&gt;&amp;gt; Launch bug &lt;a  rel="nofollow" href="https://crbug.com/1173266"&gt;https://crbug.com/1173266&lt;/a&gt; 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://crbug.com/1173266"&gt;https://crbug.com/1173266&lt;/a&gt;&amp;gt; Estimated milestones We hope to start the 
-&amp;gt; Origin Trial sometime during M115 beta. We plan to continue the Origin 
-&amp;gt; Trial until the end of M117 to give developers time to test the API and 
-&amp;gt; provide feedback. Link to entry on the Chrome Platform Status 
-&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5597608644968448"&gt;https://chromestatus.com/feature/5597608644968448&lt;/a&gt; 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5597608644968448"&gt;https://chromestatus.com/feature/5597608644968448&lt;/a&gt;&amp;gt; Links to previous 
-&amp;gt; Intent discussions Intent to prototype: 
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/LTIRZ24C5Os/m/BPSeJ8y0BwAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/LTIRZ24C5Os/m/BPSeJ8y0BwAJ&lt;/a&gt;
-&amp;gt;  
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/LTIRZ24C5Os/m/BPSeJ8y0BwAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/LTIRZ24C5Os/m/BPSeJ8y0BwAJ&lt;/a&gt;&amp;gt;
-&amp;gt;  
-&amp;gt; Ready for Trial: 
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/u/1/a/chromium.org/g/blink-dev/c/-1ciwdn23J4"&gt;https://groups.google.com/u/1/a/chromium.org/g/blink-dev/c/-1ciwdn23J4&lt;/a&gt; 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/u/1/a/chromium.org/g/blink-dev/c/-1ciwdn23J4"&gt;https://groups.google.com/u/1/a/chromium.org/g/blink-dev/c/-1ciwdn23J4&lt;/a&gt;&amp;gt; 
-&amp;gt; Intent to Experiment: 
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/HzVV-sM97T0"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/HzVV-sM97T0&lt;/a&gt; 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/HzVV-sM97T0"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/HzVV-sM97T0&lt;/a&gt;&amp;gt; *
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/259034fd-21b0-43fd-bd25-c9e361a625ecn%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/259034fd-21b0-43fd-bd25-c9e361a625ecn%40chromium.org&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
