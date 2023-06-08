@@ -5,6 +5,700 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06390.html</id>
+        <title>[blink-dev] Re: Intent to Prototype: Conservative page freezing on desktop</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06390.html"/>
+        <updated>2023-06-07T18:17:08.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06390.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Prototype%5C%3A+Conservative+page+freezing+on+desktop%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Re: Intent to Prototype: Conservative page freezing on desktop&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Fran%C3%A7ois+Doray%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'François Doray' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230607" rel="nofollow"&gt;Wed, 07 Jun 2023 11:17:08 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;
+
+On Friday, June 2, 2023 at 1:02:39 PM UTC-4 Michaela Merz wrote:&lt;/pre&gt;&lt;pre&gt;
+
+Thank you Francois. Here's an experience I'd like to share with you. I was 
+watching and listening to a training presentation yesterday and was asked 
+to look something up. So I opened a new tab to start looking it up. But the 
+presentation in the first tab stopped and I was unable to use the second 
+tab while receiving audio information from the first tab. This is NOT how 
+the web should work (Chrome on a Chromebook).
+
+
+I agree that this is not how things should work. I encourage you to file a 
+bug with the details on crbug.com and assign it to me. Conservative page 
+freezing will not be applied to tabs with video/audio calls.
+ 
+
+
+
+I understand the good intention behind the proposal. And I *can* live with 
+the idea of a page having a way of requesting continued access.  As a 
+general rule though, I am concerned with all the &amp;quot;good intentions&amp;quot; which, 
+in the end, often disregard valid use cases. After all, we, at the bottom 
+of the development chain, can't always follow what would be &amp;quot;good 
+practice&amp;quot;. And I am afraid that you developers sometimes lack the 
+imagination of what's really going on down here and how many hours and days 
+we have to spend to keep our stuff running by circumventing yet another 
+brilliant idea.
+
+
+We are open to refine the parameters of this policy to avoid breaking valid 
+use cases. In some cases, we will prefer pointing the Web developer to ways 
+of implementing their use case in a more resource-efficient way. 
+Additionally, we plan to indicate in the UI when a tab is frozen and 
+provide an option to opt-out a site from freezing. This will ensure that 
+any site can keep working seamlessly without modification in a world with 
+freezing.
+ 
+
+
+Michaela
+
+
+On Fri, Jun 2, 2023 at 10:38 AM Francois Pierre Doray &amp;lt;fdo...@chromium.org&amp;gt; 
+wrote:
+
+I fully agree with this statement: &amp;quot;the general idea of the web is to let 
+the users decide whether or not they like a page or app&amp;quot;. 
+
+I'd like to take a step back and share a high-level view of what we're 
+trying to accomplish.
+
+First, a few observations based on our analysis of field data, local data 
+and user research:
+
+   - Background tabs play a role in slowing down the foreground activity, 
+   discharging the battery, spinning the fan and OOM crashes.
+   - The majority of the work performed by background tabs is wasteful 
+   (just one example: a page keeps periodically appending scroll position to 
+   an array for analytics purposes while backgrounded).
+   - There are background tabs which perform work that is valuable to the 
+   user (e.g. periodic weather radar updates, uploading files to the cloud, 
+   processing a large dataset...).
+   - It is difficult for both users and Web developers to know when a 
+   background tab degrades the user experience and to address the problem.
+
+Based on these observations, we believe:
+
+   - By default, most background pages should be frozen. This solves the 
+   problem of pages unintentionally degrading user experience through their 
+   background resource usage.
+   - However, a page that *wants *to keep running in the background should 
+   be able to declare it through a Web platform API (to be defined). The user 
+   agent can surface that to the user and provide controls to disallow it 
+(inspirational 
+   mocks 
+   
+&amp;lt;&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1W_AIebegAf0wTHtbURgsataYWGT-VCJsvlqo_UzMZOs/edit#bookmark=id.218p2g1lkd50"&gt;https://docs.google.com/document/d/1W_AIebegAf0wTHtbURgsataYWGT-VCJsvlqo_UzMZOs/edit#bookmark=id.218p2g1lkd50&lt;/a&gt;&amp;gt;).
+ 
+   Unless the user disallows the background work, the user agent shouldn't 
+   freeze the background page (nor deprioritize its CPU and network usage or 
+   make it a candidate for discarding as it does today).
+      - In this end state, users can more easily &amp;quot;decide whether or not 
+      they like a page or app&amp;quot; than today.
+   
+The idea behind &amp;quot;Conservative Page Freezing&amp;quot; is that with sufficiently 
+generous allowances, we can eliminate the most egregious cases of wasteful 
+background resource consumption without breakages and without waiting for 
+the aforementioned Web platform API. I'm curious if significantly 
+increasing the allowances (currently proposed: 15 minutes grace period, 
+afterwards: 50ms of execution / 5 minutes) would address your concerns?
+On Wednesday, May 31, 2023 at 5:37:33 PM UTC-4 misc...@googlemail.com wrote:
+
+We are categorically against this. It severely limits developers to what is 
+considered to be &amp;quot;good practice&amp;quot; which is not always desired (or possible), 
+especially not in complex environments. We are frankly getting tired to be 
+told what is &amp;quot;good&amp;quot; and what is &amp;quot;bad&amp;quot; behavior without any consideration of 
+our special use cases. Sure - we may find work arounds, but the general 
+idea of the web is to let the users decide whether or not they like a page 
+or app (unless there are security considerations). 
+
+I can think of a number of services that may be interrupted like periodical 
+weather radar updates, long ajax downloads or other communications over 
+ajax as well as other complex background tasks.
+
+As it has been mentioned before, web developers expressed concerns about 
+background page freezing. This alone should give you pause. There is 
+nothing &amp;quot;conservative&amp;quot; about this proposal. It is going to break things. 
+And breaking things should NOT be what y'all doing.
+
+Michaela
+
+
+
+
+
+
+On Wednesday, May 31, 2023 at 12:17:59 PM UTC-6 fdo...@chromium.org wrote:
+
+Contact emailsfdo...@chromium.org, shas...@chromium.org
+
+
+
+Explainer
+&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1wAKlysswBe5GHxUjYNMfzdJTIIaHUm2nZAIOW1POw0I/edit?usp=sharing"&gt;https://docs.google.com/document/d/1wAKlysswBe5GHxUjYNMfzdJTIIaHUm2nZAIOW1POw0I/edit?usp=sharing&lt;/a&gt;
+
+Specification&lt;a  rel="nofollow" href="https://wicg.github.io/page-lifecycle"&gt;https://wicg.github.io/page-lifecycle&lt;/a&gt;
+
+Summary
+
+On a page that has been hidden and silent for &amp;gt;15 minutes, each agent can 
+execute for 50ms per 5 minutes interval. After an agent has exhausted its 
+execution budget, it is frozen until the beginning of the next 5 minutes 
+interval, unless: - It holds a Web Lock or an IndexedDB transaction which 
+contends with another non-frozen page/worker. - It captures from a 
+microphone, camera or screen/window/tab. - It has an RTCPeerConnection with 
+an 'open' RTCDataChannel or a 'live' MediaStreamTrack. - It uses Web USB, 
+Web Bluetooth, Web HID or Web Serial. - It received a message (postMessage) 
+from another page/worker in the last 50ms. A frozen agent may be unfrozen 
+if it starts meeting one of these conditions (e.g. Web Lock held by a 
+frozen agent is requested by another agent). State transitions will happen 
+as defined in the page lifecycle API. This proposal is for desktop 
+platforms. On Android, pages are frozen after 5 minutes in the background 
+since M68 (&lt;a  rel="nofollow" href="https://chromestatus.com/feature/4639097628917760"&gt;https://chromestatus.com/feature/4639097628917760&lt;/a&gt;).
+
+Blink componentBlink&amp;gt;Scheduling 
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EScheduling"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EScheduling&lt;/a&gt;&amp;gt;
+
+Motivation
+
+This is a first step towards &amp;quot;Efficient Background Tabs 
+&amp;lt;&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1W_AIebegAf0wTHtbURgsataYWGT-VCJsvlqo_UzMZOs/edit?usp=sharing"&gt;https://docs.google.com/document/d/1W_AIebegAf0wTHtbURgsataYWGT-VCJsvlqo_UzMZOs/edit?usp=sharing&lt;/a&gt;&amp;gt;&amp;quot;,
+ 
+which aims to eliminate negative impact on user experience from background 
+tabs.
+
+Risks
+
+Interoperability and Compatibility
+
+It's fine if a browser does not freeze background pages. However, if a 
+browser does freeze background pages, complying with the Page Lifecycle 
+spec lets pages handle the state transition consistently across browsers.
+
+*Gecko*: Under consideration (
+&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/87"&gt;https://github.com/mozilla/standards-positions/issues/87&lt;/a&gt;)
+
+*WebKit*: No signal
+
+*Web developers*: No signals In the past, Web developers expressed concerns 
+about background page freezing, because it made it difficult to implement 
+background functionality that users care about in a reliable way (e.g. 
+notification for calendar event). Heuristics in this *conservative* page 
+freezing proposal should prevent breakages that were reported in past 
+proposals (e.g. 50ms of execution time per 5 minutes is sufficient to 
+execute a timer which shows a calendar event notification). Additionally, 
+we will listen to Web developers feedback on multiple channels (crbug, 
+blink-dev, stack overflow, twitter, github) and make adjustments to 
+heuristics (or refer Web developers to well-established best practices) if 
+we find that background functionality that users care about is broken.
+
+*Other signals*: - Chrome on Android freezes background tabs after 5 
+minutes 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/NKtuFxLsKgo/m/brL3bfS5CAAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/NKtuFxLsKgo/m/brL3bfS5CAAJ&lt;/a&gt;
+ - 
+Chrome on desktop freezes pages before putting them in the BFCache. - Edge 
+freezes background tabs after a configurable timeout 
+&lt;a  rel="nofollow" href="https://www.microsoft.com/en-us/edge/features/sleeping-tabs-at-work?form=MT00D8"&gt;https://www.microsoft.com/en-us/edge/features/sleeping-tabs-at-work?form=MT00D8&lt;/a&gt;
+
+Ergonomics
+
+No Ergonomics Risks identified.
+
+Activation
+
+No special handling is required for browsers which don't freeze pages.
+
+Security
+
+Freezing decisions are taken independently for each agent, to prevent an 
+agent from learning about the execution time or features used by another 
+agent.
+
+WebView application risks
+
+Does this intent deprecate or change behavior of existing APIs, such that 
+it has potentially high risk for Android WebView-based applications? 
+
+
+This proposal is for desktop only. It does not affect WebView.
+
+
+
+Debuggability
+
+DevTools &amp;gt; Application &amp;gt; Background Services will expose the frozen state 
+of each agent and the underlying reasons. It will also provide a mechanism 
+to override the frozen state.
+
+Is this feature fully tested by web-platform-tests 
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+?No
+
+Flag nameconservative-page-freezing (not implemented yet)
+
+Requires code in //chrome?False
+
+Tracking bug&lt;a  rel="nofollow" href="https://crbug.com/1450304"&gt;https://crbug.com/1450304&lt;/a&gt;
+
+Estimated milestones
+
+Development will start in M116.
+
+Link to entry on the Chrome Platform Status
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5158599457767424"&gt;https://chromestatus.com/feature/5158599457767424&lt;/a&gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/24284843-e1fd-4048-bb06-fcaf9a72c0ean%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/24284843-e1fd-4048-bb06-fcaf9a72c0ean%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06389.html</id>
+        <title>Re: [blink-dev] Intent to Ship: Add value argument to URLSearchParams's has() and delete()</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06389.html"/>
+        <updated>2023-06-07T18:14:19.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06389.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Add+value+argument+to+URLSearchParams%27s+has%5C%28%5C%29+and+delete%5C%28%5C%29%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Add value argument to URLSearchParams's has() and delete()&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Debadree+Chatterjee%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Debadree Chatterjee&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230607" rel="nofollow"&gt;Wed, 07 Jun 2023 11:14:19 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;hello!
+
+I checked in safari technology preview pretty weird I dont observe the same 
+breaking behaviour, I am trying to investigate why that is so!&lt;/pre&gt;&lt;pre&gt;
+
+On Tuesday, June 6, 2023 at 8:49:22 PM UTC+5:30 Debadree Chatterjee wrote:
+
+&amp;gt; Thank you so much for finding out simon!! so then nuxt is probably not to 
+&amp;gt; blame here 
+&amp;gt;
+&amp;gt; On Tuesday, June 6, 2023 at 8:39:51 PM UTC+5:30 Simon Lecutiez wrote:
+&amp;gt;
+&amp;gt;&amp;gt; Hello,
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; &amp;gt; I am still analyzing if this is a library issue or maybe its some 
+&amp;gt;&amp;gt; specific style of writing nuxt
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Both websites were made by the same agency (Akaru &amp;lt;&lt;a  rel="nofollow" href="https://akaru.fr/"&gt;https://akaru.fr/&lt;/a&gt;&amp;gt;), 
+&amp;gt;&amp;gt; so it could even be a homemade library or a single developer’s style ;)
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Hope it helps,
+&amp;gt;&amp;gt; Simon
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Le lundi 5 juin 2023 à 17:07:47 UTC+2, Debadree Chatterjee a écrit :
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Hey!
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; I have attached the difference in how they look for 
+&amp;gt;&amp;gt;&amp;gt; ttps://maisonyoko.com/ &amp;lt;&lt;a  rel="nofollow" href="https://maisonyoko.com/"&gt;https://maisonyoko.com/&lt;/a&gt;&amp;gt; note that the 
+&amp;gt;&amp;gt;&amp;gt; background video doesn't load maybe since for local testing I am raising 
+&amp;gt;&amp;gt;&amp;gt; exceptions thats why its the causing issue (I am checking this) as for the 
+&amp;gt;&amp;gt;&amp;gt; nuxt issue I am still analyzing if this is a library issue or maybe its 
+&amp;gt;&amp;gt;&amp;gt; some specific style of writing nuxt
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; As for the CL i shall then include both the runtime flag and use counter 
+&amp;gt;&amp;gt;&amp;gt; in the same CL hopefully by tomorrow
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Regards,
+&amp;gt;&amp;gt;&amp;gt; Debadree
+&amp;gt;&amp;gt;&amp;gt; On Monday, June 5, 2023 at 7:47:44 PM UTC+5:30 Philip Jägenstedt wrote:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Hi Debadree,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; I also noticed the code was similar for multiple sites, I'm glad you 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; were able to track it down to a common framework, Nuxt. I would suggest 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; filing an issue at &lt;a  rel="nofollow" href="https://github.com/nuxt/nuxt"&gt;https://github.com/nuxt/nuxt&lt;/a&gt; about this problem, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; maybe they can fix it in the next release. Since you've confirmed that 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; some 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; sites won't load the video correctly, and fixing it would require 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; upgrading 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; the framework, it's important to have a fix out there by the time the 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; change is done in Chrome.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Since the WebKit change &amp;lt;&lt;a  rel="nofollow" href="https://github.com/WebKit/WebKit/pull/13500"&gt;https://github.com/WebKit/WebKit/pull/13500&lt;/a&gt;&amp;gt; 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; was included in STP 171 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.apple.com/documentation/safari-technology-preview-release-notes/stp-release-171"&gt;https://developer.apple.com/documentation/safari-technology-preview-release-notes/stp-release-171&lt;/a&gt;&amp;gt;,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; I tested &lt;a  rel="nofollow" href="https://maisonyoko.com/"&gt;https://maisonyoko.com/&lt;/a&gt; and &lt;a  rel="nofollow" href="https://crossfitdespentes.fr/"&gt;https://crossfitdespentes.fr/&lt;/a&gt; in 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; both Safari and STP 171, but I couldn't see any difference. Which video 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; should I expect to not load as a result of this change? I was expecting 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; something to be broken, and then I'd file a WebKit regression bug about it.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; As for whether to bake the changes into a single CL or to split it, I 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; don't have a strong opinion.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Best regards,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Philip
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Sun, Jun 4, 2023 at 9:05 PM Debadree Chatterjee &amp;lt;debad...@gmail.com&amp;gt; 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Hey!
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; So I did a more thorough testing! and it seems there is something 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; common in both these two sites they are using the Nuxt Framework and the 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; breakage in both of them is similar they have videos on the first section 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; of their landing page with animations on top of them, due to the breakage 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; it seems the video doesn't load! If you look at the call sites too the 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; code 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; looks very similar
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; for &lt;a  rel="nofollow" href="https://maisonyoko.com/"&gt;https://maisonyoko.com/&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; [image: Screenshot 2023-06-05 at 12.24.34 AM.png]
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; for &lt;a  rel="nofollow" href="https://crossfitdespentes.fr/"&gt;https://crossfitdespentes.fr/&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; [image: Screenshot 2023-06-05 at 12.25.09 AM.png]
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Both of them nuxt 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; [image: Screenshot 2023-06-05 at 12.27.12 AM.png]
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; [image: Screenshot 2023-06-05 at 12.27.50 AM.png]
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I am not familiar with nuxt I will try to get to know about it, but it 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; seems like there could be some problem with nuxt, If any reader here 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; knows 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; nuxt would love to reach out!
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Thank You
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Debadree
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Wednesday, May 31, 2023 at 9:38:18 PM UTC+5:30 Debadree Chatterjee 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Hey Philip!
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; In my initial testing, I didn't see any observable change in site 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; behavior, but I shall confirm once again!
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; As for the kill switch and use counter should I update my existing CL 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to include these or make a new one containing the counter to just 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; measure 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the effects?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Wednesday, May 31, 2023 at 9:28:39 PM UTC+5:30 Philip Jägenstedt 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Hi Debadree,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Thank you so much for your hard work on this.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To confirm, these two sites were from the 20 listed earlier in this 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; thread, is that right? Now that we've confirmed that these two sites 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; will 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; have a different behavior, can you observe any difference on 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://maisonyoko.com/"&gt;https://maisonyoko.com/&lt;/a&gt; or &lt;a  rel="nofollow" href="https://crossfitdespentes.fr/"&gt;https://crossfitdespentes.fr/&lt;/a&gt; with the 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; changes, but without the exception-throwing?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Generally, finding a behavior change in 10% of tested sites is a bit 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; concerning, but if it means that only ~10% of the cases hit by the use 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; counter 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/metrics/feature/timeline/popularity/4478"&gt;https://chromestatus.com/metrics/feature/timeline/popularity/4478&lt;/a&gt;&amp;gt; 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; are problematic, it could be &amp;lt;0.001% of sites, and we've 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; successfully made breaking changes at that level in the past.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Since you now have the code for throwing an exception, would it be 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; straightforward to turn that into a use counter that we can land and 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; get a 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; better measure of this? I think as discussed previously in this thread, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; we 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; should considering shipping this with a killswitch and a use counter, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; so we 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; can both revert and check the usage if we get reports of breakage.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Best regards,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Philip
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Tue, May 30, 2023 at 5:16 PM Debadree Chatterjee &amp;lt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; debad...@gmail.com&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Hey Philip!
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Even I was surprised, turns out I was wrong about the delete 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; function (so sorry), I have observed a breakage now,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; The has function output example:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; [image: Screenshot 2023-05-30 at 7.36.36 PM.png]
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; The updated delete function:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ```c++
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; void URLSearchParams::deleteAllWithNameOrTuple(const String&amp; name,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;                                                const String&amp; value, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ExceptionState&amp; exception_state) {
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;   std::vector&amp;lt;int&amp;gt; indices_to_remove_with_name_val, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; indices_to_remove_with_name;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;   for (wtf_size_t i = 0; i &amp;lt; params_.size(); i++) {
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;     if (params_[i].first == name &amp;&amp;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;         (value.IsNull() || params_[i].second == value)) {
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       indices_to_remove_with_name_val.push_back(i);
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;     }
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;   }
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;   for (wtf_size_t i = 0; i &amp;lt; params_.size(); i++) {
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;     if (params_[i].first == name) {
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       indices_to_remove_with_name.push_back(i);
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;     }
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;   }
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;   if (indices_to_remove_with_name_val.size() != 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; indices_to_remove_with_name.size()) {
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;     DLOG(ERROR) &amp;lt;&amp;lt; &amp;quot;indices_to_remove_with_name_val.size() != 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; indices_to_remove_with_name.size()&amp;quot;;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;     exception_state.ThrowException(1, &amp;quot;Divergent behavior&amp;quot;);
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;     return;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;   }
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;   // match the values of indices_to_remove_with_name_val, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; indices_to_remove_with_name
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;   for (size_t i = 0; i &amp;lt; indices_to_remove_with_name_val.size(); 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; i++) {
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;     if (indices_to_remove_with_name_val[i] != 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; indices_to_remove_with_name[i]) {
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       DLOG(ERROR) &amp;lt;&amp;lt; &amp;quot;indices_to_remove_with_name_val[i] != 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; indices_to_remove_with_name[i]&amp;quot;;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       exception_state.ThrowException(1, &amp;quot;Divergent behavior&amp;quot;);
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       return;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;     }
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;   }
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;   for (wtf_size_t i = 0; i &amp;lt; params_.size();) {
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;     if (params_[i].first == name &amp;&amp;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;         (value.IsNull() || params_[i].second == value)) {
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       params_.EraseAt(i);
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;     } else {
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       i++;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;     }
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;   }
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;   RunUpdateSteps();
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; }
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ```
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; The example outputs of the delete function:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; [image: Screenshot 2023-05-30 at 8.39.03 PM.png]
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Example Breakages:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; In &lt;a  rel="nofollow" href="https://maisonyoko.com/"&gt;https://maisonyoko.com/&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; [image: Screenshot 2023-05-30 at 8.33.59 PM.png]
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://crossfitdespentes.fr/"&gt;https://crossfitdespentes.fr/&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; [image: Screenshot 2023-05-30 at 8.42.01 PM.png]
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Other than these sites didn't notice a breakage.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; seems like the breakages seem to be in the delete function only, so 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; sorry once again for the mistake before. Do let me know if all this 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; looks 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ok.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Thank You,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Debadree
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Tuesday, May 30, 2023 at 5:34:18 PM UTC+5:30 Philip Jägenstedt 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Hi Debadree,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; That's very promising! The code looks right to me, but just to be 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; sure, did you verify that the exceptions are thrown in a test case 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; where 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the 2nd argument makes a difference? It's a bit suspicious when no 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; sites at 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; all threw the exception :)
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Best regards,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Philip
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Tue, May 30, 2023 at 11:45 AM Debadree Chatterjee &amp;lt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; debad...@gmail.com&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Hey Everyone!
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Sorry for the delays I followed Philip's suggestion on testing if 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; behavior diverged in these sites, I checked this by throwing 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; exceptions if 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the actual return value is different if I used name only or both 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; name and 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; value, I am including the code for reference:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; bool URLSearchParams::has(const String&amp; name, const String&amp; 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; value, ExceptionState&amp; exception_state) const { bool 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; found_match_name = false, found_match_name_value = false; for (
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; const auto&amp; param : params_) { if (param.first == name) { 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; found_match_name = true; break; } } for (const auto&amp; param : 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; params_) { if (param.first == name &amp;&amp; (value.IsNull() || 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; param.second == value)) { found_match_name_value = true; break; 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; } } if (found_match_name != found_match_name_value) { 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; exception_state.ThrowException(1, &amp;quot;Divergent behavior&amp;quot;); return 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; false; } return found_match_name_value; } void 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; URLSearchParams::deleteAllWithNameOrTuple(const String&amp; name, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; const String&amp; value, ExceptionState&amp; exception_state) { for 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (wtf_size_t i = 0; i &amp;lt; params_.size();) { bool match_by_name = 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; params_[i].first == name; bool match_by_value = !value.IsNull() 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;&amp; params_[i].second == value; if (match_by_name) { if 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (match_by_value) { params_.EraseAt(i); } else { // It would have 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; been deleted if value wasnt there exception_state.ThrowException(
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; 1, &amp;quot;Divergent behavior&amp;quot;); return; } } else { i++; } } 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; RunUpdateSteps(); } 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ​
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; The good news is none of the example sites broke or triggered 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; this exception at all, I navigated lightly through all the sites but 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; no 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; exception was observed, whereas if I raised an exception whenever 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; double 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; variables are passed all the sites would give an exception as you 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; have seen 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; in the previous mails. Do let me know if this seems correct!
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Regards,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Debadree
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Wednesday, May 24, 2023 at 10:35:59 PM UTC+5:30 Debadree 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Chatterjee wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Understood!
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I am going with the local testing approach for now, I think what 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I will do is raise exceptions if a difference in behavior is noted 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; as 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Philip suggested, and see how many of these example sites raise 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; them. This 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; may take a little bit of time I think but trying my best!
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Thank You!
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Wednesday, May 24, 2023 at 9:13:04 PM UTC+5:30 Philip 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Jägenstedt wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; If refining the use counter is easy, that would be good to do, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; even if we don't block shipping on getting stable data for the use 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; counter.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; But I think that careful local testing is the best way to get a 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; sense for the risk on this. If you're confident you've hit the 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; code path on 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the sites in question, and nothing at all changes for the user, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; then I 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; think we should try to ship this.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Mon, May 22, 2023 at 6:59 PM Debadree Chatterjee &amp;lt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; debad...@gmail.com&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; For basic testing of the sites, I saw no breaking behavior, I 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; did a few actions on sites like adding things to the cart, trying 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to go the 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; login flow clicking on navigation, etc. Although I think would 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; need to go a 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; little deep on that, Should I submit a new CL for this counter 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; thing? or do 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; deeper local testing? 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Monday, May 22, 2023 at 10:09:26 PM UTC+5:30 Philip 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Jägenstedt wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Well, this is a tricky case with no obvious answer. You've 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; found one case of array.some(...), which most likely will change 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; behavior of the code. For the other cases where a second 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; argument is passed 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; is explicitly, it depends on the value whether it changes 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; behavior, if it's 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the same value that was added, then it's fine.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; One concrete thing you could do is to refine the use counter 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to only count the cases where the 2nd argument results in has() 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; returning 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; false instead of true, or where delete() doesn't delete anything 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; but would 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; without the 2nd argument. However, I'm not sure that would be 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; informative, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; if it reduces the use counter by 10x we'd still be unsure about 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; how serious 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the breakage is to users.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; In your manual testing of these sites, were you able to 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; confirm the code paths were taken, and unable to spot anything 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; at all 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; broken on the pages? Did you compare to how the sites work 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; without the 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; changes?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I would say that given testing of sites that hit the code 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; path, if you can't find anything at all breaking, then we should 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; try to 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ship the change.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Fri, May 19, 2023 at 3:40 PM Debadree Chatterjee &amp;lt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; debad...@gmail.com&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I tried navigating and clicking around the sites, but they 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; didn't seem to be breaking atleast even though this exception 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; is being 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; raised. Are there any more investigations I can do?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Friday, May 19, 2023 at 3:59:21 AM UTC+5:30 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; abot...@igalia.com wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; As for having a premonition that this would be added, there 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; is at least one post in the original Github issue saying that 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the poster 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; already expected the two-argument overload to be supported (
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/whatwg/url/issues/335#issuecomment-919700370"&gt;https://github.com/whatwg/url/issues/335#issuecomment-919700370&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ).
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Andreu
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On 5/18/23 23:42, PhistucK wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Most of them are just weird, really. I can only imagine 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; they started with a .set with an empty string as a second 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; parameter and ended up changing to .delete without 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; deleting the second parameter.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (Or they had a premonition and knew there will be a second 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; parameter with the specific purpose you want to ship hehe)
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I imagine those were outliers, I would not worry much about 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; it (also the bound callback is a bit too convoluted to be 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; widely used), but 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; that is just me. :)
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/8187b2db-1480-4860-ac8f-94d173eae8e3n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/8187b2db-1480-4860-ac8f-94d173eae8e3n%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06388.html</id>
         <title>Re: [blink-dev] Re: PSA: WebDriver changes now go through the API owners intent process</title>
         <author>
@@ -10257,335 +10951,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfU6hE1yX2p3B2mgvED8bXjY%2BAGWF8ar%3Dq5eNVoZVuhAOw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfU6hE1yX2p3B2mgvED8bXjY%2BAGWF8ar%3Dq5eNVoZVuhAOw%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06340.html</id>
-        <title>Re: [blink-dev] Intent to Ship: timestamp field on RTCEncodedVideoFrameMetadata</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06340.html"/>
-        <updated>2023-06-02T11:27:24.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06340.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+timestamp+field+on+RTCEncodedVideoFrameMetadata%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: timestamp field on RTCEncodedVideoFrameMetadata&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Tony+Herre%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Tony Herre' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230602" rel="nofollow"&gt;Fri, 02 Jun 2023 04:27:24 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Thanks all for the guidance! Sounds best at this point.
-I've started a new chromestatus
-&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5084806450249728"&gt;https://chromestatus.com/feature/5084806450249728&lt;/a&gt;&amp;gt; entry, and will request
-shipping there when we have all the fields complete.&lt;/pre&gt;&lt;pre&gt;
-
-On Wed, 31 May 2023 at 20:41, Saddam Molla Saddam Molla &amp;lt;
-dinontercompu...@gmail.com&amp;gt; wrote:
-
-&amp;gt; 3
-&amp;gt;
-&amp;gt; On Thu, 1 Jun, 2023, 12:07 am Chris Harrelson, &amp;lt;chris...@chromium.org&amp;gt;
-&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; Hi Tony,
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Please make a chromestatus.com entry for this change, we need them for
-&amp;gt;&amp;gt; all changes to the platform, so they can be tracked in release notes and
-&amp;gt;&amp;gt; elsewhere. (And as Yoav mentioned, it's why this intent was missed during
-&amp;gt;&amp;gt; our API owners triage process.)
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; As for signals: please file one for Gecko and Webkit, thanks.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Wed, May 31, 2023 at 12:47 AM 'Tony Herre' via blink-dev &amp;lt;
-&amp;gt;&amp;gt; blink-dev@chromium.org&amp;gt; wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Bubbling this up as I suspect it has fallen through the process again.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Is there any further information or actions I need to take here to
-&amp;gt;&amp;gt;&amp;gt; unblock?
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Thanks
-&amp;gt;&amp;gt;&amp;gt; Tony
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Den fre 12 maj 2023 11:35Tony Herre &amp;lt;he...@google.com&amp;gt; skrev:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Re TAG, the original review for this API was
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/531"&gt;https://github.com/w3ctag/design-reviews/issues/531&lt;/a&gt;.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Re signals, looks like this would have been better expressed as &amp;quot;no
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; signal&amp;quot; from other UAs to capture the formal stance, with just a note about
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; informal support in the WG.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; I would suggest it wouldn't be worth requesting due to the &amp;quot;Change is
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; too small to justify this effort&amp;quot;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1xkHRXnFS8GDqZi7E0SSbR3a7CZsGScdxPUWBsNgo-oo/edit#heading=h.t7vajzawd07s"&gt;https://docs.google.com/document/d/1xkHRXnFS8GDqZi7E0SSbR3a7CZsGScdxPUWBsNgo-oo/edit#heading=h.t7vajzawd07s&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; caveat in the blink-signals doc - please let me know if others disagree and
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; I can get this kicked off.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Thanks for all the process references! I'll be sure to leave the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; template headings in-place in future Intents, so hopefully will go through
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; a lot smoother.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Thanks,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Tony
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Thursday, 11 May 2023 at 16:22:25 UTC+2 Yoav Weiss wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; As pointed out, this seems to be missing a bunch of fields from the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; broader template..
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Thu, May 11, 2023 at 2:20 PM Yoav Weiss &amp;lt;yoav...@chromium.org&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Tue, May 2, 2023 at 4:29 PM 'Tony Herre' via blink-dev &amp;lt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; blin...@chromium.org&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Contact emails
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; he...@google.com, gui...@chromium.com
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; An explainer is missing, but you provided an inline one above, which
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; is good enough from my perspective.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; A TAG review checkpoint is also missing. At the same time, we probably
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; don't need to file for one here.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Spec
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://w3c.github.io/webrtc-encoded-transform/#RTCEncodedVideoFrameMetadata"&gt;https://w3c.github.io/webrtc-encoded-transform/#RTCEncodedVideoFrameMetadata&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; particularly
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; PR#173 &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/webrtc-encoded-transform/pull/173"&gt;https://github.com/w3c/webrtc-encoded-transform/pull/173&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Summary
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Add a 'timestamp' field to RTCEncodedVideoFrameMetadata containing
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the presentation timestamp of the associated encoded video frame.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is this feature supported on all six Blink platforms (Windows, Mac,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Linux, Chrome OS, Android, and Android WebView)?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Yes
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Risks
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Interoperability and Compatibility
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Positive response from all members at W3C WebRTC WG April 2023
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Interim, PR landed with no open issues.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; While I agree that there seems to be general support on the PR, we
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; typically require formal &lt;a  rel="nofollow" href="https://bit.ly/blink-signals"&gt;https://bit.ly/blink-signals&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Ergonomics
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Added specifically to align with the timestamp field on the WebCodecs
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://www.w3.org/TR/webcodecs/#encodedvideochunk-interface"&gt;https://www.w3.org/TR/webcodecs/#encodedvideochunk-interface&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; EncodedVideoChunk
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://www.w3.org/TR/webcodecs/#encodedvideochunk-interface"&gt;https://www.w3.org/TR/webcodecs/#encodedvideochunk-interface&lt;/a&gt;&amp;gt;, and
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; allow matching video frames with the timestamp in the WebCodecs
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; VideoFrame &amp;lt;&lt;a  rel="nofollow" href="https://www.w3.org/TR/webcodecs/#videoframe-interface"&gt;https://www.w3.org/TR/webcodecs/#videoframe-interface&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; object.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Will also provide the same timestamp already exposed in
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; requestVideoFrameCallback's 'mediaTime'.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Tested internally by RTCEncodedVideoFrame-capture-timestamp-id.html
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/web_tests/fast/peerconnection/RTCEncodedVideoFrame-capture-timestamp-id.html"&gt;https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/web_tests/fast/peerconnection/RTCEncodedVideoFrame-capture-timestamp-id.html&lt;/a&gt;&amp;gt;,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; upstreaming to WPT tracked in crbug.com/1441888.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; It seems easier to land WPT directly with a &amp;quot;.tentative&amp;quot; suffix, and
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; then rename them.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Entry on the feature dashboard
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None, small delta to launched API.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I suspect this resulted in this intent not being captured in our
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; tooling :/
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; +Jason Robbins - FYI
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; send an email to blink-dev+...@chromium.org.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAArnMxH%2BNJKi80S4822wmjtQUqid8czA9AefCC_fm%3DHk3sTuiw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAArnMxH%2BNJKi80S4822wmjtQUqid8czA9AefCC_fm%3DHk3sTuiw%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAArnMxH%2BNJKi80S4822wmjtQUqid8czA9AefCC_fm%3DHk3sTuiw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAArnMxH%2BNJKi80S4822wmjtQUqid8czA9AefCC_fm%3DHk3sTuiw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
-&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send
-&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+unsubscr...@chromium.org.
-&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAArnMxEzMsTFwiO%3DXYz7bZf4rjuv6mHzUubOrPke6jZ%3DukdpLQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAArnMxEzMsTFwiO%3DXYz7bZf4rjuv6mHzUubOrPke6jZ%3DukdpLQ%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAArnMxEzMsTFwiO%3DXYz7bZf4rjuv6mHzUubOrPke6jZ%3DukdpLQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAArnMxEzMsTFwiO%3DXYz7bZf4rjuv6mHzUubOrPke6jZ%3DukdpLQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt;&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt;&amp;gt; To view this discussion on the web visit
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw8H-CcAeZap7GOWkhCsxSin%3DJNEc35%3D%2Bz2KDcsRqftukA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw8H-CcAeZap7GOWkhCsxSin%3DJNEc35%3D%2Bz2KDcsRqftukA%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw8H-CcAeZap7GOWkhCsxSin%3DJNEc35%3D%2Bz2KDcsRqftukA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw8H-CcAeZap7GOWkhCsxSin%3DJNEc35%3D%2Bz2KDcsRqftukA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAArnMxG8KhbrUevztq4nbTEdn0AZ%2BvJK7Y-A2jiJCtC%3D66L_Cw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAArnMxG8KhbrUevztq4nbTEdn0AZ%2BvJK7Y-A2jiJCtC%3D66L_Cw%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06339.html</id>
-        <title>[blink-dev] Intent to Prototype: Auto Sizes for Lazy Loaded Images with Srcset</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06339.html"/>
-        <updated>2023-06-02T04:10:15.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06339.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Prototype%5C%3A+Auto+Sizes+for+Lazy+Loaded+Images+with+Srcset%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Prototype: Auto Sizes for Lazy Loaded Images with Srcset&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Traian+Captan%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Traian Captan&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230601" rel="nofollow"&gt;Thu, 01 Jun 2023 21:10:15 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Contact emailstcap...@chromium.org
-
-Explainer&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/4654"&gt;https://github.com/whatwg/html/issues/4654&lt;/a&gt;&lt;/pre&gt;&lt;pre&gt;
-
-Specification&lt;a  rel="nofollow" href="https://github.com/whatwg/html/pull/8008"&gt;https://github.com/whatwg/html/pull/8008&lt;/a&gt;
-
-Summary
-
-Auto Sizes allows developers to omit the sizes attribute (or set it to
-sizes=auto) for lazy loaded image elements with srcset. For this use case
-the image's width should be provided. The browser will use the layout width
-of the image in order to select the source url from the srcset.
-
-
-Blink componentBlink&amp;gt;Image
-&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EImage"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EImage&lt;/a&gt;&amp;gt;
-
-Motivation
-
-The layout size information in sizes is redundant with layout information
-in CSS, but for images that are critical to initial paint it's necessary to
-have the information in the HTML. For lazy-loaded images, CSS will usually
-be available before the image load begins. The browser could take the
-actual width of the image as specified in CSS, and use that as if it was
-the image's sizes.
-
-
-Initial public proposal&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/4654"&gt;https://github.com/whatwg/html/issues/4654&lt;/a&gt;
-
-Search tagssizes &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:sizes"&gt;https://chromestatus.com/features#tags:sizes&lt;/a&gt;&amp;gt;, sizes=auto
-&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:sizes=auto"&gt;https://chromestatus.com/features#tags:sizes=auto&lt;/a&gt;&amp;gt;, autosizes
-&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:autosizes"&gt;https://chromestatus.com/features#tags:autosizes&lt;/a&gt;&amp;gt;, srcset
-&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:srcset"&gt;https://chromestatus.com/features#tags:srcset&lt;/a&gt;&amp;gt;
-
-TAG review
-
-TAG review statusNot applicable
-
-Risks
-
-
-Interoperability and Compatibility
-
-None since all major browsers (Chrome, Safari and Firefox) indicate that
-they would be willing to implement it.
-
-
-*Gecko*: Positive (&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/650"&gt;https://github.com/mozilla/standards-positions/issues/650&lt;/a&gt;
-)
-
-*WebKit*: Positive (&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/9"&gt;https://github.com/WebKit/standards-positions/issues/9&lt;/a&gt;)
-
-*Web developers*: No signals
-
-*Other signals*:
-
-WebView application risks
-
-Does this intent deprecate or change behavior of existing APIs, such that
-it has potentially high risk for Android WebView-based applications?
-
-
-
-Debuggability
-
-
-
-Is this feature fully tested by web-platform-tests
-&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-?Yes
-
-Flag nameImgAutoSizes
-
-Requires code in //chrome?False
-
-Tracking bug&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1359051"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1359051&lt;/a&gt;
-
-Estimated milestones
-DevTrial on desktop 116
-DevTrial on Android 116
-
-Link to entry on the Chrome Platform Status
-&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5191555708616704"&gt;https://chromestatus.com/feature/5191555708616704&lt;/a&gt;
-
-Links to previous Intent discussions
-
-This intent message was generated by Chrome Platform Status
-&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvsRYQ5-a3vA8jsVTXz%2B5A8_pNcL6GziV3hy5qGqF-FTXg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvsRYQ5-a3vA8jsVTXz%2B5A8_pNcL6GziV3hy5qGqF-FTXg%40mail.gmail.com&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
