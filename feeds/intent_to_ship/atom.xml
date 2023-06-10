@@ -5,6 +5,1186 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06422.html</id>
+        <title>Re: [blink-dev] Re: Layout tests should not use threaded compositing, part XIII</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06422.html"/>
+        <updated>2023-06-10T00:43:14.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06422.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Layout+tests+should+not+use+threaded+compositing%2C+part+XIII%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Re: Layout tests should not use threaded compositing, part XIII&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Steve+Kobes%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Steve Kobes&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230609" rel="nofollow"&gt;Fri, 09 Jun 2023 17:43:14 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;I think the strongest argument for threaded web tests is that web tests are
+the foundation for WPT.  We now prefer
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_tests.md#:~:text=the%20preferred%20form%20of%20web%20tests"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_tests.md#:~:text=the%20preferred%20form%20of%20web%20tests&lt;/a&gt;&amp;gt;
+web
+tests to be WPT when possible, and wpt.fyi runs against the full browser.
+So WPT tests need to work with threaded compositing, and it's harder to
+ensure this if Chrome infra runs them differently.  We do have a large
+legacy of non-WPT web tests, but we shouldn't let that hold us back from
+moving toward threaded-by-default.&lt;/pre&gt;&lt;pre&gt;
+
+SimTests are better for poking at Chrome-specific internal state.  Now that
+SimTest has a real InputHandlerProxy
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/dfd84d6c040d64dd5fa8906ad6e82befaf18281b"&gt;https://chromium.googlesource.com/chromium/src/+/dfd84d6c040d64dd5fa8906ad6e82befaf18281b&lt;/a&gt;&amp;gt;
+it
+is not as limited by the blink/compositor boundary and can fill some of the
+gap left by single-threaded web tests.
+
+On Fri, Jun 9, 2023 at 6:28 PM Stefan Zager &amp;lt;sza...@chromium.org&amp;gt; wrote:
+
+&amp;gt; On Fri, Jun 9, 2023 at 3:07 PM Elliott Sprehn &amp;lt;espr...@google.com&amp;gt; wrote:
+&amp;gt;
+&amp;gt;&amp;gt; Woah 2015 super necro thread!
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; There were a couple meta angles here:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; - Explicitly testing non-web exposed behavior is probably better done
+&amp;gt;&amp;gt; with a SimTest or other unit test. In the past folks kept adding more
+&amp;gt;&amp;gt; methods to Internals, or special behavior to the compositor, to make it
+&amp;gt;&amp;gt; easier to write web_tests. So not having the threaded compositor
+&amp;gt;&amp;gt; discourages some classes of that. I see folks are still adding new
+&amp;gt;&amp;gt; internals methods unfortunately, but I still think SimTests (or something
+&amp;gt;&amp;gt; else) is a better option.
+&amp;gt;&amp;gt;
+&amp;gt;
+&amp;gt; Agreed: SimTests are *always* a better option, if you can get the right
+&amp;gt; coverage. The problem we've had is that SimTests test blink right up to the
+&amp;gt; blink/compositor boundary; and cc::LayerTreeTest test right up to the same
+&amp;gt; boundary, from the other side. But we don't have a unit test framework for
+&amp;gt; the renderer process that tests across that boundary. It's been proposed in
+&amp;gt; the past, and it's still probably a good idea, to connect these two test
+&amp;gt; frameworks so we can get better unit test coverage across the boundary. But
+&amp;gt; that only helps for new tests; we still miss out on the coverage provided
+&amp;gt; by the huge corpus of existing web_tests.
+&amp;gt;
+&amp;gt;
+&amp;gt;&amp;gt; - The more &amp;quot;complete&amp;quot; the browser run over web_tests, the more bugs are
+&amp;gt;&amp;gt; caught, but (at least at the time) browser_tests were very flaky and there
+&amp;gt;&amp;gt; was a strong desire to avoid that fate within blink. For example you could
+&amp;gt;&amp;gt; run the full chrome binary for web_tests and catch more bugs too. Why stop
+&amp;gt;&amp;gt; at just the threaded compositor? The thinking was making web_tests very
+&amp;gt;&amp;gt; stable was better than catching a small number of real bugs at the cost of
+&amp;gt;&amp;gt; a flake tax across the hundreds of contributors.
+&amp;gt;&amp;gt;
+&amp;gt;
+&amp;gt; Yep, very true: destabilizing the whole system is not worth it. Our first
+&amp;gt; experiments with enabling threaded compositing by default were pretty
+&amp;gt; broken, but we discovered a few fixes that greatly reduced the number of
+&amp;gt; new flakes and failures, and we discovered that a relatively small number
+&amp;gt; of tests were responsible for just about all of the new flakiness. So we
+&amp;gt; placed those tests in quarantine: they will continue to run with the
+&amp;gt; single-threaded compositor, while the large majority of tests (&amp;gt;95%), and
+&amp;gt; all new tests, will use the threaded compositor. The best time to fix a
+&amp;gt; flaky test is right when the test is added, and that holds true even if
+&amp;gt; threaded compositing is the root cause of the flakiness.
+&amp;gt;
+&amp;gt;
+&amp;gt;&amp;gt; The failure mode I've seen of efforts like this is the
+&amp;gt;&amp;gt; SingleThreadedTests file grows each time someone finds some flake, so we
+&amp;gt;&amp;gt; never really find the bugs like 1447868 because folks just keep hiding them
+&amp;gt;&amp;gt; each time something unusual happens.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; All that said, if you can crank up the &amp;quot;realism&amp;quot; of the test runner and
+&amp;gt;&amp;gt; not introduce flake and convince folks not to hide all the bugs with
+&amp;gt;&amp;gt; exceptions, that sounds worth it. I hope you all succeed!
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; - E
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; On Fri, Jun 9, 2023 at 3:18 PM Stefan Zager &amp;lt;sza...@chromium.org&amp;gt; wrote:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; On Fri, Jun 9, 2023 at 11:38 AM Ken Rockot &amp;lt;roc...@chromium.org&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Fri, Jun 9, 2023 at 11:25 AM Stefan Zager &amp;lt;sza...@chromium.org&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Resurrecting this thread, because yotha@ are launching the first step
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; in a project that completely
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ignores the previous consensus (i.e., that we should *not* enable
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; threaded compositing for all
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; web_tests).
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; This is exciting to hear! Is there a good place / bug to follow
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; progress?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Main tracking bug &amp;lt;&lt;a  rel="nofollow" href="http://crbug.com/770028"&gt;http://crbug.com/770028&lt;/a&gt;&amp;gt;.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I will paraphrase the high-level arguments made previously by enne@
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; and ojan@, neither of whom
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; are still active on chromium:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; - Enabling threaded compositing will increase test flakiness
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; - Previous efforts to fix the flakiness have been really difficult and
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; largely unsuccessful
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; - Buggy behavior in the blink/compositor thread boundary is best
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; covered by focused unit tests
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; - There are vanishingly few bugs in that area; maybe none?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; My reponse...
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; web_tests, by their very nature, are a massive set of integration
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; tests. That is not the most efficient
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; organization of test coverage. But the beauty of web_tests is that
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; they catch a *ton* of bugs and
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; prevent many bad patches from landing. The large majority of the bugs
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; are in core blink areas,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; but not all of them. web_tests provide effective, if inefficient,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; coverage of almost the entire chromium
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; code base. The lack of coverage for threaded compositing is an anomaly
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; and a blink spot. &amp;quot;It's too
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; hard&amp;quot; is not, in my opinion, a convincing justification.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Yes, turning on threaded compositing *does* make web_tests flakier.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; And that is evidence of real bugs!
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; It's oxymoronic to acknowledge the flakiness but claim that there are
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; few or no bugs in the
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; blink/compositor thread boundary. There are definitely bugs in there!
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; They can be excruciatingly hard
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to root-cause, but they definitely exist. A couple of examples...
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/3958364"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/3958364&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1447868"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1447868&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Once these bugs are root-caused, I certainly agree that we should
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; prefer unit tests for regression
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; testing. But they key point is that we only discovered these bugs
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; because they caused failures in
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; web_tests.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Again: these are real bugs!
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; +1000
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Because bugs in the thread boundary are usually race conditions they
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; can be extremely difficult to
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; reproduce, which means that they're very likely under-reported. But
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; they still degrade user experience.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Beyond crbug.com and flaky web_tests, there are also crash reports
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; that very likely indicate bugs in this
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; area.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Wednesday, November 4, 2015 at 4:58:29 PM UTC-8 Ojan Vafai wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; +1 on all points. I hope this new (currently half-baked) solution
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; will help improve all three of these to varying degrees. It's not 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; panacea,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; but it should be a lot better.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Wed, Nov 4, 2015 at 11:29 AM Adrienne Walker &amp;lt;e...@chromium.org&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Re: interoperability tests.  Looking at the guidelines for the web
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; platform tests, I think if all of our layout tests had been written with
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the guidelines of short and minimal in mind, we would be in a much 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; better
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; situation than we are today.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; My biggest concerns about layout tests are: (1) they get used to
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; test very internal parts of Blink, which then get exposed via awful
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; plumbing via internals or dumping the state of the world into a text 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; file.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  (2) they &amp;quot;over test&amp;quot;, especially in terms of pixel and text output, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; which
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; adds a rebaselining burden as these things churn over time and over
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; different platforms, even though that doesn't affect what the test was
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; trying to verify.  (3) they rely on so much of the stack that they end 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; up
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; being flaky.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I think there's plenty of room for html / javascript tests that are
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; cross-platform and test web platform features that don't fall into these
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; traps.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; 2015-11-04 9:32 GMT-08:00 Rick Byers &amp;lt;rby...@chromium.org&amp;gt;:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I agree with this big picture direction - i.e. unit tests are
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; generally better than integration tests.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; However I HAVE seen examples in input where we've missed issues
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; because we had only unit tests (content, cc and blink layout tests), 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; not
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; good integration test that included the effect of threaded input 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; handling.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; One case in particular was pretty embarrassing - IIRC we broke 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; scrolling
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; completely in most real-world cases yet not a single test failed :-).
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Still, I think this is, at best, an argument for having a couple sanity
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; integration tests (eg. as content browser tests).
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; My bigger concern here is around interoperability testing.  IMHO
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the only way we're going to substantially reduce developer pain around
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; interoperability is by sharing more tests with the other rendering
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; engines.  Mozilla is much better at this
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wiki.mozilla.org/Auto-tools/Projects/web-platform-tests"&gt;https://wiki.mozilla.org/Auto-tools/Projects/web-platform-tests&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; than us.  This, by its nature, is impossible to do with unit tests.  So
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; when new simple web platform features are being added (especially 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; highly
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; deterministic JS APIs), I've recently started encouraging my team to 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; try
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; focusing on web-platform-tests &amp;lt;&lt;a  rel="nofollow" href="http://testthewebforward.org"&gt;http://testthewebforward.org&lt;/a&gt;&amp;gt;.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Obviously more complex / non-deterministic features should still 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; prefer to
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; focus on unit tests.  But the exact balance here seems very 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; non-obvious to
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; me.  But like with everything, we should probably just try things, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; evaluate
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; how we're doing, and iterate.  Any concerns?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Rick
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Wed, Nov 4, 2015 at 11:39 AM, Ojan Vafai &amp;lt;o...@chromium.org&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Thread hijacking this to blink-dev@chromium.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; At a high level, I want to +1 that we should be moving our testing
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; away from high level regression tests into more deterministic tests.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; There's a good (not quite finished) alternative to layout tests that I
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; think we should pursue (an evolution of Elliott's C++-based Sim 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; framework).
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I'll be adding this to the Blink infra team's long-term roadmap
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; shortly. Coincidentally, Elliott and I hashed out a basic idea 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; yesterday.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; At some point we'll turn that into a doc and a proposal, but mostly it
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; needs people to do the engineering work to make it possible. So, if 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; you're
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; possibly interested in 5%-80%ing on this, ping me.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Tue, Nov 3, 2015 at 4:04 PM 'Adrienne Walker' via paint-dev &amp;lt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; paint-...@chromium.org&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (I sent this previously as an email reply to a few people about a
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; particular patch, but as this continues to come up on a monthly 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; basis, here
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; is a slightly edited copy of this rant as a reference of my biased 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; position
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; on this topic.)
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; We should *not* make layout tests use threaded compositing.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; We shouldn't do it because it's a rat hole.  jamesr and I both
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; tried to make this happen on separate occasions.  We spent a lot of 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; time
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; and fought with even more flakiness.  I'm sure somebody could 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; heroically
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; burn a lot of time making this happen and succeed where we couldn't, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; but in
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; my opinion, it's a waste of time.  Threaded compositing increases
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; flakiness and loses determinism in terms of when events happen, how
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; repaints line up with frames, and how animation happens, especially. 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  We
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; already have a ton of problems with flakiness in layout tests, so 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; why make
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; this worse?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; If there are features that are only enabled with threaded
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; compositing (compositor animations?) that somehow still need
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink layout tests, we should enable those features for non-
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; threaded compositing.  I would support removing the virtual/
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; threaded directory if somebody made it possible to test those
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; features in other ways.  If there are tests that have different 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; behavior in
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; threaded mode vs not threaded mode, then they need to be deflaked or 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; tested
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; more narrowly via unit tests or esprehn's simulation testing 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; framework.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Single vs threaded compositing is generally well-tested within
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; cc unit tests.  There should be very little difference at the Blink 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; level,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; and I would question the need to test it there.  We have ironed out 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; a small
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; number of message ordering differences over time in cc.  We should 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; consider
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; these differences bugs and add cc unit tests for them to guarantee 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the same
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ordering of messages.  In the long term, I think the Blimp/Mandoline 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; work
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; has the potential to merge single/thread proxy with an
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; abstracted glue layer between them.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; So, sure, we should test what we ship, but on the other hand
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; every test should not be an integration test.  I have have seen 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; exactly
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; zero bugs ever that would have been caught if a layout test had been 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; using
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; threaded compositing instead of single threaded compositing.  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Really, zero.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Personally, I think our problems as a team lie more on the &amp;quot;tests
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; are flaky and hard to reason about because they're integration 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; tests&amp;quot; end
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; of the spectrum and far less on the &amp;quot;we are shipping huge hidden
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; regressions because of holes in our testing&amp;quot;.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Tue, Nov 3, 2015 at 5:17 PM Adrienne Walker &amp;lt;e...@chromium.org&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; 2015-11-03 16:30 GMT-08:00 Alexey &amp;lt;lo...@chromium.org&amp;gt;:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Can we run all of the virtual/threaded tests in
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; SingleThreadProxy
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://code.google.com/p/chromium/codesearch#chromium/src/cc/trees/single_thread_proxy.cc&amp;l=37&amp;gs=cpp:cc::class-SingleThreadProxy::SingleThreadProxy"&gt;https://code.google.com/p/chromium/codesearch#chromium/src/cc/trees/single_thread_proxy.cc&amp;l=37&amp;gs=cpp:cc::class-SingleThreadProxy::SingleThreadProxy&lt;/a&gt;(cc::LayerTreeHost%2520*,%2520cc::LayerTreeHostSingleThreadClient%2520*,%2520scoped_refptr%253Cbase::SingleThreadTaskRunner%253E,%2520scoped_ptr%253Ccc::BeginFrameSource,%2520base::DefaultDeleter%253Ccc::BeginFrameSource%253E%2520%253E)@chromium/../../cc/trees/single_thread_proxy.cc%257Cdef&amp;gsn=SingleThreadProxy&amp;ct=xref_usages&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  mode?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Currently, no!
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; There are some things (e.g. composited animations) that have
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; behavior differences in code depending on threaded vs single thread. 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  It
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; seems to me that these are wrinkles that could be ironed out.  It 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; seems
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; like there's no reason we couldn't create and run composited 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; animations in
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; single-threaded mode.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; It looks like other things have been added there over time (e.g.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; idle callbacks), that I don't understand as well.  Naively, it seems 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; like
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; fundamentally nothing should depend on threaded compositing.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+unsubscr...@chromium.org.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/4d8dd468-b3c4-4f65-8ac7-1b4ca194e08an%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/4d8dd468-b3c4-4f65-8ac7-1b4ca194e08an%40chromium.org&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/4d8dd468-b3c4-4f65-8ac7-1b4ca194e08an%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/4d8dd468-b3c4-4f65-8ac7-1b4ca194e08an%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
+&amp;gt; You received this message because you are subscribed to the Google Groups
+&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt; To view this discussion on the web visit
+&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAHOQ7J-0kFrERxC_PZdyfA6yoh_53%2Bu50gm_vuS-hzd1pAXUTg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAHOQ7J-0kFrERxC_PZdyfA6yoh_53%2Bu50gm_vuS-hzd1pAXUTg%40mail.gmail.com&lt;/a&gt;
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAHOQ7J-0kFrERxC_PZdyfA6yoh_53%2Bu50gm_vuS-hzd1pAXUTg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAHOQ7J-0kFrERxC_PZdyfA6yoh_53%2Bu50gm_vuS-hzd1pAXUTg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt; .
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAjAU%3DYYb29VBshp_ESN21Zb5ehfPA-oWRkRo24ESu5vRRndUw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAjAU%3DYYb29VBshp_ESN21Zb5ehfPA-oWRkRo24ESu5vRRndUw%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06421.html</id>
+        <title>Re: [blink-dev] Re: Layout tests should not use threaded compositing, part XIII</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06421.html"/>
+        <updated>2023-06-09T22:28:18.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06421.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Layout+tests+should+not+use+threaded+compositing%2C+part+XIII%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Re: Layout tests should not use threaded compositing, part XIII&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Stefan+Zager%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Stefan Zager&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230609" rel="nofollow"&gt;Fri, 09 Jun 2023 15:28:18 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;On Fri, Jun 9, 2023 at 3:07 PM Elliott Sprehn &amp;lt;espr...@google.com&amp;gt; wrote:&lt;/pre&gt;&lt;pre&gt;
+
+&amp;gt; Woah 2015 super necro thread!
+&amp;gt;
+&amp;gt; There were a couple meta angles here:
+&amp;gt;
+&amp;gt; - Explicitly testing non-web exposed behavior is probably better done with
+&amp;gt; a SimTest or other unit test. In the past folks kept adding more methods to
+&amp;gt; Internals, or special behavior to the compositor, to make it easier to
+&amp;gt; write web_tests. So not having the threaded compositor discourages some
+&amp;gt; classes of that. I see folks are still adding new internals methods
+&amp;gt; unfortunately, but I still think SimTests (or something else) is a
+&amp;gt; better option.
+&amp;gt;
+
+Agreed: SimTests are *always* a better option, if you can get the right
+coverage. The problem we've had is that SimTests test blink right up to the
+blink/compositor boundary; and cc::LayerTreeTest test right up to the same
+boundary, from the other side. But we don't have a unit test framework for
+the renderer process that tests across that boundary. It's been proposed in
+the past, and it's still probably a good idea, to connect these two test
+frameworks so we can get better unit test coverage across the boundary. But
+that only helps for new tests; we still miss out on the coverage provided
+by the huge corpus of existing web_tests.
+
+
+&amp;gt; - The more &amp;quot;complete&amp;quot; the browser run over web_tests, the more bugs are
+&amp;gt; caught, but (at least at the time) browser_tests were very flaky and there
+&amp;gt; was a strong desire to avoid that fate within blink. For example you could
+&amp;gt; run the full chrome binary for web_tests and catch more bugs too. Why stop
+&amp;gt; at just the threaded compositor? The thinking was making web_tests very
+&amp;gt; stable was better than catching a small number of real bugs at the cost of
+&amp;gt; a flake tax across the hundreds of contributors.
+&amp;gt;
+
+Yep, very true: destabilizing the whole system is not worth it. Our first
+experiments with enabling threaded compositing by default were pretty
+broken, but we discovered a few fixes that greatly reduced the number of
+new flakes and failures, and we discovered that a relatively small number
+of tests were responsible for just about all of the new flakiness. So we
+placed those tests in quarantine: they will continue to run with the
+single-threaded compositor, while the large majority of tests (&amp;gt;95%), and
+all new tests, will use the threaded compositor. The best time to fix a
+flaky test is right when the test is added, and that holds true even if
+threaded compositing is the root cause of the flakiness.
+
+
+&amp;gt; The failure mode I've seen of efforts like this is the SingleThreadedTests
+&amp;gt; file grows each time someone finds some flake, so we never really find the
+&amp;gt; bugs like 1447868 because folks just keep hiding them each time something
+&amp;gt; unusual happens.
+&amp;gt;
+&amp;gt; All that said, if you can crank up the &amp;quot;realism&amp;quot; of the test runner and
+&amp;gt; not introduce flake and convince folks not to hide all the bugs with
+&amp;gt; exceptions, that sounds worth it. I hope you all succeed!
+&amp;gt;
+&amp;gt; - E
+&amp;gt;
+&amp;gt; On Fri, Jun 9, 2023 at 3:18 PM Stefan Zager &amp;lt;sza...@chromium.org&amp;gt; wrote:
+&amp;gt;
+&amp;gt;&amp;gt; On Fri, Jun 9, 2023 at 11:38 AM Ken Rockot &amp;lt;roc...@chromium.org&amp;gt; wrote:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; On Fri, Jun 9, 2023 at 11:25 AM Stefan Zager &amp;lt;sza...@chromium.org&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Resurrecting this thread, because yotha@ are launching the first step
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; in a project that completely
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; ignores the previous consensus (i.e., that we should *not* enable
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; threaded compositing for all
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; web_tests).
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; This is exciting to hear! Is there a good place / bug to follow progress?
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Main tracking bug &amp;lt;&lt;a  rel="nofollow" href="http://crbug.com/770028"&gt;http://crbug.com/770028&lt;/a&gt;&amp;gt;.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; I will paraphrase the high-level arguments made previously by enne@
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; and ojan@, neither of whom
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; are still active on chromium:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; - Enabling threaded compositing will increase test flakiness
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; - Previous efforts to fix the flakiness have been really difficult and
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; largely unsuccessful
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; - Buggy behavior in the blink/compositor thread boundary is best
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; covered by focused unit tests
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; - There are vanishingly few bugs in that area; maybe none?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; My reponse...
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; web_tests, by their very nature, are a massive set of integration
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; tests. That is not the most efficient
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; organization of test coverage. But the beauty of web_tests is that they
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; catch a *ton* of bugs and
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; prevent many bad patches from landing. The large majority of the bugs
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; are in core blink areas,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; but not all of them. web_tests provide effective, if inefficient,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; coverage of almost the entire chromium
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; code base. The lack of coverage for threaded compositing is an anomaly
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; and a blink spot. &amp;quot;It's too
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; hard&amp;quot; is not, in my opinion, a convincing justification.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Yes, turning on threaded compositing *does* make web_tests flakier. And
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; that is evidence of real bugs!
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; It's oxymoronic to acknowledge the flakiness but claim that there are
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; few or no bugs in the
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; blink/compositor thread boundary. There are definitely bugs in there!
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; They can be excruciatingly hard
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; to root-cause, but they definitely exist. A couple of examples...
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/3958364"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/3958364&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1447868"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1447868&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Once these bugs are root-caused, I certainly agree that we should
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; prefer unit tests for regression
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; testing. But they key point is that we only discovered these bugs
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; because they caused failures in
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; web_tests.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Again: these are real bugs!
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; +1000
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Because bugs in the thread boundary are usually race conditions they
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; can be extremely difficult to
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; reproduce, which means that they're very likely under-reported. But
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; they still degrade user experience.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Beyond crbug.com and flaky web_tests, there are also crash reports
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; that very likely indicate bugs in this
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; area.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Wednesday, November 4, 2015 at 4:58:29 PM UTC-8 Ojan Vafai wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; +1 on all points. I hope this new (currently half-baked) solution will
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; help improve all three of these to varying degrees. It's not panacea, but
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; it should be a lot better.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Wed, Nov 4, 2015 at 11:29 AM Adrienne Walker &amp;lt;e...@chromium.org&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Re: interoperability tests.  Looking at the guidelines for the web
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; platform tests, I think if all of our layout tests had been written with
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the guidelines of short and minimal in mind, we would be in a much better
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; situation than we are today.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; My biggest concerns about layout tests are: (1) they get used to test
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; very internal parts of Blink, which then get exposed via awful plumbing 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; via
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; internals or dumping the state of the world into a text file.  (2) they
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;quot;over test&amp;quot;, especially in terms of pixel and text output, which adds a
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; rebaselining burden as these things churn over time and over different
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; platforms, even though that doesn't affect what the test was trying to
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; verify.  (3) they rely on so much of the stack that they end up being 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; flaky.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I think there's plenty of room for html / javascript tests that are
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; cross-platform and test web platform features that don't fall into these
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; traps.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; 2015-11-04 9:32 GMT-08:00 Rick Byers &amp;lt;rby...@chromium.org&amp;gt;:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I agree with this big picture direction - i.e. unit tests are
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; generally better than integration tests.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; However I HAVE seen examples in input where we've missed issues
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; because we had only unit tests (content, cc and blink layout tests), not
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; good integration test that included the effect of threaded input 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; handling.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; One case in particular was pretty embarrassing - IIRC we broke scrolling
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; completely in most real-world cases yet not a single test failed :-).
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Still, I think this is, at best, an argument for having a couple sanity
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; integration tests (eg. as content browser tests).
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; My bigger concern here is around interoperability testing.  IMHO the
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; only way we're going to substantially reduce developer pain around
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; interoperability is by sharing more tests with the other rendering
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; engines.  Mozilla is much better at this
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wiki.mozilla.org/Auto-tools/Projects/web-platform-tests"&gt;https://wiki.mozilla.org/Auto-tools/Projects/web-platform-tests&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; than us.  This, by its nature, is impossible to do with unit tests.  So
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; when new simple web platform features are being added (especially highly
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; deterministic JS APIs), I've recently started encouraging my team to try
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; focusing on web-platform-tests &amp;lt;&lt;a  rel="nofollow" href="http://testthewebforward.org"&gt;http://testthewebforward.org&lt;/a&gt;&amp;gt;.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Obviously more complex / non-deterministic features should still prefer 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; focus on unit tests.  But the exact balance here seems very non-obvious 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; me.  But like with everything, we should probably just try things, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; evaluate
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; how we're doing, and iterate.  Any concerns?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Rick
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Wed, Nov 4, 2015 at 11:39 AM, Ojan Vafai &amp;lt;o...@chromium.org&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Thread hijacking this to blink-dev@chromium.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; At a high level, I want to +1 that we should be moving our testing
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; away from high level regression tests into more deterministic tests.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; There's a good (not quite finished) alternative to layout tests that I
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; think we should pursue (an evolution of Elliott's C++-based Sim 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; framework).
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I'll be adding this to the Blink infra team's long-term roadmap
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; shortly. Coincidentally, Elliott and I hashed out a basic idea 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; yesterday.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; At some point we'll turn that into a doc and a proposal, but mostly it
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; needs people to do the engineering work to make it possible. So, if 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; you're
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; possibly interested in 5%-80%ing on this, ping me.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Tue, Nov 3, 2015 at 4:04 PM 'Adrienne Walker' via paint-dev &amp;lt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; paint-...@chromium.org&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (I sent this previously as an email reply to a few people about a
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; particular patch, but as this continues to come up on a monthly 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; basis, here
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; is a slightly edited copy of this rant as a reference of my biased 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; position
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; on this topic.)
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; We should *not* make layout tests use threaded compositing.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; We shouldn't do it because it's a rat hole.  jamesr and I both
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; tried to make this happen on separate occasions.  We spent a lot of 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; time
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; and fought with even more flakiness.  I'm sure somebody could 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; heroically
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; burn a lot of time making this happen and succeed where we couldn't, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; but in
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; my opinion, it's a waste of time.  Threaded compositing increases
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; flakiness and loses determinism in terms of when events happen, how
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; repaints line up with frames, and how animation happens, especially.  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; We
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; already have a ton of problems with flakiness in layout tests, so why 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; make
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; this worse?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; If there are features that are only enabled with threaded
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; compositing (compositor animations?) that somehow still need
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink layout tests, we should enable those features for non-
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; threaded compositing.  I would support removing the virtual/
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; threaded directory if somebody made it possible to test those
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; features in other ways.  If there are tests that have different 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; behavior in
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; threaded mode vs not threaded mode, then they need to be deflaked or 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; tested
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; more narrowly via unit tests or esprehn's simulation testing 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; framework.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Single vs threaded compositing is generally well-tested within cc
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; unit tests.  There should be very little difference at the Blink 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; level, and
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I would question the need to test it there.  We have ironed out a 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; small
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; number of message ordering differences over time in cc.  We should 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; consider
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; these differences bugs and add cc unit tests for them to guarantee 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the same
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ordering of messages.  In the long term, I think the Blimp/Mandoline 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; work
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; has the potential to merge single/thread proxy with an abstracted
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; glue layer between them.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; So, sure, we should test what we ship, but on the other hand every
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; test should not be an integration test.  I have have seen exactly 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; zero bugs
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ever that would have been caught if a layout test had been using 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; threaded
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; compositing instead of single threaded compositing.  Really, zero.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Personally, I think our problems as a team lie more on the &amp;quot;tests
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; are flaky and hard to reason about because they're integration tests&amp;quot; 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; end
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; of the spectrum and far less on the &amp;quot;we are shipping huge hidden
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; regressions because of holes in our testing&amp;quot;.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Tue, Nov 3, 2015 at 5:17 PM Adrienne Walker &amp;lt;e...@chromium.org&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; 2015-11-03 16:30 GMT-08:00 Alexey &amp;lt;lo...@chromium.org&amp;gt;:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Can we run all of the virtual/threaded tests in SingleThreadProxy
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://code.google.com/p/chromium/codesearch#chromium/src/cc/trees/single_thread_proxy.cc&amp;l=37&amp;gs=cpp:cc::class-SingleThreadProxy::SingleThreadProxy"&gt;https://code.google.com/p/chromium/codesearch#chromium/src/cc/trees/single_thread_proxy.cc&amp;l=37&amp;gs=cpp:cc::class-SingleThreadProxy::SingleThreadProxy&lt;/a&gt;(cc::LayerTreeHost%2520*,%2520cc::LayerTreeHostSingleThreadClient%2520*,%2520scoped_refptr%253Cbase::SingleThreadTaskRunner%253E,%2520scoped_ptr%253Ccc::BeginFrameSource,%2520base::DefaultDeleter%253Ccc::BeginFrameSource%253E%2520%253E)@chromium/../../cc/trees/single_thread_proxy.cc%257Cdef&amp;gsn=SingleThreadProxy&amp;ct=xref_usages&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  mode?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Currently, no!
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; There are some things (e.g. composited animations) that have
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; behavior differences in code depending on threaded vs single thread.  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; It
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; seems to me that these are wrinkles that could be ironed out.  It 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; seems
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; like there's no reason we couldn't create and run composited 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; animations in
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; single-threaded mode.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; It looks like other things have been added there over time (e.g.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; idle callbacks), that I don't understand as well.  Naively, it seems 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; like
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; fundamentally nothing should depend on threaded compositing.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+unsubscr...@chromium.org.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/4d8dd468-b3c4-4f65-8ac7-1b4ca194e08an%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/4d8dd468-b3c4-4f65-8ac7-1b4ca194e08an%40chromium.org&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/4d8dd468-b3c4-4f65-8ac7-1b4ca194e08an%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/4d8dd468-b3c4-4f65-8ac7-1b4ca194e08an%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAHOQ7J-0kFrERxC_PZdyfA6yoh_53%2Bu50gm_vuS-hzd1pAXUTg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAHOQ7J-0kFrERxC_PZdyfA6yoh_53%2Bu50gm_vuS-hzd1pAXUTg%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06420.html</id>
+        <title>Re: [blink-dev] Re: Layout tests should not use threaded compositing, part XIII</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06420.html"/>
+        <updated>2023-06-09T22:08:52.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06420.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Layout+tests+should+not+use+threaded+compositing%2C+part+XIII%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Re: Layout tests should not use threaded compositing, part XIII&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Elliott+Sprehn%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Elliott Sprehn' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230609" rel="nofollow"&gt;Fri, 09 Jun 2023 15:08:52 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Woah 2015 super necro thread!
+
+There were a couple meta angles here:&lt;/pre&gt;&lt;pre&gt;
+
+- Explicitly testing non-web exposed behavior is probably better done with
+a SimTest or other unit test. In the past folks kept adding more methods to
+Internals, or special behavior to the compositor, to make it easier to
+write web_tests. So not having the threaded compositor discourages some
+classes of that. I see folks are still adding new internals methods
+unfortunately, but I still think SimTests (or something else) is a
+better option.
+
+- The more &amp;quot;complete&amp;quot; the browser run over web_tests, the more bugs are
+caught, but (at least at the time) browser_tests were very flaky and there
+was a strong desire to avoid that fate within blink. For example you could
+run the full chrome binary for web_tests and catch more bugs too. Why stop
+at just the threaded compositor? The thinking was making web_tests very
+stable was better than catching a small number of real bugs at the cost of
+a flake tax across the hundreds of contributors.
+
+The failure mode I've seen of efforts like this is the SingleThreadedTests
+file grows each time someone finds some flake, so we never really find the
+bugs like 1447868 because folks just keep hiding them each time something
+unusual happens.
+
+All that said, if you can crank up the &amp;quot;realism&amp;quot; of the test runner and not
+introduce flake and convince folks not to hide all the bugs with
+exceptions, that sounds worth it. I hope you all succeed!
+
+- E
+
+On Fri, Jun 9, 2023 at 3:18 PM Stefan Zager &amp;lt;sza...@chromium.org&amp;gt; wrote:
+
+&amp;gt; On Fri, Jun 9, 2023 at 11:38 AM Ken Rockot &amp;lt;roc...@chromium.org&amp;gt; wrote:
+&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; On Fri, Jun 9, 2023 at 11:25 AM Stefan Zager &amp;lt;sza...@chromium.org&amp;gt; wrote:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Resurrecting this thread, because yotha@ are launching the first step
+&amp;gt;&amp;gt;&amp;gt; in a project that completely
+&amp;gt;&amp;gt;&amp;gt; ignores the previous consensus (i.e., that we should *not* enable
+&amp;gt;&amp;gt;&amp;gt; threaded compositing for all
+&amp;gt;&amp;gt;&amp;gt; web_tests).
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; This is exciting to hear! Is there a good place / bug to follow progress?
+&amp;gt;&amp;gt;
+&amp;gt;
+&amp;gt; Main tracking bug &amp;lt;&lt;a  rel="nofollow" href="http://crbug.com/770028"&gt;http://crbug.com/770028&lt;/a&gt;&amp;gt;.
+&amp;gt;
+&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; I will paraphrase the high-level arguments made previously by enne@ and
+&amp;gt;&amp;gt;&amp;gt; ojan@, neither of whom
+&amp;gt;&amp;gt;&amp;gt; are still active on chromium:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; - Enabling threaded compositing will increase test flakiness
+&amp;gt;&amp;gt;&amp;gt; - Previous efforts to fix the flakiness have been really difficult and
+&amp;gt;&amp;gt;&amp;gt; largely unsuccessful
+&amp;gt;&amp;gt;&amp;gt; - Buggy behavior in the blink/compositor thread boundary is best covered
+&amp;gt;&amp;gt;&amp;gt; by focused unit tests
+&amp;gt;&amp;gt;&amp;gt; - There are vanishingly few bugs in that area; maybe none?
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; My reponse...
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; web_tests, by their very nature, are a massive set of integration tests.
+&amp;gt;&amp;gt;&amp;gt; That is not the most efficient
+&amp;gt;&amp;gt;&amp;gt; organization of test coverage. But the beauty of web_tests is that they
+&amp;gt;&amp;gt;&amp;gt; catch a *ton* of bugs and
+&amp;gt;&amp;gt;&amp;gt; prevent many bad patches from landing. The large majority of the bugs
+&amp;gt;&amp;gt;&amp;gt; are in core blink areas,
+&amp;gt;&amp;gt;&amp;gt; but not all of them. web_tests provide effective, if inefficient,
+&amp;gt;&amp;gt;&amp;gt; coverage of almost the entire chromium
+&amp;gt;&amp;gt;&amp;gt; code base. The lack of coverage for threaded compositing is an anomaly
+&amp;gt;&amp;gt;&amp;gt; and a blink spot. &amp;quot;It's too
+&amp;gt;&amp;gt;&amp;gt; hard&amp;quot; is not, in my opinion, a convincing justification.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Yes, turning on threaded compositing *does* make web_tests flakier. And
+&amp;gt;&amp;gt;&amp;gt; that is evidence of real bugs!
+&amp;gt;&amp;gt;&amp;gt; It's oxymoronic to acknowledge the flakiness but claim that there are
+&amp;gt;&amp;gt;&amp;gt; few or no bugs in the
+&amp;gt;&amp;gt;&amp;gt; blink/compositor thread boundary. There are definitely bugs in there!
+&amp;gt;&amp;gt;&amp;gt; They can be excruciatingly hard
+&amp;gt;&amp;gt;&amp;gt; to root-cause, but they definitely exist. A couple of examples...
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/3958364"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/3958364&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1447868"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1447868&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Once these bugs are root-caused, I certainly agree that we should prefer
+&amp;gt;&amp;gt;&amp;gt; unit tests for regression
+&amp;gt;&amp;gt;&amp;gt; testing. But they key point is that we only discovered these bugs
+&amp;gt;&amp;gt;&amp;gt; because they caused failures in
+&amp;gt;&amp;gt;&amp;gt; web_tests.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Again: these are real bugs!
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; +1000
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Because bugs in the thread boundary are usually race conditions they can
+&amp;gt;&amp;gt;&amp;gt; be extremely difficult to
+&amp;gt;&amp;gt;&amp;gt; reproduce, which means that they're very likely under-reported. But they
+&amp;gt;&amp;gt;&amp;gt; still degrade user experience.
+&amp;gt;&amp;gt;&amp;gt; Beyond crbug.com and flaky web_tests, there are also crash reports that
+&amp;gt;&amp;gt;&amp;gt; very likely indicate bugs in this
+&amp;gt;&amp;gt;&amp;gt; area.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; On Wednesday, November 4, 2015 at 4:58:29 PM UTC-8 Ojan Vafai wrote:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; +1 on all points. I hope this new (currently half-baked) solution will
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; help improve all three of these to varying degrees. It's not panacea, but
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; it should be a lot better.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Wed, Nov 4, 2015 at 11:29 AM Adrienne Walker &amp;lt;e...@chromium.org&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Re: interoperability tests.  Looking at the guidelines for the web
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; platform tests, I think if all of our layout tests had been written with
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the guidelines of short and minimal in mind, we would be in a much better
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; situation than we are today.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; My biggest concerns about layout tests are: (1) they get used to test
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; very internal parts of Blink, which then get exposed via awful plumbing 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; via
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; internals or dumping the state of the world into a text file.  (2) they
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;quot;over test&amp;quot;, especially in terms of pixel and text output, which adds a
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; rebaselining burden as these things churn over time and over different
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; platforms, even though that doesn't affect what the test was trying to
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; verify.  (3) they rely on so much of the stack that they end up being 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; flaky.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I think there's plenty of room for html / javascript tests that are
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; cross-platform and test web platform features that don't fall into these
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; traps.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; 2015-11-04 9:32 GMT-08:00 Rick Byers &amp;lt;rby...@chromium.org&amp;gt;:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I agree with this big picture direction - i.e. unit tests are
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; generally better than integration tests.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; However I HAVE seen examples in input where we've missed issues
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; because we had only unit tests (content, cc and blink layout tests), not
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; good integration test that included the effect of threaded input 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; handling.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; One case in particular was pretty embarrassing - IIRC we broke scrolling
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; completely in most real-world cases yet not a single test failed :-).
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Still, I think this is, at best, an argument for having a couple sanity
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; integration tests (eg. as content browser tests).
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; My bigger concern here is around interoperability testing.  IMHO the
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; only way we're going to substantially reduce developer pain around
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; interoperability is by sharing more tests with the other rendering
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; engines.  Mozilla is much better at this
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wiki.mozilla.org/Auto-tools/Projects/web-platform-tests"&gt;https://wiki.mozilla.org/Auto-tools/Projects/web-platform-tests&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; than us.  This, by its nature, is impossible to do with unit tests.  So
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; when new simple web platform features are being added (especially highly
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; deterministic JS APIs), I've recently started encouraging my team to try
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; focusing on web-platform-tests &amp;lt;&lt;a  rel="nofollow" href="http://testthewebforward.org"&gt;http://testthewebforward.org&lt;/a&gt;&amp;gt;.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Obviously more complex / non-deterministic features should still prefer 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; focus on unit tests.  But the exact balance here seems very non-obvious 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; me.  But like with everything, we should probably just try things, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; evaluate
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; how we're doing, and iterate.  Any concerns?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Rick
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Wed, Nov 4, 2015 at 11:39 AM, Ojan Vafai &amp;lt;o...@chromium.org&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Thread hijacking this to blink-dev@chromium.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; At a high level, I want to +1 that we should be moving our testing
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; away from high level regression tests into more deterministic tests.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; There's a good (not quite finished) alternative to layout tests that I
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; think we should pursue (an evolution of Elliott's C++-based Sim 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; framework).
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I'll be adding this to the Blink infra team's long-term roadmap
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; shortly. Coincidentally, Elliott and I hashed out a basic idea 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; yesterday.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; At some point we'll turn that into a doc and a proposal, but mostly it
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; needs people to do the engineering work to make it possible. So, if 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; you're
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; possibly interested in 5%-80%ing on this, ping me.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Tue, Nov 3, 2015 at 4:04 PM 'Adrienne Walker' via paint-dev &amp;lt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; paint-...@chromium.org&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (I sent this previously as an email reply to a few people about a
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; particular patch, but as this continues to come up on a monthly basis, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; here
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; is a slightly edited copy of this rant as a reference of my biased 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; position
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; on this topic.)
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; We should *not* make layout tests use threaded compositing.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; We shouldn't do it because it's a rat hole.  jamesr and I both
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; tried to make this happen on separate occasions.  We spent a lot of 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; time
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; and fought with even more flakiness.  I'm sure somebody could 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; heroically
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; burn a lot of time making this happen and succeed where we couldn't, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; but in
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; my opinion, it's a waste of time.  Threaded compositing increases
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; flakiness and loses determinism in terms of when events happen, how
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; repaints line up with frames, and how animation happens, especially.  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; We
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; already have a ton of problems with flakiness in layout tests, so why 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; make
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; this worse?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; If there are features that are only enabled with threaded
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; compositing (compositor animations?) that somehow still need Blink
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; layout tests, we should enable those features for non-threaded
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; compositing.  I would support removing the virtual/threaded directory
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; if somebody made it possible to test those features in other ways.  If
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; there are tests that have different behavior in threaded mode vs not
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; threaded mode, then they need to be deflaked or tested more narrowly 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; via
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; unit tests or esprehn's simulation testing framework.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Single vs threaded compositing is generally well-tested within cc
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; unit tests.  There should be very little difference at the Blink 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; level, and
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I would question the need to test it there.  We have ironed out a small
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; number of message ordering differences over time in cc.  We should 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; consider
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; these differences bugs and add cc unit tests for them to guarantee the 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; same
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ordering of messages.  In the long term, I think the Blimp/Mandoline 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; work
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; has the potential to merge single/thread proxy with an abstracted
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; glue layer between them.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; So, sure, we should test what we ship, but on the other hand every
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; test should not be an integration test.  I have have seen exactly zero 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; bugs
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ever that would have been caught if a layout test had been using 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; threaded
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; compositing instead of single threaded compositing.  Really, zero.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Personally, I think our problems as a team lie more on the &amp;quot;tests
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; are flaky and hard to reason about because they're integration tests&amp;quot; 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; end
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; of the spectrum and far less on the &amp;quot;we are shipping huge hidden
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; regressions because of holes in our testing&amp;quot;.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Tue, Nov 3, 2015 at 5:17 PM Adrienne Walker &amp;lt;e...@chromium.org&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; 2015-11-03 16:30 GMT-08:00 Alexey &amp;lt;lo...@chromium.org&amp;gt;:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Can we run all of the virtual/threaded tests in SingleThreadProxy
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://code.google.com/p/chromium/codesearch#chromium/src/cc/trees/single_thread_proxy.cc&amp;l=37&amp;gs=cpp:cc::class-SingleThreadProxy::SingleThreadProxy"&gt;https://code.google.com/p/chromium/codesearch#chromium/src/cc/trees/single_thread_proxy.cc&amp;l=37&amp;gs=cpp:cc::class-SingleThreadProxy::SingleThreadProxy&lt;/a&gt;(cc::LayerTreeHost%2520*,%2520cc::LayerTreeHostSingleThreadClient%2520*,%2520scoped_refptr%253Cbase::SingleThreadTaskRunner%253E,%2520scoped_ptr%253Ccc::BeginFrameSource,%2520base::DefaultDeleter%253Ccc::BeginFrameSource%253E%2520%253E)@chromium/../../cc/trees/single_thread_proxy.cc%257Cdef&amp;gsn=SingleThreadProxy&amp;ct=xref_usages&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  mode?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Currently, no!
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; There are some things (e.g. composited animations) that have
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; behavior differences in code depending on threaded vs single thread.  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; It
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; seems to me that these are wrinkles that could be ironed out.  It seems
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; like there's no reason we couldn't create and run composited 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; animations in
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; single-threaded mode.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; It looks like other things have been added there over time (e.g.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; idle callbacks), that I don't understand as well.  Naively, it seems 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; like
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; fundamentally nothing should depend on threaded compositing.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
+&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
+&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send
+&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+unsubscr...@chromium.org.
+&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/4d8dd468-b3c4-4f65-8ac7-1b4ca194e08an%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/4d8dd468-b3c4-4f65-8ac7-1b4ca194e08an%40chromium.org&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/4d8dd468-b3c4-4f65-8ac7-1b4ca194e08an%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/4d8dd468-b3c4-4f65-8ac7-1b4ca194e08an%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAO9Q3iJPOPBPgSsu7f_9_6XzRg3OjmqV%3Do4AAKFS7Yjv6HQ9XQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAO9Q3iJPOPBPgSsu7f_9_6XzRg3OjmqV%3Do4AAKFS7Yjv6HQ9XQ%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06419.html</id>
+        <title>Re: [blink-dev] Intent to Ship: @scope</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06419.html"/>
+        <updated>2023-06-09T21:23:54.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06419.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+%40scope%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: @scope&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Carlos+Araya%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Carlos Araya&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230609" rel="nofollow"&gt;Fri, 09 Jun 2023 14:23:54 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;This is not something that Google can change unilaterally since the feature 
+was specified by the CSS Working Group. &lt;/pre&gt;&lt;pre&gt;
+
+A better venue for this feedback may be the CSS Working Group Github 
+(&lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts"&gt;https://github.com/w3c/csswg-drafts&lt;/a&gt;) . Use [css-cascade-6] in the title of 
+the issue so it'll get to the right people. 
+
+On Wednesday, June 7, 2023 at 3:40:19 PM UTC-7 nigh...@cybre.space wrote:
+
+&amp;gt; Hi all, I realize this is kind of late in the feedback process, but while 
+&amp;gt; reading the syntax examples here I found myself pretty confused by the 
+&amp;gt; meaning of the &amp;quot;to&amp;quot; keyword. Especially given that the tendency is to read 
+&amp;gt; it as the English language sentence &amp;quot;Scope .foo to .bar&amp;quot;, it seems to 
+&amp;gt; introduce a meaning almost entirely at odds with what it's purpose is 
+&amp;gt; (scope the styles TO .foo, EXCLUDING .bar rather than, e.g., &amp;quot;Scope .foo's 
+&amp;gt; styles to .bar&amp;quot; or something similar)
+&amp;gt;
+&amp;gt; Reading the explainer, it sounds like the way this syntax was arrived at 
+&amp;gt; was pretty path dependant (building on the previous &amp;quot;from: x to: y&amp;quot; syntax) 
+&amp;gt; Has the CSSWG considered any other keyword for this proposal, for example 
+&amp;gt; maybe something like 
+&amp;gt;
+&amp;gt; @scope (.component) excluding (.bar) {
+&amp;gt;   ...
+&amp;gt; }
+&amp;gt;
+&amp;gt; Again, sorry that this feedback is coming so late in the timeline, but 
+&amp;gt; curious whether there were any other alternatives explored here. 
+&amp;gt;
+&amp;gt; And definitely second the opinion on the explainer! I don't think I would 
+&amp;gt; have been able to figure out the usage of the &amp;quot;to (...)&amp;quot; clause without it 
+&amp;gt; and it really made it clear why it was important and how it fit into the 
+&amp;gt; overall design of the feature 
+&amp;gt; On Wednesday, June 7, 2023 at 11:37:22 AM UTC-5 and...@chromium.org wrote:
+&amp;gt;
+&amp;gt;&amp;gt; On Wed, Jun 7, 2023 at 5:54 PM slightlyoff via Chromestatus &amp;lt;
+&amp;gt;&amp;gt; admin+sl...@cr-status.appspotmail.com&amp;gt; wrote:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; LGTM3. If we have a potential `:visited` issue, we should make sure this 
+&amp;gt;&amp;gt;&amp;gt; is shipped with a feature flag for the next few releases. The long term 
+&amp;gt;&amp;gt;&amp;gt; solution for `:visited` is to make it less brittle (a.k.a. &amp;quot;directed 
+&amp;gt;&amp;gt;&amp;gt; visitedness&amp;quot;) as we're going to keep adding new combinators that invalidate 
+&amp;gt;&amp;gt;&amp;gt; the assumptions of heuristic approaches.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Ack, I filed a reminder 
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1452154"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1452154&lt;/a&gt;&amp;gt; to 
+&amp;gt;&amp;gt; ensure that we have a feature flag.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; -- 
+&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google 
+&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send 
+&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+...@chromium.org.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; To view this discussion on the web visit 
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/0000000000008609c705fd8c257a%40google.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/0000000000008609c705fd8c257a%40google.com&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/0000000000008609c705fd8c257a%40google.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/0000000000008609c705fd8c257a%40google.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/42d56f17-8b1a-4653-9c18-5bdb7e8d594bn%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/42d56f17-8b1a-4653-9c18-5bdb7e8d594bn%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06418.html</id>
         <title>[blink-dev] Intent to Prototype and Ship: contain-intrinsic-size: auto none support</title>
         <author>
@@ -9163,1008 +10343,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/4e9d3f25-d9b6-efbc-d464-e1476d09ff9d%40gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/4e9d3f25-d9b6-efbc-d464-e1476d09ff9d%40gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06372.html</id>
-        <title>Re: [blink-dev] Understand DOM updates</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06372.html"/>
-        <updated>2023-06-07T14:59:24.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06372.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Understand+DOM+updates%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Understand DOM updates&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22jungle+panda%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;jungle panda&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230607" rel="nofollow"&gt;Wed, 07 Jun 2023 07:59:24 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;We have a function &amp;quot;ContainerNode::RebuildLayoutTreeForChild&amp;quot; that gets 
-called for each node which needs change in layout. But the layout object 
-attached to the node at this point is still older one.
-I have checked &amp;quot; LocalFrameView 
-&amp;lt;&lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/refs/heads/main:third_party/blink/renderer/core/frame/local_frame_view.h;drc=5992439d25f71ce29efa8db1c699b99e8773d41f;l=135"&gt;https://source.chromium.org/chromium/chromium/src/+/refs/heads/main:third_party/blink/renderer/core/frame/local_frame_view.h;drc=5992439d25f71ce29efa8db1c699b99e8773d41f;l=135&lt;/a&gt;&amp;gt;
-::PerformLayout 
-&amp;lt;&lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/refs/heads/main:third_party/blink/renderer/core/frame/local_frame_view.cc;drc=4b31c91e6393ffb654743c661c815151b6f29982;bpv=1;bpt=1;l=693?gsn=PerformLayout&amp;gs=KYTHE%3A%2F%2Fkythe%3A%2F%2Fchromium.googlesource.com%2Fcodesearch%2Fchromium%2Fsrc%2F%2Fmain%3Flang%3Dc%252B%252B%3Fpath%3Dthird_party%2Fblink%2Frenderer%2Fcore%2Fframe%2Flocal_frame_view.cc%23-eg8tB9siVF_KvZLrAKW2zByhfo5a16ojh876ogDJsQ"&gt;https://source.chromium.org/chromium/chromium/src/+/refs/heads/main:third_party/blink/renderer/core/frame/local_frame_view.cc;drc=4b31c91e6393ffb654743c661c815151b6f29982;bpv=1;bpt=1;l=693?gsn=PerformLayout&amp;gs=KYTHE%3A%2F%2Fkythe%3A%2F%2Fchromium.googlesource.com%2Fcodesearch%2Fchromium%2Fsrc%2F%2Fmain%3Flang%3Dc%252B%252B%3Fpath%3Dthird_party%2Fblink%2Frenderer%2Fcore%2Fframe%2Flocal_frame_view.cc%23-eg8tB9siVF_KvZLrAKW2zByhfo5a16ojh876ogDJsQ&lt;/a&gt;&amp;gt;&amp;quot;
- 
-but I am not able to find a place where I can get updated layout object for 
-each node. 
-There is a place in &amp;quot;LocalFrameView::UpdateLayout&amp;quot; where we set the 
-document LifeCycle as &amp;quot;kLayoutClean&amp;quot; that marks the end of layout phase.&lt;/pre&gt;&lt;pre&gt;
-
-So can you please let me know if there is any function in code where we can 
-get updated layout object for each node which were marked dirty for layout.
-On Wednesday, May 10, 2023 at 7:52:57 PM UTC+5:30 jungle panda wrote:
-
-&amp;gt; So when dom update happens the changes are not made in flat tree  
-&amp;gt; and directly happen on layout tree ?
-&amp;gt; Actually &amp;quot;mutationObserver&amp;quot; is not able to catch all the changes in dom.
-&amp;gt;
-&amp;gt;
-&amp;gt; On Wednesday, May 3, 2023 at 7:55:04 PM UTC+5:30 Christian Biesinger wrote:
-&amp;gt;
-&amp;gt;&amp;gt; The layout/fragment tree is updated asynchronously upon a change, so 
-&amp;gt;&amp;gt; there's two steps -- first, a layout object is marked as needing 
-&amp;gt;&amp;gt; layout, e.g. through SetChildNeedsLayout or one of the other methods 
-&amp;gt;&amp;gt; (
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/core/layout/layout_object.h;l=1508;bpv=1;bpt=1?q=NeedsLayout&amp;sq=&amp;ss=chromium"&gt;https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/core/layout/layout_object.h;l=1508;bpv=1;bpt=1?q=NeedsLayout&amp;sq=&amp;ss=chromium&lt;/a&gt;
-&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt; is the full set of bits) 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Then later layout is triggered through LayoutFrameView::PerformLayout 
-&amp;gt;&amp;gt; (
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/refs/heads/main:third_party/blink/renderer/core/frame/local_frame_view.cc;l=693;drc=4b31c91e6393ffb654743c661c815151b6f29982;bpv=1;bpt=1"&gt;https://source.chromium.org/chromium/chromium/src/+/refs/heads/main:third_party/blink/renderer/core/frame/local_frame_view.cc;l=693;drc=4b31c91e6393ffb654743c661c815151b6f29982;bpv=1;bpt=1&lt;/a&gt;)
-&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; When you append a child, we first need to calculate style for the 
-&amp;gt;&amp;gt; element. Style is marked dirty here: 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/refs/heads/main:third_party/blink/renderer/core/dom/container_node.cc;drc=4b31c91e6393ffb654743c661c815151b6f29982;bpv=1;bpt=1;l=1058"&gt;https://source.chromium.org/chromium/chromium/src/+/refs/heads/main:third_party/blink/renderer/core/dom/container_node.cc;drc=4b31c91e6393ffb654743c661c815151b6f29982;bpv=1;bpt=1;l=1058&lt;/a&gt;
-&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; This eventually leads to RecalcOwnStyle 
-&amp;gt;&amp;gt; (
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/refs/heads/main:third_party/blink/renderer/core/layout/layout_object.cc;l=2486;drc=4b31c91e6393ffb654743c661c815151b6f29982;bpv=1;bpt=1"&gt;https://source.chromium.org/chromium/chromium/src/+/refs/heads/main:third_party/blink/renderer/core/layout/layout_object.cc;l=2486;drc=4b31c91e6393ffb654743c661c815151b6f29982;bpv=1;bpt=1&lt;/a&gt;)
-&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; and LayoutObject::SetStyle 
-&amp;gt;&amp;gt; (
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/refs/heads/main:third_party/blink/renderer/core/layout/layout_object.cc;l=2486;drc=4b31c91e6393ffb654743c661c815151b6f29982;bpv=1;bpt=1"&gt;https://source.chromium.org/chromium/chromium/src/+/refs/heads/main:third_party/blink/renderer/core/layout/layout_object.cc;l=2486;drc=4b31c91e6393ffb654743c661c815151b6f29982;bpv=1;bpt=1&lt;/a&gt;)
-&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Style invalidation isn't really done on a per-property basis, although 
-&amp;gt;&amp;gt; LayoutObject::SetStyle does analyze which properties were changed. 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; If you want to observe deltas in the DOM tree, consider using 
-&amp;gt;&amp;gt; MutationObserver: 
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver"&gt;https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver&lt;/a&gt; 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Hope that helps! 
-&amp;gt;&amp;gt; Christian 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Tue, May 2, 2023 at 8:02 PM jungle panda &amp;lt;jungle...@gmail.com&amp;gt; wrote: 
-&amp;gt;&amp;gt; &amp;gt; 
-&amp;gt;&amp;gt; &amp;gt; I have basic understanding of dom tree, flat tree, css tree and layout 
-&amp;gt;&amp;gt; tree. 
-&amp;gt;&amp;gt; &amp;gt; 
-&amp;gt;&amp;gt; &amp;gt; 1) I wanted to know when we add a child node in some parent node i.e 
-&amp;gt;&amp;gt; when we update the dom then which tree is affected ? and is there any tree 
-&amp;gt;&amp;gt; that can give us detla change that is done by dom update ? 
-&amp;gt;&amp;gt; &amp;gt; 
-&amp;gt;&amp;gt; &amp;gt; I guess blink updates the flat tree first with addChild method from 
-&amp;gt;&amp;gt; &amp;quot;Node&amp;quot; class and then updates the layout tree directly, is this right ? 
-&amp;gt;&amp;gt; &amp;gt; 
-&amp;gt;&amp;gt; &amp;gt; Is there any place in blink code where we can get delta change made in 
-&amp;gt;&amp;gt; flat tree ? 
-&amp;gt;&amp;gt; &amp;gt; 
-&amp;gt;&amp;gt; &amp;gt; 2) Also If I change color of certain div in dom then Where does css 
-&amp;gt;&amp;gt; gets updated ? how to know which property for which element is dirty and 
-&amp;gt;&amp;gt; catch that delta change ? 
-&amp;gt;&amp;gt; &amp;gt; 
-&amp;gt;&amp;gt; &amp;gt; -- 
-&amp;gt;&amp;gt; &amp;gt; You received this message because you are subscribed to the Google 
-&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group. 
-&amp;gt;&amp;gt; &amp;gt; To unsubscribe from this group and stop receiving emails from it, send 
-&amp;gt;&amp;gt; an email to blink-dev+...@chromium.org. 
-&amp;gt;&amp;gt; &amp;gt; To view this discussion on the web visit 
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/5d048a72-1002-4b5a-b151-e55664c9b08en%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/5d048a72-1002-4b5a-b151-e55664c9b08en%40chromium.org&lt;/a&gt;.
-&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/296530dd-93f6-4b24-ac77-b2476eab67b5n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/296530dd-93f6-4b24-ac77-b2476eab67b5n%40chromium.org&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06371.html</id>
-        <title>Re: [blink-dev] Intent to Prototype: JPEG XL decoding support (image/jxl) in blink</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06371.html"/>
-        <updated>2023-06-07T14:58:36.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06371.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Prototype%5C%3A+JPEG+XL+decoding+support+%5C%28image%5C%2Fjxl%5C%29+in+blink%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Prototype: JPEG XL decoding support (image/jxl) in blink&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%E2%80%95%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;―&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230607" rel="nofollow"&gt;Wed, 07 Jun 2023 07:58:36 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;&amp;gt;
-&amp;gt;
-*Update:*
-&amp;gt;
-&lt;/pre&gt;&lt;pre&gt;
-
-
-&amp;gt; Firefox:
-&amp;gt; In testing builds. (Neutral - depending on support from community.)
-&amp;gt;
-&amp;gt; Safari (&amp; iOS):
-&amp;gt; Currently undergoing testing &amp; implementation as of latest iOS/macOS dev
-&amp;gt; previews. (Positive.)
-&amp;gt;
-&amp;gt; Web Developers &amp; Community:
-&amp;gt; (Very Positive Support)
-&amp;gt;
-
-
-
-&amp;gt;   - - -   - - -   - - -
-&amp;gt;
-
-
-Support added by a lot of apps with more showing support should Google
-&amp;gt; Chrome (and ChromeOS) support the format by default &amp; Android Community has
-&amp;gt; requested support for it too alongside some in the Windows Insider
-&amp;gt; Community.
-&amp;gt;
-&amp;gt; This would also be welcomed by the Digital art community, the medical
-&amp;gt; community for scans, and have benefits for streamlining online image
-&amp;gt; storage with a healthy balance of quality vs size taken up.
-&amp;gt;
-&amp;gt; Fwiw, I also support JPG-XL adoption to have healthy competition with
-&amp;gt; AVIF/WebP and I'm neither a developer nor a representative of any company.
-&amp;gt; Just a tech user enthusiast, I've also met countless of people supporting
-&amp;gt; the view.
-&amp;gt;
-&amp;gt; 1,000 in Chromium bug tracker over 500 in Mozilla's Trending Feature
-&amp;gt; Requests, then you have those on reddit and Phoronix wishing to raise their
-&amp;gt; support for the matter.
-&amp;gt;
-&amp;gt; But let's not beat around the bush here, support from Chromium/Chrome can
-&amp;gt; make or break something like this, regardless of whether or not it is
-&amp;gt; logically right to do so, Google knows that fact all too well by now.
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; On Tue, 6 Jun 2023, 11:50 Albert Andaluz González, &amp;lt;
-&amp;gt; albertanda...@gmail.com&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; The Chrome status page (&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5188299478007808"&gt;https://chromestatus.com/feature/5188299478007808&lt;/a&gt;)
-&amp;gt;&amp;gt; should now mention that Webkit supports jpeg-xl, at least for Safari 17
-&amp;gt;&amp;gt; beta onwards.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://developer.apple.com/documentation/safari-release-notes/safari-17-release-notes"&gt;https://developer.apple.com/documentation/safari-release-notes/safari-17-release-notes&lt;/a&gt;
-&amp;gt;&amp;gt; See also relevant WWDC2023 session (Explore media formats for the web) :
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://developer.apple.com/videos/play/wwdc2023/10122/"&gt;https://developer.apple.com/videos/play/wwdc2023/10122/&lt;/a&gt; (available 8th
-&amp;gt;&amp;gt; June)
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; El sábado, 17 de diciembre de 2022 a las 22:55:47 UTC+1, ⸻ “‪How Things
-&amp;gt;&amp;gt; Work‬” escribió:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; 800 Users with hundreds of comments seem to be distrustful after the
-&amp;gt;&amp;gt;&amp;gt; previous ones, can't that be considered or taken into account for the
-&amp;gt;&amp;gt;&amp;gt; request? There are many developers from quite a few big name companies such
-&amp;gt;&amp;gt;&amp;gt; as Facebook/Meta &amp; Intel too. Also use cases highlighted, such as Medical
-&amp;gt;&amp;gt;&amp;gt; Imaging. Regardless of how this is spun, it would seem that this format
-&amp;gt;&amp;gt;&amp;gt; would see widespread adoption &amp; implementation across multiple industries
-&amp;gt;&amp;gt;&amp;gt; if it were permitted to be enabled by default.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1178058"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1178058&lt;/a&gt; - One
-&amp;gt;&amp;gt;&amp;gt; again leaving this link for reference, please reconsider, a lot of work
-&amp;gt;&amp;gt;&amp;gt; would go to waste when we could all just compromise and improve on the
-&amp;gt;&amp;gt;&amp;gt; format in the future
-&amp;gt;&amp;gt;&amp;gt; On Saturday 17 December 2022 at 03:53:10 UTC Yaowu Xu wrote:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Thanks for the feedback regarding speed tests, please see updated
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; decoding timing info on latest builds on more platforms:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://storage.googleapis.com/avif-comparison/decode-timing.html"&gt;https://storage.googleapis.com/avif-comparison/decode-timing.html&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Tuesday, December 13, 2022 at 8:19:40 AM UTC-8 Markus K. wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I find it very concerning that this decision is has evidently been
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; based on this bogous data:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://storage.googleapis.com/avif-comparison/index.html"&gt;https://storage.googleapis.com/avif-comparison/index.html&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; 1. The speed comparison is based on a buggy and outdated JPEG
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; XL implementation.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; 2. The filesize comparison is based on a metric that JPEG XL was not
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; tuned for.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On top of that we seem to have completely misjudged ecosystem and
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; industry demand for JPEG XL .
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; And there seems to have been no consideration for certain features,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; which I don't want to reiterate here, that AVIF just doesn't support. I
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; think there is a place for JPEG XL alongside AVIF.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I would suggest to halt the removal of the JPEG XL experiment in
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Chromium until this is addressed to prevent further harm based on bad
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; science.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Sunday, December 4, 2022 at 7:00:22 PM UTC+1 ⸻ “‪How Things Work‬”
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1178058"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1178058&lt;/a&gt; - Also
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; requesting a reconsideration of.JXL as a format due to cross-industry
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; interest from companies &amp; consumers alike. Also on the grounds of it 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; being
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; hindered by being buried behind an obscure flag within beta builds :/
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Could just revert the removal till the M111 or 112 builds and see how
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; things stand then, would give time for debate *&amp; a more fairer test
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; of market sentiment for this open JPEG standard*.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Friday 2 December 2022 at 23:05:15 UTC Tomáš Poledný wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Now you should run your tests again with this:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/4031214"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/4031214&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Dne pátek 2. prosince 2022 v 22:20:19 UTC+1 uživatel Jarek Duda
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; napsal:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; If there are objectivity concerns, maybe there available tests of
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; independent sources?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; For example Phoronix often uses libjxl in benchmarks - at least for
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; speed getting very different numbers:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://www.phoronix.com/review/aocc4-gcc-clang/3"&gt;https://www.phoronix.com/review/aocc4-gcc-clang/3&lt;/a&gt; - maybe there
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; are available other independent tests?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; [image: obraz.png]
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Friday, December 2, 2022 at 6:57:35 PM UTC+1 Yaowu Xu wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Following Jim’s previous note, here is a link to tests
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://storage.googleapis.com/avif-comparison/index.html"&gt;https://storage.googleapis.com/avif-comparison/index.html&lt;/a&gt;&amp;gt; AVIF
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; engineers ran comparing AVIF to JPEG, WebP and JPEG-XL. The tests 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; provide
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; all the necessary code, test sets and parameters to reproduce the test
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; results. Developers are welcome to ask questions and submit feedback 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; avif-f...@googlegroups.com.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Apologies for the delay in providing this information.  We wanted
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to be sure that everyone would be able to duplicate and verify these
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; results for themselves before posting.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Friday, November 11, 2022 at 7:58:28 AM UTC-8 Jim Bankoski
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Helping the web to evolve is challenging, and it requires us to
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; make difficult choices. We've also heard from our browser and device
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; partners that every additional format adds costs (monetary or 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; hardware),
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; and we’re very much aware that these costs are borne by those 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; outside of
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Google. When we evaluate new media formats, the first question we 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; have to
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ask is whether the format works best for the web. With respect to 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; new image
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; formats such as JPEG XL, that means we have to look comprehensively 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; at many
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; factors: compression performance across a broad range of images; is 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; decoder fast, allowing for speedy rendering of smaller images; are 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; there
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; fast encoders, ideally with hardware support, that keep encoding 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; costs
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; reasonable for large users; can we optimize existing formats to meet 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; any
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; new use-cases, rather than adding support for an additional format; 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; do
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; other browsers and OSes support it?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; After weighing the data,  we’ve decided to stop Chrome’s JPEG XL
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; experiment and remove the code associated with the experiment.  
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; We'll work
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to publish data in the next couple of weeks.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; For those who want to use JPEG XL in Chrome, we believe a
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; WebAssembly (Wasm) implementation is both performant and a great path
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; forward.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Jim
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Monday, October 31, 2022 at 11:01:44 AM UTC-7
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ash...@scirra.com wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Apologies for bringing back an old thread, but I thought it was
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; important to bring this up here.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I was surprised to read that Google are abandoning their efforts
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to implement JPEG-XL:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1178058#c84"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1178058#c84&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; As I understood it, JPEG-XL brought significant improvements
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; over existing image formats, and had a lot of interest in the 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; technology
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; world. However the reasons cited were apparently lack of benefits 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; and lack
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; of interest.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I for one was interested in this format and the improvements it
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; would bring, and it seems many others are disappointed too.  Can 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Google
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; explain how they came to this conclusion? How are they evaluating 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; benefits and interest? Even this intent to prototype lists many of 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; purported benefits and the extent of the interest, which makes this
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; reversal particularly hard to understand.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Tue, 30 Mar 2021 at 20:20, 'Moritz Firsching' via blink-dev &amp;lt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; blin...@chromium.org&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Contact emails
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *de...@chromium.org, firs...@google.com, lo...@google.com,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; jy...@google.com*Explainer
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *&lt;a  rel="nofollow" href="https://jpeg.org/jpegxl/"&gt;https://jpeg.org/jpegxl/&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://jpeg.org/jpegxl/"&gt;https://jpeg.org/jpegxl/&lt;/a&gt;&amp;gt;&lt;a  rel="nofollow" href="http://ds.jpeg.org/whitepapers/jpeg-xl-whitepaper.pdf"&gt;http://ds.jpeg.org/whitepapers/jpeg-xl-whitepaper.pdf&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="http://ds.jpeg.org/whitepapers/jpeg-xl-whitepaper.pdf"&gt;http://ds.jpeg.org/whitepapers/jpeg-xl-whitepaper.pdf&lt;/a&gt;&amp;gt;*
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Specification
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *&lt;a  rel="nofollow" href="https://arxiv.org/abs/1908.03565"&gt;https://arxiv.org/abs/1908.03565&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://arxiv.org/abs/1908.03565"&gt;https://arxiv.org/abs/1908.03565&lt;/a&gt;&amp;gt;*Summary
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *JPEG XL is a new royalty-free image codec targeting the image
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; quality as found on the web, providing about ~60% size savings when
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; compared to original JPEG at the same perceptual quality, while 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; supporting
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; modern features like HDR, animation, alpha channel, lossless JPEG
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; recompression, lossless and progressive modes. It is based on 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Google's PIK
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; and Cloudinary's FUIF, and is in the final steps of 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; standardization with
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ISO.This feature enables image/jxl decoding support in the blink 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; renderer.*Blink
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; component
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Blink&amp;gt;Image
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EImage"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EImage&lt;/a&gt;&amp;gt;*
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Motivation
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *The main motivations for supporting JPEG XL in Chrome are: -
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; The improvement in image quality vs image size, about 60% file 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; size savings
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; for the same visual quality (lossy compression of larger 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; originals) when
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; compared to JPEG at the qualities found on the web.- Improved 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; visual
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; latency by both smaller download sizes and supporting progressive 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; decoding
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; modes. - Support for HDR, animation and progressive all together 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; in the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; same image codec.  - Support for lossless-recompressed JPEGs - 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Ecosystem
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; interest in JPEG XL: Several Google teams evaluated using JPEG XL 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; for
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; storing and delivering images, as well as outside of Google: 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; including CDNs
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; interest in storing lossless-recompressed JPEGs as JPEG XL and 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; converting
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to JPEG on request is the browser doesn't support JXL. Facebook is
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; exploring to use JPEG XL.*Initial public proposal
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Support decoding image/jxl behind a feature flag which is
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; turned off by default on all platforms. *Search tags
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *jxl &amp;lt;&lt;a  rel="nofollow" href="https://www.chromestatus.com/features#tags:jxl"&gt;https://www.chromestatus.com/features#tags:jxl&lt;/a&gt;&amp;gt;*TAG
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; review
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Not applicable for image decoders*TAG review status
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Not applicable*Risks
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Interoperability and Compatibility
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *JPEG XL is in the final stage ISO standardization. Firefox has
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; an open bug: &lt;a  rel="nofollow" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1539075"&gt;https://bugzilla.mozilla.org/show_bug.cgi?id=1539075&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1539075"&gt;https://bugzilla.mozilla.org/show_bug.cgi?id=1539075&lt;/a&gt;&amp;gt;Edge/Safari 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; - no
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; signals yetGecko: No signalWebKit: No signalWeb developers: high
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; interest/many stars in the tracking bug, and there was a separate 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; external
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; crbug requesting the feature. A lot of interest on encode.su
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="http://encode.su"&gt;http://encode.su&lt;/a&gt;&amp;gt;, r/jpegxl, &amp;lt;&lt;a  rel="nofollow" href="https://reddit.com/r/jpegxl/"&gt;https://reddit.com/r/jpegxl/&lt;/a&gt;&amp;gt; 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; discord
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://discord.com/channels/794206087879852103"&gt;https://discord.com/channels/794206087879852103&lt;/a&gt;&amp;gt;, ...*Is this
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; feature fully tested by web-platform-tests
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *No, but planning to have complete tests before shipping. *Tracking
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; bug
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1178058"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1178058&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1178058"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1178058&lt;/a&gt;&amp;gt;*Launch
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; bug
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1178040"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1178040&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1178040"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1178040&lt;/a&gt;&amp;gt;*Link
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to entry on the Chrome Platform Status
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://www.chromestatus.com/feature/5188299478007808"&gt;https://www.chromestatus.com/feature/5188299478007808&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://www.chromestatus.com/"&gt;https://www.chromestatus.com/&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Google Groups &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; it, send an email to blink-dev+...@chromium.org.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMM7wxZEBJ8uf5OB%3DR1j2J6w5OF8OT1o%2B%2BN4t8G_brOo-Zgh_w%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMM7wxZEBJ8uf5OB%3DR1j2J6w5OF8OT1o%2B%2BN4t8G_brOo-Zgh_w%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMM7wxZEBJ8uf5OB%3DR1j2J6w5OF8OT1o%2B%2BN4t8G_brOo-Zgh_w%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMM7wxZEBJ8uf5OB%3DR1j2J6w5OF8OT1o%2B%2BN4t8G_brOo-Zgh_w%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CACf2j70sic4eU626jU-Qi3JhQrWpH74jQ5V2yrFn3t%2BqgieKRg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CACf2j70sic4eU626jU-Qi3JhQrWpH74jQ5V2yrFn3t%2BqgieKRg%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06370.html</id>
-        <title>Re: [blink-dev] Intent to Prototype &amp; Ship: Report Critical-CH caused restart in NavigationTiming</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06370.html"/>
-        <updated>2023-06-07T13:55:33.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06370.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Prototype+%5C%26+Ship%5C%3A+Report+Critical%5C-CH+caused+restart+in+NavigationTiming%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Prototype &amp; Ship: Report Critical-CH caused restart in NavigationTiming&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Ari+Chivukula%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Ari Chivukula&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230607" rel="nofollow"&gt;Wed, 07 Jun 2023 06:55:33 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;I'm back! The code has been merged behind a flag w/ wpts:
-&lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/4538244"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/4538244&lt;/a&gt;&lt;/pre&gt;&lt;pre&gt;
-
-The spec changes have been merged too:
-&lt;a  rel="nofollow" href="https://github.com/w3c/navigation-timing/pull/188"&gt;https://github.com/w3c/navigation-timing/pull/188&lt;/a&gt;
-&lt;a  rel="nofollow" href="https://github.com/WICG/client-hints-infrastructure/pull/153"&gt;https://github.com/WICG/client-hints-infrastructure/pull/153&lt;/a&gt;
-
-~ Ari Chivukula (Their/There/They're)
-
-
-On Wed, Apr 19, 2023 at 12:02 PM Rick Byers &amp;lt;rby...@chromium.org&amp;gt; wrote:
-
-&amp;gt; Great, thanks Ari! No worries at all, checking to make sure the i's have
-&amp;gt; been dotted and t's have been crossed is what the API owners are here for
-&amp;gt; :-)
-&amp;gt;
-&amp;gt; On Wed, Apr 19, 2023 at 11:59 AM Ari Chivukula &amp;lt;aric...@chromium.org&amp;gt;
-&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; Works for me, didn't realize that was the standard order.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; ~ Ari Chivukula (Their/There/They're)
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Wed, Apr 19, 2023 at 11:58 AM Rick Byers &amp;lt;rby...@chromium.org&amp;gt; wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Hi Ari,
-&amp;gt;&amp;gt;&amp;gt; The documented process
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://www.chromium.org/blink/launching-features/#new-feature-prepare-to-ship"&gt;https://www.chromium.org/blink/launching-features/#new-feature-prepare-to-ship&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;  is
-&amp;gt;&amp;gt;&amp;gt; to land features and specs before requesting approval to ship, as that
-&amp;gt;&amp;gt;&amp;gt; gives the best possible chance for wide review and eventual interop. But we
-&amp;gt;&amp;gt;&amp;gt; unfortunately often find ourselves in the position that this is impractical
-&amp;gt;&amp;gt;&amp;gt; - eg. spec work blocked from landing due to lack of interest from a 2nd
-&amp;gt;&amp;gt;&amp;gt; implementor (WHATWG venue) or just very slow reviews. So, if necessary, we
-&amp;gt;&amp;gt;&amp;gt; are willing to approve based on a PR only but it's usually considered an
-&amp;gt;&amp;gt;&amp;gt; exceptional situation. None of those seem to be the case here, it's just
-&amp;gt;&amp;gt;&amp;gt; blocked on some impl and spec work right? In particular, we definitely want
-&amp;gt;&amp;gt;&amp;gt; to see WPTs landed prior to shipping, so we're aligned with Noam on that
-&amp;gt;&amp;gt;&amp;gt; request. chrishtr, foolip, yoav and I just discussed this now in the API
-&amp;gt;&amp;gt;&amp;gt; owners meeting and are aligned on this being standard practice (though
-&amp;gt;&amp;gt;&amp;gt; wouldn't be surprised if we've slipped up occasionally).
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Thanks,
-&amp;gt;&amp;gt;&amp;gt;    Rick
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; On Wed, Apr 19, 2023 at 11:34 AM Ari Chivukula &amp;lt;aric...@chromium.org&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; That differs from my past experience (in which a proposed spec change
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; is sufficient to move forward with a launch), but if you want me to build
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; and test it all behind a flag before I get the go ahead here that's fine.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; ~ Ari Chivukula (Their/There/They're)
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Wed, Apr 19, 2023 at 11:32 AM Rick Byers &amp;lt;rby...@chromium.org&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; This makes a lot of sense to me. Normally we prefer to approve
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; shipping only after spec PRs have landed, it looks like the PR is blocked
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; on some work from you including landing the WPTs, right? I'd suggest you
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; get this all landed under a status=experimental RuntimeEnabledFeature and
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; see if we can get the PR reviewed and landed in short order before trying
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to flip to status=stable, WDYT?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Rick
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Wed, Apr 5, 2023 at 2:46 PM 'Ari Chivukula' via blink-dev &amp;lt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; blink-dev@chromium.org&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/833"&gt;https://github.com/w3ctag/design-reviews/issues/833&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Wednesday, April 5, 2023 at 11:27:22 AM UTC-4 Alex Russell wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Please file an issue with the TAG as an FYI and let us know when
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; they respond. Their job is to help us drive coherence across the 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; platform
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; and spot architectural patterns. There might be other occurances of 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; similar
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; oversights that they can help us spot and fix.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Best,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Alex
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Tuesday, March 28, 2023 at 11:15:31 AM UTC-7 Ari Chivukula wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Contact emails
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ari...@chromium.org, mike...@chromium.org, yoav...@chromium.org
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Specification
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/navigation-timing/pull/188"&gt;https://github.com/w3c/navigation-timing/pull/188&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Summary
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Websites can indicate that a particular Client Hint
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wicg.github.io/client-hints-infrastructure/"&gt;https://wicg.github.io/client-hints-infrastructure/&lt;/a&gt;&amp;gt; is critical
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to the page by including it in a `Critical-CH` HTTP response header. 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Doing
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; so will trigger a connection restart if the hint listed in the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; `Critical-CH` HTTP response header could be (but wasn’t) included in 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; HTTP request initially sent. This intent proposes adding `readonly
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; attribute DOMHighResTimeStamp criticalCHRestart;` to the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; `PerformanceNavigationTiming` interface.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink component
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink&amp;gt;PerformanceAPIs&amp;gt;NavigationTiming
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component%3ABlink%3EPerformanceAPIs%3ENavigationTiming"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component%3ABlink%3EPerformanceAPIs%3ENavigationTiming&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Motivation
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; It’s possible for websites to observe a change in the Navigation
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Timing &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/navigation-timing"&gt;https://github.com/w3c/navigation-timing&lt;/a&gt;&amp;gt; related to
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; `responseStart` and `requestStart`, but there is no explicit timestamp 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; that
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; indicates when this occurred. Without that it’s harder for sites to 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; detect
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the impact that the `Critical-CH` HTTP response header has on
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; connections. Developers (including Akamai) are interested in using 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; this to
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; better understand the impact of User Agent Client Hints / User Agent
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Reduction.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; `criticalCHRestart` can only be set for top-level frames, as
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; subresources and iframes ignore `Critical-CH` HTTP response
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; headers.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; N/A, this is a small, incremental addition to an existing feature
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; for convenience and the loaded website has other (less convenient) 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ways to
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; detect a Critical-CH restart.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Compatibility &amp; Interoperability
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; We would be the first to implement if approved.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Gecko: &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/767"&gt;https://github.com/mozilla/standards-positions/issues/767&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; WebKit: &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/156"&gt;https://github.com/WebKit/standards-positions/issues/156&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Web Developers: Requested by Akamai
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/navigation-timing/issues/177"&gt;https://github.com/w3c/navigation-timing/issues/177&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; No, but it will be.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Tracking bug
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://crbug.com/1425910"&gt;https://crbug.com/1425910&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5140317616996352"&gt;https://chromestatus.com/feature/5140317616996352&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; send an email to blink-dev+unsubscr...@chromium.org.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/0dacf540-c8be-4096-9ad1-bc7a99af630cn%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/0dacf540-c8be-4096-9ad1-bc7a99af630cn%40chromium.org&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/0dacf540-c8be-4096-9ad1-bc7a99af630cn%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/0dacf540-c8be-4096-9ad1-bc7a99af630cn%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5DKthEYQEYGqoFyVWsp0xnm24QLEJfEoeZz9ZKB39PKtkg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5DKthEYQEYGqoFyVWsp0xnm24QLEJfEoeZz9ZKB39PKtkg%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06369.html</id>
-        <title>Re: [blink-dev] Intent to Ship: BYOB support for Fetch</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06369.html"/>
-        <updated>2023-06-07T09:46:33.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06369.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+BYOB+support+for+Fetch%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: BYOB support for Fetch&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Yoav+Weiss%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Yoav Weiss&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230607" rel="nofollow"&gt;Wed, 07 Jun 2023 02:46:33 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;On Wed, Jun 7, 2023 at 10:01 AM Adam Rice &amp;lt;ri...@chromium.org&amp;gt; wrote:&lt;/pre&gt;&lt;pre&gt;
-
-&amp;gt; I agree that these patterns are likely to be rare, making this a low risk
-&amp;gt;&amp;gt; endeavor. Please still make sure the flags are working as expected, and
-&amp;gt;&amp;gt; slowly roll this out, just to be on the safe side.
-&amp;gt;
-&amp;gt;
-&amp;gt; Is it sufficient to roll-out the new cloning behaviour and the BYOB
-&amp;gt; support separately, or do you want a Finch rollout? I don't find rolling
-&amp;gt; out small percentages for potentially breaking changes that can only be
-&amp;gt; detected by bug reports useful, as it leads to &amp;quot;works on my machine,
-&amp;gt; doesn't work on his&amp;quot; situations which are confusing to debug.
-&amp;gt;
-
-I agree that Finch is not the right choice here. &amp;quot;Careful roll out&amp;quot;
-would've been a better choice of words. In practice, I think it's
-sufficient to carefully watch as this lands in Dev and Beta channels, and
-watch out for any bug reports there. If there are none, it's fine to
-continue to Stable, while continuing to pay close attention to any breakage
-reports.
-
-
-&amp;gt;
-&amp;gt; On Wed, 7 Jun 2023 at 16:47, Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; LGTM2
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; I agree that these patterns are likely to be rare, making this a low risk
-&amp;gt;&amp;gt; endeavor. Please still make sure the flags are working as expected, and
-&amp;gt;&amp;gt; slowly roll this out, just to be on the safe side.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Tue, Jun 6, 2023 at 8:27 AM Nidhi Jaju &amp;lt;nidhij...@chromium.org&amp;gt; wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; On Tue, Jun 6, 2023 at 1:01 PM Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Monday, June 5, 2023 at 1:13:11 PM UTC+2 Nidhi Jaju wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Thank you, Mike and Yoav!
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; I filed a standards position request with WebKit, and they are
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; supportive as well: &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/"&gt;https://github.com/WebKit/standards-positions/&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; issues/194.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; That's great!!
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Wed, May 31, 2023 at 9:33 PM Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Thanks for aligning with Firefox here!
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Fri, May 26, 2023 at 5:32 AM Nidhi Jaju &amp;lt;nidhij...@chromium.org&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Contact emailsnidhij...@chromium.org
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; ExplainerNone
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Specification&lt;a  rel="nofollow" href="https://fetch.spec.whatwg.org/#http-network-fetch"&gt;https://fetch.spec.whatwg.org/#http-network-fetch&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Summary
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Makes Response.body be a readable byte stream instead of a &amp;quot;default&amp;quot;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; readable stream. This enables it to be used with bring-your-own-buffer
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; (BYOB) readers, reducing garbage collection overhead and copies.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; As mentioned in the Activation section below, we plan to ship the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; ReadableStreamTeeCloneForBranch2 feature first, and then the FetchBYOB
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; feature later.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink componentBlink&amp;gt;Network&amp;gt;FetchAPI
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ENetwork%3EFetchAPI"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ENetwork%3EFetchAPI&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG reviewNone
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review statusNot applicable
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Risks
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Interoperability and Compatibility
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Low risk because streams and fetch have already been standardized for a
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; long time. Other browsers have implemented other parts of the standard, and
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Firefox has already shipped this behavior for many months and others will
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; most likely also adapt this feature as well soon.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Gecko*: Shipped/Shipping (&lt;a  rel="nofollow" href="https://github.com/whatwg/"&gt;https://github.com/whatwg/&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; fetch/issues/267#issuecomment-1350303670) Already shipped in Firefox
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; in 2022.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; *WebKit*: Positive (&lt;a  rel="nofollow" href="https://github.com/whatwg/fetch/pull/1593"&gt;https://github.com/whatwg/fetch/pull/1593&lt;/a&gt;) @annevk
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; from Apple approved the PR to update the spec with relevant changes and
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; expressed interest as an implementer on behalf of Apple.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Web developers*: No signals
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Other signals*: Deno is also interested in, and somewhat shipped,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; this behavior (&lt;a  rel="nofollow" href="https://github.com/denoland/deno/issues/17386"&gt;https://github.com/denoland/deno/issues/17386&lt;/a&gt;).
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Activation
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Currently, to clone a body, we tee the body's stream, but teeing always
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; returns two &amp;quot;default&amp;quot; streams, where the chunks are not cloned for both
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; streams. Making Response.body into a byte stream, will mean that cloning it
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; will result in cloning the chunks for the second stream, which is different
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; behavior. In order to mitigate activation risks, we are splitting this
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; change into two releases. One where the default teeing behavior will also
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; start to clone for the second stream behind the &amp;quot;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; ReadableStreamTeeCloneForBranch2&amp;quot; feature flag, and then make
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Response.body a readable byte stream behind the &amp;quot;FetchBYOB&amp;quot; feature flag.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Can you help me understand what potential breakage (if any) may look
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; like?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; How would these 2 behavior changes break developer expectations? What
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; would code that breaks as a result of this look like?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; The 2 changes are incremental, and will only break developer
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; expectations if there are websites that rely on the output of cloning a
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; request/response to have the same chunks as before or rely on modifying one
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; of the chunks changing the other one.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; A code sample of where the behavior difference would be observable is:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; const request = new Request(&amp;quot;image.jpg&amp;quot;);
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; fetch(request).then((response) =&amp;gt; {
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;   const cloned_response = response.clone();
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;   const { value: value1 } = await response.getReader().read();
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;   const { value: value2 } = await cloned_response.getReader().read();
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;   if (value1 === value2) {
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;     console.log('old behavior');
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;   } else {
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;     console.log('new behavior');
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;   }
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; });
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; In both the old and the new behaviour, the contents of the Uint8Array
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; are the same, so it only makes a practical difference if a script modifies
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; the output.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Do we have a sense of an upper bound on potential breakage? e.g. a use
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; counter for fetch response cloning?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; There's no use counter for fetch response cloning, but we believe the
-&amp;gt;&amp;gt;&amp;gt; breakage will be extremely low, and may not even be a concern. There's not
-&amp;gt;&amp;gt;&amp;gt; too many realistic scenarios where we might observe a breakage i.e. if the
-&amp;gt;&amp;gt;&amp;gt; stream is input to some other API, for example the Cache API, then the site
-&amp;gt;&amp;gt;&amp;gt; can't control the timing when the chunk will be consumed. If a service
-&amp;gt;&amp;gt;&amp;gt; worker tries modifying a chunk after it has been queued, it is not
-&amp;gt;&amp;gt;&amp;gt; guaranteed whether it will have been read by the Cache API yet or not, and
-&amp;gt;&amp;gt;&amp;gt; so whether the modification makes it into the cache will not be
-&amp;gt;&amp;gt;&amp;gt; deterministic. Hence, it's unlikely a site could be relying on that
-&amp;gt;&amp;gt;&amp;gt; behaviour.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; (An explainer that outlined that would've been helpful, but inline
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; explanations are fine as well)
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; WebView application risks
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Does this intent deprecate or change behavior of existing APIs, such
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; that it has potentially high risk for Android WebView-based applications?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Debuggability
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; No special support needed.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Mac, Linux, Chrome OS, Android, and Android WebView)?Yes
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; This feature will be purely implemented in Blink and so cross-platform
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; support is automatic.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; ?Yes
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Flag nameReadableStreamTeeCloneForBranch2 and FetchBYOB
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; I'm failing to find the FetchBYOB flag. Has it landed?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Actually, I received feedback that I should rename the flag to
-&amp;gt;&amp;gt;&amp;gt; &amp;quot;ByobFetch&amp;quot;, so the flag is defined here
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/platform/runtime_enabled_features.json5;l=507;drc=ff1ef24e81e559c4412f9a98911a46840160345b"&gt;https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/platform/runtime_enabled_features.json5;l=507;drc=ff1ef24e81e559c4412f9a98911a46840160345b&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt;&amp;gt; Sorry for the confusion!
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Requires code in //chrome?False
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Tracking bug&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id="&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; 1243329
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Estimated milestonesShipping on desktop116Shipping on Android116Shipping
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; on WebView116
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Anticipated spec changes
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Open questions about a feature may be a source of future web compat or
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; interop issues. Please list open issues (e.g. links to known github issues
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; in the project for the feature specification) whose resolution may
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; introduce web compat/interop risk (e.g., changing to naming or structure of
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; the API in a non-backward-compatible way).
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; None. The spec change for BYOB support for Fetch was already landed at
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/whatwg/fetch/pull/1593"&gt;https://github.com/whatwg/fetch/pull/1593&lt;/a&gt;.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; feature/5192003450568704
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Links to previous Intent discussionsIntent to prototype:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/Iyt6Ca9PiJQ/m/s_"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/Iyt6Ca9PiJQ/m/s_&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; D7A0YwCgAJ
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+unsubscr...@chromium.org.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit &lt;a  rel="nofollow" href="https://groups.google.com/a/"&gt;https://groups.google.com/a/&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; chromium.org/d/msgid/blink-dev/CAMZNYANt%2BwCoAYOfh1Bj7EJrdTz3jkd%3D%
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; 3DAyeBv9f8P2Ccu1wkg%40mail.gmail.com
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMZNYANt%2BwCoAYOfh1Bj7EJrdTz3jkd%3D%3DAyeBv9f8P2Ccu1wkg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMZNYANt%2BwCoAYOfh1Bj7EJrdTz3jkd%3D%3DAyeBv9f8P2Ccu1wkg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfXbZaQ8rvBizNzMFfrE_nkE3udBdKUNrzaEjN3gEQRiGg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfXbZaQ8rvBizNzMFfrE_nkE3udBdKUNrzaEjN3gEQRiGg%40mail.gmail.com&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
