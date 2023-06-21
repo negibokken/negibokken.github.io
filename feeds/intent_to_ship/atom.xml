@@ -5,6 +5,993 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06523.html</id>
+        <title>Re: [blink-dev] Intent to Prototype: Zstd Content-Encoding</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06523.html"/>
+        <updated>2023-06-21T09:03:06.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06523.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Prototype%5C%3A+Zstd+Content%5C-Encoding%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Prototype: Zstd Content-Encoding&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Nidhi+Jaju%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Nidhi Jaju&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230621" rel="nofollow"&gt;Wed, 21 Jun 2023 02:03:06 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;On Wed, Jun 21, 2023 at 3:35 PM Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt; wrote:&lt;/pre&gt;&lt;pre&gt;
+
+&amp;gt;
+&amp;gt;
+&amp;gt; On Wed, Jun 21, 2023 at 8:15 AM Nidhi Jaju &amp;lt;nidhij...@chromium.org&amp;gt; wrote:
+&amp;gt;
+&amp;gt;&amp;gt; Contact emailsnidhij...@chromium.org
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Explainer
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://docs.google.com/document/d/1aDyUw4mAzRdLyZyXpVgWvO-eLpc4ERz7I_7VDIPo9Hc/edit?usp=sharing"&gt;https://docs.google.com/document/d/1aDyUw4mAzRdLyZyXpVgWvO-eLpc4ERz7I_7VDIPo9Hc/edit?usp=sharing&lt;/a&gt;
+&amp;gt;&amp;gt; Specification&lt;a  rel="nofollow" href="https://datatracker.ietf.org/doc/html/rfc8878"&gt;https://datatracker.ietf.org/doc/html/rfc8878&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Design docs
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://docs.google.com/document/d/14dbzMpsYPfkefAJos124uPrlkvW7jyPJhzjujSWws2k/edit?usp=sharing"&gt;https://docs.google.com/document/d/14dbzMpsYPfkefAJos124uPrlkvW7jyPJhzjujSWws2k/edit?usp=sharing&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Summary
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Zstandard, or “zstd”, is a data compression mechanism described in
+&amp;gt;&amp;gt; RFC8878. It is a fast lossless compression algorithm, targeting real-time
+&amp;gt;&amp;gt; compression scenarios at zlib-level and better compression ratios. The
+&amp;gt;&amp;gt; &amp;quot;zstd&amp;quot; token was added as an IANA-registered Content-Encoding token as per
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://datatracker.ietf.org/doc/html/rfc8878#name-content-encoding"&gt;https://datatracker.ietf.org/doc/html/rfc8878#name-content-encoding&lt;/a&gt;.
+&amp;gt;&amp;gt; Adding support for &amp;quot;zstd&amp;quot; as a Content-Encoding will help load pages faster
+&amp;gt;&amp;gt; and use less bandwidth.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Blink componentInternals&amp;gt;Network
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Internals%3ENetwork"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Internals%3ENetwork&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Motivation
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Supporting zstd content-encoding in the browser would allow sites to
+&amp;gt;&amp;gt; spend less time and CPU/power on compression on their servers, resulting in
+&amp;gt;&amp;gt; reduced server costs. There are several published benchmarks[i.e. 1
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://facebook.github.io/zstd/#benchmarks"&gt;https://facebook.github.io/zstd/#benchmarks&lt;/a&gt;&amp;gt;, 2
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://peazip.github.io/fast-compression-benchmark-brotli-zstandard.html"&gt;https://peazip.github.io/fast-compression-benchmark-brotli-zstandard.html&lt;/a&gt;&amp;gt;]
+&amp;gt;&amp;gt; and existing research showing promising potential wins. Zstd is roughly
+&amp;gt;&amp;gt; three times faster than Brotli for decompression. Combined with zstd being
+&amp;gt;&amp;gt; faster at compression, this will result in faster page load times.
+&amp;gt;&amp;gt; Initial public proposalNone
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; TAG reviewNone
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; TAG review statusNot applicable
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Risks
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;               Interoperability and Compatibility
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Servers that have a broken implementation of zstd might exist, but the
+&amp;gt;&amp;gt; risk of this is small. Additionally, middleware and middleboxes like virus
+&amp;gt;&amp;gt; checkers that intercept HTTPS connections might not support zstd, but might
+&amp;gt;&amp;gt; fail to remove it from the Accept-Encoding header in the request.
+&amp;gt;&amp;gt;
+&amp;gt;
+&amp;gt; Are we planning to only support this encoding under secure contexts and/or
+&amp;gt; H2+ to reduce that risk?
+&amp;gt;
+
+Yes, we're only planning to support zstd encoding under secure contexts,
+same as Brotli.
+
+
+&amp;gt;
+&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *Gecko*: No signal (
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/775"&gt;https://github.com/mozilla/standards-positions/issues/775&lt;/a&gt;)
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *WebKit*: No signal (
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/168"&gt;https://github.com/WebKit/standards-positions/issues/168&lt;/a&gt;)
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *Web developers*: Positive (&lt;a  rel="nofollow" href="https://crbug.com/1246971"&gt;https://crbug.com/1246971&lt;/a&gt;) Facebook (Yann)
+&amp;gt;&amp;gt; and Akamai (Nic) seem to be positive about zstd content-encoding support in
+&amp;gt;&amp;gt; the browser. Facebook is also excited to test the feature.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *Other signals*:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;               WebView application risks
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Does this intent deprecate or change behavior of existing APIs, such that
+&amp;gt;&amp;gt; it has potentially high risk for Android WebView-based applications?
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Debuggability
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; No special support needed.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt; ?Not yet.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Flag nameZstdContentEncoding
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Requires code in //chrome?True
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Tracking bug&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1246971"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1246971&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Estimated milestones
+&amp;gt;&amp;gt; Shipping on desktop 117
+&amp;gt;&amp;gt; Shipping on Android 117
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/6186023867908096"&gt;https://chromestatus.com/feature/6186023867908096&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Links to previous Intent discussions
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; --
+&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups
+&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&amp;gt;&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt;&amp;gt; To view this discussion on the web visit
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMZNYANd_E77W1ki--h_XJM-%2B_fA3w1CriGgJmnbh1N3LwRDtw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMZNYANd_E77W1ki--h_XJM-%2B_fA3w1CriGgJmnbh1N3LwRDtw%40mail.gmail.com&lt;/a&gt;
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMZNYANd_E77W1ki--h_XJM-%2B_fA3w1CriGgJmnbh1N3LwRDtw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMZNYANd_E77W1ki--h_XJM-%2B_fA3w1CriGgJmnbh1N3LwRDtw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt; .
+&amp;gt;
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMZNYAN%3DdFzxxXGt%2BTscR9zfu-dF38u_E4rQ7ynv8C%3D1C67YPA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMZNYAN%3DdFzxxXGt%2BTscR9zfu-dF38u_E4rQ7ynv8C%3D1C67YPA%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06522.html</id>
+        <title>Re: [blink-dev] Re: Intent to Ship: Allow Navigator.registerProtocolHandler to register "ftp"</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06522.html"/>
+        <updated>2023-06-21T07:33:39.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06522.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Ship%5C%3A+Allow+Navigator.registerProtocolHandler+to+register+%5C%22ftp%5C%22%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Re: Intent to Ship: Allow Navigator.registerProtocolHandler to register "ftp"&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22TAMURA%2C+Kent%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;TAMURA, Kent&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230621" rel="nofollow"&gt;Wed, 21 Jun 2023 00:33:39 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;The HTML specification was updated for this change, and we don't see any
+bad signals after the last discussion.  I think it's ok to land the
+implementation without re-approvals.&lt;/pre&gt;&lt;pre&gt;
+
+
+On Wed, Jun 21, 2023 at 3:53 PM Javier Garcia Visiedo &amp;lt;visi...@chromium.org&amp;gt;
+wrote:
+
+&amp;gt; Hi all,
+&amp;gt;
+&amp;gt; I'm revisiting this I2S, as the code changes were never merged probably
+&amp;gt; due to ongoing spec discussions at the time. I'd like to ship these changes
+&amp;gt; now. Please let me know if these LGTMs are still valid, or if you need any
+&amp;gt; additional input from my side.
+&amp;gt;
+&amp;gt; Thank you
+&amp;gt; Javier
+&amp;gt;
+&amp;gt; On Thursday, April 15, 2021 at 2:51:39 AM UTC+9 Asanka Herath wrote:
+&amp;gt;
+&amp;gt;&amp;gt; Contact emailsasa...@chromium.org
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; ExplainerNone
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; SpecificationNone
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Summary
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Add &amp;quot;ftp&amp;quot;, &amp;quot;ftps&amp;quot;, and &amp;quot;sftp&amp;quot; to the list of protocols available for
+&amp;gt;&amp;gt; registration via registerProtocolHandler(). FTP is now deprecated and will
+&amp;gt;&amp;gt; imminently be removed from the codebase. Allowing websites to register
+&amp;gt;&amp;gt; themselves as handlers for ftp:// URLs makes it possible to build easy
+&amp;gt;&amp;gt; to use gateways for legacy ftp sites. In addition we propose adding related
+&amp;gt;&amp;gt; protocols &amp;quot;ftps&amp;quot; and &amp;quot;sftp&amp;quot; to the list. Google Chrome/Chromium was not
+&amp;gt;&amp;gt; handling these URL schemes.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Blink componentBlink&amp;gt;HTML&amp;gt;CustomHandlers
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EHTML%3ECustomHandlers"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EHTML%3ECustomHandlers&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Search tagsftp &amp;lt;&lt;a  rel="nofollow" href="https://www.chromestatus.com/features#tags:ftp"&gt;https://www.chromestatus.com/features#tags:ftp&lt;/a&gt;&amp;gt;,
+&amp;gt;&amp;gt; registerprotocolhandler
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://www.chromestatus.com/features#tags:registerprotocolhandler"&gt;https://www.chromestatus.com/features#tags:registerprotocolhandler&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; TAG reviewNone
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; TAG review statusNot applicable
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Risks
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Interoperability and Compatibility
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; The implementation gives precedence to native protocol handlers before
+&amp;gt;&amp;gt; consulting sites registered via registerProtcolHandler.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Gecko: No signal
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; WebKit: No signal
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Web developers: No signals
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt; ?
+&amp;gt;&amp;gt; Yes. After crrev/2826871
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/2826871"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/2826871&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Flag nameNone
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Tracking bug&lt;a  rel="nofollow" href="https://crbug.com/1199027"&gt;https://crbug.com/1199027&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://www.chromestatus.com/feature/5762628536238080"&gt;https://www.chromestatus.com/feature/5762628536238080&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://www.chromestatus.com/"&gt;https://www.chromestatus.com/&lt;/a&gt;&amp;gt;.
+&amp;gt;&amp;gt;
+&amp;gt; --
+&amp;gt; You received this message because you are subscribed to the Google Groups
+&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt; To view this discussion on the web visit
+&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/6c83481d-483c-4562-8151-1933d3f6e91bn%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/6c83481d-483c-4562-8151-1933d3f6e91bn%40chromium.org&lt;/a&gt;
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/6c83481d-483c-4562-8151-1933d3f6e91bn%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/6c83481d-483c-4562-8151-1933d3f6e91bn%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt; .
+&amp;gt;
+
+
+-- 
+TAMURA Kent
+Software Engineer, Google
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGH7WqGQ1asq8kuTug6WQ81ULgv4UXcbG8-mAO1Co8MY%2BwNX4w%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGH7WqGQ1asq8kuTug6WQ81ULgv4UXcbG8-mAO1Co8MY%2BwNX4w%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06521.html</id>
+        <title>Re: [blink-dev] Intent to Ship: Private Aggregation API</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06521.html"/>
+        <updated>2023-06-21T07:27:03.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06521.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Private+Aggregation+API%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Private Aggregation API&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Yoav+Weiss%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Yoav Weiss&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230621" rel="nofollow"&gt;Wed, 21 Jun 2023 00:27:03 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;On Tue, Jun 20, 2023 at 11:39 PM Rick Byers &amp;lt;rby...@chromium.org&amp;gt; wrote:&lt;/pre&gt;&lt;pre&gt;
+
+&amp;gt;
+&amp;gt; On Tue, Jun 20, 2023 at 4:51 PM Alex Turner &amp;lt;ale...@chromium.org&amp;gt; wrote:
+&amp;gt;
+&amp;gt;&amp;gt; Contact emailsale...@chromium.org
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Explainer
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/patcg-individual-drafts/private-aggregation-api"&gt;https://github.com/patcg-individual-drafts/private-aggregation-api&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Specification
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://patcg-individual-drafts.github.io/private-aggregation-api"&gt;https://patcg-individual-drafts.github.io/private-aggregation-api&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Summary
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; A generic mechanism for measuring aggregate, cross-site data in a privacy
+&amp;gt;&amp;gt; preserving manner. The potentially identifying cross-site data is
+&amp;gt;&amp;gt; encapsulated into &amp;quot;aggregatable reports&amp;quot;. To prevent leakage, this data is
+&amp;gt;&amp;gt; encrypted, ensuring it can only be processed by the aggregation service.
+&amp;gt;&amp;gt; During processing, this service will add noise and impose limits on how
+&amp;gt;&amp;gt; many queries can be performed.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Blink componentBlink&amp;gt;PrivateAggregation
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EPrivateAggregation"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EPrivateAggregation&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; TAG review&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/846"&gt;https://github.com/w3ctag/design-reviews/issues/846&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; TAG review statusPending
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Risks
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Interoperability and Compatibility
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *Gecko*: No signal specific to Private Aggregation (
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/805"&gt;https://github.com/mozilla/standards-positions/issues/805&lt;/a&gt;). However the
+&amp;gt;&amp;gt; Gecko position on Shared Storage (one of the ways Private Aggregation is
+&amp;gt;&amp;gt; exposed) is negative.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *WebKit*: No signal (
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/189"&gt;https://github.com/WebKit/standards-positions/issues/189&lt;/a&gt;)
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *Web developers*: Developers have shown interest in the API both for
+&amp;gt;&amp;gt; cross-site use cases through Shared Storage and for Protected Audience
+&amp;gt;&amp;gt; aggregate reporting and have engaged on GitHub[1]. For Shared Storage,
+&amp;gt;&amp;gt; multiple testers have publicly flagged their interest via the public Shared
+&amp;gt;&amp;gt; Storage Testers List [2].
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; [1]
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/patcg-individual-drafts/private-aggregation-api/issues"&gt;https://github.com/patcg-individual-drafts/private-aggregation-api/issues&lt;/a&gt;
+&amp;gt;&amp;gt; [2]
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/shared-storage/blob/main/shared-storage-tester-list.md"&gt;https://github.com/WICG/shared-storage/blob/main/shared-storage-tester-list.md&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *Other signals*:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; WebView application risks
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Does this intent deprecate or change behavior of existing APIs, such that
+&amp;gt;&amp;gt; it has potentially high risk for Android WebView-based applications?
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; No
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Debuggability
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; The proposal includes a temporary debugging mechanism to facilitate
+&amp;gt;&amp;gt; testing and integration. An internals page
+&amp;gt;&amp;gt; (chrome://private-aggregation-internals) is also available to view the
+&amp;gt;&amp;gt; status of pending and sent reports.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows, Mac,
+&amp;gt;&amp;gt; Linux, Chrome OS, Android, and Android WebView)?
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; All but WebView
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt; ?
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Reports sent through the API are subject to large delays and require
+&amp;gt;&amp;gt; overriding a public key endpoint. Some end-to-end tests
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/web_tests/wpt_internal/private-aggregation/shared-storage-sends-report.https.html"&gt;https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/web_tests/wpt_internal/private-aggregation/shared-storage-sends-report.https.html&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt; are currently internal web tests. Where possible, tests are external
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/web_tests/external/wpt/private-aggregation/"&gt;https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/web_tests/external/wpt/private-aggregation/&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt; and we are proposing new WebDriver APIs
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/patcg-individual-drafts/private-aggregation-api/pull/64"&gt;https://github.com/patcg-individual-drafts/private-aggregation-api/pull/64&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt; to support testing via web-platform-tests. Tests for the integration with
+&amp;gt;&amp;gt; Protected Audience are in-progress &amp;lt;&lt;a  rel="nofollow" href="http://crbug.com/1456401"&gt;http://crbug.com/1456401&lt;/a&gt;&amp;gt; and should
+&amp;gt;&amp;gt; land soon.
+&amp;gt;&amp;gt;
+&amp;gt;
+&amp;gt; Thanks for working to enable more automation here, and putting what you
+&amp;gt; can in WPT today. I think it's reasonable to pursue this in parallel. Are
+&amp;gt; you looking for approval for the WebDriver API addition now too (still a
+&amp;gt; PR), or happy to send a separate I2S for that when you're ready to ship it?
+&amp;gt; +math...@chromium.org &amp;lt;math...@chromium.org&amp;gt; and team can advise on
+&amp;gt; extending webdriver.
+&amp;gt;
+&amp;gt; Flag nameprivacy-sandbox-ads-apis
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Requires code in //chrome?False
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Tracking bug&lt;a  rel="nofollow" href="https://crbug.com/1316659"&gt;https://crbug.com/1316659&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Launch bug&lt;a  rel="nofollow" href="https://crbug.com/1292756"&gt;https://crbug.com/1292756&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Estimated milestonesWe intend to start an incremental ramp towards 100%
+&amp;gt;&amp;gt; in Stable starting with M115.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Anticipated spec changes
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; A few changes to current behavior are expected including tying debug mode
+&amp;gt;&amp;gt; to third-party cookie eligibility (issue
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/patcg-individual-drafts/private-aggregation-api/issues/57"&gt;https://github.com/patcg-individual-drafts/private-aggregation-api/issues/57&lt;/a&gt;&amp;gt;)
+&amp;gt;&amp;gt; and padding the encrypted payload (issue
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/patcg-individual-drafts/private-aggregation-api/issues/56"&gt;https://github.com/patcg-individual-drafts/private-aggregation-api/issues/56&lt;/a&gt;&amp;gt;).
+&amp;gt;&amp;gt; Extensions to the API to support multiple aggregation services, enable
+&amp;gt;&amp;gt; Protected Audience report verification
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/patcg-individual-drafts/private-aggregation-api/blob/main/report_verification.md"&gt;https://github.com/patcg-individual-drafts/private-aggregation-api/blob/main/report_verification.md&lt;/a&gt;&amp;gt;,
+&amp;gt;&amp;gt; and allow arrays of contributions (issue
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/patcg-individual-drafts/private-aggregation-api/issues/44"&gt;https://github.com/patcg-individual-drafts/private-aggregation-api/issues/44&lt;/a&gt;&amp;gt;)
+&amp;gt;&amp;gt; are also expected and are purely additive. The JS interface for all of
+&amp;gt;&amp;gt; these changes will be backwards compatible with the current API.
+&amp;gt;&amp;gt;
+&amp;gt;
+&amp;gt; Thanks. Skimming the open issues I see at least one
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/patcg-individual-drafts/private-aggregation-api/issues/44"&gt;https://github.com/patcg-individual-drafts/private-aggregation-api/issues/44&lt;/a&gt;&amp;gt;
+&amp;gt;  which
+&amp;gt; sounds like it would be a non-trivial breaking change.
+&amp;gt;
+
+Thanks for catching that. That issue was effectively resolved, but spun up
+other (in-thread) discussions. I now closed it and suggested the
+discussions would be spun up to their own issues (#70
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/patcg-individual-drafts/private-aggregation-api/issues/70"&gt;https://github.com/patcg-individual-drafts/private-aggregation-api/issues/70&lt;/a&gt;&amp;gt;
+is
+a backwards compatible ergonomics change still remaining).
+
+Are there others? Do you want to drive such issues to resolution (one way
+&amp;gt; or the other) prior to shipping or make the case for why a breaking change
+&amp;gt; will be doable (eg. a practical v2 migration strategy)?
+&amp;gt;
+
+&amp;gt; Link to entry on the Chrome Platform Status
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5743412790689792"&gt;https://chromestatus.com/feature/5743412790689792&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Links to previous Intent discussionsIntent to prototype:
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAA%2BBiFkKSt4YBNUn2h42G3z%2BqjwxjFAo%3DsPnrbvvOoNaDa_aAQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAA%2BBiFkKSt4YBNUn2h42G3z%2BqjwxjFAo%3DsPnrbvvOoNaDa_aAQ%40mail.gmail.com&lt;/a&gt;
+&amp;gt;&amp;gt;  Intent
+&amp;gt;&amp;gt; to Experiment:
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAA%2BBiF%3DKQYXEVn%3DB4rMabH14UdYyA%2BF8qQkWyUVPB0rypS1N0Q%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAA%2BBiF%3DKQYXEVn%3DB4rMabH14UdYyA%2BF8qQkWyUVPB0rypS1N0Q%40mail.gmail.com&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; --
+&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups
+&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&amp;gt;&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt;&amp;gt; To view this discussion on the web visit
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAA%2BBiFk4cb%2Bi69Symy-KCjHbtquGSQCn5scXy_YMSSWGut2vJw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAA%2BBiFk4cb%2Bi69Symy-KCjHbtquGSQCn5scXy_YMSSWGut2vJw%40mail.gmail.com&lt;/a&gt;
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAA%2BBiFk4cb%2Bi69Symy-KCjHbtquGSQCn5scXy_YMSSWGut2vJw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAA%2BBiFk4cb%2Bi69Symy-KCjHbtquGSQCn5scXy_YMSSWGut2vJw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;
+&amp;gt; --
+&amp;gt; You received this message because you are subscribed to the Google Groups
+&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt; To view this discussion on the web visit
+&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY-OqR3nG8ghb0k2hGamf-76uVH%3DkYjhNGQi6mN84GjUzg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY-OqR3nG8ghb0k2hGamf-76uVH%3DkYjhNGQi6mN84GjUzg%40mail.gmail.com&lt;/a&gt;
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY-OqR3nG8ghb0k2hGamf-76uVH%3DkYjhNGQi6mN84GjUzg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY-OqR3nG8ghb0k2hGamf-76uVH%3DkYjhNGQi6mN84GjUzg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt; .
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfU2OwBV8yvkvf9AF6eMazdvXrj8w9KNLCWbhBNjGGTpLw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfU2OwBV8yvkvf9AF6eMazdvXrj8w9KNLCWbhBNjGGTpLw%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06520.html</id>
+        <title>[blink-dev] Re: Intent to Ship: Allow Navigator.registerProtocolHandler to register "ftp"</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06520.html"/>
+        <updated>2023-06-21T06:54:00.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06520.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Ship%5C%3A+Allow+Navigator.registerProtocolHandler+to+register+%5C%22ftp%5C%22%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Re: Intent to Ship: Allow Navigator.registerProtocolHandler to register "ftp"&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Javier+Garcia+Visiedo%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Javier Garcia Visiedo&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230620" rel="nofollow"&gt;Tue, 20 Jun 2023 23:54:00 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Hi all,
+
+I'm revisiting this I2S, as the code changes were never merged probably due 
+to ongoing spec discussions at the time. I'd like to ship these changes 
+now. Please let me know if these LGTMs are still valid, or if you need any 
+additional input from my side.&lt;/pre&gt;&lt;pre&gt;
+
+Thank you
+Javier
+
+On Thursday, April 15, 2021 at 2:51:39 AM UTC+9 Asanka Herath wrote:
+
+&amp;gt; Contact emailsasa...@chromium.org
+&amp;gt;
+&amp;gt; ExplainerNone
+&amp;gt;
+&amp;gt; SpecificationNone
+&amp;gt;
+&amp;gt; Summary
+&amp;gt;
+&amp;gt; Add &amp;quot;ftp&amp;quot;, &amp;quot;ftps&amp;quot;, and &amp;quot;sftp&amp;quot; to the list of protocols available for 
+&amp;gt; registration via registerProtocolHandler(). FTP is now deprecated and will 
+&amp;gt; imminently be removed from the codebase. Allowing websites to register 
+&amp;gt; themselves as handlers for ftp:// URLs makes it possible to build easy to 
+&amp;gt; use gateways for legacy ftp sites. In addition we propose adding related 
+&amp;gt; protocols &amp;quot;ftps&amp;quot; and &amp;quot;sftp&amp;quot; to the list. Google Chrome/Chromium was not 
+&amp;gt; handling these URL schemes.
+&amp;gt;
+&amp;gt;
+&amp;gt; Blink componentBlink&amp;gt;HTML&amp;gt;CustomHandlers 
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EHTML%3ECustomHandlers"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EHTML%3ECustomHandlers&lt;/a&gt;&amp;gt;
+&amp;gt;
+&amp;gt; Search tagsftp &amp;lt;&lt;a  rel="nofollow" href="https://www.chromestatus.com/features#tags:ftp"&gt;https://www.chromestatus.com/features#tags:ftp&lt;/a&gt;&amp;gt;, 
+&amp;gt; registerprotocolhandler 
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://www.chromestatus.com/features#tags:registerprotocolhandler"&gt;https://www.chromestatus.com/features#tags:registerprotocolhandler&lt;/a&gt;&amp;gt;
+&amp;gt;
+&amp;gt; TAG reviewNone
+&amp;gt;
+&amp;gt; TAG review statusNot applicable
+&amp;gt;
+&amp;gt; Risks
+&amp;gt;
+&amp;gt;
+&amp;gt; Interoperability and Compatibility
+&amp;gt;
+&amp;gt; None
+&amp;gt;
+&amp;gt; The implementation gives precedence to native protocol handlers before 
+&amp;gt; consulting sites registered via registerProtcolHandler.
+&amp;gt;
+&amp;gt; Gecko: No signal
+&amp;gt;
+&amp;gt; WebKit: No signal
+&amp;gt;
+&amp;gt; Web developers: No signals
+&amp;gt;
+&amp;gt;
+&amp;gt; Is this feature fully tested by web-platform-tests 
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+&amp;gt; ?
+&amp;gt; Yes. After crrev/2826871 
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/2826871"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/2826871&lt;/a&gt;&amp;gt;
+&amp;gt;
+&amp;gt; Flag nameNone
+&amp;gt;
+&amp;gt; Tracking bug&lt;a  rel="nofollow" href="https://crbug.com/1199027"&gt;https://crbug.com/1199027&lt;/a&gt;
+&amp;gt;
+&amp;gt; Link to entry on the Chrome Platform Status
+&amp;gt; &lt;a  rel="nofollow" href="https://www.chromestatus.com/feature/5762628536238080"&gt;https://www.chromestatus.com/feature/5762628536238080&lt;/a&gt;
+&amp;gt;
+&amp;gt; This intent message was generated by Chrome Platform Status 
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://www.chromestatus.com/"&gt;https://www.chromestatus.com/&lt;/a&gt;&amp;gt;.
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/6c83481d-483c-4562-8151-1933d3f6e91bn%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/6c83481d-483c-4562-8151-1933d3f6e91bn%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06519.html</id>
+        <title>Re: [blink-dev] Intent to Prototype: Zstd Content-Encoding</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06519.html"/>
+        <updated>2023-06-21T06:36:04.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06519.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Prototype%5C%3A+Zstd+Content%5C-Encoding%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Prototype: Zstd Content-Encoding&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Yoav+Weiss%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Yoav Weiss&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230620" rel="nofollow"&gt;Tue, 20 Jun 2023 23:36:04 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;On Wed, Jun 21, 2023 at 8:15 AM Nidhi Jaju &amp;lt;nidhij...@chromium.org&amp;gt; wrote:&lt;/pre&gt;&lt;pre&gt;
+
+&amp;gt; Contact emailsnidhij...@chromium.org
+&amp;gt;
+&amp;gt; Explainer
+&amp;gt; &lt;a  rel="nofollow" href="https://docs.google.com/document/d/1aDyUw4mAzRdLyZyXpVgWvO-eLpc4ERz7I_7VDIPo9Hc/edit?usp=sharing"&gt;https://docs.google.com/document/d/1aDyUw4mAzRdLyZyXpVgWvO-eLpc4ERz7I_7VDIPo9Hc/edit?usp=sharing&lt;/a&gt;
+&amp;gt; Specification&lt;a  rel="nofollow" href="https://datatracker.ietf.org/doc/html/rfc8878"&gt;https://datatracker.ietf.org/doc/html/rfc8878&lt;/a&gt;
+&amp;gt;
+&amp;gt; Design docs
+&amp;gt; &lt;a  rel="nofollow" href="https://docs.google.com/document/d/14dbzMpsYPfkefAJos124uPrlkvW7jyPJhzjujSWws2k/edit?usp=sharing"&gt;https://docs.google.com/document/d/14dbzMpsYPfkefAJos124uPrlkvW7jyPJhzjujSWws2k/edit?usp=sharing&lt;/a&gt;
+&amp;gt;
+&amp;gt; Summary
+&amp;gt;
+&amp;gt; Zstandard, or “zstd”, is a data compression mechanism described in
+&amp;gt; RFC8878. It is a fast lossless compression algorithm, targeting real-time
+&amp;gt; compression scenarios at zlib-level and better compression ratios. The
+&amp;gt; &amp;quot;zstd&amp;quot; token was added as an IANA-registered Content-Encoding token as per
+&amp;gt; &lt;a  rel="nofollow" href="https://datatracker.ietf.org/doc/html/rfc8878#name-content-encoding"&gt;https://datatracker.ietf.org/doc/html/rfc8878#name-content-encoding&lt;/a&gt;.
+&amp;gt; Adding support for &amp;quot;zstd&amp;quot; as a Content-Encoding will help load pages faster
+&amp;gt; and use less bandwidth.
+&amp;gt;
+&amp;gt; Blink componentInternals&amp;gt;Network
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Internals%3ENetwork"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Internals%3ENetwork&lt;/a&gt;&amp;gt;
+&amp;gt;
+&amp;gt; Motivation
+&amp;gt;
+&amp;gt; Supporting zstd content-encoding in the browser would allow sites to spend
+&amp;gt; less time and CPU/power on compression on their servers, resulting in
+&amp;gt; reduced server costs. There are several published benchmarks[i.e. 1
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://facebook.github.io/zstd/#benchmarks"&gt;https://facebook.github.io/zstd/#benchmarks&lt;/a&gt;&amp;gt;, 2
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://peazip.github.io/fast-compression-benchmark-brotli-zstandard.html"&gt;https://peazip.github.io/fast-compression-benchmark-brotli-zstandard.html&lt;/a&gt;&amp;gt;]
+&amp;gt; and existing research showing promising potential wins. Zstd is roughly
+&amp;gt; three times faster than Brotli for decompression. Combined with zstd being
+&amp;gt; faster at compression, this will result in faster page load times.
+&amp;gt; Initial public proposalNone
+&amp;gt;
+&amp;gt; TAG reviewNone
+&amp;gt;
+&amp;gt; TAG review statusNot applicable
+&amp;gt;
+&amp;gt; Risks
+&amp;gt;
+&amp;gt;               Interoperability and Compatibility
+&amp;gt;
+&amp;gt; Servers that have a broken implementation of zstd might exist, but the
+&amp;gt; risk of this is small. Additionally, middleware and middleboxes like virus
+&amp;gt; checkers that intercept HTTPS connections might not support zstd, but might
+&amp;gt; fail to remove it from the Accept-Encoding header in the request.
+&amp;gt;
+
+Are we planning to only support this encoding under secure contexts and/or
+H2+ to reduce that risk?
+
+
+&amp;gt;
+&amp;gt;
+&amp;gt; *Gecko*: No signal (
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/775"&gt;https://github.com/mozilla/standards-positions/issues/775&lt;/a&gt;)
+&amp;gt;
+&amp;gt; *WebKit*: No signal (
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/168"&gt;https://github.com/WebKit/standards-positions/issues/168&lt;/a&gt;)
+&amp;gt;
+&amp;gt; *Web developers*: Positive (&lt;a  rel="nofollow" href="https://crbug.com/1246971"&gt;https://crbug.com/1246971&lt;/a&gt;) Facebook (Yann)
+&amp;gt; and Akamai (Nic) seem to be positive about zstd content-encoding support in
+&amp;gt; the browser. Facebook is also excited to test the feature.
+&amp;gt;
+&amp;gt; *Other signals*:
+&amp;gt;
+&amp;gt;               WebView application risks
+&amp;gt;
+&amp;gt; Does this intent deprecate or change behavior of existing APIs, such that
+&amp;gt; it has potentially high risk for Android WebView-based applications?
+&amp;gt;
+&amp;gt;
+&amp;gt;
+&amp;gt; Debuggability
+&amp;gt;
+&amp;gt; No special support needed.
+&amp;gt;
+&amp;gt; Is this feature fully tested by web-platform-tests
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+&amp;gt; ?Not yet.
+&amp;gt;
+&amp;gt; Flag nameZstdContentEncoding
+&amp;gt;
+&amp;gt; Requires code in //chrome?True
+&amp;gt;
+&amp;gt; Tracking bug&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1246971"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1246971&lt;/a&gt;
+&amp;gt;
+&amp;gt; Estimated milestones
+&amp;gt; Shipping on desktop 117
+&amp;gt; Shipping on Android 117
+&amp;gt;
+&amp;gt; Link to entry on the Chrome Platform Status
+&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/6186023867908096"&gt;https://chromestatus.com/feature/6186023867908096&lt;/a&gt;
+&amp;gt;
+&amp;gt; Links to previous Intent discussions
+&amp;gt;
+&amp;gt; This intent message was generated by Chrome Platform Status
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+&amp;gt;
+&amp;gt; --
+&amp;gt; You received this message because you are subscribed to the Google Groups
+&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt; To view this discussion on the web visit
+&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMZNYANd_E77W1ki--h_XJM-%2B_fA3w1CriGgJmnbh1N3LwRDtw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMZNYANd_E77W1ki--h_XJM-%2B_fA3w1CriGgJmnbh1N3LwRDtw%40mail.gmail.com&lt;/a&gt;
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMZNYANd_E77W1ki--h_XJM-%2B_fA3w1CriGgJmnbh1N3LwRDtw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMZNYANd_E77W1ki--h_XJM-%2B_fA3w1CriGgJmnbh1N3LwRDtw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt; .
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfVkzPtEQtALZL8LO%3D-Zqmuv0Vd7ZJEjourEgkUcSZxX9Q%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfVkzPtEQtALZL8LO%3D-Zqmuv0Vd7ZJEjourEgkUcSZxX9Q%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06518.html</id>
+        <title>[blink-dev] Intent to Implement &amp; Ship: WebUSB exclusionFilters option in requestDevice()</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06518.html"/>
+        <updated>2023-06-21T06:32:54.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06518.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Implement+%5C%26+Ship%5C%3A+WebUSB+exclusionFilters+option+in+requestDevice%5C%28%5C%29%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Implement &amp; Ship: WebUSB exclusionFilters option in requestDevice()&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Fran%C3%A7ois+Beaufort%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'François Beaufort' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230620" rel="nofollow"&gt;Tue, 20 Jun 2023 23:32:54 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Contact emails
+&lt;/pre&gt;&lt;pre&gt;
+
+*fbeauf...@google.com &amp;lt;fbeauf...@google.com&amp;gt;reil...@google.com
+&amp;lt;reil...@google.com&amp;gt;*Explainer
+
+
+*&lt;a  rel="nofollow" href="https://github.com/WICG/webusb/pull/233#issue-1760530134"&gt;https://github.com/WICG/webusb/pull/233#issue-1760530134&lt;/a&gt;
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/webusb/pull/233#issue-1760530134"&gt;https://github.com/WICG/webusb/pull/233#issue-1760530134&lt;/a&gt;&amp;gt;*Specification
+
+
+*&lt;a  rel="nofollow" href="https://wicg.github.io/webusb/#dom-usbdevicerequestoptions-exclusionfilters"&gt;https://wicg.github.io/webusb/#dom-usbdevicerequestoptions-exclusionfilters&lt;/a&gt;
+&amp;lt;&lt;a  rel="nofollow" href="https://wicg.github.io/webusb/#dom-usbdevicerequestoptions-exclusionfilters"&gt;https://wicg.github.io/webusb/#dom-usbdevicerequestoptions-exclusionfilters&lt;/a&gt;&amp;gt;&lt;a  rel="nofollow" href="https://github.com/WICG/webusb/pull/233"&gt;https://github.com/WICG/webusb/pull/233&lt;/a&gt;
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/webusb/pull/233"&gt;https://github.com/WICG/webusb/pull/233&lt;/a&gt;&amp;gt;*Summary
+
+
+*The &amp;quot;exclusionFilters&amp;quot; option in navigator.usb.requestDevice() allows web
+developers to exclude some devices from the browser picker. It can be used
+to exclude devices that match a broader filter but are unsupported.*Blink
+component
+
+
+*Blink&amp;gt;USB
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EUSB"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EUSB&lt;/a&gt;&amp;gt;*
+Motivation
+
+
+
+
+*Allowing web developers, through the &amp;quot;exclusionFilters&amp;quot; option, to exclude
+from the browser picker some devices that are not supported by the site
+will improve user experience. Without it, web developers let users pick a
+device, then have to check using a custom JavaScript helper function and
+alert the user after they’ve already selected a device, resulting in a poor
+user experience.// Request access to a device from vendor ID 0xABCD.// The
+device with product ID 0x1234 has been reported as unsupported.const device
+= await navigator.usb.requestDevice({  filters: [{ vendorId: 0xABCD
+}],  exclusionFilters: [{ vendorId: 0xABCD, productId: 0x1234 }],});This
+feature is similar to Web Bluetooth and WebHID &amp;quot;exclusionFilters&amp;quot; options.
+See &lt;a  rel="nofollow" href="https://chromestatus.com/features#exclusionFilters"&gt;https://chromestatus.com/features#exclusionFilters&lt;/a&gt;
+&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#exclusionFilters"&gt;https://chromestatus.com/features#exclusionFilters&lt;/a&gt;&amp;gt;*TAG review
+
+
+*This small addition to the WebUSB API doesn’t seem to qualify for a TAG
+review. FYI We have filed one for Web Bluetooth &amp;quot;exclusionFilters&amp;quot; option
+recently which was marked as satisfied at
+&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/830"&gt;https://github.com/w3ctag/design-reviews/issues/830&lt;/a&gt;
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/830"&gt;https://github.com/w3ctag/design-reviews/issues/830&lt;/a&gt;&amp;gt;*TAG review status
+
+
+*Not Applicable*Risks
+Interoperability and Compatibility
+
+
+
+
+
+
+
+
+*Older browsers will ignore exclusionFilters and all devices matching the
+provided filter will be displayed (the current behavior).Signals from other
+implementations (Gecko, WebKit): Gecko: No Signal [1]WebKit: No Signal
+[1]Web / Framework developers: Positive
+&lt;a  rel="nofollow" href="https://github.com/WICG/webusb/issues/232"&gt;https://github.com/WICG/webusb/issues/232&lt;/a&gt;
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/webusb/issues/232"&gt;https://github.com/WICG/webusb/issues/232&lt;/a&gt;&amp;gt;[1] Both Gecko and WebKit are
+unlikely to object to this feature specifically, but object to the overall
+WebUSB API as a whole, hence it doesn't make sense to bug them with
+specific questions on this.Activation:This feature can't be polyfilled. It
+should be fairly trivial for developers to adopt this new feature.*
+Debuggability
+
+
+*No specific DevTools changes are required. This feature is treated like
+any other JS method.Note that exposing DevTools debugging support for
+device-access APIs (WebUSB included) is discussed at
+&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1142566#c20"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1142566#c20&lt;/a&gt;
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1142566#c20"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1142566#c20&lt;/a&gt;&amp;gt;.*Is
+this feature fully tested by web-platform-tests
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+?
+
+
+*No, because browser picker implementation is implemented outside of Blink
+and so isn’t testable fully by web-platform-tests. *Requires code in
+//chrome?
+
+
+*Yes, the browser picker implementation is part of the UI code in
+//chrome.*Tracking
+bug
+
+
+
+*&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1455392"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1455392&lt;/a&gt;
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1455392"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1455392&lt;/a&gt;&amp;gt;Estimated
+milestones117*Link to entry on the Chrome Platform Status
+
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5172269315260416"&gt;https://chromestatus.com/feature/5172269315260416&lt;/a&gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPpwU5%2BGr-iskzoo-kUhH2%2BFNJL6-OyG44m6jFW1jZXMw3%3DUHg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPpwU5%2BGr-iskzoo-kUhH2%2BFNJL6-OyG44m6jFW1jZXMw3%3DUHg%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06517.html</id>
+        <title>[blink-dev] Intent to Prototype: Zstd Content-Encoding</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06517.html"/>
+        <updated>2023-06-21T06:15:07.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06517.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Prototype%5C%3A+Zstd+Content%5C-Encoding%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Prototype: Zstd Content-Encoding&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Nidhi+Jaju%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Nidhi Jaju&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230620" rel="nofollow"&gt;Tue, 20 Jun 2023 23:15:07 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Contact emailsnidhij...@chromium.org
+
+Explainer
+&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1aDyUw4mAzRdLyZyXpVgWvO-eLpc4ERz7I_7VDIPo9Hc/edit?usp=sharing"&gt;https://docs.google.com/document/d/1aDyUw4mAzRdLyZyXpVgWvO-eLpc4ERz7I_7VDIPo9Hc/edit?usp=sharing&lt;/a&gt;
+Specification&lt;a  rel="nofollow" href="https://datatracker.ietf.org/doc/html/rfc8878"&gt;https://datatracker.ietf.org/doc/html/rfc8878&lt;/a&gt;&lt;/pre&gt;&lt;pre&gt;
+
+Design docs
+&lt;a  rel="nofollow" href="https://docs.google.com/document/d/14dbzMpsYPfkefAJos124uPrlkvW7jyPJhzjujSWws2k/edit?usp=sharing"&gt;https://docs.google.com/document/d/14dbzMpsYPfkefAJos124uPrlkvW7jyPJhzjujSWws2k/edit?usp=sharing&lt;/a&gt;
+
+Summary
+
+Zstandard, or “zstd”, is a data compression mechanism described in RFC8878.
+It is a fast lossless compression algorithm, targeting real-time
+compression scenarios at zlib-level and better compression ratios. The
+&amp;quot;zstd&amp;quot; token was added as an IANA-registered Content-Encoding token as per
+&lt;a  rel="nofollow" href="https://datatracker.ietf.org/doc/html/rfc8878#name-content-encoding"&gt;https://datatracker.ietf.org/doc/html/rfc8878#name-content-encoding&lt;/a&gt;. Adding
+support for &amp;quot;zstd&amp;quot; as a Content-Encoding will help load pages faster and
+use less bandwidth.
+
+Blink componentInternals&amp;gt;Network
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Internals%3ENetwork"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Internals%3ENetwork&lt;/a&gt;&amp;gt;
+
+Motivation
+
+Supporting zstd content-encoding in the browser would allow sites to spend
+less time and CPU/power on compression on their servers, resulting in
+reduced server costs. There are several published benchmarks[i.e. 1
+&amp;lt;&lt;a  rel="nofollow" href="https://facebook.github.io/zstd/#benchmarks"&gt;https://facebook.github.io/zstd/#benchmarks&lt;/a&gt;&amp;gt;, 2
+&amp;lt;&lt;a  rel="nofollow" href="https://peazip.github.io/fast-compression-benchmark-brotli-zstandard.html"&gt;https://peazip.github.io/fast-compression-benchmark-brotli-zstandard.html&lt;/a&gt;&amp;gt;]
+and existing research showing promising potential wins. Zstd is roughly
+three times faster than Brotli for decompression. Combined with zstd being
+faster at compression, this will result in faster page load times.
+Initial public proposalNone
+
+TAG reviewNone
+
+TAG review statusNot applicable
+
+Risks
+
+              Interoperability and Compatibility
+
+Servers that have a broken implementation of zstd might exist, but the risk
+of this is small. Additionally, middleware and middleboxes like virus
+checkers that intercept HTTPS connections might not support zstd, but might
+fail to remove it from the Accept-Encoding header in the request.
+
+*Gecko*: No signal (
+&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/775"&gt;https://github.com/mozilla/standards-positions/issues/775&lt;/a&gt;)
+
+*WebKit*: No signal (
+&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/168"&gt;https://github.com/WebKit/standards-positions/issues/168&lt;/a&gt;)
+
+*Web developers*: Positive (&lt;a  rel="nofollow" href="https://crbug.com/1246971"&gt;https://crbug.com/1246971&lt;/a&gt;) Facebook (Yann) and
+Akamai (Nic) seem to be positive about zstd content-encoding support in the
+browser. Facebook is also excited to test the feature.
+
+*Other signals*:
+
+              WebView application risks
+
+Does this intent deprecate or change behavior of existing APIs, such that
+it has potentially high risk for Android WebView-based applications?
+
+
+
+Debuggability
+
+No special support needed.
+
+Is this feature fully tested by web-platform-tests
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+?Not yet.
+
+Flag nameZstdContentEncoding
+
+Requires code in //chrome?True
+
+Tracking bug&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1246971"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1246971&lt;/a&gt;
+
+Estimated milestones
+Shipping on desktop 117
+Shipping on Android 117
+
+Link to entry on the Chrome Platform Status
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/6186023867908096"&gt;https://chromestatus.com/feature/6186023867908096&lt;/a&gt;
+
+Links to previous Intent discussions
+
+This intent message was generated by Chrome Platform Status
+&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMZNYANd_E77W1ki--h_XJM-%2B_fA3w1CriGgJmnbh1N3LwRDtw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMZNYANd_E77W1ki--h_XJM-%2B_fA3w1CriGgJmnbh1N3LwRDtw%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06516.html</id>
         <title>Re: [blink-dev] Intent to Ship: Topics API</title>
         <author>
@@ -9633,1372 +10620,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/4053eb5b-25b4-421c-9f60-b3dc8799bd33n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/4053eb5b-25b4-421c-9f60-b3dc8799bd33n%40chromium.org&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06473.html</id>
-        <title>Re: [blink-dev] Intent to Ship: CSS Subgrid</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06473.html"/>
-        <updated>2023-06-15T09:36:07.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06473.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+CSS+Subgrid%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: CSS Subgrid&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Yoav+Weiss%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Yoav Weiss&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230615" rel="nofollow"&gt;Thu, 15 Jun 2023 02:36:07 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Also, thank you so much for working on this and aligning us with other
-vendors on this important developer feature!! :)&lt;/pre&gt;&lt;pre&gt;
-
-On Thu, Jun 15, 2023 at 11:32 AM Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt; wrote:
-
-&amp;gt;
-&amp;gt;
-&amp;gt; On Thu, Jun 15, 2023 at 7:49 AM 'Ethan Jimenez' via blink-dev &amp;lt;
-&amp;gt; blink-dev@chromium.org&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; Contact emails
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; etha...@microsoft.com
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Explainer
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;
-&amp;gt;
-&amp;gt; Well, a short search revealed this article
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://ishadeed.com/article/learn-css-subgrid/"&gt;https://ishadeed.com/article/learn-css-subgrid/&lt;/a&gt;&amp;gt; (by Ahmed Shadeed) as a
-&amp;gt; great explainer!
-&amp;gt;
-&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Specification
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://www.w3.org/TR/css-grid-2/#subgrids"&gt;https://www.w3.org/TR/css-grid-2/#subgrids&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Design docs
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://docs.google.com/document/d/1cpsCmzdDlXUKtMxOUKIoJFyLH54mLVhZnam_z0PriO0/edit?usp=sharing"&gt;https://docs.google.com/document/d/1cpsCmzdDlXUKtMxOUKIoJFyLH54mLVhZnam_z0PriO0/edit?usp=sharing&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Summary
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Implements the CSS Grid Layout Module Level 2 specification, which
-&amp;gt;&amp;gt; introduces the concept of a &amp;quot;subgrid&amp;quot; to nested grid containers.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Blink component
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Blink&amp;gt;CSS
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Search tags
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; subgrid &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:subgrid"&gt;https://chromestatus.com/features#tags:subgrid&lt;/a&gt;&amp;gt;, css-grid-2
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:css-grid-2"&gt;https://chromestatus.com/features#tags:css-grid-2&lt;/a&gt;&amp;gt;, css
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:css"&gt;https://chromestatus.com/features#tags:css&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; TAG review
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Review Request for CSS Subgrid · Issue #712 · w3ctag/design-reviews
-&amp;gt;&amp;gt; (github.com) &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/712"&gt;https://github.com/w3ctag/design-reviews/issues/712&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; TAG review status
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Issues addressed
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Risks
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Interoperability and Compatibility
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; This is a well-defined specification from the W3C, so we would be
-&amp;gt;&amp;gt; addressing some interoperability gaps instead of causing them.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Gecko*: Shipped/Shipping
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *WebKit*: Shipped/Shipping
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Web developers*: Strongly positive
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Other signals*:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; WebView application risks
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Does this intent deprecate or change behavior of existing APIs, such
-&amp;gt;&amp;gt; that it has potentially high risk for Android WebView-based applications?*
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Debuggability
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; This feature is an extension of the capabilities of the CSS Grid Layout
-&amp;gt;&amp;gt; Module, no new properties will be introduced, but a new value &amp;quot;subgrid&amp;quot;
-&amp;gt;&amp;gt; will be introduced and properly rolled into the DevTools repository.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows, Mac,
-&amp;gt;&amp;gt; Linux, Chrome OS, Android, and Android WebView)?
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Yes
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; ?
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Yes
-&amp;gt;&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/css/css-grid/subgrid?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/css/css-grid/subgrid?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
-&amp;gt; has a few red spots. Are those being tracked somewhere? Any sense of their
-&amp;gt; impact on compatibility once we say we `@supports` subgrid?
-&amp;gt;
-&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Flag name
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; LayoutNGSubgrid
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Requires code in //chrome?
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; False
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Tracking bug
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://crbug.com/618969"&gt;https://crbug.com/618969&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Estimated milestones
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; The below estimates may adjust depending on when fragmentation support
-&amp;gt;&amp;gt; and the fixes for a couple of invalidation bugs are completed.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Shipping on desktop
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; 116
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; DevTrial on desktop
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; 114
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Shipping on Android
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; 116
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; DevTrial on Android
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; 114
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Shipping on iOS
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; 116
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; DevTrial on iOS
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; 114
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Anticipated spec changes
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; The below issues require spec resolution. These ones have interop risk
-&amp;gt;&amp;gt; depending on the resulting resolutions, but there is currently no interop
-&amp;gt;&amp;gt; between browsers on these today. As a result, we don’t consider these to
-&amp;gt;&amp;gt; block shipping, but we do plan to continue to drive forward resolutions:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;    - [css-grid-1] Application of grid-positioning properties to static
-&amp;gt;&amp;gt;    position of grid children is inconsistent · Issue #7661 · w3c/csswg-drafts
-&amp;gt;&amp;gt;    (github.com) &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/7661"&gt;https://github.com/w3c/csswg-drafts/issues/7661&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;    - [css-grid-2] Honoring the specified width/height of a subgrid ·
-&amp;gt;&amp;gt;    Issue #8966 · w3c/csswg-drafts (github.com)
-&amp;gt;&amp;gt;    &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/8966"&gt;https://github.com/w3c/csswg-drafts/issues/8966&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; The below issues require spec clarification, but there is already
-&amp;gt;&amp;gt; consensus between implementations and should not block shipping or result
-&amp;gt;&amp;gt; in any future risk:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;    - [css-grid-2] Clamp out-of-range subgrid items before or after auto
-&amp;gt;&amp;gt;    placement? · Issue #8494 · w3c/csswg-drafts (github.com)
-&amp;gt;&amp;gt;    &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/8494"&gt;https://github.com/w3c/csswg-drafts/issues/8494&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;    - [css-grid-2] How to properly accommodate margin/border/padding of a
-&amp;gt;&amp;gt;    subgrid with no item on the edges · Issue #7465 · w3c/csswg-drafts
-&amp;gt;&amp;gt;    (github.com) &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/7465"&gt;https://github.com/w3c/csswg-drafts/issues/7465&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5663795354533888"&gt;https://chromestatus.com/feature/5663795354533888&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Links to previous Intent discussions
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Intent to prototype:
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/MN2PR00MB06691936F5BB8575F43A9704BC569%40MN2PR00MB0669.namprd00.prod.outlook.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/MN2PR00MB06691936F5BB8575F43A9704BC569%40MN2PR00MB0669.namprd00.prod.outlook.com&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt;&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt;&amp;gt; To view this discussion on the web visit
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CO2PR00MB02159FA23FB30A441DAC4B1FBC5BA%40CO2PR00MB0215.namprd00.prod.outlook.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CO2PR00MB02159FA23FB30A441DAC4B1FBC5BA%40CO2PR00MB0215.namprd00.prod.outlook.com&lt;/a&gt;
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CO2PR00MB02159FA23FB30A441DAC4B1FBC5BA%40CO2PR00MB0215.namprd00.prod.outlook.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CO2PR00MB02159FA23FB30A441DAC4B1FBC5BA%40CO2PR00MB0215.namprd00.prod.outlook.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfV-%3DqaOo-At8zh8nWhYeCytMfDFty83NKDLPzJ4_7LD8w%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfV-%3DqaOo-At8zh8nWhYeCytMfDFty83NKDLPzJ4_7LD8w%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06472.html</id>
-        <title>Re: [blink-dev] Intent to Ship: CSS Subgrid</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06472.html"/>
-        <updated>2023-06-15T09:32:33.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06472.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+CSS+Subgrid%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: CSS Subgrid&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Yoav+Weiss%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Yoav Weiss&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230615" rel="nofollow"&gt;Thu, 15 Jun 2023 02:32:33 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;On Thu, Jun 15, 2023 at 7:49 AM 'Ethan Jimenez' via blink-dev &amp;lt;
-blink-dev@chromium.org&amp;gt; wrote:&lt;/pre&gt;&lt;pre&gt;
-
-&amp;gt; Contact emails
-&amp;gt;
-&amp;gt; etha...@microsoft.com
-&amp;gt;
-&amp;gt;
-&amp;gt; Explainer
-&amp;gt;
-&amp;gt; None
-&amp;gt;
-
-Well, a short search revealed this article
-&amp;lt;&lt;a  rel="nofollow" href="https://ishadeed.com/article/learn-css-subgrid/"&gt;https://ishadeed.com/article/learn-css-subgrid/&lt;/a&gt;&amp;gt; (by Ahmed Shadeed) as a
-great explainer!
-
-
-&amp;gt;
-&amp;gt; Specification
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://www.w3.org/TR/css-grid-2/#subgrids"&gt;https://www.w3.org/TR/css-grid-2/#subgrids&lt;/a&gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; Design docs
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://docs.google.com/document/d/1cpsCmzdDlXUKtMxOUKIoJFyLH54mLVhZnam_z0PriO0/edit?usp=sharing"&gt;https://docs.google.com/document/d/1cpsCmzdDlXUKtMxOUKIoJFyLH54mLVhZnam_z0PriO0/edit?usp=sharing&lt;/a&gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; Summary
-&amp;gt;
-&amp;gt; Implements the CSS Grid Layout Module Level 2 specification, which
-&amp;gt; introduces the concept of a &amp;quot;subgrid&amp;quot; to nested grid containers.
-&amp;gt;
-&amp;gt;
-&amp;gt; Blink component
-&amp;gt;
-&amp;gt; Blink&amp;gt;CSS
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS&lt;/a&gt;&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; Search tags
-&amp;gt;
-&amp;gt; subgrid &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:subgrid"&gt;https://chromestatus.com/features#tags:subgrid&lt;/a&gt;&amp;gt;, css-grid-2
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:css-grid-2"&gt;https://chromestatus.com/features#tags:css-grid-2&lt;/a&gt;&amp;gt;, css
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:css"&gt;https://chromestatus.com/features#tags:css&lt;/a&gt;&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; TAG review
-&amp;gt;
-&amp;gt; Review Request for CSS Subgrid · Issue #712 · w3ctag/design-reviews
-&amp;gt; (github.com) &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/712"&gt;https://github.com/w3ctag/design-reviews/issues/712&lt;/a&gt;&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; TAG review status
-&amp;gt;
-&amp;gt; Issues addressed
-&amp;gt;
-&amp;gt;
-&amp;gt; Risks
-&amp;gt;
-&amp;gt;
-&amp;gt; Interoperability and Compatibility
-&amp;gt;
-&amp;gt; This is a well-defined specification from the W3C, so we would be
-&amp;gt; addressing some interoperability gaps instead of causing them.
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; *Gecko*: Shipped/Shipping
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; *WebKit*: Shipped/Shipping
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; *Web developers*: Strongly positive
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; *Other signals*:
-&amp;gt;
-&amp;gt;
-&amp;gt; WebView application risks
-&amp;gt;
-&amp;gt; *Does this intent deprecate or change behavior of existing APIs, such that
-&amp;gt; it has potentially high risk for Android WebView-based applications?*
-&amp;gt;
-&amp;gt;
-&amp;gt; Debuggability
-&amp;gt;
-&amp;gt; This feature is an extension of the capabilities of the CSS Grid Layout
-&amp;gt; Module, no new properties will be introduced, but a new value &amp;quot;subgrid&amp;quot;
-&amp;gt; will be introduced and properly rolled into the DevTools repository.
-&amp;gt;
-&amp;gt;
-&amp;gt; Will this feature be supported on all six Blink platforms (Windows, Mac,
-&amp;gt; Linux, Chrome OS, Android, and Android WebView)?
-&amp;gt;
-&amp;gt; Yes
-&amp;gt;
-&amp;gt;
-&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt; ?
-&amp;gt;
-&amp;gt; Yes
-&amp;gt;
-
-&lt;a  rel="nofollow" href="https://wpt.fyi/results/css/css-grid/subgrid?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/css/css-grid/subgrid?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
-has a few red spots. Are those being tracked somewhere? Any sense of their
-impact on compatibility once we say we `@supports` subgrid?
-
-
-&amp;gt;
-&amp;gt; Flag name
-&amp;gt;
-&amp;gt; LayoutNGSubgrid
-&amp;gt;
-&amp;gt;
-&amp;gt; Requires code in //chrome?
-&amp;gt;
-&amp;gt; False
-&amp;gt;
-&amp;gt;
-&amp;gt; Tracking bug
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://crbug.com/618969"&gt;https://crbug.com/618969&lt;/a&gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; Estimated milestones
-&amp;gt;
-&amp;gt; The below estimates may adjust depending on when fragmentation support and
-&amp;gt; the fixes for a couple of invalidation bugs are completed.
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; Shipping on desktop
-&amp;gt;
-&amp;gt; 116
-&amp;gt;
-&amp;gt; DevTrial on desktop
-&amp;gt;
-&amp;gt; 114
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; Shipping on Android
-&amp;gt;
-&amp;gt; 116
-&amp;gt;
-&amp;gt; DevTrial on Android
-&amp;gt;
-&amp;gt; 114
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; Shipping on iOS
-&amp;gt;
-&amp;gt; 116
-&amp;gt;
-&amp;gt; DevTrial on iOS
-&amp;gt;
-&amp;gt; 114
-&amp;gt;
-&amp;gt;
-&amp;gt; Anticipated spec changes
-&amp;gt;
-&amp;gt; The below issues require spec resolution. These ones have interop risk
-&amp;gt; depending on the resulting resolutions, but there is currently no interop
-&amp;gt; between browsers on these today. As a result, we don’t consider these to
-&amp;gt; block shipping, but we do plan to continue to drive forward resolutions:
-&amp;gt;
-&amp;gt;    - [css-grid-1] Application of grid-positioning properties to static
-&amp;gt;    position of grid children is inconsistent · Issue #7661 · w3c/csswg-drafts
-&amp;gt;    (github.com) &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/7661"&gt;https://github.com/w3c/csswg-drafts/issues/7661&lt;/a&gt;&amp;gt;
-&amp;gt;    - [css-grid-2] Honoring the specified width/height of a subgrid ·
-&amp;gt;    Issue #8966 · w3c/csswg-drafts (github.com)
-&amp;gt;    &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/8966"&gt;https://github.com/w3c/csswg-drafts/issues/8966&lt;/a&gt;&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; The below issues require spec clarification, but there is already
-&amp;gt; consensus between implementations and should not block shipping or result
-&amp;gt; in any future risk:
-&amp;gt;
-&amp;gt;    - [css-grid-2] Clamp out-of-range subgrid items before or after auto
-&amp;gt;    placement? · Issue #8494 · w3c/csswg-drafts (github.com)
-&amp;gt;    &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/8494"&gt;https://github.com/w3c/csswg-drafts/issues/8494&lt;/a&gt;&amp;gt;
-&amp;gt;    - [css-grid-2] How to properly accommodate margin/border/padding of a
-&amp;gt;    subgrid with no item on the edges · Issue #7465 · w3c/csswg-drafts
-&amp;gt;    (github.com) &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/7465"&gt;https://github.com/w3c/csswg-drafts/issues/7465&lt;/a&gt;&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5663795354533888"&gt;https://chromestatus.com/feature/5663795354533888&lt;/a&gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; Links to previous Intent discussions
-&amp;gt;
-&amp;gt; Intent to prototype:
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/MN2PR00MB06691936F5BB8575F43A9704BC569%40MN2PR00MB0669.namprd00.prod.outlook.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/MN2PR00MB06691936F5BB8575F43A9704BC569%40MN2PR00MB0669.namprd00.prod.outlook.com&lt;/a&gt;
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; This intent message was generated by Chrome Platform Status
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; --
-&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt; To view this discussion on the web visit
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CO2PR00MB02159FA23FB30A441DAC4B1FBC5BA%40CO2PR00MB0215.namprd00.prod.outlook.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CO2PR00MB02159FA23FB30A441DAC4B1FBC5BA%40CO2PR00MB0215.namprd00.prod.outlook.com&lt;/a&gt;
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CO2PR00MB02159FA23FB30A441DAC4B1FBC5BA%40CO2PR00MB0215.namprd00.prod.outlook.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CO2PR00MB02159FA23FB30A441DAC4B1FBC5BA%40CO2PR00MB0215.namprd00.prod.outlook.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt; .
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfW%2B75q%3DK82NvMQZ6eJZ%2Be%2B1WQsAM3ntmdbg4ZNh%3DAr9%3Dw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfW%2B75q%3DK82NvMQZ6eJZ%2Be%2B1WQsAM3ntmdbg4ZNh%3DAr9%3Dw%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06471.html</id>
-        <title>Re: [blink-dev] Intent to Ship: CSS Subgrid</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06471.html"/>
-        <updated>2023-06-15T06:49:34.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06471.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+CSS+Subgrid%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: CSS Subgrid&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22tkent+via+Chromestatus%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;tkent via Chromestatus&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230614" rel="nofollow"&gt;Wed, 14 Jun 2023 23:49:34 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;LGTM1. Two other browsers already shipped the feature. No doubts about shipping 
-it.&lt;/pre&gt;&lt;pre&gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/00000000000050442f05fe257879%40google.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/00000000000050442f05fe257879%40google.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06470.html</id>
-        <title>[blink-dev] Intent to Ship: CSS Subgrid</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06470.html"/>
-        <updated>2023-06-15T05:49:11.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06470.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+CSS+Subgrid%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Ship: CSS Subgrid&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Ethan+Jimenez%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Ethan Jimenez' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230614" rel="nofollow"&gt;Wed, 14 Jun 2023 22:49:11 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Contact emails
-
-etha...@microsoft.com&amp;lt;&lt;a  rel="nofollow" href="mailto:etha...@microsoft.com"&gt;mailto:etha...@microsoft.com&lt;/a&gt;&amp;gt;&lt;/pre&gt;&lt;pre&gt;
-
-Explainer
-
-None
-
-Specification
-
-&lt;a  rel="nofollow" href="https://www.w3.org/TR/css-grid-2/#subgrids"&gt;https://www.w3.org/TR/css-grid-2/#subgrids&lt;/a&gt;
-
-Design docs
-
-
-&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1cpsCmzdDlXUKtMxOUKIoJFyLH54mLVhZnam_z0PriO0/edit?usp=sharing"&gt;https://docs.google.com/document/d/1cpsCmzdDlXUKtMxOUKIoJFyLH54mLVhZnam_z0PriO0/edit?usp=sharing&lt;/a&gt;
-
-Summary
-
-Implements the CSS Grid Layout Module Level 2 specification, which introduces 
-the concept of a &amp;quot;subgrid&amp;quot; to nested grid containers.
-
-Blink component
-
-Blink&amp;gt;CSS&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS&lt;/a&gt;&amp;gt;
-
-Search tags
-
-subgrid&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:subgrid"&gt;https://chromestatus.com/features#tags:subgrid&lt;/a&gt;&amp;gt;, 
-css-grid-2&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:css-grid-2"&gt;https://chromestatus.com/features#tags:css-grid-2&lt;/a&gt;&amp;gt;, 
-css&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:css"&gt;https://chromestatus.com/features#tags:css&lt;/a&gt;&amp;gt;
-
-TAG review
-
-Review Request for CSS Subgrid * Issue #712 * w3ctag/design-reviews 
-(github.com)&amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/712"&gt;https://github.com/w3ctag/design-reviews/issues/712&lt;/a&gt;&amp;gt;
-
-TAG review status
-
-Issues addressed
-
-Risks
-
-Interoperability and Compatibility
-
-This is a well-defined specification from the W3C, so we would be addressing 
-some interoperability gaps instead of causing them.
-
-
-Gecko: Shipped/Shipping
-
-
-WebKit: Shipped/Shipping
-
-
-Web developers: Strongly positive
-
-
-Other signals:
-
-WebView application risks
-
-Does this intent deprecate or change behavior of existing APIs, such that it 
-has potentially high risk for Android WebView-based applications?
-
-Debuggability
-
-This feature is an extension of the capabilities of the CSS Grid Layout Module, 
-no new properties will be introduced, but a new value &amp;quot;subgrid&amp;quot; will be 
-introduced and properly rolled into the DevTools repository.
-
-Will this feature be supported on all six Blink platforms (Windows, Mac, Linux, 
-Chrome OS, Android, and Android WebView)?
-
-Yes
-
-Is this feature fully tested by 
-web-platform-tests&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;?
-
-Yes
-
-Flag name
-
-LayoutNGSubgrid
-
-Requires code in //chrome?
-
-False
-
-Tracking bug
-
-&lt;a  rel="nofollow" href="https://crbug.com/618969"&gt;https://crbug.com/618969&lt;/a&gt;
-
-Estimated milestones
-
-The below estimates may adjust depending on when fragmentation support and the 
-fixes for a couple of invalidation bugs are completed.
-
-
-Shipping on desktop
-
-116
-
-DevTrial on desktop
-
-114
-
-
-Shipping on Android
-
-116
-
-DevTrial on Android
-
-114
-
-
-Shipping on iOS
-
-116
-
-DevTrial on iOS
-
-114
-
-Anticipated spec changes
-
-The below issues require spec resolution. These ones have interop risk 
-depending on the resulting resolutions, but there is currently no interop 
-between browsers on these today. As a result, we don't consider these to block 
-shipping, but we do plan to continue to drive forward resolutions:
-
-  *   [css-grid-1] Application of grid-positioning properties to static 
-position of grid children is inconsistent * Issue #7661 * w3c/csswg-drafts 
-(github.com)&amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/7661"&gt;https://github.com/w3c/csswg-drafts/issues/7661&lt;/a&gt;&amp;gt;
-  *   [css-grid-2] Honoring the specified width/height of a subgrid * Issue 
-#8966 * w3c/csswg-drafts 
-(github.com)&amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/8966"&gt;https://github.com/w3c/csswg-drafts/issues/8966&lt;/a&gt;&amp;gt;
-
-
-The below issues require spec clarification, but there is already consensus 
-between implementations and should not block shipping or result in any future 
-risk:
-
-  *   [css-grid-2] Clamp out-of-range subgrid items before or after auto 
-placement? * Issue #8494 * w3c/csswg-drafts 
-(github.com)&amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/8494"&gt;https://github.com/w3c/csswg-drafts/issues/8494&lt;/a&gt;&amp;gt;
-  *   [css-grid-2] How to properly accommodate margin/border/padding of a 
-subgrid with no item on the edges * Issue #7465 * w3c/csswg-drafts 
-(github.com)&amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/7465"&gt;https://github.com/w3c/csswg-drafts/issues/7465&lt;/a&gt;&amp;gt;
-
-Link to entry on the Chrome Platform Status
-
-&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5663795354533888"&gt;https://chromestatus.com/feature/5663795354533888&lt;/a&gt;
-
-Links to previous Intent discussions
-
-Intent to prototype: 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/MN2PR00MB06691936F5BB8575F43A9704BC569%40MN2PR00MB0669.namprd00.prod.outlook.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/MN2PR00MB06691936F5BB8575F43A9704BC569%40MN2PR00MB0669.namprd00.prod.outlook.com&lt;/a&gt;
-
-
-This intent message was generated by Chrome Platform 
-Status&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CO2PR00MB02159FA23FB30A441DAC4B1FBC5BA%40CO2PR00MB0215.namprd00.prod.outlook.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CO2PR00MB02159FA23FB30A441DAC4B1FBC5BA%40CO2PR00MB0215.namprd00.prod.outlook.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06469.html</id>
-        <title>[blink-dev] Re: Intent to Prototype: Web Serial support for Bluetooth RFCOMM services</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06469.html"/>
-        <updated>2023-06-14T22:23:05.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06469.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Prototype%5C%3A+Web+Serial+support+for+Bluetooth+RFCOMM+services%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Re: Intent to Prototype: Web Serial support for Bluetooth RFCOMM services&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Ajay+Rahatekar%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Ajay Rahatekar' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230614" rel="nofollow"&gt;Wed, 14 Jun 2023 15:23:05 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Please see additional details below:
-
-Risks&lt;/pre&gt;&lt;pre&gt;
-
-Interoperability and Compatibility
-
-Web Serial API is only implemented in Chromium. Other browser vendors have 
-expressed negative views regarding the API and are unlikely to implement it.
-
-This feature will not affect compatibility in existing apps. The feature 
-only adds support for connecting to new types of devices. There are no 
-changes for currently-supported devices.
-
-
-On Tuesday, June 13, 2023 at 3:50:58 PM UTC-7 Ajay Rahatekar wrote:
-
-&amp;gt; Contact emails
-&amp;gt;
-&amp;gt; mattre...@chromium.org, melh...@chromium.org
-&amp;gt;
-&amp;gt; Explainer
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/serial/blob/main/EXPLAINER_BLUETOOTH.md"&gt;https://github.com/WICG/serial/blob/main/EXPLAINER_BLUETOOTH.md&lt;/a&gt;
-&amp;gt;
-&amp;gt; Specification
-&amp;gt;
-&amp;gt; In progress
-&amp;gt;
-&amp;gt; Summary
-&amp;gt;
-&amp;gt; Support Bluetooth RFCOMM services in the Web Serial API. The Bluetooth 
-&amp;gt; RFCOMM (Radio frequency communication) protocol provides emulated RS-232 
-&amp;gt; serial ports. This feature would enable applications to make connections to 
-&amp;gt; RFCOMM services on paired Bluetooth Classic devices using the Web Serial 
-&amp;gt; API.
-&amp;gt;
-&amp;gt; Blink component
-&amp;gt;
-&amp;gt; Blink&amp;gt;Serial 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ESerial"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ESerial&lt;/a&gt;&amp;gt;
-&amp;gt;
-&amp;gt; Motivation
-&amp;gt;
-&amp;gt; 1. Allow access to serial ports on Chrome platforms that do not map 
-&amp;gt; Bluetooth serial port services to serial device nodes (i.e. COM or /dev/*). 
-&amp;gt;
-&amp;gt; 2. Allow access to Bluetooth RFCOMM services with custom (non-standard) 
-&amp;gt; UUIDs.
-&amp;gt;
-&amp;gt; Initial public proposal
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://discourse.wicg.io/t/proposal-web-serial-api-bluetooth-support/5700"&gt;https://discourse.wicg.io/t/proposal-web-serial-api-bluetooth-support/5700&lt;/a&gt;
-&amp;gt;
-&amp;gt; TAG review
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/854"&gt;https://github.com/w3ctag/design-reviews/issues/854&lt;/a&gt;
-&amp;gt;
-&amp;gt; TAG review status
-&amp;gt;
-&amp;gt; Pending
-&amp;gt;
-&amp;gt;
-&amp;gt; Interoperability and Compatibility
-&amp;gt;
-&amp;gt; Gecko: Negative (&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/687"&gt;https://github.com/mozilla/standards-positions/issues/687&lt;/a&gt;) 
-&amp;gt; Previous thread: &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/336"&gt;https://github.com/mozilla/standards-positions/issues/336&lt;/a&gt;
-&amp;gt;
-&amp;gt; WebKit: Negative (&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/199"&gt;https://github.com/WebKit/standards-positions/issues/199&lt;/a&gt;) 
-&amp;gt; See also: &lt;a  rel="nofollow" href="https://webkit.org/tracking-prevention/"&gt;https://webkit.org/tracking-prevention/&lt;/a&gt;
-&amp;gt;
-&amp;gt; Web developers: 
-&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1043300"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1043300&lt;/a&gt;.
-&amp;gt;
-&amp;gt; Multiple Web developers have asked for this privately.
-&amp;gt;
-&amp;gt; Other signals:
-&amp;gt;
-&amp;gt; WebView application risks
-&amp;gt;
-&amp;gt; N/A
-&amp;gt;
-&amp;gt;
-&amp;gt; Debuggability
-&amp;gt;
-&amp;gt; Debuggability is identical to wired serial ports.
-&amp;gt;
-&amp;gt; Is this feature fully tested by web-platform-tests 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt; ?
-&amp;gt;
-&amp;gt; No, the majority of this extension to the API is implemented in the 
-&amp;gt; browser process (connecting to Bluetooth devices through the native 
-&amp;gt; platform APIs) and so isn’t testable with WPT. 
-&amp;gt;
-&amp;gt; Flag name
-&amp;gt;
-&amp;gt; chrome://flags#enable-bluetooth-spp-in-serial-api
-&amp;gt;
-&amp;gt; Requires code in //chrome?
-&amp;gt;
-&amp;gt; Yes, for UI and permissions management.
-&amp;gt;
-&amp;gt; Tracking bug
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1043300"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1043300&lt;/a&gt;
-&amp;gt;
-&amp;gt; Launch bug
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://launch.corp.google.com/launch/4232649"&gt;https://launch.corp.google.com/launch/4232649&lt;/a&gt;
-&amp;gt;
-&amp;gt; Estimated milestones
-&amp;gt;
-&amp;gt; For Dev Trial: M116
-&amp;gt;
-&amp;gt; For Shipping: M117
-&amp;gt;
-&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5686596809523200"&gt;https://chromestatus.com/feature/5686596809523200&lt;/a&gt;
-&amp;gt;
-&amp;gt; Links to previous Intent discussions
-&amp;gt;
-&amp;gt; Intent to Ship: Web Serial 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/RCtZPCQLLOQ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/RCtZPCQLLOQ&lt;/a&gt;&amp;gt; 
-&amp;gt;
-&amp;gt; This intent message was generated by Chrome Platform Status 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-&amp;gt;
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/353df023-9710-40f6-bec6-40ccb9656849n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/353df023-9710-40f6-bec6-40ccb9656849n%40chromium.org&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06468.html</id>
-        <title>Re: [blink-dev] Intent to Experiment: scheduler.yield()</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06468.html"/>
-        <updated>2023-06-14T22:03:18.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06468.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Experiment%5C%3A+scheduler.yield%5C%28%5C%29%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Experiment: scheduler.yield()&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Scott+Haseley%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Scott Haseley' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230614" rel="nofollow"&gt;Wed, 14 Jun 2023 15:03:18 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;On Tue, Jun 13, 2023 at 7:02 PM Domenic Denicola &amp;lt;dome...@chromium.org&amp;gt;
-wrote:&lt;/pre&gt;&lt;pre&gt;
-
-&amp;gt; Exciting stuff!!
-&amp;gt;
-&amp;gt; &amp;gt; The signal inheritance bit [1], however, would need transpilation
-&amp;gt; support to propagate the current signal across async (Promise) boundaries.
-&amp;gt;
-&amp;gt; I couldn't find where this [1] goes. I'm very interested in this general
-&amp;gt; area, and questions like whether we propagate by default or not, and how
-&amp;gt; robust the propagation is to different mechanisms (e.g., not just promises,
-&amp;gt; but other web platform callbacks as well).
-&amp;gt;
-&amp;gt; What's the latest source of information on that, either in our
-&amp;gt; implementation or in the explainer/spec? I see from the explainer there's a
-&amp;gt; non-default `signal: &amp;quot;inherit&amp;quot;`, but I couldn't find details on how &amp;quot;the
-&amp;gt; current task&amp;quot;'s priority is determined and propagated.
-&amp;gt;
-
-Ah, sorry, not sure what happened there; that was probably pointing to
-the design
-discussion section
-&amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/scheduling-apis/blob/main/explainers/yield-and-continuation.md#priority--abort-propagation-behavior"&gt;https://github.com/WICG/scheduling-apis/blob/main/explainers/yield-and-continuation.md#priority--abort-propagation-behavior&lt;/a&gt;&amp;gt;
-.
-
-It's still an open question of whether or not inheritance should be the
-default here, hoping to work that out soon. I just brain-dumped the current
-state of things in this doc
-&amp;lt;&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1rIOBBbkLh3w79hBrJ2IrZWmo5tzkVFc0spJHPE8iP-E/edit?usp=sharing"&gt;https://docs.google.com/document/d/1rIOBBbkLh3w79hBrJ2IrZWmo5tzkVFc0spJHPE8iP-E/edit?usp=sharing&lt;/a&gt;&amp;gt;,
-with details about what gets propagated and how that works, along with code
-pointers. I'm planning to begin the spec work on this soon, in parallel
-with OT.
-
-On Wed, Jun 14, 2023 at 2:53 AM Scott Haseley &amp;lt;shase...@chromium.org&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; Contact emailsshase...@chromium.org
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Explainer
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/scheduling-apis/blob/main/explainers/yield-and-continuation.md"&gt;https://github.com/WICG/scheduling-apis/blob/main/explainers/yield-and-continuation.md&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; SpecificationNone
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Summary
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Provides a method for yielding control to the browser, which can be used
-&amp;gt;&amp;gt; to break up long tasks. Awaiting the promise returned by scheduler.yield()
-&amp;gt;&amp;gt; causes the current task to yield, continuing in a new browser task. This
-&amp;gt;&amp;gt; can be used to improve responsiveness issues caused by long tasks.
-&amp;gt;&amp;gt; Continuations are prioritized to mitigate performance problems of existing
-&amp;gt;&amp;gt; alternatives.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Blink componentBlink&amp;gt;Scheduling&amp;gt;APIs
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EScheduling%3EAPIs"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EScheduling%3EAPIs&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; TAG review&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/827"&gt;https://github.com/w3ctag/design-reviews/issues/827&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; TAG review statusPending
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Risks
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Interoperability and Compatibility
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; This is a new feature and will not change existing event loop task
-&amp;gt;&amp;gt; scheduling, so the main risk is that other browsers might not implement the
-&amp;gt;&amp;gt; feature. There is an interop challenge, however, that comes with
-&amp;gt;&amp;gt; prioritization: we want to be specific enough to provide developers
-&amp;gt;&amp;gt; guarantees and interoperable implementations, but provide enough scheduling
-&amp;gt;&amp;gt; flexibility for UAs (like the HTML specification does with task
-&amp;gt;&amp;gt; sources/task queues), which we'll keep in mind while drafting the spec (see
-&amp;gt;&amp;gt; also &lt;a  rel="nofollow" href="https://github.com/WICG/scheduling-apis/issues/67"&gt;https://github.com/WICG/scheduling-apis/issues/67&lt;/a&gt;).
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Gecko*: No signal
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *WebKit*: No signal
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Web developers*: No signals
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Other signals*:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Ergonomics
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; The default use (inserting yield points in long tasks) should enable
-&amp;gt;&amp;gt; Chrome to maintain better performance (responsiveness). There is a risk of
-&amp;gt;&amp;gt; continuations starving other work, but there are reasonable mitigations,
-&amp;gt;&amp;gt; e.g. bounding total of prioritized continuations (see also
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/scheduling-apis/blob/main/explainers/yield-and-continuation.md#preventing-task-starvation-by-continuations"&gt;https://github.com/WICG/scheduling-apis/blob/main/explainers/yield-and-continuation.md#preventing-task-starvation-by-continuations&lt;/a&gt;
-&amp;gt;&amp;gt; ).
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Activation
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; The feature would benefit from a polyfill so that tasks still yield in
-&amp;gt;&amp;gt; the case the feature is unavailable. The behavior can be approximated by
-&amp;gt;&amp;gt; awaiting `scheduler.postTask()` or wrapping `setTimeout(0)` in a promise.
-&amp;gt;&amp;gt; The signal inheritance bit [1], however, would need transpilation support
-&amp;gt;&amp;gt; to propagate the current signal across async (Promise) boundaries. But
-&amp;gt;&amp;gt; developers can alternatively pass the appropriate priority/signal if
-&amp;gt;&amp;gt; necessary on browsers that don't support the feature.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Security
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; See
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/scheduling-apis/blob/main/explainers/yield-and-continuation.md#self-review-questionnaire-security-and-privacy"&gt;https://github.com/WICG/scheduling-apis/blob/main/explainers/yield-and-continuation.md#self-review-questionnaire-security-and-privacy&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; WebView application risks
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Does this intent deprecate or change behavior of existing APIs, such that
-&amp;gt;&amp;gt; it has potentially high risk for Android WebView-based applications?
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Goals for experimentation
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; The main goal is to evaluate yielding with prioritized continuations on
-&amp;gt;&amp;gt; site-specific metrics. More frequent yielding is known to improve
-&amp;gt;&amp;gt; responsiveness (should also be measured in experiments), but there's often
-&amp;gt;&amp;gt; a cost (latency) to regaining control of the thread. This API prioritizes
-&amp;gt;&amp;gt; continuations to mitigate this, and we want to measure the impact on
-&amp;gt;&amp;gt; site-specific metrics to evaluate the scheduling behavior.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Ongoing technical constraints
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; None.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Debuggability
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; This has basic new-API devtools support. We plan to work with the
-&amp;gt;&amp;gt; devtools team to see if we can integrate continuations into the performance
-&amp;gt;&amp;gt; panel in some way.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows, Mac,
-&amp;gt;&amp;gt; Linux, Chrome OS, Android, and Android WebView)?Yes
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; ?Yes
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; DevTrial instructions
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/scheduling-apis/blob/main/implementation-status.md"&gt;https://github.com/WICG/scheduling-apis/blob/main/implementation-status.md&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Flag name--enable-blink-features=SchedulerYield
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Requires code in //chrome?False
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Tracking bug&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=979020"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=979020&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Estimated milestones
-&amp;gt;&amp;gt; OriginTrial desktop last 118
-&amp;gt;&amp;gt; OriginTrial desktop first 115
-&amp;gt;&amp;gt; DevTrial on desktop 113
-&amp;gt;&amp;gt; OriginTrial Android last 118
-&amp;gt;&amp;gt; OriginTrial Android first 115
-&amp;gt;&amp;gt; DevTrial on Android 113
-&amp;gt;&amp;gt; OriginTrial webView last 118
-&amp;gt;&amp;gt; OriginTrial webView first 115
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/6266249336586240"&gt;https://chromestatus.com/feature/6266249336586240&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Links to previous Intent discussionsIntent to prototype:
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAKXGoJ1SBQP-ABM3%2BsDtKzUZiPoSCWqW2mLOjMrUfFBx4TomSw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAKXGoJ1SBQP-ABM3%2BsDtKzUZiPoSCWqW2mLOjMrUfFBx4TomSw%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt;&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt;&amp;gt; To view this discussion on the web visit
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAKXGoJ1Uj8nX5HrUT86iZ83YBj%3D6GJ4jnKZKYF3tOq%3D_twN_Yg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAKXGoJ1Uj8nX5HrUT86iZ83YBj%3D6GJ4jnKZKYF3tOq%3D_twN_Yg%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAKXGoJ1Uj8nX5HrUT86iZ83YBj%3D6GJ4jnKZKYF3tOq%3D_twN_Yg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAKXGoJ1Uj8nX5HrUT86iZ83YBj%3D6GJ4jnKZKYF3tOq%3D_twN_Yg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAKXGoJ3hrh9jN-_Xktjk4WrnicoJ0j5h3d74jx_RWK6%2BUb477A%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAKXGoJ3hrh9jN-_Xktjk4WrnicoJ0j5h3d74jx_RWK6%2BUb477A%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06467.html</id>
-        <title>Re: [blink-dev] Intent to Experiment: SoftNavigation performance entry</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06467.html"/>
-        <updated>2023-06-14T15:57:30.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06467.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Experiment%5C%3A+SoftNavigation+performance+entry%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Experiment: SoftNavigation performance entry&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Mike+Taylor%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Mike Taylor&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230614" rel="nofollow"&gt;Wed, 14 Jun 2023 08:57:30 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre style="margin: 0em;"&gt;
-LGTM to keep going until M115.
-
-On 6/14/23 3:13 AM, Yoav Weiss wrote:
-&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;tt&gt;I recently discovered that despite me asking for this to run till 
-&lt;/tt&gt;&lt;tt&gt;M113, the OT is running till M115.
-&lt;/tt&gt;&lt;tt&gt;The reason I haven't &amp;quot;renewed&amp;quot; the OT after M113 is that lined-up 
-&lt;/tt&gt;&lt;tt&gt;partners took a particularly long time to add support, which resulted 
-&lt;/tt&gt;&lt;tt&gt;in practically no-use for the OTed API (beyond a very small number of 
-&lt;/tt&gt;&lt;tt&gt;origins 
-&lt;/tt&gt;&lt;tt&gt;&amp;lt;&lt;a  rel="nofollow" href="https://docs.google.com/spreadsheets/d/1ZC-lHLLQrAmSyfiO21EbM6LAEUjeF4x8O0J-YdYeQrI/edit?usp=sharing"&gt;https://docs.google.com/spreadsheets/d/1ZC-lHLLQrAmSyfiO21EbM6LAEUjeF4x8O0J-YdYeQrI/edit?usp=sharing&lt;/a&gt;&amp;gt; - 
-&lt;/tt&gt;&lt;tt&gt;Google-only link).
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;pre&gt;&lt;/pre&gt;&lt;tt&gt;Now I'm interested in renewing the OT for M115, but wondered if the 
-&lt;/tt&gt;&lt;tt&gt;fact that the OT wasn't effectively used on M113-M114 (nor before, 
-&lt;/tt&gt;&lt;tt&gt;tbh) could be considered as a gap in the OT, and hence the renewal 
-&lt;/tt&gt;&lt;tt&gt;won't be considered as extending 
-&lt;/tt&gt;&lt;tt&gt;&amp;lt;&lt;a  rel="nofollow" href="https://www.chromium.org/blink/launching-features/#origin-trials"&gt;https://www.chromium.org/blink/launching-features/#origin-trials&lt;/a&gt;&amp;gt; 
-&lt;/tt&gt;&lt;tt&gt;beyond the 6 milestone initial limit.  Thoughts?
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-
-On Fri, Jan 6, 2023 at 11:13 AM Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt; wrote:
-
-    Update: We're bumping the experimentation from M109 to M110 (till
-    M113), to align with partner timelines (and avoid them
-    rediscovering bugs fixed in M109).
-
-    On Wed, Nov 30, 2022 at 3:16 PM Mike Taylor
-    &amp;lt;miketa...@chromium.org&amp;gt; wrote:
-
-        LGTM to experiment from M109 to M112.
-
-        On 11/30/22 9:01 AM, Yoav Weiss wrote:
-&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;
-
-
-                Contact emails
-
-        yoavwe...@chromium.org
-
-
-                Explainer
-
-
-        &lt;a  rel="nofollow" href="https://github.com/WICG/soft-navigations#soft-navigations"&gt;https://github.com/WICG/soft-navigations#soft-navigations&lt;/a&gt;
-        &amp;lt;&lt;a  rel="nofollow" href="https://bit.ly/soft-navigation"&gt;https://bit.ly/soft-navigation&lt;/a&gt;&amp;gt;
-
-
-                Specification
-
-
-        Not yet. I want to use the OT's feedback to assess the
-        solution's viability.
-
-
-                Summary
-
-        Exposes the (experimental) soft navigation heuristics
-        &amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/soft-navigations#soft-navigations"&gt;https://github.com/WICG/soft-navigations#soft-navigations&lt;/a&gt;&amp;gt;
-        to web developers, using both PerformanceObserver and the
-        performance timeline.
-
-
-                Blink component
-
-        Blink&amp;gt;PerformanceAPIs
-        
-&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EPerformanceAPIs"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EPerformanceAPIs&lt;/a&gt;&amp;gt;
-
-
-                TAG review
-
-        Not yet.
-
-
-                TAG review status
-
-        Not yet.
-
-
-                Risks
-
-
-
-                Interoperability and Compatibility
-
-
-
-        /Gecko/: No signal for now. Will file once feedback confirms
-        viability.
-
-        /WebKit/: No signal for now. Will file once feedback confirms
-        viability.
-
-        /Web developers/: Strong
-        &amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/proposals/issues/71#issuecomment-1325856231"&gt;https://github.com/WICG/proposals/issues/71#issuecomment-1325856231&lt;/a&gt;&amp;gt;
-        support
-        &amp;lt;&lt;a  rel="nofollow" href="https://twitter.com/yoavweiss/status/1575191332775026688"&gt;https://twitter.com/yoavweiss/status/1575191332775026688&lt;/a&gt;&amp;gt;!
-
-        /Other signals/:
-
-
-                WebView application risks
-
-        Does this intent deprecate or change behavior of existing
-        APIs, such that it has potentially high risk for Android
-        WebView-based applications?
-
-
-        Nope!
-
-
-
-                Goals for experimentation
-
-        I'm interested in gaining insights on the quality of the
-        heuristic and how it compares to current heuristics employed
-        by RUM providers or driven by framework- or app-specific
-        knowledge. I'm also interested in knowing if developers find
-        the correlation of various performance entries to their soft
-        navigation ergonomic, and whether the emitted FP/FCP/LCP
-        entries work well for them to evaluate the performance of
-        their soft navigations.
-
-
-
-                Reason this experiment is being extended
-
-        N/A
-
-
-
-                Ongoing technical constraints
-
-        None.
-
-
-
-                Debuggability
-
-
-
-                Will this feature be supported on all six Blink
-                platforms (Windows, Mac, Linux, Chrome OS, Android,
-                and Android WebView)?
-
-        No
-
-
-                Is this feature fully tested by web-platform-tests
-                
-&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;?
-
-        Yes
-        
-&amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/soft-navigation-heuristics?label=experimental&amp;label=master&amp;aligned&amp;view=subtest"&gt;https://wpt.fyi/results/soft-navigation-heuristics?label=experimental&amp;label=master&amp;aligned&amp;view=subtest&lt;/a&gt;&amp;gt;!
-
-
-                Flag name
-
-        SoftNavigationHeuristics
-
-
-                Requires code in //chrome?
-
-        False
-
-
-                Tracking bug
-
-        &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1338390"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1338390&lt;/a&gt;
-
-
-                Estimated milestones
-
-        OriginTrial desktop last        112
-        OriginTrial desktop first       109
-
-        OriginTrial Android last        112
-        OriginTrial Android first       109
-
-        OriginTrial webView last        112
-        OriginTrial webView first       109
-
-
-
-                Link to entry on the Chrome Platform Status
-
-        &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5144837209194496"&gt;https://chromestatus.com/feature/5144837209194496&lt;/a&gt;
-
-
-                Links to previous Intent discussions
-
-        Intent to prototype:
-        
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfV3qRFx0i-eGJFSzqE8bnbX8XYJCvXAj0LfvO0icPo_jA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfV3qRFx0i-eGJFSzqE8bnbX8XYJCvXAj0LfvO0icPo_jA%40mail.gmail.com&lt;/a&gt;
-
-
-        This intent message was generated by Chrome Platform Status
-        &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-&lt;/pre&gt;&lt;tt&gt;        -- 
-&lt;/tt&gt;&lt;tt&gt;        You received this message because you are subscribed to the
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-        Google Groups &amp;quot;blink-dev&amp;quot; group.
-        To unsubscribe from this group and stop receiving emails from
-        it, send an email to blink-dev+unsubscr...@chromium.org.
-        To view this discussion on the web visit
-        
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfUb_Gn_5gGy8SnChg5KH2JN57Gv0NhnHN7Q_kH0Aa17CQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfUb_Gn_5gGy8SnChg5KH2JN57Gv0NhnHN7Q_kH0Aa17CQ%40mail.gmail.com&lt;/a&gt;
-        
-&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfUb_Gn_5gGy8SnChg5KH2JN57Gv0NhnHN7Q_kH0Aa17CQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfUb_Gn_5gGy8SnChg5KH2JN57Gv0NhnHN7Q_kH0Aa17CQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-&lt;/pre&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;
-
---
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/5493d797-cfa3-2b84-9047-2488c2c46fb0%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/5493d797-cfa3-2b84-9047-2488c2c46fb0%40chromium.org&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
