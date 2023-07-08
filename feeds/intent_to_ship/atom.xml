@@ -5,6 +5,992 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06728.html</id>
+        <title>Re: [blink-dev] Intent to Deprecate: Deprecate unload event</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06728.html"/>
+        <updated>2023-07-07T22:55:43.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06728.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Deprecate%5C%3A+Deprecate+unload+event%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Deprecate: Deprecate unload event&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Brandon+Heenan%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Brandon Heenan' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230707" rel="nofollow"&gt;Fri, 07 Jul 2023 15:55:43 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;
+
+Hello, I'm chiming in to provide some thoughts from the enterprise 
+perspective.&lt;/pre&gt;&lt;pre&gt;
+
+Our goal is to not block forward progress to the web, but to improve the 
+web in an enterprise-friendly way. You shouldn't ever hear me say &amp;quot;you 
+can't do X because it's scary to the enterprise team.&amp;quot; You should instead 
+hear &amp;quot;We expect X to be risky, but here are the things we know we can do to 
+make it much less risky.&amp;quot;
+
+In this case, yes, this is risky for enterprises. We can say this with 
+confidence because we've seen escalations before when we've made changes to 
+unload events (crbug.com/933153,  crbug.com/953228).
+
+Kenji and Daisuke have been working with us, and my understanding of the 
+plan is to:
+
+   - 
+   
+   Allow developers to opt-in early to the new behavior (unload event 
+   ignored) with a permission policy
+   - 
+   
+   Communicate the change on chromestatus and the enterprise release notes 
+(already 
+   happening 
+   
+&amp;lt;&lt;a  rel="nofollow" href="https://support.google.com/chrome/a/answer/7679408?sjid=15316582819754370342-NA#skpUnload114"&gt;https://support.google.com/chrome/a/answer/7679408?sjid=15316582819754370342-NA#skpUnload114&lt;/a&gt;&amp;gt;).
+ 
+   We will provide a bug link for customers for feedback in a future release.
+   - 
+   
+   Reach out to enterprises and developers we expect to be affected
+   - 
+   
+   Introduce an enterprise policy to allow an IT admin to control unload 
+   event behavior
+   - 
+   
+   Introduce a flag in chrome://flags/deprecated to allow end users to 
+   control unload event behavior
+   - 
+   
+   As early as M117, change the default for the policy so that unload 
+   events will be ignored. This is the breaking change, and there's likely to 
+   be friction here. The two escalations mentioned above both resulted in 
+   respins the first time they reached this point. However, this time around, 
+   IT admins will be able to fix their environment immediately with the 
+   enterprise policy, end users will be able to fix themselves with the 
+   deprecation flag, and developers will be able to fix their app with the 
+   permission policy. With those mitigations in place, the risk of requiring a 
+   respin (or Finch rollback) due to enterprise impact is dramatically 
+   reduced, and this is how we eventually successfully shipped both of those 
+   above escalations.
+   - 
+   
+   We expect a long transition period after that. By default, the unload 
+   event is ignored, but different stakeholders are able to revert to legacy 
+   behavior. Within enterprise, we expect the enterprise policy to be the most 
+   useful mitigation, and the deprecation flag is the backup for BYOD or 
+   unmanaged devices. For the above escalations, this migration period was 
+   over a year, and I'm expecting something similar this time.
+   - 
+   
+   At some point in the future, we expect to remove those mitigations and 
+   remove support for the unload event completely. We don't have any specific 
+   dates for that yet; we will be responsive to the needs of web stakeholders, 
+   enterprise and otherwise.
+   
+The two escalations I mentioned above were successfully resolved and the 
+changes to not allow popups on page unload and to not allow synchronous 
+XHRs on page unload were shipped. Both of those changes followed 
+essentially the same plan I just laid out above, and so I think it's 
+reasonable to do the same thing here.
+
+
+On Thursday, June 29, 2023 at 7:02:06 AM UTC-7 Rick Byers wrote:
+
+&amp;gt; On Thu, Jun 29, 2023 at 1:47 AM Kenji Baheux &amp;lt;kenji...@google.com&amp;gt; wrote:
+&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; On Thu, Jun 29, 2023 at 1:48 PM Fergal Daly &amp;lt;fer...@google.com&amp;gt; wrote:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; On Thu, 29 Jun 2023 at 01:16, Rick Byers &amp;lt;rby...@chromium.org&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Hi Fergal,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Thanks for pushing through this contentious and challenging 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; deprecation. We discussed this in the API owners meeting today and were 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; worried that this plan seemed likely to be seriously problematic for 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; enterprises (policy opt-out is helpful, but far from a silver bullet 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; unfortunately). To what extent have you engaged with them and worked to 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; follow the enterprise breaking change policy 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://www.chromium.org/developers/enterprise-changes/"&gt;https://www.chromium.org/developers/enterprise-changes/&lt;/a&gt;&amp;gt;? Our hunch 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; is that at 1% or 5% we'd get escalations forcing us to abandon this plan. 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Of course, if the enterprise team is OK with it, we could always try 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; anyway 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; and see if our hunch is right. It's possible I'm over-indexing on past 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; experiences like deprecating sync XHR in unload handlers 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/LnqwTCiT9Gs/m/tO0IBO4PAwAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/LnqwTCiT9Gs/m/tO0IBO4PAwAJ&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; and that the enterprise world is different now, but I doubt it :-).
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; In addition to Daisuke's response... are you concerned about enterprises 
+&amp;gt;&amp;gt;&amp;gt; that are not using fleet management and so cannot use the opt-out? If you 
+&amp;gt;&amp;gt;&amp;gt; think an enterprise policy will not be sufficient, a mitigation for those 
+&amp;gt;&amp;gt;&amp;gt; enterprises would be for us to publish an extension that allows anyone to 
+&amp;gt;&amp;gt;&amp;gt; re-enable unload (for all sites or for specific sites) by injecting the 
+&amp;gt;&amp;gt;&amp;gt; PP:unload header. Are the escalations that can't be resolved by either a 
+&amp;gt;&amp;gt;&amp;gt; policy or extension?
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; One extra comment on the extension option (great for desktop).
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; If you wonder about the mobile BYOD scenarios, where extensions don't 
+&amp;gt;&amp;gt; exist, then we are a bit lucky here because unload is already unreliable on 
+&amp;gt;&amp;gt; mobile. So, it seems extremely unlikely that we'd see mobile enterprise/edu 
+&amp;gt;&amp;gt; products that rely on unload on mobile.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *Rick:* are there specific scenarios / environments that we haven't 
+&amp;gt;&amp;gt; covered?
+&amp;gt;&amp;gt;
+&amp;gt;
+&amp;gt; I'm glad to see the conversation with the enterprise team is further along 
+&amp;gt; than I had realized. Having skip unload events in the release notes 
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://support.google.com/chrome/a/answer/7679408?sjid=5091298988245423514-NA#skpUnloadEv113"&gt;https://support.google.com/chrome/a/answer/7679408?sjid=5091298988245423514-NA#skpUnloadEv113&lt;/a&gt;&amp;gt;
+&amp;gt;  
+&amp;gt; since M113 is a significant mitigation, sorry I wasn't caught up on the 
+&amp;gt; latest. And yes some sort of user opt-out for BYOD (extension or 
+&amp;gt; chrome::/flags, etc.) seems like an essential mitigation. I defer to the 
+&amp;gt; enterprise team's judgement here, so if they're OK with proceeding then we 
+&amp;gt; shouldn't let my enterprise fears block us. I expect we do need some easy 
+&amp;gt; way for an application to signal that it really does need unload handlers. 
+&amp;gt; Setting a permission policy is likely orders of magnitude easier than 
+&amp;gt; converting essential unload handlers to pagehide and ensuring they're safe 
+&amp;gt; to invoke multiple times.
+&amp;gt;
+&amp;gt; The other major constituency potentially impacted are ad networks. Perhaps 
+&amp;gt; the next step should be a 1% finch trial where we can measure various 
+&amp;gt; ad-related metrics? I'd defer to the judgment of the Chrome Ads team (@Josh 
+&amp;gt; Karlin).
+&amp;gt;
+&amp;gt; Anyway, I'm personally OK with 1% stable experiments (and whatever else on 
+&amp;gt; dev/beta). But I think we should discussing learnings from such 1% 
+&amp;gt; experiments here publicly before approving a plan to go beyond that.
+&amp;gt;
+&amp;gt; In general Yoav and I disagree with the WebKit and Gecko feedback here and 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; suspect that your original PP default-on proposal is far more likely to be 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; a successful deprecation path for Chrome (and, should they choose to 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; follow, Edge). I can understand why Firefox and WebKit don't have the same 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; constraints around enterprises and so would choose differently for 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; themselves. Yoav and I are happy to help in the standards discussions. I'm 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; about to go on vacation for 2 weeks but Yoav said he'd follow up with you 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; privately to brainstorm next steps. Sound good?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; I would love to get moving on PP:unload ASAP no matter what. It's been 
+&amp;gt;&amp;gt;&amp;gt; through OT and is sitting behind a flag with some sites eager to use it. 
+&amp;gt;&amp;gt;&amp;gt; I'm happy to send an I2S for that while we discuss the harder problem. We 
+&amp;gt;&amp;gt;&amp;gt; hope that getting that out there can clear out a large chunk of the 1st- 
+&amp;gt;&amp;gt;&amp;gt; and 3rd-party unload usage,
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; +1, I'd suggest doing that regardless.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; There are a few large sites that have done some legwork on 
+&amp;gt;&amp;gt; unload handlers (theirs and third party partners), and are interested in 
+&amp;gt;&amp;gt; pushing the remaining unload handlers out with PP:unload. Having allies in 
+&amp;gt;&amp;gt; the ecosystem (i.e. extra incentives to migrate), will be helpful going 
+&amp;gt;&amp;gt; forward :)
+&amp;gt;&amp;gt;
+&amp;gt;
+&amp;gt; Yep I think this was Yoav and my primary concern. For chrome to have a 
+&amp;gt; pragmatic and reasonable deprecation path given our user base, we really 
+&amp;gt; need sites adopting such an API. If we're not going to actually ship such 
+&amp;gt; an API then I think we'd have to give up on deprecating unload. I'd support 
+&amp;gt; shipping this API despite the lack of support from WebKit and Gecko. 
+&amp;gt;  
+&amp;gt;
+&amp;gt;&amp;gt; F
+&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Rick
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Wed, Jun 28, 2023 at 4:07 AM Fergal Daly &amp;lt;fer...@google.com&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Hi API-owners,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I am now asking for permission to go ahead with the following concrete 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; unload deprecation plan below.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    - 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    Tools and outreach
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    - 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       M115 Enable `Permission-Policy: unload` (PP:unload) with the 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       default being enabled. This allows sites to opt-in to unload 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; deprecation.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       - 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       Outreach to 1st/3rd parties, to migrate away from using unload 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       and to enforce this with PP:unload.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       - 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    Deprecation
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    - 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       M117 change the default for PP:unload so that unload handlers 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       are skipped by default for 1% of page loads
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       - 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       M118 increase to 5% of page loads
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       - 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       M119 (last of 2023) increase to 10% of page loads
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       - 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       Evaluate progress on reduction of the use of unload
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       - 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       M120-128 increase +10% gradually to 100% of page loads
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Enterprise policy would allow opt-out entirely.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Obviously, the deprecation timeline is contingent on unload usage 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; coming down in response to the earlier steps.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; We expect that 10% of page loads will provide a noticeable signal to 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; sites that use unload. Also, if we were to just follow the current spec 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; and 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; not run unload when we can BFCache (as happens on Clank/Firefox mobile 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; and 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; all WebKit) we expect that we would skip 30-40% of unload handlers when 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; main frame navigates.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Decisions:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    - 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    Timeline
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    - 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    All navigations vs main-frame navigations only
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Standardising
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; We have some new data and have had some further discussions with 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; browser vendors. There's no consensus. TL;DR WebKit are opposed to any 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Permissions-Policy but support removing unload eventually. Mozilla are 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; still discussing.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Both Mozilla 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/691"&gt;https://github.com/mozilla/standards-positions/issues/691&lt;/a&gt;&amp;gt; and WebKit 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/127"&gt;https://github.com/WebKit/standards-positions/issues/127&lt;/a&gt;&amp;gt; were 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; opposed to standardising `Permissions-Policy: unload` (defaulting to on) 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; because they worried that a containing frame might selectively disable 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; unload handlers in a child frame for malicious purposes (no specific 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; cases 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; were discussed).
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; So we flipped to the idea of having PP:unload with the default being 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; disabled. We cannot suddenly do that. We need to roll it out gradually. 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; WebKit folks are opposed to this and have suggested 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/200#issuecomment-1596385073"&gt;https://github.com/WebKit/standards-positions/issues/200#issuecomment-1596385073&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; we do a reverse origin trial instead. If our plan works out, eventually 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; we 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; would ROT as the final nail but ROT starting now has downsides for users 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; and sites and no upside for the implementer.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Mozilla has so far not been negative 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/691"&gt;https://github.com/mozilla/standards-positions/issues/691&lt;/a&gt;&amp;gt; on the 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Permissions-Policy off-by-default approach but they are still discussing. 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; They are concerned that disabling unloads when subframes are navigating 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; could be a problem. We found that about 1/4 of subframe navigations 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; involve 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; an `unload` handler (most seem to involve handlers in cross-site and 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; same-site site frames). We don't have examples of sites that rely on 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; `unload` handlers in this way, although they probably do exist. Migrating 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to `pageshow` or using PP:unload for these sites should be trivial.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; We have the option to say that PP:unload only applies to main frame 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; navigations. This would mean these sites would be completely unaffected 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; however that has some downsides. It is harder to explain and does not end 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; with full removal of `unload`. We would prefer to have this apply to all 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; navigations unless we find a good reason not to. If we were to change 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; part-way, there would be no breakage. We hope that once we drive down 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; usage 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; in 3rd-part iframes with PP:unload that the number of unload handlers 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; running in subframe navigations decreases significantly.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Finally there was some discussion 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/webappsec-permissions-policy/issues/513#issuecomment-1564361739"&gt;https://github.com/w3c/webappsec-permissions-policy/issues/513#issuecomment-1564361739&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; about how Permissions-Policy off-by-default should work. Our current 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; version requires every page to set the header and every parent to set the 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; iframe `allow` attribute. This is maximally conservative. If at some 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; point 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; later on there is agreement to standardise on something less 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; conservative, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; it will not break pages that have already re-enabled `unload`.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Overall it seems hard to standardise in advance but if we succeed in 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; driving down `unload` usage, other browsers are on-board with removing 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; unload. The worst case scenario would be where we implement PP:unload 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (which the others do not agree with) but make no noticeable progress on 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; `unload` usage. If that happens we can just go with the currently specced 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; behaviour (don't run `unload` if BFCaching is possible) and maybe revert 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the PP:unload,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; F
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Tue, 9 May 2023 at 16:01, Fergal Daly &amp;lt;fer...@google.com&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Mon, 8 May 2023 at 17:51, Rick Byers &amp;lt;rby...@chromium.org&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Hi Fergal,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; It's exciting to see this moving forward! Just to clarify, this is 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; effectively an I2S for the unload permissions-policy, is that right? Or 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; are 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; you also requesting permission to stop firing unload events now too?  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; The 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; latter is going to require some significant compat analysis, but could 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; be 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; greatly informed by the experience of having some top-level sites 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; opt-out 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; of unload for their frame tree.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Thanks.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; We're not requesting permission to stop firing at this point. It is 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the far-away end-point. 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Any plan to trigger a deprecation warning / report for the 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; installation of unload handlers? It might be tricky to find a good 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; balance 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; of useful warnings without being too spammy.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Permission policy will do this as is with a console warning and 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Reporting-API if you attempt to install a handler that is disallowed by 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; policy.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; A couple more questions / comments inline:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Mon, May 8, 2023 at 7:43 AM Fergal Daly &amp;lt;fer...@chromium.org&amp;gt; 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Contact emails
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; fer...@chromium.org, kenji...@chromium.org
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Explainer
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/fergald/docs/blob/master/explainers/permissions-policy-deprecate-unload.md"&gt;https://github.com/fergald/docs/blob/master/explainers/permissions-policy-deprecate-unload.md&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Specification
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/whatwg/html/pull/7915"&gt;https://github.com/whatwg/html/pull/7915&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; This is still marked as draft. Can you get this ready for review? If 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; it's blocked only on having a 2nd implementor show support, then I'd be 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; fine shipping based on a PR. But we should at least do what we can to 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; solicit feedback on the spec change prior to shipping.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Yes. There's nothing in the spec change that isn't in the requests 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; for positions but since neither of those are supportive yet, I have not 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; asked for review of the PR. I'm hopeful that once we have data on use on 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; unload in subframe navigations as discussed here 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/691#issuecomment-1484997320"&gt;https://github.com/mozilla/standards-positions/issues/691#issuecomment-1484997320&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  that 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Mozilla will be supportive. Those metrics are in 113 but based on the 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; data 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; from beta, we need to change how we record them.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Summary
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; A Permission-Policy for creating unload event listeners will be 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; added. 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Initially, the default policy will be set to allow. From there, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Chrome will gradually migrate the default policy to deny (i.e. 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; increasingly disallow the creation of unload event listeners, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; eventually 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; reaching a state where deny fully becomes the default policy). The 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ultimate goal is to remove support for unload event.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink component
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink&amp;gt;PermissionsAPI 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EPermissionsAPI"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EPermissionsAPI&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Motivation
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; The unload event is extremely unreliable. It is ignored in most 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; cases by all mobile browsers except Firefox on Android. Furthermore, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; in 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Safari, the unload event is ignored on both desktop &amp; mobile platforms.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; In the current state, unload is a major BFCache blocker (~18 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; percentage points reduction of hit rate for Chrome).
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; The change  will unlock a large fraction of that hit-rate while 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; providing an opt-out for those who need more time to migrate. It also 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; sends 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; a clear signal that unload should not be used in new development.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Sidenote: the spec was changed to say that unload should only run 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; if the page cannot enter BFCache, which reflects Safari’s behavior, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; However 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; neither Chrome nor Mozilla have implemented this behavior. In Chrome's 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; case, we believe that this would suddenly break various sites and 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; would 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; make it hard for developers to know if/when unload may run.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Initial public proposal
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/738"&gt;https://github.com/w3ctag/design-reviews/issues/738&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review status
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Pending
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Risks
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Interoperability and Compatibility
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; If no other browsers implement this, there is a risk that devs 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; continue to use unload widely and pages malfunction on chrome. However 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; given that alternatives to unload exist it seems entirely possible for 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; sites that are actively maintained to move off unload.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Gecko: (
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/691#issuecomment-1484997320"&gt;https://github.com/mozilla/standards-positions/issues/691#issuecomment-1484997320&lt;/a&gt;)
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; It's possible that pages are depending on `unload` handlers in 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; subframes 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; for functionality even without any main frame navigation. We should 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; try to 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; understand how common this is before breaking it. It should be 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; possible to 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; measure how often subframe unloads fire when the mainframe is not 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; navigating. This will give us an upper bound on the size of the 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; problem, - 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Chrome: we have landed code to measure the occurrence of unload in 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; different scenarios. We will report back the findings.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; WebKit: &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/127"&gt;https://github.com/WebKit/standards-positions/issues/127&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; From a quick skim, it sounds like WebKit is already happy with their 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; tradeoff of not firing unload and doesn't see a need for an API that 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; reduces unload further, is that about right? WebKit has mostly shipped 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; heuristics here without trying to spec them first, right? In general 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I'm 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; not too concerned 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Yes, there's no great upside for them. I believe the situation as 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; specced where unload is unpredictable and likely biased is bad for devs 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; and 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; is probably skewing data collected via WebKit (and Chrome/Mozilla 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; mobile) 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; but nobody is complaining.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I believe there was support expressed offline for the prospect of 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; killing off unload.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Web developers: Positive (
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/bfcache-dev/c/zTIMx7u4uxo/m/-M4IS6LDBgAJ"&gt;https://groups.google.com/a/chromium.org/g/bfcache-dev/c/zTIMx7u4uxo/m/-M4IS6LDBgAJ&lt;/a&gt;)
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; The web communities we reached out had positive reactions to our 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; proposal 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; and we have not heard about any concrete blockers.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Other signals:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; WebView application risks
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Does this intent deprecate or change behavior of existing APIs, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; such that it has potentially high risk for Android WebView-based 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; applications?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On WebView, we will introduce the Permissions-Policy but not move 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the default to &amp;quot;deny&amp;quot;. BFCache does not work on WebView, so the 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; benefit is 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; lower. Meanwhile the risk seems higher as we have far less visibility 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; into 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the HTML being run in WebViews. A roll-out to WebView should be done 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; independently and in consultation with the WebView team.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Sounds like the right strategy to me, thanks! 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Debuggability
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Yes
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Flag name
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Please put the new policy behind a RuntimeEnabledFeature 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/third_party/blink/renderer/platform/RuntimeEnabledFeatures.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/third_party/blink/renderer/platform/RuntimeEnabledFeatures.md&lt;/a&gt;&amp;gt;.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; It's effectively a new API so is required 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/flag_guarding_guidelines.md#When-is-a-flag-required"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/flag_guarding_guidelines.md#When-is-a-flag-required&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to have a finch killswitch. It sounds to me like it should be unlikely 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; that 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; simply adding the new policy could break things, but maybe some 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; scenario is 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; possible where we decide breakage in 3p iframes is bad enough to 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; warrant an 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; emergency fix?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Yes, there will be a flag, maybe more than one. The implementation 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; details of rolling this out gradually have not been worked out. See 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; below.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Requires code in //chrome?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; False
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Estimated milestones
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; M115 for availability of Permissions-Policy
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; M115 is the earliest we would start to disable unload, however 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is this a typo? Or are you considering disabling the event in the 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; same release we first make the permissions policy available?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; The plan is to make the PP available with a default of enabled and 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; then gradually flip the default to disabled. The details are here 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/fergald/docs/blob/master/explainers/permissions-policy-deprecate-unload.md#logistics-of-deprecation"&gt;https://github.com/fergald/docs/blob/master/explainers/permissions-policy-deprecate-unload.md#logistics-of-deprecation&lt;/a&gt;&amp;gt;.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; It's not particularly nice. We have the option to just stop 100% but 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; that 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; seems fairly disruptive,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; F
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5579556305502208"&gt;https://chromestatus.com/feature/5579556305502208&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; -- 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; send an email to blink-dev+...@chromium.org.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAozHLm7CR6EeL2KmBFyFpYT%3DNPXmTg4roLKV%3D7dRcCE%2BOoGwg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAozHLm7CR6EeL2KmBFyFpYT%3DNPXmTg4roLKV%3D7dRcCE%2BOoGwg%40mail.gmail.com&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAozHLm7CR6EeL2KmBFyFpYT%3DNPXmTg4roLKV%3D7dRcCE%2BOoGwg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAozHLm7CR6EeL2KmBFyFpYT%3DNPXmTg4roLKV%3D7dRcCE%2BOoGwg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; -- 
+&amp;gt;&amp;gt; Kenji BAHEUX (my how-to &amp;lt;&lt;a  rel="nofollow" href="http://balance/kenjibaheux"&gt;http://balance/kenjibaheux&lt;/a&gt;&amp;gt;)
+&amp;gt;&amp;gt; Product Manager - Chrome
+&amp;gt;&amp;gt; Google Japan
+&amp;gt;&amp;gt;
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/d955dd04-7aac-462a-bd85-d69df8d7d86bn%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/d955dd04-7aac-462a-bd85-d69df8d7d86bn%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06727.html</id>
+        <title>Re: [blink-dev] Intent to Prototype: CSS font-variant-emoji</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06727.html"/>
+        <updated>2023-07-07T22:03:16.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06727.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Prototype%5C%3A+CSS+font%5C-variant%5C-emoji%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Prototype: CSS font-variant-emoji&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22ChangSeok+Oh%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;ChangSeok Oh&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230707" rel="nofollow"&gt;Fri, 07 Jul 2023 15:03:16 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;&amp;gt; How so?
+
+Sorry, what is your question?&lt;/pre&gt;&lt;pre&gt;
+
+If you were asking why the TAG review status was Not applicable, I have no 
+idea. That is the default text for unanswered slots at chromestatus.com. 
+Gecko implemented this feature first, so they might try the TAG review. I 
+cannot find the pointer, unfortunately.
+
+On Friday, July 7, 2023 at 5:42:54 AM UTC-7 Sangwhan Moon wrote:
+
+&amp;gt;
+&amp;gt;
+&amp;gt; On 2023年07月06日 19時02分40秒 (+09:00), ChangSeok Oh wrote:
+&amp;gt;
+&amp;gt; *Contact emails*
+&amp;gt; changs...@bytedance.com, shiva...@gmail.com
+&amp;gt;
+&amp;gt; *Explainer*
+&amp;gt; None
+&amp;gt;
+&amp;gt; *Specification*
+&amp;gt; &lt;a  rel="nofollow" href="https://www.w3.org/TR/css-fonts-4/#font-variant-emoji-prop"&gt;https://www.w3.org/TR/css-fonts-4/#font-variant-emoji-prop&lt;/a&gt;
+&amp;gt;
+&amp;gt; *Summary*
+&amp;gt; The CSS property font-variant-emoji determines the default style used to 
+&amp;gt; display emojis. In the past, this was achieved by adding a Variation 
+&amp;gt; Selector, specifically U+FE0E for text and U+FE0F for emojis, to the 
+&amp;gt; emoji's code point. However, font-variant-emoji allows web developers to 
+&amp;gt; select the emoji representation via keywords: normal, text, emoji, and 
+&amp;gt; unicode. This property only affects emojis that are part of a Unicode emoji 
+&amp;gt; presentation sequence [1].
+&amp;gt;
+&amp;gt; [1] &lt;a  rel="nofollow" href="http://www.unicode.org/emoji/charts/emoji-variants.html"&gt;http://www.unicode.org/emoji/charts/emoji-variants.html&lt;/a&gt;
+&amp;gt;
+&amp;gt; *Blink component*
+&amp;gt; Blink&amp;gt;Fonts&amp;gt;Emoji
+&amp;gt;
+&amp;gt; *Motivation*
+&amp;gt; Font-variant-emoji helps web developers control representation types of 
+&amp;gt; emoji (e.g., text, emoji, Unicode, etc.) via CSS. That is more 
+&amp;gt; straightforward and explainable than embedding vague code sequences into 
+&amp;gt; the content.
+&amp;gt;
+&amp;gt; *Initial public proposal*
+&amp;gt; None
+&amp;gt;
+&amp;gt; *TAG review*
+&amp;gt; None
+&amp;gt;
+&amp;gt; *TAG review status*
+&amp;gt; Not applicable
+&amp;gt;
+&amp;gt;
+&amp;gt; How so?
+&amp;gt;
+&amp;gt;
+&amp;gt;
+&amp;gt; *Risks*
+&amp;gt;
+&amp;gt;     *Interoperability and Compatibility*
+&amp;gt;
+&amp;gt;     *Gecko*: Positive (
+&amp;gt; &lt;a  rel="nofollow" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1461589"&gt;https://bugzilla.mozilla.org/show_bug.cgi?id=1461589&lt;/a&gt;)
+&amp;gt;
+&amp;gt;     *WebKit*: In development (
+&amp;gt; &lt;a  rel="nofollow" href="https://bugs.webkit.org/show_bug.cgi?id=246911"&gt;https://bugs.webkit.org/show_bug.cgi?id=246911&lt;/a&gt;)
+&amp;gt;
+&amp;gt;     Web developers: No signals
+&amp;gt;
+&amp;gt;     Other signals:
+&amp;gt;
+&amp;gt;     *WebView application risks*
+&amp;gt;     Does this intent deprecate or change behavior of existing APIs, such 
+&amp;gt; that it has potentially high risk for Android WebView-based applications?
+&amp;gt;     None
+&amp;gt;
+&amp;gt;
+&amp;gt; *Debuggability*
+&amp;gt;
+&amp;gt; *Is this feature fully tested by web-platform-tests?*
+&amp;gt; Yes
+&amp;gt;
+&amp;gt; *Flag name on chrome://flags*
+&amp;gt; To be decided
+&amp;gt;
+&amp;gt; *Finch feature name*
+&amp;gt; None
+&amp;gt;
+&amp;gt; *Non-finch justification*
+&amp;gt; None
+&amp;gt;
+&amp;gt; *Requires code in //chrome?*
+&amp;gt; False
+&amp;gt;
+&amp;gt; *Tracking bug*
+&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1379029"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1379029&lt;/a&gt;
+&amp;gt;
+&amp;gt; *Estimated milestones*
+&amp;gt; No milestones specified
+&amp;gt;
+&amp;gt; *Link to entry on the Chrome Platform Status*
+&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/6566092561973248"&gt;https://chromestatus.com/feature/6566092561973248&lt;/a&gt;
+&amp;gt;
+&amp;gt; *Links to previous Intent discussions*
+&amp;gt; None
+&amp;gt;
+&amp;gt; This intent message was generated by Chrome Platform Status.
+&amp;gt;
+&amp;gt; -- 
+&amp;gt;
+&amp;gt; You received this message because you are subscribed to the Google Groups 
+&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an 
+&amp;gt; email to blink-dev+...@chromium.org.
+&amp;gt; To view this discussion on the web visit 
+&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/fbd14799-408d-4405-8db3-82cdaa7678b6n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/fbd14799-408d-4405-8db3-82cdaa7678b6n%40chromium.org&lt;/a&gt;
+&amp;gt;  
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/fbd14799-408d-4405-8db3-82cdaa7678b6n%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/fbd14799-408d-4405-8db3-82cdaa7678b6n%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt; .
+&amp;gt;
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/5ad21289-1efe-432c-a5f5-a1b17abec457n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/5ad21289-1efe-432c-a5f5-a1b17abec457n%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06726.html</id>
+        <title>Re: [blink-dev] Intent to Prototype: CSS font-variant-emoji</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06726.html"/>
+        <updated>2023-07-07T21:59:55.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06726.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Prototype%5C%3A+CSS+font%5C-variant%5C-emoji%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Prototype: CSS font-variant-emoji&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22ChangSeok+Oh%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;ChangSeok Oh&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230707" rel="nofollow"&gt;Fri, 07 Jul 2023 14:59:55 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Hi Dominik,
+
+I see your concern and agree that font-variant-emoji does not help the 
+representation problem caused by missing glyphs of the used font. However, 
+in my view, the coverage issue is orthogonal to this CSS property and 
+beyond the scope of what we can benefit from font-variant-emoji.&lt;/pre&gt;&lt;pre&gt;
+
+My intention to achieve via font-variant-emoji is the inconsistent and 
+unexpected representation issues in the web application layer under the 
+assumption that the necessary emojis are supported. So, I do not aim at 
+bundling emoji fonts into Chromium binary.
+
+As Nolan said in his article, font-variant-emoji can address unexpectedly 
+displayed emoji issues [1]. I quote his text related to that figure.
+the “smiley face” should be rendered as emoji, but the numbers 0-9 and 
+symbols like * and # should not.
+
+Of course, web developers can address such representation issues by 
+prefixing variation selectors to emojis, but it causes a copy-paste churn 
+and a CSS hack thereof [2]. I think font-variant-emoji would be helpful 
+here in addressing those problems.
+
+I hope my answer was clear about the motivation and goal.
+
+Best,
+
+[1] 
+&lt;a  rel="nofollow" href="https://nolanwlawson.files.wordpress.com/2022/04/screenshot-from-2022-04-03-14-15-35.png"&gt;https://nolanwlawson.files.wordpress.com/2022/04/screenshot-from-2022-04-03-14-15-35.png&lt;/a&gt;
+ 
+ 
+[2] 
+&lt;a  rel="nofollow" href="https://stackoverflow.com/questions/64172221/change-the-presentation-of-emojis-to-be-plain-text-like-with-css"&gt;https://stackoverflow.com/questions/64172221/change-the-presentation-of-emojis-to-be-plain-text-like-with-css&lt;/a&gt;
+--
+ChangSeok
+
+On Thursday, July 6, 2023 at 5:47:24 AM UTC-7 dr...@google.com wrote:
+
+&amp;gt; Hi ChangSeok,
+&amp;gt;
+&amp;gt; Could you explain a bit further what the intended outcome of this 
+&amp;gt; prototyping will be? From my experience, incorrect presentation style 
+&amp;gt; (text/emoji) for emoji is more often a problem of font availability and 
+&amp;gt; glyph coverage than it is a problem of controlling the representation. I am 
+&amp;gt; not convinced the font-variant-emoji property solves this problem on its 
+&amp;gt; own. It's true that the property is an alternative for variation selectors 
+&amp;gt; (which are not vague). But once the presentation style is specified, 
+&amp;gt; finding a correct font, in particular for text presentation of symbols, is 
+&amp;gt; often the more fundamental problem. The latter would require solving to 
+&amp;gt; always succeed in selecting alternative presentation forms. One solution 
+&amp;gt; approach is to ship Noto Color Emoji and Noto Emoji, or somehow make them 
+&amp;gt; available to Chrome on each platform - but that has not been done yet, as 
+&amp;gt; we likely can't grow the Chrome binary by that much. 
+&amp;gt;
+&amp;gt; Can you describe at which level in the stack do you plan to operate here, 
+&amp;gt; and which problem you're solving?
+&amp;gt;
+&amp;gt; Dominik
+&amp;gt;
+&amp;gt;
+&amp;gt; On Thu, Jul 6, 2023 at 1:02 PM ChangSeok Oh &amp;lt;shiva...@gmail.com&amp;gt; wrote:
+&amp;gt;
+&amp;gt;&amp;gt; *Contact emails*
+&amp;gt;&amp;gt; changs...@bytedance.com, shiva...@gmail.com
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *Explainer*
+&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *Specification*
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://www.w3.org/TR/css-fonts-4/#font-variant-emoji-prop"&gt;https://www.w3.org/TR/css-fonts-4/#font-variant-emoji-prop&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *Summary*
+&amp;gt;&amp;gt; The CSS property font-variant-emoji determines the default style used to 
+&amp;gt;&amp;gt; display emojis. In the past, this was achieved by adding a Variation 
+&amp;gt;&amp;gt; Selector, specifically U+FE0E for text and U+FE0F for emojis, to the 
+&amp;gt;&amp;gt; emoji's code point. However, font-variant-emoji allows web developers to 
+&amp;gt;&amp;gt; select the emoji representation via keywords: normal, text, emoji, and 
+&amp;gt;&amp;gt; unicode. This property only affects emojis that are part of a Unicode emoji 
+&amp;gt;&amp;gt; presentation sequence [1].
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; [1] &lt;a  rel="nofollow" href="http://www.unicode.org/emoji/charts/emoji-variants.html"&gt;http://www.unicode.org/emoji/charts/emoji-variants.html&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *Blink component*
+&amp;gt;&amp;gt; Blink&amp;gt;Fonts&amp;gt;Emoji
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *Motivation*
+&amp;gt;&amp;gt; Font-variant-emoji helps web developers control representation types of 
+&amp;gt;&amp;gt; emoji (e.g., text, emoji, Unicode, etc.) via CSS. That is more 
+&amp;gt;&amp;gt; straightforward and explainable than embedding vague code sequences into 
+&amp;gt;&amp;gt; the content.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *Initial public proposal*
+&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *TAG review*
+&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *TAG review status*
+&amp;gt;&amp;gt; Not applicable
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *Risks*
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;     *Interoperability and Compatibility*
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;     *Gecko*: Positive (
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1461589"&gt;https://bugzilla.mozilla.org/show_bug.cgi?id=1461589&lt;/a&gt;)
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;     *WebKit*: In development (
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.webkit.org/show_bug.cgi?id=246911"&gt;https://bugs.webkit.org/show_bug.cgi?id=246911&lt;/a&gt;)
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;     Web developers: No signals
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;     Other signals:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;     *WebView application risks*
+&amp;gt;&amp;gt;     Does this intent deprecate or change behavior of existing APIs, such 
+&amp;gt;&amp;gt; that it has potentially high risk for Android WebView-based applications?
+&amp;gt;&amp;gt;     None
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *Debuggability*
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *Is this feature fully tested by web-platform-tests?*
+&amp;gt;&amp;gt; Yes
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *Flag name on chrome://flags*
+&amp;gt;&amp;gt; To be decided
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *Finch feature name*
+&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *Non-finch justification*
+&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *Requires code in //chrome?*
+&amp;gt;&amp;gt; False
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *Tracking bug*
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1379029"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1379029&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *Estimated milestones*
+&amp;gt;&amp;gt; No milestones specified
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *Link to entry on the Chrome Platform Status*
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/6566092561973248"&gt;https://chromestatus.com/feature/6566092561973248&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *Links to previous Intent discussions*
+&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; -- 
+&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups 
+&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an 
+&amp;gt;&amp;gt; email to blink-dev+...@chromium.org.
+&amp;gt;&amp;gt; To view this discussion on the web visit 
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/fbd14799-408d-4405-8db3-82cdaa7678b6n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/fbd14799-408d-4405-8db3-82cdaa7678b6n%40chromium.org&lt;/a&gt;
+&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/fbd14799-408d-4405-8db3-82cdaa7678b6n%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/fbd14799-408d-4405-8db3-82cdaa7678b6n%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/96f87f47-d1a0-48aa-a9a5-5338430d6ba8n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/96f87f47-d1a0-48aa-a9a5-5338430d6ba8n%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06725.html</id>
         <title>Re: [blink-dev] Intent to Ship: Inherit Base URL snapshot for about:blank and about:srcdoc, with about:blank inheriting from initiator, not parent.</title>
         <author>
@@ -10626,744 +11612,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABQTWr%3D1ROXvBN-k6trfMvLpnE74avuc4WtmyZRrAuOHdh0zNQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABQTWr%3D1ROXvBN-k6trfMvLpnE74avuc4WtmyZRrAuOHdh0zNQ%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06678.html</id>
-        <title>Re: [blink-dev] Intent to Ship: Permissions-Policy: unload</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06678.html"/>
-        <updated>2023-06-30T14:17:28.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06678.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Permissions%5C-Policy%5C%3A+unload%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Permissions-Policy: unload&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Mike+Taylor%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Mike Taylor&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230630" rel="nofollow"&gt;Fri, 30 Jun 2023 07:17:28 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre style="margin: 0em;"&gt;
-LGTM3
-
-On 6/30/23 9:10 PM, Rick Byers wrote:
-&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;
-LGTM2&lt;/pre&gt;&lt;pre&gt;&lt;/pre&gt;&lt;tt&gt;In addition to Yoav's comments I'll also add that it makes sense to me 
-&lt;/tt&gt;&lt;tt&gt;if WebKit and Gecko don't want this. They each have a lot more 
-&lt;/tt&gt;&lt;tt&gt;flexibility in how they avoid unload handlers, and WebKit already just 
-&lt;/tt&gt;&lt;tt&gt;doesn't fire them when they don't want to. Chromium's enterprise 
-&lt;/tt&gt;&lt;tt&gt;customer base means we need to take a more careful and measured 
-&lt;/tt&gt;&lt;tt&gt;approach to reducing reliance on unload handlers, and given the 
-&lt;/tt&gt;&lt;tt&gt;positive experience we've heard from partners for this feature in OT, 
-&lt;/tt&gt;&lt;tt&gt;I think we must ship it despite the lack of alignment with other engines.
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;tt&gt;Ideally we succeed in deprecating unload over the next few years then 
-&lt;/tt&gt;&lt;tt&gt;we can delete this policy. The important thing for long-term Interop 
-&lt;/tt&gt;&lt;tt&gt;risk is that the engines are aligned on wanting to deprecate unload. 
-&lt;/tt&gt;&lt;tt&gt;We just aren't aligned on the most effective path for doing so in our 
-&lt;/tt&gt;&lt;tt&gt;respective environments.
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-
-On Fri, Jun 30, 2023, 3:51 a.m. Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt; wrote:
-
-    LGTM1
-
-    On Fri, Jun 30, 2023 at 9:27 AM 'Fergal Daly' via blink-dev
-    &amp;lt;blink-dev@chromium.org&amp;gt; wrote:
-
-
-                Contact emails
-
-
-                fer...@chromium.org, kenjibah...@chromium.org
-
-
-                Explainer
-
-
-                
-&lt;a  rel="nofollow" href="https://github.com/fergald/docs/blob/master/explainers/permissions-policy-unload.md"&gt;https://github.com/fergald/docs/blob/master/explainers/permissions-policy-unload.md&lt;/a&gt;
-
-
-                Specification
-
-
-                &lt;a  rel="nofollow" href="https://github.com/whatwg/html/pull/7915"&gt;https://github.com/whatwg/html/pull/7915&lt;/a&gt;
-
-
-    IMO, it's fine to approve this based on this PR, even if it hasn't
-    landed yet, given the browser positions below.
-
-
-
-
-                Design docs
-
-
-
-                
-&lt;a  rel="nofollow" href="https://github.com/fergald/docs/blob/master/explainers/permissions-policy-unload.md"&gt;https://github.com/fergald/docs/blob/master/explainers/permissions-policy-unload.md&lt;/a&gt;
-
-
-                Summary
-
-
-                This feature allows pages to disable the running of
-                unload event handlers. The goals are: - allow sites
-                that have removed all unload handlers to not regress
-                (i.e. accidentally adding new ones) - allow sites to
-                “remove” (skip) unload handlers (e.g. if updating the
-                code is infeasible, or if they have nondeterministic
-                chains of third parties and would rather not risk the
-                BFCache benefits over unload handlers in third party
-                code). Unload event handlers are problematic for
-                various reasons and prevent use of BFCache on Desktop
-                (see
-                &lt;a  rel="nofollow" href="https://web.dev/bfcache/#never-use-the-unload-event"&gt;https://web.dev/bfcache/#never-use-the-unload-event&lt;/a&gt;).
-                This is the first step to deprecating and removing
-                unload handlers.
-
-
-
-                Blink component
-
-
-                Blink&amp;gt;PermissionsAPI
-                
-&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EPermissionsAPI"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EPermissionsAPI&lt;/a&gt;&amp;gt;
-
-
-                TAG review
-
-
-                &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/738"&gt;https://github.com/w3ctag/design-reviews/issues/738&lt;/a&gt;
-
-
-                TAG review status
-
-
-                Pending
-
-
-                Risks
-
-
-
-
-                Interoperability and Compatibility
-
-
-                3rd-party frames that rely on unload may not work as
-                expected when navigating away. This is solvable by the
-                frame authors by use of alternatives to unload and is
-                unlikely to impact users. See detailed discussion.
-                
-&lt;a  rel="nofollow" href="https://github.com/fergald/docs/blob/master/explainers/permissions-policy-unload.md#concerns-about-giving-embedders-control-over-the-nonexecution-of-iframe-code"&gt;https://github.com/fergald/docs/blob/master/explainers/permissions-policy-unload.md#concerns-about-giving-embedders-control-over-the-nonexecution-of-iframe-code&lt;/a&gt;
-
-
-
-                /Gecko/: Negative
-                
-(&lt;a  rel="nofollow" href="https://github.com/w3c/webappsec-permissions-policy/issues/444#issuecomment-1047829132"&gt;https://github.com/w3c/webappsec-permissions-policy/issues/444#issuecomment-1047829132&lt;/a&gt;)
-                FF objects to this similar to sync-xhr and
-                document-domain providing a way to cause cross-origin
-                interference with script. Explainer addresses this
-                
-(&lt;a  rel="nofollow" href="https://github.com/fergald/docs/blob/master/explainers/permissions-policy-unload.md#concerns-about-giving-embedders-control-over-the-nonexecution-of-iframe-code"&gt;https://github.com/fergald/docs/blob/master/explainers/permissions-policy-unload.md#concerns-about-giving-embedders-control-over-the-nonexecution-of-iframe-code&lt;/a&gt;)
-                At a recent TPAC meeting with Mozilla people present,
-                no negative feedback was received. Request for formal
-                position is here
-                &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/691"&gt;https://github.com/mozilla/standards-positions/issues/691&lt;/a&gt;
-
-                /WebKit/: Negative
-                (&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/127"&gt;https://github.com/WebKit/standards-positions/issues/127&lt;/a&gt;)
-                Concerned that embedders gain a way to turn off a
-                code-path in the embedded frame.
-
-
-    I think it's important to continue those discussions with other
-    vendors and try to eventually bring them on board, but at the same
-    time, I agree with your position that we need to put users first.
-    Unload events are causing real performance harm today, and we
-    should at least give top-level site owners the ability to stop
-    that harm, even if created by their third-parties.
-
-    I haven't seen in the above discussions any concrete threats or
-    attacks enabled by this cross-origin interference. And as you say,
-    we already have similar policies around sync-XHR and document.write.
-
-
-
-                /Web developers/: Positive Private discussions with
-                devs are positive. Sites that have made efforts to
-                remove all unload handlers want to use this to prevent
-                accidental returns. Also some providers of 3rd-party
-                iframes which have content outside of their control
-                (e.g. ad network) want to guarantee themselves to be
-                unload-free.
-                
-&lt;a  rel="nofollow" href="https://github.com/w3c/webappsec-permissions-policy/issues/444#issuecomment-1130401722"&gt;https://github.com/w3c/webappsec-permissions-policy/issues/444#issuecomment-1130401722&lt;/a&gt;
- Also
-                positive feedback about using this to deny unload as a
-                source of security problems.
-                
-&lt;a  rel="nofollow" href="https://github.com/w3c/webappsec-permissions-policy/issues/444#issuecomment-1222973324"&gt;https://github.com/w3c/webappsec-permissions-policy/issues/444#issuecomment-1222973324&lt;/a&gt;
-
-                /Other signals/: TAG review is here but has no
-                feedback on the API itself.
-                &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/738"&gt;https://github.com/w3ctag/design-reviews/issues/738&lt;/a&gt;
-
-
-                WebView application risks
-
-
-                Does this intent deprecate or change behavior of
-                existing APIs, such that it has potentially high risk
-                for Android WebView-based applications?
-
-                none known
-
-
-
-                Debuggability
-
-
-                When this header is present, attempts to add an unload
-                event handler will result in an error on the console
-                (just as would happen for any other Permissions Policy
-                violation).
-
-
-
-                Will this feature be supported on all six Blink
-                platforms (Windows, Mac, Linux, Chrome OS, Android,
-                and Android WebView)?
-
-
-                Yes
-
-
-                Is this feature fully tested by web-platform-tests
-                
-&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;?
-
-
-                Yes
-
-
-                DevTrial instructions
-
-
-                
-&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/experiments/permissions-policy-unload.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/experiments/permissions-policy-unload.md&lt;/a&gt;
-
-
-                Flag name on chrome://flags
-
-
-                enable-experimental-web-platform-features
-
-
-                Finch feature name
-
-
-
-
-                Non-finch justification
-
-
-                None
-
-
-                Requires code in //chrome?
-
-
-                False
-
-
-                Tracking bug
-
-
-                &lt;a  rel="nofollow" href="https://crbug.com/1324111"&gt;https://crbug.com/1324111&lt;/a&gt;
-
-
-                Launch bug
-
-
-                &lt;a  rel="nofollow" href="https://crbug.com/1357927"&gt;https://crbug.com/1357927&lt;/a&gt;
-
-
-                Estimated milestones
-
-
-                Shipping on desktop     115
-                OriginTrial desktop last        112
-                OriginTrial desktop first       107
-                DevTrial on desktop     107
-
-                Shipping on Android     115
-                OriginTrial Android last        112
-                OriginTrial Android first       107
-                DevTrial on Android     107
-
-                Shipping on WebView     115
-                OriginTrial webView last        112
-                OriginTrial webView first       107
-
-
-
-                Anticipated spec changes
-
-
-                Open questions about a feature may be a source of
-                future web compat or interop issues. Please list open
-                issues (e.g. links to known github issues in the
-                project for the feature specification) whose
-                resolution may introduce web compat/interop risk
-                (e.g., changing to naming or structure of the API in a
-                non-backward-compatible way).
-
-                &lt;a  rel="nofollow" href="https://github.com/whatwg/html/pull/7915 although"&gt;https://github.com/whatwg/html/pull/7915 although&lt;/a&gt; it's
-                unclear that we can ever spec this.
-
-
-                Link to entry on the Chrome Platform Status
-
-
-                &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5760325231050752"&gt;https://chromestatus.com/feature/5760325231050752&lt;/a&gt;
-
-
-                Links to previous Intent discussions
-
-
-                Intent to prototype:
-                
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAozHLkvhEtVOkvW4iXCbMf5a84ypGjD4arZtpS%3D0Okx6BPDdQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAozHLkvhEtVOkvW4iXCbMf5a84ypGjD4arZtpS%3D0Okx6BPDdQ%40mail.gmail.com&lt;/a&gt;
- Ready
-                for Trial:
-                
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/38Dpu-uhwFc"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/38Dpu-uhwFc&lt;/a&gt;
-                Intent to Experiment:
-                
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAozHLkOeqfqZ0PtzUDdowXbBuMp4oYS%3DQ%2BSQCogY%2BkBpGAYXQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAozHLkOeqfqZ0PtzUDdowXbBuMp4oYS%3DQ%2BSQCogY%2BkBpGAYXQ%40mail.gmail.com&lt;/a&gt;
-                Intent to Extend Experiment:
-                
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAA5e69_hiyb60B9h6d88ccuoDavYnqDg89LUkgcG6iozfD8e0w%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAA5e69_hiyb60B9h6d88ccuoDavYnqDg89LUkgcG6iozfD8e0w%40mail.gmail.com&lt;/a&gt;
-                Intent to Ship:
-                
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAA5e69_hiyb60B9h6d88ccuoDavYnqDg89LUkgcG6iozfD8e0w%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAA5e69_hiyb60B9h6d88ccuoDavYnqDg89LUkgcG6iozfD8e0w%40mail.gmail.com&lt;/a&gt;
-
-
-                This intent message was generated by Chrome Platform
-                Status &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-
-&lt;/pre&gt;&lt;tt&gt;        -- 
-&lt;/tt&gt;&lt;tt&gt;        You received this message because you are subscribed to the
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-        Google Groups &amp;quot;blink-dev&amp;quot; group.
-        To unsubscribe from this group and stop receiving emails from
-        it, send an email to blink-dev+unsubscr...@chromium.org.
-        To view this discussion on the web visit
-        
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAozHLkuNkx7%3DBfiG2wXsu%2BqqoOb-WD6YN4gxJN%2BuTogT%3DmE3A%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAozHLkuNkx7%3DBfiG2wXsu%2BqqoOb-WD6YN4gxJN%2BuTogT%3DmE3A%40mail.gmail.com&lt;/a&gt;
-        
-&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAozHLkuNkx7%3DBfiG2wXsu%2BqqoOb-WD6YN4gxJN%2BuTogT%3DmE3A%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAozHLkuNkx7%3DBfiG2wXsu%2BqqoOb-WD6YN4gxJN%2BuTogT%3DmE3A%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-
-&lt;/pre&gt;&lt;tt&gt;    -- 
-&lt;/tt&gt;&lt;tt&gt;    You received this message because you are subscribed to the Google
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-    Groups &amp;quot;blink-dev&amp;quot; group.
-    To unsubscribe from this group and stop receiving emails from it,
-    send an email to blink-dev+unsubscr...@chromium.org.
-    To view this discussion on the web visit
-    
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfWCDUGeGYy42L7EbG7qyfrc%2BQJ7_mRywphyyAkg-Nv6tA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfWCDUGeGYy42L7EbG7qyfrc%2BQJ7_mRywphyyAkg-Nv6tA%40mail.gmail.com&lt;/a&gt;
-    
-&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfWCDUGeGYy42L7EbG7qyfrc%2BQJ7_mRywphyyAkg-Nv6tA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfWCDUGeGYy42L7EbG7qyfrc%2BQJ7_mRywphyyAkg-Nv6tA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-
---
-&lt;/pre&gt;&lt;tt&gt;You received this message because you are subscribed to the Google 
-&lt;/tt&gt;&lt;tt&gt;Groups &amp;quot;blink-dev&amp;quot; group.
-&lt;/tt&gt;&lt;tt&gt;To unsubscribe from this group and stop receiving emails from it, send 
-&lt;/tt&gt;&lt;tt&gt;an email to blink-dev+unsubscr...@chromium.org.
-&lt;/tt&gt;&lt;tt&gt;To view this discussion on the web visit 
-&lt;/tt&gt;&lt;tt&gt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY9pAije6Udz3xiyz_3LakrCUCbFh8pRR-%2BhUMxwfdzXcg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY9pAije6Udz3xiyz_3LakrCUCbFh8pRR-%2BhUMxwfdzXcg%40mail.gmail.com&lt;/a&gt; 
-&lt;/tt&gt;&lt;tt&gt;&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY9pAije6Udz3xiyz_3LakrCUCbFh8pRR-%2BhUMxwfdzXcg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY9pAije6Udz3xiyz_3LakrCUCbFh8pRR-%2BhUMxwfdzXcg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-&lt;/tt&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;
-
---
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/8c37e9b8-f19f-507d-7352-b1b4caaa1fc7%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/8c37e9b8-f19f-507d-7352-b1b4caaa1fc7%40chromium.org&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06677.html</id>
-        <title>Re: [blink-dev] Re: Intent to Deprecate and Remove Web SQL</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06677.html"/>
-        <updated>2023-06-30T13:48:07.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06677.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Deprecate+and+Remove+Web+SQL%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Re: Intent to Deprecate and Remove Web SQL&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Thomas+Steiner%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Thomas Steiner' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230630" rel="nofollow"&gt;Fri, 30 Jun 2023 06:48:07 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Timeline updated in developer-facing comms:
-&lt;a  rel="nofollow" href="https://github.com/GoogleChrome/developer.chrome.com/pull/6725"&gt;https://github.com/GoogleChrome/developer.chrome.com/pull/6725&lt;/a&gt;.&lt;/pre&gt;&lt;pre&gt;
-
-On Mon, Jun 26, 2023 at 10:57 PM Ayu Ishii &amp;lt;a...@chromium.org&amp;gt; wrote:
-
-&amp;gt; Hi blink owners,
-&amp;gt;
-&amp;gt; With request from partners, we are planning to update the timeline to
-&amp;gt; enable deprecation trial from M117 (previously M118) to provide a larger
-&amp;gt; window to integrate with the trial before full removal in M119.
-&amp;gt; The rest of the timeline will stay the same.
-&amp;gt;
-&amp;gt; NEW - Target timeline:
-&amp;gt;
-&amp;gt; M101 - 123 - Enterprise Policy
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromeenterprise.google/policies/#WebSQLAccess"&gt;https://chromeenterprise.google/policies/#WebSQLAccess&lt;/a&gt;&amp;gt;
-&amp;gt;
-&amp;gt; M115 - Add deprecation message
-&amp;gt;
-&amp;gt; M117-123  - Deprecation trial
-&amp;gt;
-&amp;gt; M119 - Ship removal OLD - Target timeline:
-&amp;gt;
-&amp;gt; M101 - 123 - Enterprise Policy
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromeenterprise.google/policies/#WebSQLAccess"&gt;https://chromeenterprise.google/policies/#WebSQLAccess&lt;/a&gt;&amp;gt;
-&amp;gt;
-&amp;gt; M115 - Add deprecation message
-&amp;gt;
-&amp;gt; M118-123  - Deprecation trial
-&amp;gt;
-&amp;gt; M119 - Ship removal
-&amp;gt;
-&amp;gt; Thanks, Ayu
-&amp;gt;
-&amp;gt; On Tuesday, May 16, 2023 at 1:36:24 AM UTC-7 tste...@google.com wrote:
-&amp;gt;
-&amp;gt;&amp;gt; On Tue, May 16, 2023 at 10:29 AM Asier Lostalé &amp;lt;
-&amp;gt;&amp;gt; asier.lost...@openbravo.com&amp;gt; wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Hi Thomas,
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Thanks for your reply.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; If possible, I'd like to clarify a couple of topics:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; - I see there is already an &amp;quot;Allows access to WebSQL APIs&amp;quot; flag that can
-&amp;gt;&amp;gt;&amp;gt; be used to force access to WebSQL. For how long is this flag planned to be
-&amp;gt;&amp;gt;&amp;gt; kept? Will it be available from M119 to M123? What about after M123?
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Since the code is going to be removed, the flag will be removed as a
-&amp;gt;&amp;gt; consequence as well. Given the current timeline
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.chrome.com/blog/web-sql-deprecation-timeline-updated/"&gt;https://developer.chrome.com/blog/web-sql-deprecation-timeline-updated/&lt;/a&gt;&amp;gt;, I
-&amp;gt;&amp;gt; would *not* count for the code to exist after 123.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; - As a site owner, how can I take part of the deprecation trial?
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Please see this article on origin trials
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.chrome.com/docs/web-platform/origin-trials/#deprecation-trials"&gt;https://developer.chrome.com/docs/web-platform/origin-trials/#deprecation-trials&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt; A deprecation trial works just the other way round: rather than granting
-&amp;gt;&amp;gt; your site early access to a future feature, it grants you late access to a
-&amp;gt;&amp;gt; past feature.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Cheers,
-&amp;gt;&amp;gt; Tom
-&amp;gt;&amp;gt;
-&amp;gt;
-
--- 
-Thomas Steiner, PhD—Developer Relations Engineer (&lt;a  rel="nofollow" href="https://blog.tomayac.com"&gt;https://blog.tomayac.com&lt;/a&gt;,
-&lt;a  rel="nofollow" href="https://twitter.com/tomayac"&gt;https://twitter.com/tomayac&lt;/a&gt;)
-
-Google Germany GmbH, ABC-Str. 19, 20354 Hamburg, Germany
-Geschäftsführer: Paul Manicle, Liana Sebastian
-Registergericht und -nummer: Hamburg, HRB 86891
-
------ BEGIN PGP SIGNATURE -----
-Version: GnuPG v2.3.4 (GNU/Linux)
-
-iFy0uwAntT0bE3xtRa5AfeCheCkthAtTh3reSabiGbl0ck0fjumBl3DCharaCTersAttH3b0ttom.
-hTtPs://xKcd.cOm/1181/
------ END PGP SIGNATURE -----
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CALgRrLmVoYhZnqMTPiB1FKQRW4Pnq2Zj87Qz47b765_OFUf2Ng%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CALgRrLmVoYhZnqMTPiB1FKQRW4Pnq2Zj87Qz47b765_OFUf2Ng%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06676.html</id>
-        <title>Re: [blink-dev] Intent to Ship: Permissions-Policy: unload</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06676.html"/>
-        <updated>2023-06-30T12:10:52.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06676.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Permissions%5C-Policy%5C%3A+unload%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Permissions-Policy: unload&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Rick+Byers%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Rick Byers&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230630" rel="nofollow"&gt;Fri, 30 Jun 2023 05:10:52 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;LGTM2
-
-In addition to Yoav's comments I'll also add that it makes sense to me if
-WebKit and Gecko don't want this. They each have a lot more flexibility in
-how they avoid unload handlers, and WebKit already just doesn't fire them
-when they don't want to. Chromium's enterprise customer base means we need
-to take a more careful and measured approach to reducing reliance on unload
-handlers, and given the positive experience we've heard from partners for
-this feature in OT, I think we must ship it despite the lack of alignment
-with other engines.&lt;/pre&gt;&lt;pre&gt;
-
-Ideally we succeed in deprecating unload over the next few years then we
-can delete this policy. The important thing for long-term Interop risk is
-that the engines are aligned on wanting to deprecate unload. We just aren't
-aligned on the most effective path for doing so in our respective
-environments.
-
-On Fri, Jun 30, 2023, 3:51 a.m. Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt; wrote:
-
-&amp;gt; LGTM1
-&amp;gt;
-&amp;gt; On Fri, Jun 30, 2023 at 9:27 AM 'Fergal Daly' via blink-dev &amp;lt;
-&amp;gt; blink-dev@chromium.org&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; Contact emailsfer...@chromium.org, kenjibah...@chromium.org
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Explainer
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/fergald/docs/blob/master/explainers/permissions-policy-unload.md"&gt;https://github.com/fergald/docs/blob/master/explainers/permissions-policy-unload.md&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Specification&lt;a  rel="nofollow" href="https://github.com/whatwg/html/pull/7915"&gt;https://github.com/whatwg/html/pull/7915&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;
-&amp;gt; IMO, it's fine to approve this based on this PR, even if it hasn't landed
-&amp;gt; yet, given the browser positions below.
-&amp;gt;
-&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Design docs
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/fergald/docs/blob/master/explainers/permissions-policy-unload.md"&gt;https://github.com/fergald/docs/blob/master/explainers/permissions-policy-unload.md&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Summary
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; This feature allows pages to disable the running of unload event
-&amp;gt;&amp;gt; handlers. The goals are: - allow sites that have removed all unload
-&amp;gt;&amp;gt; handlers to not regress (i.e. accidentally adding new ones) - allow sites
-&amp;gt;&amp;gt; to “remove” (skip) unload handlers (e.g. if updating the code is
-&amp;gt;&amp;gt; infeasible, or if they have nondeterministic chains of third parties and
-&amp;gt;&amp;gt; would rather not risk the BFCache benefits over unload handlers in third
-&amp;gt;&amp;gt; party code). Unload event handlers are problematic for various reasons and
-&amp;gt;&amp;gt; prevent use of BFCache on Desktop (see
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://web.dev/bfcache/#never-use-the-unload-event"&gt;https://web.dev/bfcache/#never-use-the-unload-event&lt;/a&gt;). This is the first
-&amp;gt;&amp;gt; step to deprecating and removing unload handlers.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Blink componentBlink&amp;gt;PermissionsAPI
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EPermissionsAPI"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EPermissionsAPI&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; TAG review&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/738"&gt;https://github.com/w3ctag/design-reviews/issues/738&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; TAG review statusPending
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Risks
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Interoperability and Compatibility
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; 3rd-party frames that rely on unload may not work as expected when
-&amp;gt;&amp;gt; navigating away. This is solvable by the frame authors by use of
-&amp;gt;&amp;gt; alternatives to unload and is unlikely to impact users. See detailed
-&amp;gt;&amp;gt; discussion.
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/fergald/docs/blob/master/explainers/permissions-policy-unload.md#concerns-about-giving-embedders-control-over-the-nonexecution-of-iframe-code"&gt;https://github.com/fergald/docs/blob/master/explainers/permissions-policy-unload.md#concerns-about-giving-embedders-control-over-the-nonexecution-of-iframe-code&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Gecko*: Negative (
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/webappsec-permissions-policy/issues/444#issuecomment-1047829132"&gt;https://github.com/w3c/webappsec-permissions-policy/issues/444#issuecomment-1047829132&lt;/a&gt;)
-&amp;gt;&amp;gt; FF objects to this similar to sync-xhr and document-domain providing a way
-&amp;gt;&amp;gt; to cause cross-origin interference with script. Explainer addresses this (
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/fergald/docs/blob/master/explainers/permissions-policy-unload.md#concerns-about-giving-embedders-control-over-the-nonexecution-of-iframe-code"&gt;https://github.com/fergald/docs/blob/master/explainers/permissions-policy-unload.md#concerns-about-giving-embedders-control-over-the-nonexecution-of-iframe-code&lt;/a&gt;)
-&amp;gt;&amp;gt; At a recent TPAC meeting with Mozilla people present, no negative feedback
-&amp;gt;&amp;gt; was received. Request for formal position is here
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/691"&gt;https://github.com/mozilla/standards-positions/issues/691&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *WebKit*: Negative (
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/127"&gt;https://github.com/WebKit/standards-positions/issues/127&lt;/a&gt;) Concerned that
-&amp;gt;&amp;gt; embedders gain a way to turn off a code-path in the embedded frame.
-&amp;gt;&amp;gt;
-&amp;gt;
-&amp;gt; I think it's important to continue those discussions with other vendors
-&amp;gt; and try to eventually bring them on board, but at the same time, I agree
-&amp;gt; with your position that we need to put users first.
-&amp;gt; Unload events are causing real performance harm today, and we should at
-&amp;gt; least give top-level site owners the ability to stop that harm, even if
-&amp;gt; created by their third-parties.
-&amp;gt;
-&amp;gt; I haven't seen in the above discussions any concrete threats or attacks
-&amp;gt; enabled by this cross-origin interference. And as you say, we already have
-&amp;gt; similar policies around sync-XHR and document.write.
-&amp;gt;
-&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Web developers*: Positive Private discussions with devs are positive.
-&amp;gt;&amp;gt; Sites that have made efforts to remove all unload handlers want to use this
-&amp;gt;&amp;gt; to prevent accidental returns. Also some providers of 3rd-party iframes
-&amp;gt;&amp;gt; which have content outside of their control (e.g. ad network) want to
-&amp;gt;&amp;gt; guarantee themselves to be unload-free.
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/webappsec-permissions-policy/issues/444#issuecomment-1130401722"&gt;https://github.com/w3c/webappsec-permissions-policy/issues/444#issuecomment-1130401722&lt;/a&gt;
-&amp;gt;&amp;gt;  Also
-&amp;gt;&amp;gt; positive feedback about using this to deny unload as a source of security
-&amp;gt;&amp;gt; problems.
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/webappsec-permissions-policy/issues/444#issuecomment-1222973324"&gt;https://github.com/w3c/webappsec-permissions-policy/issues/444#issuecomment-1222973324&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Other signals*: TAG review is here but has no feedback on the API
-&amp;gt;&amp;gt; itself. &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/738"&gt;https://github.com/w3ctag/design-reviews/issues/738&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; WebView application risks
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Does this intent deprecate or change behavior of existing APIs, such that
-&amp;gt;&amp;gt; it has potentially high risk for Android WebView-based applications?
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; none known
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Debuggability
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; When this header is present, attempts to add an unload event handler will
-&amp;gt;&amp;gt; result in an error on the console (just as would happen for any other
-&amp;gt;&amp;gt; Permissions Policy violation).
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows, Mac,
-&amp;gt;&amp;gt; Linux, Chrome OS, Android, and Android WebView)?Yes
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; ?Yes
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; DevTrial instructions
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/experiments/permissions-policy-unload.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/experiments/permissions-policy-unload.md&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Flag name on chrome://flagsenable-experimental-web-platform-features
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Finch feature name
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Non-finch justificationNone
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Requires code in //chrome?False
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Tracking bug&lt;a  rel="nofollow" href="https://crbug.com/1324111"&gt;https://crbug.com/1324111&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Launch bug&lt;a  rel="nofollow" href="https://crbug.com/1357927"&gt;https://crbug.com/1357927&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Estimated milestones
-&amp;gt;&amp;gt; Shipping on desktop 115
-&amp;gt;&amp;gt; OriginTrial desktop last 112
-&amp;gt;&amp;gt; OriginTrial desktop first 107
-&amp;gt;&amp;gt; DevTrial on desktop 107
-&amp;gt;&amp;gt; Shipping on Android 115
-&amp;gt;&amp;gt; OriginTrial Android last 112
-&amp;gt;&amp;gt; OriginTrial Android first 107
-&amp;gt;&amp;gt; DevTrial on Android 107
-&amp;gt;&amp;gt; Shipping on WebView 115
-&amp;gt;&amp;gt; OriginTrial webView last 112
-&amp;gt;&amp;gt; OriginTrial webView first 107
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Anticipated spec changes
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Open questions about a feature may be a source of future web compat or
-&amp;gt;&amp;gt; interop issues. Please list open issues (e.g. links to known github issues
-&amp;gt;&amp;gt; in the project for the feature specification) whose resolution may
-&amp;gt;&amp;gt; introduce web compat/interop risk (e.g., changing to naming or structure of
-&amp;gt;&amp;gt; the API in a non-backward-compatible way).
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/whatwg/html/pull/7915"&gt;https://github.com/whatwg/html/pull/7915&lt;/a&gt; although it's unclear that we
-&amp;gt;&amp;gt; can ever spec this.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5760325231050752"&gt;https://chromestatus.com/feature/5760325231050752&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Links to previous Intent discussionsIntent to prototype:
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAozHLkvhEtVOkvW4iXCbMf5a84ypGjD4arZtpS%3D0Okx6BPDdQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAozHLkvhEtVOkvW4iXCbMf5a84ypGjD4arZtpS%3D0Okx6BPDdQ%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt;  Ready
-&amp;gt;&amp;gt; for Trial:
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/38Dpu-uhwFc"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/38Dpu-uhwFc&lt;/a&gt;
-&amp;gt;&amp;gt; Intent to Experiment:
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAozHLkOeqfqZ0PtzUDdowXbBuMp4oYS%3DQ%2BSQCogY%2BkBpGAYXQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAozHLkOeqfqZ0PtzUDdowXbBuMp4oYS%3DQ%2BSQCogY%2BkBpGAYXQ%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt; Intent to Extend Experiment:
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAA5e69_hiyb60B9h6d88ccuoDavYnqDg89LUkgcG6iozfD8e0w%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAA5e69_hiyb60B9h6d88ccuoDavYnqDg89LUkgcG6iozfD8e0w%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt; Intent to Ship:
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAA5e69_hiyb60B9h6d88ccuoDavYnqDg89LUkgcG6iozfD8e0w%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAA5e69_hiyb60B9h6d88ccuoDavYnqDg89LUkgcG6iozfD8e0w%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt;&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt;&amp;gt; To view this discussion on the web visit
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAozHLkuNkx7%3DBfiG2wXsu%2BqqoOb-WD6YN4gxJN%2BuTogT%3DmE3A%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAozHLkuNkx7%3DBfiG2wXsu%2BqqoOb-WD6YN4gxJN%2BuTogT%3DmE3A%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAozHLkuNkx7%3DBfiG2wXsu%2BqqoOb-WD6YN4gxJN%2BuTogT%3DmE3A%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAozHLkuNkx7%3DBfiG2wXsu%2BqqoOb-WD6YN4gxJN%2BuTogT%3DmE3A%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;
-&amp;gt; --
-&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt; To view this discussion on the web visit
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfWCDUGeGYy42L7EbG7qyfrc%2BQJ7_mRywphyyAkg-Nv6tA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfWCDUGeGYy42L7EbG7qyfrc%2BQJ7_mRywphyyAkg-Nv6tA%40mail.gmail.com&lt;/a&gt;
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfWCDUGeGYy42L7EbG7qyfrc%2BQJ7_mRywphyyAkg-Nv6tA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfWCDUGeGYy42L7EbG7qyfrc%2BQJ7_mRywphyyAkg-Nv6tA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt; .
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY9pAije6Udz3xiyz_3LakrCUCbFh8pRR-%2BhUMxwfdzXcg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY9pAije6Udz3xiyz_3LakrCUCbFh8pRR-%2BhUMxwfdzXcg%40mail.gmail.com&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
