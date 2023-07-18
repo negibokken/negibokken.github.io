@@ -5,6 +5,581 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06806.html</id>
+        <title>[blink-dev] Intent to Prototype: fetchLater API</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06806.html"/>
+        <updated>2023-07-18T02:23:12.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06806.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Prototype%5C%3A+fetchLater+API%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Prototype: fetchLater API&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Ming%5C-Ying+Chung%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Ming-Ying Chung&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230717" rel="nofollow"&gt;Mon, 17 Jul 2023 19:23:12 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Hi Team,
+
+We plan to prototype the fetchLater API, which is the successor of the
+previous PendingBeacon API (intent to prototype mail
+&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/tPTRZkSmlbg/m/5vGhjrEsAgAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/tPTRZkSmlbg/m/5vGhjrEsAgAJ&lt;/a&gt;&amp;gt;,
+intent to OT mail
+&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/ZCVcUEYzVHs/m/3PjKPLmkAQAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/ZCVcUEYzVHs/m/3PjKPLmkAQAJ&lt;/a&gt;&amp;gt;).
+The fetchLater API is the result of discussion
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/pending-beacon/issues/70"&gt;https://github.com/WICG/pending-beacon/issues/70&lt;/a&gt;&amp;gt; with users and other
+browser vendors.&lt;/pre&gt;&lt;pre&gt;
+
+Contact emailsm...@chromium.org
+denom...@chromium.org
+pending-beacon-experim...@google.com
+
+Explainer
+&lt;a  rel="nofollow" href="https://github.com/WICG/pending-beacon/blob/main/docs/fetch-later-api.md"&gt;https://github.com/WICG/pending-beacon/blob/main/docs/fetch-later-api.md&lt;/a&gt;
+
+Chromium Design Doc
+&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1U8XSnICPY3j-fjzG35UVm6zjwL6LvX6ETU3T8WrzLyQ"&gt;https://docs.google.com/document/d/1U8XSnICPY3j-fjzG35UVm6zjwL6LvX6ETU3T8WrzLyQ&lt;/a&gt;
+
+Specification
+&lt;a  rel="nofollow" href="https://whatpr.org/fetch/1647/094ea69...152d725.html#fetch-later-method"&gt;https://whatpr.org/fetch/1647/094ea69...152d725.html#fetch-later-method&lt;/a&gt; (draft
+PR)
+
+Summary
+
+fetchLater() is a JavaScript API to request a deferred fetch. Once
+requested, the deferred request is queued by the browser, and will be
+invoked in one of the following scenarios:
+
+   - The document is destroyed.
+   - The document is bfcached and not restored after a certain time.
+
+The API returns a FetchLaterResult that contains a boolean field sent that
+may be updated to tell whether the deferred request has been sent out or
+not. On successful sending, the whole response will be ignored, including
+body and headers. Nothing at all should be processed or updated, as the
+page is already gone.
+
+Note that from the point of view of the API user, the exact send time is
+unknown.
+
+Blink componentBlink&amp;gt;Network&amp;gt;FetchAPI
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component%3ABlink%3ENetwork%3EFetchAPI"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component%3ABlink%3ENetwork%3EFetchAPI&lt;/a&gt;&amp;gt;
+
+Motivation
+
+Web developers have a need for ‘beaconing’ - that is, sending a bundle of
+data to a backend server, without expecting a particular response, ideally
+at the ‘end’ of a user’s visit to a page. Existing beacon APIs are all
+based around a developer constructing and sending a beacon, and there's no
+good time for that &amp;quot;send&amp;quot; call to be made.
+
+
+This API delegates the sending to the browser itself, so it can support
+requests on page unload or on page hide, without the developer having to
+implement send calls at exactly the right times.
+
+Initial public proposal
+&lt;a  rel="nofollow" href="https://discourse.wicg.io/t/proposal-stateful-javascript-page-unload-beacon-api/5776"&gt;https://discourse.wicg.io/t/proposal-stateful-javascript-page-unload-beacon-api/5776&lt;/a&gt;
+
+TAG review
+TAG review statusPending
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/776"&gt;https://github.com/w3ctag/design-reviews/issues/776&lt;/a&gt;&amp;gt; (for PendingBeacon,
+not fetchLater)
+
+Risks
+
+
+Interoperability and Compatibility
+
+
+Gecko: Pending &amp;lt;&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/703"&gt;https://github.com/mozilla/standards-positions/issues/703&lt;/a&gt;&amp;gt;
+
+WebKit: Supportive &amp;lt;&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/85"&gt;https://github.com/WebKit/standards-positions/issues/85&lt;/a&gt;&amp;gt;
+
+Web developers: No signals
+
+Other signals:
+
+WebView application risks
+
+No
+
+Debuggability
+
+fetchLater requests should be shown in the DevTool's network tab, similar
+to other network requests.
+
+Is this feature fully tested by web-platform-tests
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+?Not yet. But there are tests for PendingBeacon to convert from.
+
+Flag nameFetchLaterAPI
+
+Requires code in //chrome?False
+
+Estimated milestones
+
+No milestones specified
+
+Link to entry on the Chrome Platform Status
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5690553554436096"&gt;https://chromestatus.com/feature/5690553554436096&lt;/a&gt; (old entry for
+PendingBeacon API)
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAH3JASXx4qJi2Hnac0Xv%3DinTxQ%3DWSrYFO5hcjZbE6vRbotOgUg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAH3JASXx4qJi2Hnac0Xv%3DinTxQ%3DWSrYFO5hcjZbE6vRbotOgUg%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06805.html</id>
+        <title>Re: [blink-dev] Intent to Prototype: overflow:overlay aliases overflow:auto</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06805.html"/>
+        <updated>2023-07-17T22:57:48.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06805.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Prototype%5C%3A+overflow%5C%3Aoverlay+aliases+overflow%5C%3Aauto%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Prototype: overflow:overlay aliases overflow:auto&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Justin+Mayfield%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Justin Mayfield&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230717" rel="nofollow"&gt;Mon, 17 Jul 2023 15:57:48 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Thanks for the link Chris.
+
+Unfortunately that does not work for my use-case as it's very important for 
+my UX that the margins are perfectly balanced in the un-hover state.  So as 
+ugly as the layout shift is, it's actually better than always having the 
+scrollbar impinging, visible or otherwise.&lt;/pre&gt;&lt;pre&gt;
+
+In that thread I see you also mentioned that work is being done to support 
+cross platform overlay style bars for chromium (Awesome!).  Can we just 
+rollback this deprecation until that work is completed so myself and other 
+users of this feature (however fringe) can continue using modern versions 
+of chromium?  Otherwise I'll have to stay on an old version of 
+Electron/Chromium until the new overlay support is available.
+
+PS:  In the other threads guidance, you recommend trying `visibility: 
+hidden` in conjunction with `scrollbar-gutter: stable`, but the latter is 
+not needed since visibility states don't affect layout.
+On Monday, July 17, 2023 at 4:17:45 PM UTC-6 Chris Harrelson wrote:
+
+&amp;gt; Hi Justin,
+&amp;gt;
+&amp;gt; You may find the suggestions in my email here 
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/sxa8e66wQQQ/m/NitV9vxCAgAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/sxa8e66wQQQ/m/NitV9vxCAgAJ&lt;/a&gt;&amp;gt;
+&amp;gt;  
+&amp;gt; helpful for adjustments for your situation.
+&amp;gt;
+&amp;gt;
+&amp;gt; On Tue, Jul 11, 2023 at 6:24 PM Justin Mayfield &amp;lt;too...@gmail.com&amp;gt; wrote:
+&amp;gt;
+&amp;gt;&amp;gt; I'm being negatively affected by this change.  I make an Electron app 
+&amp;gt;&amp;gt; that contains many widget style windows that overlay the screen.  My users 
+&amp;gt;&amp;gt; place and size these windows with pixel perfect accuracy and I use custom 
+&amp;gt;&amp;gt; scrollbars that are hidden unless `:hover` is true.  In conjunction with 
+&amp;gt;&amp;gt; `overflow: overlay` there was no layout shifting on all platforms before 
+&amp;gt;&amp;gt; 114, but now my windows visibly jank quite badly when hovered because of 
+&amp;gt;&amp;gt; the layout shift.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Any suggestions on how I might achieve the pre 114 `overflow: overlay` 
+&amp;gt;&amp;gt; behavior?
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Attached video demo of before [7] and after [8] behavior.
+&amp;gt;&amp;gt; On Friday, April 7, 2023 at 9:34:36 AM UTC-6 Yoav Weiss wrote:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; On Wed, Apr 5, 2023 at 8:47 PM Chris Harrelson &amp;lt;chri...@chromium.org&amp;gt; 
+&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Tue, Apr 4, 2023 at 9:21 PM Yoav Weiss &amp;lt;yoav...@chromium.org&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Fri, Mar 31, 2023 at 2:37 AM Chris Harrelson &amp;lt;chri...@chromium.org&amp;gt; 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Contact emailschri...@chromium.org
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Specification
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://drafts.csswg.org/css-overflow-3/#valdef-overflow-auto"&gt;https://drafts.csswg.org/css-overflow-3/#valdef-overflow-auto&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Summary
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Removes the overflow:overlay scrolling mode, and makes overlay a 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; legacy alias of auto. overflow:overlay is the same as overflow:auto, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; except 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; that it does not prevent content from extending into the scrollbar 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; gutter, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; in cases where non-overlay OS scrollbars are present. (If overlay 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; scrollbars are present, there is no effect.) Example: With 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; overflow:overlay: &lt;a  rel="nofollow" href="https://output.jsbin.com/yujenuq/quiet"&gt;https://output.jsbin.com/yujenuq/quiet&lt;/a&gt; With 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; overflow:auto: &lt;a  rel="nofollow" href="https://output.jsbin.com/ruzogaf/quiet"&gt;https://output.jsbin.com/ruzogaf/quiet&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Which platforms would one see a difference between these two? (I'm not 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; seeing a difference on MacOS)
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; To see a difference you will have to turn on non-overlay scrollbars in 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; the macOS settings. This feature only has an effect for cases where the OS 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; provides non-overlay scrollbars.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Tried it out and I now understand that my question RE triggering layout 
+&amp;gt;&amp;gt;&amp;gt; shifts doesn't make sense, as the non-overlay scrollbars are always there.
+&amp;gt;&amp;gt;&amp;gt; Also, this is a significantly better user experience, so it 
+&amp;gt;&amp;gt;&amp;gt; makes perfect sense to do this! :) 
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Also: note that this is an I2P, not an I2S. I have not yet done a 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; thorough compatibility analysis of existing sites, but plan to do it soon.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink componentBlink&amp;gt;Scroll 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EScroll"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EScroll&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review statusNot applicable
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Risks
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Interoperability and Compatibility
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Developers currently relying on content overlapping the scrollbar 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; gutter would instead see some additional line wrapping. Users, on the 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; other 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; hand, would be able to see more content that is currently invisible 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; underneath a scrollbar.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I'm assuming that content would avoid overlapping with the gutter 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; before scrolling ever starts, right? (rather than triggering layout 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; shifts 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; once the user scrolls)
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On platform configurations with overlay scrollbars in the OS, this 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; change has no effect; it only applies to situations where a non-overlay 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; scrollbar is configured by the browser. Use counter: 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/metrics/feature/timeline/popularity/2995"&gt;https://chromestatus.com/metrics/feature/timeline/popularity/2995&lt;/a&gt; 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Adoption is more than 2% of page loads. 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Gecko*: Shipped/Shipping (
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/768"&gt;https://github.com/mozilla/standards-positions/issues/768&lt;/a&gt;)
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *WebKit*: Shipped/Shipping (
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/157"&gt;https://github.com/WebKit/standards-positions/issues/157&lt;/a&gt;)
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Web developers*: No signals
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Debuggability
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Sites might not know why their line wrapping changed to exclude the 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; scrollbar gutter. However, this is the existing behavior in Firefox and 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Safari, so they would get interop by default.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Mac, Linux, Chrome OS, Android, and Android WebView)?Yes
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ?Yes
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Flag nameOverflowOverlayAliasesAuto
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Requires code in //chrome?No
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Estimated milestones
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Shipping on desktop 114
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; DevTrial on desktop 114
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Shipping on Android 114
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; DevTrial on Android 114
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Shipping on WebView 114
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5194091479957504"&gt;https://chromestatus.com/feature/5194091479957504&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; -- 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; send an email to blink-dev+...@chromium.org.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw-F4mOhUMuU3nw423C8CurZKX_wxQvXRPv-XT4Zhsm-XQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw-F4mOhUMuU3nw423C8CurZKX_wxQvXRPv-XT4Zhsm-XQ%40mail.gmail.com&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw-F4mOhUMuU3nw423C8CurZKX_wxQvXRPv-XT4Zhsm-XQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw-F4mOhUMuU3nw423C8CurZKX_wxQvXRPv-XT4Zhsm-XQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; -- 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+...@chromium.org.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfWTkzPKzCF9gGdVHzXKVzDsv921OD-u_JTJv-muV3pkoQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfWTkzPKzCF9gGdVHzXKVzDsv921OD-u_JTJv-muV3pkoQ%40mail.gmail.com&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfWTkzPKzCF9gGdVHzXKVzDsv921OD-u_JTJv-muV3pkoQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfWTkzPKzCF9gGdVHzXKVzDsv921OD-u_JTJv-muV3pkoQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; -- 
+&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups 
+&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an 
+&amp;gt;&amp;gt; email to blink-dev+...@chromium.org.
+&amp;gt;&amp;gt;
+&amp;gt; To view this discussion on the web visit 
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/02dd8a9c-a13a-4cf4-baf2-3eeab761b394n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/02dd8a9c-a13a-4cf4-baf2-3eeab761b394n%40chromium.org&lt;/a&gt;
+&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/02dd8a9c-a13a-4cf4-baf2-3eeab761b394n%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/02dd8a9c-a13a-4cf4-baf2-3eeab761b394n%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/ba2eb878-366e-4ffd-9234-98baedd7b878n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/ba2eb878-366e-4ffd-9234-98baedd7b878n%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06804.html</id>
+        <title>Re: [blink-dev] Intent to Prototype: overflow:overlay aliases overflow:auto</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06804.html"/>
+        <updated>2023-07-17T22:17:43.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06804.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Prototype%5C%3A+overflow%5C%3Aoverlay+aliases+overflow%5C%3Aauto%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Prototype: overflow:overlay aliases overflow:auto&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Chris+Harrelson%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Chris Harrelson&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230717" rel="nofollow"&gt;Mon, 17 Jul 2023 15:17:43 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Hi Justin,
+
+You may find the suggestions in my email here
+&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/sxa8e66wQQQ/m/NitV9vxCAgAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/sxa8e66wQQQ/m/NitV9vxCAgAJ&lt;/a&gt;&amp;gt;
+helpful for adjustments for your situation.&lt;/pre&gt;&lt;pre&gt;
+
+
+On Tue, Jul 11, 2023 at 6:24 PM Justin Mayfield &amp;lt;too...@gmail.com&amp;gt; wrote:
+
+&amp;gt; I'm being negatively affected by this change.  I make an Electron app that
+&amp;gt; contains many widget style windows that overlay the screen.  My users place
+&amp;gt; and size these windows with pixel perfect accuracy and I use custom
+&amp;gt; scrollbars that are hidden unless `:hover` is true.  In conjunction with
+&amp;gt; `overflow: overlay` there was no layout shifting on all platforms before
+&amp;gt; 114, but now my windows visibly jank quite badly when hovered because of
+&amp;gt; the layout shift.
+&amp;gt;
+&amp;gt; Any suggestions on how I might achieve the pre 114 `overflow: overlay`
+&amp;gt; behavior?
+&amp;gt;
+&amp;gt; Attached video demo of before [7] and after [8] behavior.
+&amp;gt; On Friday, April 7, 2023 at 9:34:36 AM UTC-6 Yoav Weiss wrote:
+&amp;gt;
+&amp;gt;&amp;gt; On Wed, Apr 5, 2023 at 8:47 PM Chris Harrelson &amp;lt;chri...@chromium.org&amp;gt;
+&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; On Tue, Apr 4, 2023 at 9:21 PM Yoav Weiss &amp;lt;yoav...@chromium.org&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Fri, Mar 31, 2023 at 2:37 AM Chris Harrelson &amp;lt;chri...@chromium.org&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Contact emailschri...@chromium.org
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Specification
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://drafts.csswg.org/css-overflow-3/#valdef-overflow-auto"&gt;https://drafts.csswg.org/css-overflow-3/#valdef-overflow-auto&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Summary
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Removes the overflow:overlay scrolling mode, and makes overlay a
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; legacy alias of auto. overflow:overlay is the same as overflow:auto, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; except
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; that it does not prevent content from extending into the scrollbar gutter,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; in cases where non-overlay OS scrollbars are present. (If overlay
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; scrollbars are present, there is no effect.) Example: With
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; overflow:overlay: &lt;a  rel="nofollow" href="https://output.jsbin.com/yujenuq/quiet"&gt;https://output.jsbin.com/yujenuq/quiet&lt;/a&gt; With
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; overflow:auto: &lt;a  rel="nofollow" href="https://output.jsbin.com/ruzogaf/quiet"&gt;https://output.jsbin.com/ruzogaf/quiet&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Which platforms would one see a difference between these two? (I'm not
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; seeing a difference on MacOS)
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; To see a difference you will have to turn on non-overlay scrollbars in
+&amp;gt;&amp;gt;&amp;gt; the macOS settings. This feature only has an effect for cases where the OS
+&amp;gt;&amp;gt;&amp;gt; provides non-overlay scrollbars.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Tried it out and I now understand that my question RE triggering layout
+&amp;gt;&amp;gt; shifts doesn't make sense, as the non-overlay scrollbars are always there.
+&amp;gt;&amp;gt; Also, this is a significantly better user experience, so it makes perfect
+&amp;gt;&amp;gt; sense to do this! :)
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Also: note that this is an I2P, not an I2S. I have not yet done a
+&amp;gt;&amp;gt;&amp;gt; thorough compatibility analysis of existing sites, but plan to do it soon.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink componentBlink&amp;gt;Scroll
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EScroll"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EScroll&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review statusNot applicable
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Risks
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Interoperability and Compatibility
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Developers currently relying on content overlapping the scrollbar
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; gutter would instead see some additional line wrapping. Users, on the 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; other
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; hand, would be able to see more content that is currently invisible
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; underneath a scrollbar.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; I'm assuming that content would avoid overlapping with the gutter
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; before scrolling ever starts, right? (rather than triggering layout shifts
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; once the user scrolls)
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On platform configurations with overlay scrollbars in the OS, this
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; change has no effect; it only applies to situations where a non-overlay
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; scrollbar is configured by the browser. Use counter:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/metrics/feature/timeline/popularity/2995"&gt;https://chromestatus.com/metrics/feature/timeline/popularity/2995&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Adoption is more than 2% of page loads.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Gecko*: Shipped/Shipping (
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/768"&gt;https://github.com/mozilla/standards-positions/issues/768&lt;/a&gt;)
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *WebKit*: Shipped/Shipping (
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/157"&gt;https://github.com/WebKit/standards-positions/issues/157&lt;/a&gt;)
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Web developers*: No signals
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Debuggability
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Sites might not know why their line wrapping changed to exclude the
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; scrollbar gutter. However, this is the existing behavior in Firefox and
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Safari, so they would get interop by default.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Mac, Linux, Chrome OS, Android, and Android WebView)?Yes
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ?Yes
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Flag nameOverflowOverlayAliasesAuto
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Requires code in //chrome?No
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Estimated milestones
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Shipping on desktop 114
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; DevTrial on desktop 114
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Shipping on Android 114
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; DevTrial on Android 114
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Shipping on WebView 114
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5194091479957504"&gt;https://chromestatus.com/feature/5194091479957504&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+...@chromium.org.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw-F4mOhUMuU3nw423C8CurZKX_wxQvXRPv-XT4Zhsm-XQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw-F4mOhUMuU3nw423C8CurZKX_wxQvXRPv-XT4Zhsm-XQ%40mail.gmail.com&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw-F4mOhUMuU3nw423C8CurZKX_wxQvXRPv-XT4Zhsm-XQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw-F4mOhUMuU3nw423C8CurZKX_wxQvXRPv-XT4Zhsm-XQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+...@chromium.org.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfWTkzPKzCF9gGdVHzXKVzDsv921OD-u_JTJv-muV3pkoQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfWTkzPKzCF9gGdVHzXKVzDsv921OD-u_JTJv-muV3pkoQ%40mail.gmail.com&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfWTkzPKzCF9gGdVHzXKVzDsv921OD-u_JTJv-muV3pkoQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfWTkzPKzCF9gGdVHzXKVzDsv921OD-u_JTJv-muV3pkoQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; --
+&amp;gt; You received this message because you are subscribed to the Google Groups
+&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt; To view this discussion on the web visit
+&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/02dd8a9c-a13a-4cf4-baf2-3eeab761b394n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/02dd8a9c-a13a-4cf4-baf2-3eeab761b394n%40chromium.org&lt;/a&gt;
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/02dd8a9c-a13a-4cf4-baf2-3eeab761b394n%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/02dd8a9c-a13a-4cf4-baf2-3eeab761b394n%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt; .
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw_f-SeAUB6i2diu%3DxxHpcHMtmY5%3D%2BOg-NxPFs%2BL7nsnWw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw_f-SeAUB6i2diu%3DxxHpcHMtmY5%3D%2BOg-NxPFs%2BL7nsnWw%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06803.html</id>
         <title>[blink-dev] Intent to Prototype &amp; Ship: Clear Client Hints via Clear-Site-Data header</title>
         <author>
@@ -9735,554 +10310,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAN_fHtn6rw%3DgEStz2GjfbOJB5%2B%3DhteStRm3g0MbsnbJWAs0YEw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAN_fHtn6rw%3DgEStz2GjfbOJB5%2B%3DhteStRm3g0MbsnbJWAs0YEw%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06756.html</id>
-        <title>[blink-dev] Intent to Ship: HTTPS pages with Cache-control: no-store and Back/Forward Cache</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06756.html"/>
-        <updated>2023-07-11T13:56:13.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06756.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+HTTPS+pages+with+Cache%5C-control%5C%3A+no%5C-store+and+Back%5C%2FForward+Cache%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Ship: HTTPS pages with Cache-control: no-store and Back/Forward Cache&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Mingyu+Lei%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Mingyu Lei' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230711" rel="nofollow"&gt;Tue, 11 Jul 2023 06:56:13 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Contact emailskenjibah...@chromium.org, fer...@chromium.org,
-denom...@chromium.org, le...@chromium.org&lt;/pre&gt;&lt;pre&gt;
-
-Specification
-&lt;a  rel="nofollow" href="https://github.com/fergald/explainer-bfcache-ccns/blob/main/README.md"&gt;https://github.com/fergald/explainer-bfcache-ccns/blob/main/README.md&lt;/a&gt;
-
-Design docs
-&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1qX1w6L6laTzpFTh78dvT7wwC1060Z3he2Azp4BAwsUE/edit?usp=sharing"&gt;https://docs.google.com/document/d/1qX1w6L6laTzpFTh78dvT7wwC1060Z3he2Azp4BAwsUE/edit?usp=sharing&lt;/a&gt;
-&lt;a  rel="nofollow" href="https://github.com/fergald/explainer-bfcache-ccns/blob/main/README.md"&gt;https://github.com/fergald/explainer-bfcache-ccns/blob/main/README.md&lt;/a&gt;
-
-Summary
-
-A behavior change to safely store (and restore) pages in the Back/Forward
-Cache despite the presence of a &amp;quot;Cache-control: no-store&amp;quot; HTTP header on
-HTTPS pages. This would allow pages to enter BFCache and be restored as
-long as there are no changes to cookies or to RPCs using the
-`Authorization:` header.
-
-
-Blink componentUI&amp;gt;Browser&amp;gt;Navigation&amp;gt;BFCache
-&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:UI%3EBrowser%3ENavigation%3EBFCache"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:UI%3EBrowser%3ENavigation%3EBFCache&lt;/a&gt;&amp;gt;
-
-Search tagsbfcache &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:bfcache"&gt;https://chromestatus.com/features#tags:bfcache&lt;/a&gt;&amp;gt;
-
-TAG review
-
-TAG review statusNot applicable
-
-Risks
-
-
-Interoperability and Compatibility
-
-
-
-*Gecko*: No signal
-
-*WebKit*: No signal
-
-*Web developers*: No signals
-
-*Other signals*:
-
-WebView application risks
-
-Does this intent deprecate or change behavior of existing APIs, such that
-it has potentially high risk for Android WebView-based applications?
-
-None
-
-
-Debuggability
-
-
-
-Will this feature be supported on all six Blink platforms (Windows, Mac,
-Linux, Chrome OS, Android, and Android WebView)?No
-
-BFCache is not supported on WebView, so this change has no impact there.
-
-
-Is this feature fully tested by web-platform-tests
-&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-?No
-
-Flag name on chrome://flags
-
-Finch feature nameCacheControlNoStoreEnterBackForwardCache
-
-Requires code in //chrome?False
-
-Tracking bug&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1228611"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1228611&lt;/a&gt;
-
-Launch bug&lt;a  rel="nofollow" href="https://launch.corp.google.com/launch/4251651"&gt;https://launch.corp.google.com/launch/4251651&lt;/a&gt;
-
-Estimated milestones
-DevTrial on desktop 116
-DevTrial on Android 116
-
-Anticipated spec changes
-
-Open questions about a feature may be a source of future web compat or
-interop issues. Please list open issues (e.g. links to known github issues
-in the project for the feature specification) whose resolution may
-introduce web compat/interop risk (e.g., changing to naming or structure of
-the API in a non-backward-compatible way).
-None
-
-Link to entry on the Chrome Platform Status
-&lt;a  rel="nofollow" href="https://chromestatus.com/feature/6705326844805120"&gt;https://chromestatus.com/feature/6705326844805120&lt;/a&gt;
-
-Links to previous Intent discussions
-
-This intent message was generated by Chrome Platform Status
-&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAN_fHtkLz7t6rZCdvCyFcyC3%3D-51DZGjgGkGJ6JSGoLmkGV-jg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAN_fHtkLz7t6rZCdvCyFcyC3%3D-51DZGjgGkGJ6JSGoLmkGV-jg%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06755.html</id>
-        <title>[blink-dev] Re: Intent to Ship: HTTPS Upgrades</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06755.html"/>
-        <updated>2023-07-11T13:56:01.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06755.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Ship%5C%3A+HTTPS+Upgrades%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Re: Intent to Ship: HTTPS Upgrades&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Shezan+Baig%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Shezan Baig&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230711" rel="nofollow"&gt;Tue, 11 Jul 2023 06:56:01 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Oh, I see that &amp;quot;bloomberg.com&amp;quot; was added to
-&amp;quot;net/http/transport_security_state_static.json&amp;quot; in m116... that probably
-explains it.  I can try remove it from the local build.
-Thanks so much for your help!&lt;/pre&gt;&lt;pre&gt;
-
-
-
-On Mon, Jul 10, 2023 at 8:24 PM Shezan Baig &amp;lt;shezbaig...@gmail.com&amp;gt; wrote:
-
-&amp;gt; Ahh, I see.  Do you know if there is a switch to disable HSTS?  (seems to
-&amp;gt; be a new behavior in m116)
-&amp;gt; Thanks,
-&amp;gt; -shez-
-&amp;gt;
-&amp;gt;
-&amp;gt; On Mon, Jul 10, 2023 at 8:22 PM Chris Thompson &amp;lt;cth...@chromium.org&amp;gt;
-&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; This indicates that the upgrades are due to HSTS, so this is unrelated to
-&amp;gt;&amp;gt; HTTPS-Upgrades (this new feature). bloomberg.com is currently on the
-&amp;gt;&amp;gt; HSTS preload list, which also applies to subdomains.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Mon, Jul 10, 2023 at 5:18 PM Shezan Baig &amp;lt;shezbaig...@gmail.com&amp;gt;
-&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; I see the following in the netlog:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; t= 97 [st= 0]      TRANSPORT_SECURITY_STATE_SHOULD_UPGRADE_TO_SSL
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; *                   --&amp;gt; get_sts_state_result = true  &amp;lt;--- this is false
-&amp;gt;&amp;gt;&amp;gt; in the m115 build*                   --&amp;gt; host = &amp;quot;
-&amp;gt;&amp;gt;&amp;gt; dsbeta.prod.bloomberg.com&amp;quot;
-&amp;gt;&amp;gt;&amp;gt;                    --&amp;gt; host_found_in_hsts_bypass_list = false
-&amp;gt;&amp;gt;&amp;gt;                    --&amp;gt; should_upgrade_to_ssl = true
-&amp;gt;&amp;gt;&amp;gt; t= 97 [st= 0]     +URL_REQUEST_START_JOB  [dt=25]
-&amp;gt;&amp;gt;&amp;gt;                    --&amp;gt; initiator = &amp;quot;not an origin&amp;quot;
-&amp;gt;&amp;gt;&amp;gt;                    --&amp;gt; load_flags = 65792 (CAN_USE_RESTRICTED_PREFETCH |
-&amp;gt;&amp;gt;&amp;gt; MAIN_FRAME_DEPRECATED)
-&amp;gt;&amp;gt;&amp;gt;                    --&amp;gt; method = &amp;quot;GET&amp;quot;
-&amp;gt;&amp;gt;&amp;gt;                    --&amp;gt; network_isolation_key = &amp;quot;&lt;a  rel="nofollow" href="http://bloomberg.com"&gt;http://bloomberg.com&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="http://bloomberg.com&amp;quot"&gt;http://bloomberg.com&amp;quot&lt;/a&gt;;
-&amp;gt;&amp;gt;&amp;gt;                    --&amp;gt; request_type = &amp;quot;main frame&amp;quot;
-&amp;gt;&amp;gt;&amp;gt;                    --&amp;gt; site_for_cookies = &amp;quot;SiteForCookies: {site=
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="http://bloomberg.com"&gt;http://bloomberg.com&lt;/a&gt;; schemefully_same=true}&amp;quot;
-&amp;gt;&amp;gt;&amp;gt;                    --&amp;gt; url = &amp;quot;
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="http://dsbeta.prod.bloomberg.com/vrs2021/viewer/index.html&amp;quot"&gt;http://dsbeta.prod.bloomberg.com/vrs2021/viewer/index.html&amp;quot&lt;/a&gt;;
-&amp;gt;&amp;gt;&amp;gt; t= 97 [st= 0]        URL_REQUEST_REDIRECT_JOB
-&amp;gt;&amp;gt;&amp;gt;                      --&amp;gt; reason = &amp;quot;HSTS&amp;quot;
-&amp;gt;&amp;gt;&amp;gt; t= 97 [st= 0]        URL_REQUEST_FAKE_RESPONSE_HEADERS_CREATED
-&amp;gt;&amp;gt;&amp;gt;                      --&amp;gt; HTTP/1.1 307 Internal Redirect
-&amp;gt;&amp;gt;&amp;gt;                          Location:
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://dsbeta.prod.bloomberg.com/vrs2021/viewer/index.html"&gt;https://dsbeta.prod.bloomberg.com/vrs2021/viewer/index.html&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;                          Cross-Origin-Resource-Policy: Cross-Origin
-&amp;gt;&amp;gt;&amp;gt;                          Non-Authoritative-Reason: HSTS
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; On Mon, Jul 10, 2023 at 8:12 PM Shezan Baig &amp;lt;shezbaig...@gmail.com&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; I am using a locally built chrome.exe (so not one of the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Canary/Dev/Beta channels), and doing the following:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; 116.0.5845.14/chrome.exe --proxy-server=&amp;lt;internal-proxy&amp;gt; http://
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;internal-url&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; This causes the &amp;lt;internal-proxy&amp;gt; to get a &amp;quot;CONNECT &amp;lt;internal-url&amp;gt;:443&amp;quot;,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; which unfortunately the proxy is not currently configured to handle
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; properly (it blocks and times out after a minute).  I can fix the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;internal-proxy&amp;gt; to handle it correctly, but rolling out that change may
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; take a while.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; In the meantime, I'm trying to workaround the issue by doing:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; 116.0.5845.14/chrome.exe --disable-features=HttpsUpgrades
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; --proxy-server=&amp;lt;internal-proxy&amp;gt; http://&amp;lt;internal-url&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; However, that doesn't seem to make any difference (proxy is still
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; getting a &amp;quot;CONNECT &amp;lt;internal-url&amp;gt;:443&amp;quot;).
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Note that our previous build (115.0.5790.32) does not do these
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; upgrades, so I don't need any disable-feature switch for the m115 build.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; However, the m116 build does these upgrades with or without the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; disable-feature switch.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Also note that these are locally built chromium binaries (not &amp;quot;Google
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Chrome&amp;quot;), so it will not participate in the 50% experiments.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Thanks for your quick response!
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; -shez-
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Mon, Jul 10, 2023 at 7:47 PM Chris Thompson &amp;lt;cth...@chromium.org&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Could you provide more information on what is occurring (or maybe
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; better: file a bug at crbug.com/new with details and link it here)?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; That's the correct flag to force-disable the feature (you can also disable
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; it during the experimental period in chrome://flags/#https-upgrades).
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Note that Chrome has other existing features which upgrade certain
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; navigations to HTTPS (such as schemeless URLs entered into the Omnibox), 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; so
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; you may be seeing those instead. HTTPS-Upgrades is currently only enabled
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; at 50% in Chrome Canary/Dev/Beta.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Mon, Jul 10, 2023 at 4:43 PM Shezan Baig &amp;lt;shezbaig...@gmail.com&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  Hi,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is there a way to disable this feature?  I tried running the browser
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; with &amp;quot; --disable-features=HttpsUpgrades&amp;quot;, but it still seems to be
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; performing these upgrades.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Thanks,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; -shez-
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Wednesday, May 24, 2023 at 7:13:38 PM UTC-4 cth...@chromium.org
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Contact emailscth...@chromium.org, dad...@google.com
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Explainer
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/dadrian/https-upgrade/blob/main/explainer.md"&gt;https://github.com/dadrian/https-upgrade/blob/main/explainer.md&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Specification&lt;a  rel="nofollow" href="https://github.com/whatwg/fetch/pull/1655"&gt;https://github.com/whatwg/fetch/pull/1655&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Summary
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Automatically and optimistically upgrade all main-frame navigations
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to HTTPS, with fast fallback to HTTP.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink componentInternals&amp;gt;Network&amp;gt;SSL
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Internals%3ENetwork%3ESSL"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Internals%3ENetwork%3ESSL&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG reviewFetch change process does not mention a TAG review,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; therefore this is N/A (&lt;a  rel="nofollow" href="https://github.com/whatwg/fetch#pull-requests"&gt;https://github.com/whatwg/fetch#pull-requests&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; )
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review statusNot applicable
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Risks
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Interoperability and Compatibility
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Gecko*: Positive (
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/800"&gt;https://github.com/mozilla/standards-positions/issues/800&lt;/a&gt;) Firefox
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; is offering a similar feature already in their private browsing mode by
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; default
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *WebKit*: No signal (
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/185"&gt;https://github.com/WebKit/standards-positions/issues/185&lt;/a&gt;)
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Web developers*: No signals. This feature is not exposed directly
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to web developers or users. However, HTTPS adoption is now standard
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; practice (&amp;gt;90% of page loads in Chrome use HTTPS), and automatically
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; upgrading navigations to HTTPS would avoid unnecessary redirects from 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; HTTP
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to HTTPS for site owners. The `upgrade-insecure-requests` header has 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; some
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; similar functionality, and according to HTTP-Archive is found on ~6% of 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; all
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; requests.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Other signals*:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; WebView application risks
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Does this intent deprecate or change behavior of existing APIs, such
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; that it has potentially high risk for Android WebView-based 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; applications?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Debuggability
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Chrome will upgrade these navigations to HTTPS using a 307 internal
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; redirect, which will be visible in the Network panel of Developer Tools.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Mac, Linux, Chrome OS, Android, and Android WebView)?No
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Currently not available on Android WebView. We are implementing this
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; first for Chrome and will consider bringing this to WebView (likely as 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; an
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; embedder opt-in) as follow up work.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ?No
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Flag namehttps-upgrades
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Requires code in //chrome?True
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Tracking bug
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1394910"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1394910&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Launch bug&lt;a  rel="nofollow" href="https://launch.corp.google.com/launch/4235192"&gt;https://launch.corp.google.com/launch/4235192&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Sample links
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="http://example.com"&gt;http://example.com&lt;/a&gt; will upgrade to &lt;a  rel="nofollow" href="https://example.com"&gt;https://example.com&lt;/a&gt;.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="http://www.alwayshttp.com"&gt;http://www.alwayshttp.com&lt;/a&gt; will upgrade to &lt;a  rel="nofollow" href="https://www.alwayshttp.com"&gt;https://www.alwayshttp.com&lt;/a&gt; but
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; fall back to &lt;a  rel="nofollow" href="http://www.alwayshttp.com"&gt;http://www.alwayshttp.com&lt;/a&gt; because the site doesn't
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; support HTTPS.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Estimated milestones
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Shipping on desktop 115
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Shipping on Android 115
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; We are planning to do a field trial to gradually roll out this
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; feature to Chrome clients in Chrome 115.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Anticipated spec changes
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Open questions about a feature may be a source of future web compat
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; or interop issues. Please list open issues (e.g. links to known github
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; issues in the project for the feature specification) whose resolution 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; may
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; introduce web compat/interop risk (e.g., changing to naming or 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; structure of
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the API in a non-backward-compatible way).
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/whatwg/fetch/pull/1655"&gt;https://github.com/whatwg/fetch/pull/1655&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/6056181032812544"&gt;https://chromestatus.com/feature/6056181032812544&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Links to previous Intent discussionsIntent to prototype:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/mgJqym5-Xek/m/0EAN6v7CCQAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/mgJqym5-Xek/m/0EAN6v7CCQAJ&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CANMpiORmPZU7R1Q_ffyiOut%2BcbKH19Be5kDOqUjww9xGRLHDYg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CANMpiORmPZU7R1Q_ffyiOut%2BcbKH19Be5kDOqUjww9xGRLHDYg%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06750.html</id>
-        <title>[blink-dev] Re: Intent to Ship: HTTPS Upgrades</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06750.html"/>
-        <updated>2023-07-11T13:55:53.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06750.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Ship%5C%3A+HTTPS+Upgrades%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Re: Intent to Ship: HTTPS Upgrades&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Shezan+Baig%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Shezan Baig&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230711" rel="nofollow"&gt;Tue, 11 Jul 2023 06:55:53 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Hi,
-Is there a way to disable this feature?  I tried running the browser with 
-&amp;quot; --disable-features=HttpsUpgrades&amp;quot;, but it still seems to be performing 
-these upgrades.
-Thanks,
--shez-&lt;/pre&gt;&lt;pre&gt;
-
-
-On Wednesday, May 24, 2023 at 7:13:38 PM UTC-4 cth...@chromium.org wrote:
-
-&amp;gt; Contact emailscth...@chromium.org, dad...@google.com
-&amp;gt;
-&amp;gt; Explainer&lt;a  rel="nofollow" href="https://github.com/dadrian/https-upgrade/blob/main/explainer.md"&gt;https://github.com/dadrian/https-upgrade/blob/main/explainer.md&lt;/a&gt;
-&amp;gt;
-&amp;gt; Specification&lt;a  rel="nofollow" href="https://github.com/whatwg/fetch/pull/1655"&gt;https://github.com/whatwg/fetch/pull/1655&lt;/a&gt;
-&amp;gt;
-&amp;gt; Summary
-&amp;gt;
-&amp;gt; Automatically and optimistically upgrade all main-frame navigations to 
-&amp;gt; HTTPS, with fast fallback to HTTP.
-&amp;gt;
-&amp;gt;
-&amp;gt; Blink componentInternals&amp;gt;Network&amp;gt;SSL 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Internals%3ENetwork%3ESSL"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Internals%3ENetwork%3ESSL&lt;/a&gt;&amp;gt;
-&amp;gt;
-&amp;gt; TAG reviewFetch change process does not mention a TAG review, therefore 
-&amp;gt; this is N/A (&lt;a  rel="nofollow" href="https://github.com/whatwg/fetch#pull-requests"&gt;https://github.com/whatwg/fetch#pull-requests&lt;/a&gt;)
-&amp;gt;
-&amp;gt; TAG review statusNot applicable
-&amp;gt;
-&amp;gt; Risks
-&amp;gt;
-&amp;gt;
-&amp;gt; Interoperability and Compatibility
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; *Gecko*: Positive (
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/800"&gt;https://github.com/mozilla/standards-positions/issues/800&lt;/a&gt;) Firefox is 
-&amp;gt; offering a similar feature already in their private browsing mode by default
-&amp;gt;
-&amp;gt; *WebKit*: No signal (
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/185"&gt;https://github.com/WebKit/standards-positions/issues/185&lt;/a&gt;)
-&amp;gt;
-&amp;gt; *Web developers*: No signals. This feature is not exposed directly to web 
-&amp;gt; developers or users. However, HTTPS adoption is now standard practice (&amp;gt;90% 
-&amp;gt; of page loads in Chrome use HTTPS), and automatically upgrading navigations 
-&amp;gt; to HTTPS would avoid unnecessary redirects from HTTP to HTTPS for site 
-&amp;gt; owners. The `upgrade-insecure-requests` header has some similar 
-&amp;gt; functionality, and according to HTTP-Archive is found on ~6% of all 
-&amp;gt; requests.
-&amp;gt;
-&amp;gt; *Other signals*:
-&amp;gt;
-&amp;gt; WebView application risks
-&amp;gt;
-&amp;gt; Does this intent deprecate or change behavior of existing APIs, such that 
-&amp;gt; it has potentially high risk for Android WebView-based applications?
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; Debuggability
-&amp;gt;
-&amp;gt; Chrome will upgrade these navigations to HTTPS using a 307 internal 
-&amp;gt; redirect, which will be visible in the Network panel of Developer Tools.
-&amp;gt;
-&amp;gt;
-&amp;gt; Will this feature be supported on all six Blink platforms (Windows, Mac, 
-&amp;gt; Linux, Chrome OS, Android, and Android WebView)?No
-&amp;gt;
-&amp;gt; Currently not available on Android WebView. We are implementing this first 
-&amp;gt; for Chrome and will consider bringing this to WebView (likely as an 
-&amp;gt; embedder opt-in) as follow up work.
-&amp;gt;
-&amp;gt;
-&amp;gt; Is this feature fully tested by web-platform-tests 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt; ?No
-&amp;gt;
-&amp;gt; Flag namehttps-upgrades
-&amp;gt;
-&amp;gt; Requires code in //chrome?True
-&amp;gt;
-&amp;gt; Tracking bug&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1394910"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1394910&lt;/a&gt;
-&amp;gt;
-&amp;gt; Launch bug&lt;a  rel="nofollow" href="https://launch.corp.google.com/launch/4235192"&gt;https://launch.corp.google.com/launch/4235192&lt;/a&gt;
-&amp;gt;
-&amp;gt; Sample links
-&amp;gt; &lt;a  rel="nofollow" href="http://example.com"&gt;http://example.com&lt;/a&gt; will upgrade to &lt;a  rel="nofollow" href="https://example.com"&gt;https://example.com&lt;/a&gt;.
-&amp;gt; &lt;a  rel="nofollow" href="http://www.alwayshttp.com"&gt;http://www.alwayshttp.com&lt;/a&gt; will upgrade to &lt;a  rel="nofollow" href="https://www.alwayshttp.com"&gt;https://www.alwayshttp.com&lt;/a&gt; but 
-&amp;gt; fall back to &lt;a  rel="nofollow" href="http://www.alwayshttp.com"&gt;http://www.alwayshttp.com&lt;/a&gt; because the site doesn't support 
-&amp;gt; HTTPS.
-&amp;gt;
-&amp;gt; Estimated milestones
-&amp;gt; Shipping on desktop 115
-&amp;gt; Shipping on Android 115
-&amp;gt;
-&amp;gt; We are planning to do a field trial to gradually roll out this feature to 
-&amp;gt; Chrome clients in Chrome 115.
-&amp;gt;
-&amp;gt; Anticipated spec changes
-&amp;gt;
-&amp;gt; Open questions about a feature may be a source of future web compat or 
-&amp;gt; interop issues. Please list open issues (e.g. links to known github issues 
-&amp;gt; in the project for the feature specification) whose resolution may 
-&amp;gt; introduce web compat/interop risk (e.g., changing to naming or structure of 
-&amp;gt; the API in a non-backward-compatible way).
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/whatwg/fetch/pull/1655"&gt;https://github.com/whatwg/fetch/pull/1655&lt;/a&gt;
-&amp;gt;
-&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/6056181032812544"&gt;https://chromestatus.com/feature/6056181032812544&lt;/a&gt;
-&amp;gt;
-&amp;gt; Links to previous Intent discussionsIntent to prototype: 
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/mgJqym5-Xek/m/0EAN6v7CCQAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/mgJqym5-Xek/m/0EAN6v7CCQAJ&lt;/a&gt;
-&amp;gt;
-&amp;gt; This intent message was generated by Chrome Platform Status 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/0d230e18-92fd-45c8-ba85-b80f301c844bn%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/0d230e18-92fd-45c8-ba85-b80f301c844bn%40chromium.org&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
