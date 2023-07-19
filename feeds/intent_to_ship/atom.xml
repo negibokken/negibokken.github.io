@@ -5,6 +5,579 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06823.html</id>
+        <title>[blink-dev] Re: Intent to Prototype: fetchLater API</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06823.html"/>
+        <updated>2023-07-19T08:26:40.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06823.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Prototype%5C%3A+fetchLater+API%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Re: Intent to Prototype: fetchLater API&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Yoav+Weiss%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Yoav Weiss&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230719" rel="nofollow"&gt;Wed, 19 Jul 2023 01:26:40 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Thanks for working on this!! (and iterating on the solution based on
+feedback)&lt;/pre&gt;&lt;pre&gt;
+
+On Tue, Jul 18, 2023 at 4:23 AM Ming-Ying Chung &amp;lt;m...@chromium.org&amp;gt; wrote:
+
+&amp;gt; Hi Team,
+&amp;gt;
+&amp;gt; We plan to prototype the fetchLater API, which is the successor of the
+&amp;gt; previous PendingBeacon API (intent to prototype mail
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/tPTRZkSmlbg/m/5vGhjrEsAgAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/tPTRZkSmlbg/m/5vGhjrEsAgAJ&lt;/a&gt;&amp;gt;,
+&amp;gt; intent to OT mail
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/ZCVcUEYzVHs/m/3PjKPLmkAQAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/ZCVcUEYzVHs/m/3PjKPLmkAQAJ&lt;/a&gt;&amp;gt;).
+&amp;gt; The fetchLater API is the result of discussion
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/pending-beacon/issues/70"&gt;https://github.com/WICG/pending-beacon/issues/70&lt;/a&gt;&amp;gt; with users and other
+&amp;gt; browser vendors.
+&amp;gt;
+&amp;gt; Contact emailsm...@chromium.org
+&amp;gt; denom...@chromium.org
+&amp;gt; pending-beacon-experim...@google.com
+&amp;gt;
+&amp;gt; Explainer
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/pending-beacon/blob/main/docs/fetch-later-api.md"&gt;https://github.com/WICG/pending-beacon/blob/main/docs/fetch-later-api.md&lt;/a&gt;
+&amp;gt;
+&amp;gt; Chromium Design Doc
+&amp;gt;
+&amp;gt; &lt;a  rel="nofollow" href="https://docs.google.com/document/d/1U8XSnICPY3j-fjzG35UVm6zjwL6LvX6ETU3T8WrzLyQ"&gt;https://docs.google.com/document/d/1U8XSnICPY3j-fjzG35UVm6zjwL6LvX6ETU3T8WrzLyQ&lt;/a&gt;
+&amp;gt;
+&amp;gt; Specification
+&amp;gt; &lt;a  rel="nofollow" href="https://whatpr.org/fetch/1647/094ea69...152d725.html#fetch-later-method"&gt;https://whatpr.org/fetch/1647/094ea69...152d725.html#fetch-later-method&lt;/a&gt; (draft
+&amp;gt; PR)
+&amp;gt;
+&amp;gt; Summary
+&amp;gt;
+&amp;gt; fetchLater() is a JavaScript API to request a deferred fetch. Once
+&amp;gt; requested, the deferred request is queued by the browser, and will be
+&amp;gt; invoked in one of the following scenarios:
+&amp;gt;
+&amp;gt;    - The document is destroyed.
+&amp;gt;    - The document is bfcached and not restored after a certain time.
+&amp;gt;
+&amp;gt; The API returns a FetchLaterResult that contains a boolean field sent that
+&amp;gt; may be updated to tell whether the deferred request has been sent out or
+&amp;gt; not. On successful sending, the whole response will be ignored, including
+&amp;gt; body and headers. Nothing at all should be processed or updated, as the
+&amp;gt; page is already gone.
+&amp;gt;
+&amp;gt; Note that from the point of view of the API user, the exact send time is
+&amp;gt; unknown.
+&amp;gt;
+&amp;gt; Blink componentBlink&amp;gt;Network&amp;gt;FetchAPI
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component%3ABlink%3ENetwork%3EFetchAPI"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component%3ABlink%3ENetwork%3EFetchAPI&lt;/a&gt;&amp;gt;
+&amp;gt;
+&amp;gt; Motivation
+&amp;gt;
+&amp;gt; Web developers have a need for ‘beaconing’ - that is, sending a bundle of
+&amp;gt; data to a backend server, without expecting a particular response, ideally
+&amp;gt; at the ‘end’ of a user’s visit to a page. Existing beacon APIs are all
+&amp;gt; based around a developer constructing and sending a beacon, and there's no
+&amp;gt; good time for that &amp;quot;send&amp;quot; call to be made.
+&amp;gt;
+&amp;gt;
+&amp;gt; This API delegates the sending to the browser itself, so it can support
+&amp;gt; requests on page unload or on page hide, without the developer having to
+&amp;gt; implement send calls at exactly the right times.
+&amp;gt;
+&amp;gt; Initial public proposal
+&amp;gt; &lt;a  rel="nofollow" href="https://discourse.wicg.io/t/proposal-stateful-javascript-page-unload-beacon-api/5776"&gt;https://discourse.wicg.io/t/proposal-stateful-javascript-page-unload-beacon-api/5776&lt;/a&gt;
+&amp;gt;
+&amp;gt; TAG review
+&amp;gt; TAG review statusPending
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/776"&gt;https://github.com/w3ctag/design-reviews/issues/776&lt;/a&gt;&amp;gt; (for PendingBeacon,
+&amp;gt; not fetchLater)
+&amp;gt;
+&amp;gt; Risks
+&amp;gt;
+&amp;gt;
+&amp;gt; Interoperability and Compatibility
+&amp;gt;
+&amp;gt;
+&amp;gt; Gecko: Pending &amp;lt;&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/703"&gt;https://github.com/mozilla/standards-positions/issues/703&lt;/a&gt;&amp;gt;
+&amp;gt;
+&amp;gt; WebKit: Supportive
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/85"&gt;https://github.com/WebKit/standards-positions/issues/85&lt;/a&gt;&amp;gt;
+&amp;gt;
+&amp;gt; Web developers: No signals
+&amp;gt;
+&amp;gt; Other signals:
+&amp;gt;
+&amp;gt; WebView application risks
+&amp;gt;
+&amp;gt; No
+&amp;gt;
+&amp;gt; Debuggability
+&amp;gt;
+&amp;gt; fetchLater requests should be shown in the DevTool's network tab, similar
+&amp;gt; to other network requests.
+&amp;gt;
+&amp;gt; Is this feature fully tested by web-platform-tests
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+&amp;gt; ?Not yet. But there are tests for PendingBeacon to convert from.
+&amp;gt;
+&amp;gt; Flag nameFetchLaterAPI
+&amp;gt;
+&amp;gt; Requires code in //chrome?False
+&amp;gt;
+&amp;gt; Estimated milestones
+&amp;gt;
+&amp;gt; No milestones specified
+&amp;gt;
+&amp;gt; Link to entry on the Chrome Platform Status
+&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5690553554436096"&gt;https://chromestatus.com/feature/5690553554436096&lt;/a&gt; (old entry for
+&amp;gt; PendingBeacon API)
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfWnfOwJjU9yG47FM3u0O1XuzjCiRutiHFpE2QCw3Mqf%3Dg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfWnfOwJjU9yG47FM3u0O1XuzjCiRutiHFpE2QCw3Mqf%3Dg%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06822.html</id>
+        <title>Re: [blink-dev] Intent to Ship: [URL] Allow "%00" as a valid URL path</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06822.html"/>
+        <updated>2023-07-19T08:19:15.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06822.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+%5C%5BURL%5C%5D+Allow+%5C%22%2500%5C%22+as+a+valid+URL+path%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: [URL] Allow "%00" as a valid URL path&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Yoav+Weiss%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Yoav Weiss&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230719" rel="nofollow"&gt;Wed, 19 Jul 2023 01:19:15 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;LGTM3. As this is a change that will not break any URLs (but enable ones
+that are currently broken in Chromium but not elsewhere), the compat risk
+seems negligible and interop risk negative (== interop benefits).&lt;/pre&gt;&lt;pre&gt;
+
+On Tue, Jul 18, 2023 at 7:46 PM 'Rick Byers' via blink-dev &amp;lt;
+blink-dev@chromium.org&amp;gt; wrote:
+
+&amp;gt; Agreed this is bugfix level and not &amp;quot;an API change&amp;quot;. Of course bug fixes
+&amp;gt; can also trigger compat issues, but it seems very unlikely to me that
+&amp;gt; anyone could reasonably depend on chromium failing to parse a URL of this
+&amp;gt; obscure form (when other engines don't).  LGTM2
+&amp;gt;
+&amp;gt; On Mon, Jul 17, 2023 at 2:25 PM Daniel Bratell &amp;lt;bratel...@gmail.com&amp;gt;
+&amp;gt; wrote:
+&amp;gt;
+&amp;gt;&amp;gt; It is a small change, but I understand why everyone wants an extra pair
+&amp;gt;&amp;gt; of eyes on it. Unexpected embedded null bytes have broken various programs
+&amp;gt;&amp;gt; in the past. On the other hand, I don't consider that to be a blocker for
+&amp;gt;&amp;gt; API OWNER shipping decisions, and if the other browsers have implemented it
+&amp;gt;&amp;gt; successfully and your reviewers seem reasonably confident it will work out
+&amp;gt;&amp;gt; fine, we should just make sure we're all compatible:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; LGTM1
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; /Daniel
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; On 2023-07-14 05:59, Hayato Ito wrote:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Contact emails hay...@chromium.org
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Specification &lt;a  rel="nofollow" href="https://url.spec.whatwg.org"&gt;https://url.spec.whatwg.org&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Summary
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; The context: This is a part of the URL interop 2023. Please see the CL's
+&amp;gt;&amp;gt; description [1] for more details. A reviewer recommended sending I2S [2]
+&amp;gt;&amp;gt; for this change. There was also a discussion regarding a potential risk [3].
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; --
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Chrome currently considers a URL invalid if the URL's path part contains
+&amp;gt;&amp;gt; &amp;quot;%00&amp;quot; (or null), which is not compliant with the URL Standard [4]. For
+&amp;gt;&amp;gt; example, the following test fails in Chrome because `new URL(..)` throws an
+&amp;gt;&amp;gt; Invalid URL exception. assertEquals(new 
+&amp;gt;&amp;gt; URL(&amp;quot;&lt;a  rel="nofollow" href="http://example.com/%00&amp;quot"&gt;http://example.com/%00&amp;quot&lt;/a&gt;;).pathname,
+&amp;gt;&amp;gt; &amp;quot;/%00&amp;quot;); According to the URL Standard, any character or byte sequence in
+&amp;gt;&amp;gt; URL path should not make the URL invalid. Note: In other parts of URL,
+&amp;gt;&amp;gt; &amp;quot;%00&amp;quot; may still be considered invalid. For example, new URL(&amp;quot;
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="http://example%00.com/&amp;quot"&gt;http://example%00.com/&amp;quot&lt;/a&gt;;); throws an exception because &amp;quot;%00&amp;quot; is not a
+&amp;gt;&amp;gt; valid host codepoint.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; - [1] &lt;a  rel="nofollow" href="https://crrev.com/c/4596360"&gt;https://crrev.com/c/4596360&lt;/a&gt;
+&amp;gt;&amp;gt; - [2] &lt;a  rel="nofollow" href="https://crrev.com/c/4596360/comments/07cdcc45_545df600"&gt;https://crrev.com/c/4596360/comments/07cdcc45_545df600&lt;/a&gt;
+&amp;gt;&amp;gt; - [3] &lt;a  rel="nofollow" href="https://crrev.com/c/4596360/comments/07c373bd_74564864?tab=comments"&gt;https://crrev.com/c/4596360/comments/07c373bd_74564864?tab=comments&lt;/a&gt;
+&amp;gt;&amp;gt; - [4] &lt;a  rel="nofollow" href="https://url.spec.whatwg.org/"&gt;https://url.spec.whatwg.org/&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Blink component Blink&amp;gt;Network
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ENetwork"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ENetwork&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; TAG review None
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; TAG review status Not applicable
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Risks
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Interoperability and Compatibility
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *Gecko*: Shipped
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *WebKit*: Shipped
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows, Mac,
+&amp;gt;&amp;gt; Linux, Chrome OS, Android, and Android WebView)?
+&amp;gt;&amp;gt; Yes
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt; ? Yes
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Tracking bug
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1400251"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1400251&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Estimated milestones
+&amp;gt;&amp;gt; Shipping on desktop 117
+&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/4763113357836288"&gt;https://chromestatus.com/feature/4763113357836288&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; --
+&amp;gt;&amp;gt; Hayato
+&amp;gt;&amp;gt; --
+&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups
+&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&amp;gt;&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt;&amp;gt; To view this discussion on the web visit
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFpjS_2QN_6E_ianHrUVi%3DcR1J1x-nnmEg4N-A1t_jx8xwL9FA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFpjS_2QN_6E_ianHrUVi%3DcR1J1x-nnmEg4N-A1t_jx8xwL9FA%40mail.gmail.com&lt;/a&gt;
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFpjS_2QN_6E_ianHrUVi%3DcR1J1x-nnmEg4N-A1t_jx8xwL9FA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFpjS_2QN_6E_ianHrUVi%3DcR1J1x-nnmEg4N-A1t_jx8xwL9FA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; --
+&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups
+&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&amp;gt;&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt;&amp;gt; To view this discussion on the web visit
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/badb0c43-3bc8-95ea-72fe-278f905831bb%40gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/badb0c43-3bc8-95ea-72fe-278f905831bb%40gmail.com&lt;/a&gt;
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/badb0c43-3bc8-95ea-72fe-278f905831bb%40gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/badb0c43-3bc8-95ea-72fe-278f905831bb%40gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;
+&amp;gt; --
+&amp;gt; You received this message because you are subscribed to the Google Groups
+&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt; To view this discussion on the web visit
+&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY9ZD46H%3DSkOgTgJ1D-cYqo-qiiwPwxASvHLQ9%2BbeNs73w%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY9ZD46H%3DSkOgTgJ1D-cYqo-qiiwPwxASvHLQ9%2BbeNs73w%40mail.gmail.com&lt;/a&gt;
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY9ZD46H%3DSkOgTgJ1D-cYqo-qiiwPwxASvHLQ9%2BbeNs73w%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY9ZD46H%3DSkOgTgJ1D-cYqo-qiiwPwxASvHLQ9%2BbeNs73w%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt; .
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfVqGe-GqHAy-sBSYeqL78%3D0_z7jZs_OuA7Ok7-c27u3%2Bg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfVqGe-GqHAy-sBSYeqL78%3D0_z7jZs_OuA7Ok7-c27u3%2Bg%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06821.html</id>
+        <title>Re: [blink-dev] Intent to Experiment: Tabbed web apps</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06821.html"/>
+        <updated>2023-07-19T07:50:42.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06821.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Experiment%5C%3A+Tabbed+web+apps%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Experiment: Tabbed web apps&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Yoav+Weiss%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Yoav Weiss&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230719" rel="nofollow"&gt;Wed, 19 Jul 2023 00:50:42 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;LGTM to experiment M116-122 (inclusive)
+
+On Wed, Jul 19, 2023 at 8:14 AM 'Louise Brett' via blink-dev &amp;lt;
+blink-dev@chromium.org&amp;gt; wrote:&lt;/pre&gt;&lt;pre&gt;
+
+&amp;gt; Contact emailsloubr...@google.com, alancut...@chromium.org,
+&amp;gt; glen...@chromium.org, mgi...@chromium.org
+&amp;gt;
+&amp;gt; Explainer
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/manifest-incubations/blob/gh-pages/tabbed-mode-explainer.md"&gt;https://github.com/WICG/manifest-incubations/blob/gh-pages/tabbed-mode-explainer.md&lt;/a&gt;
+&amp;gt;
+&amp;gt; SpecificationNone
+&amp;gt;
+&amp;gt; Summary
+&amp;gt;
+&amp;gt; Allow web app windows to have a tab strip. This adds a new display mode
+&amp;gt; &amp;quot;tabbed&amp;quot; and a new manifest field to allow customizations to the tab strip.
+&amp;gt;
+&amp;gt;
+&amp;gt; Blink componentBlink&amp;gt;AppManifest
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EAppManifest"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EAppManifest&lt;/a&gt;&amp;gt;
+&amp;gt;
+&amp;gt; TAG review&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/841"&gt;https://github.com/w3ctag/design-reviews/issues/841&lt;/a&gt;
+&amp;gt;
+&amp;gt; TAG review statusPending
+&amp;gt;
+&amp;gt; Risks
+&amp;gt;
+&amp;gt;
+&amp;gt; Interoperability and Compatibility
+&amp;gt;
+&amp;gt;
+&amp;gt;
+&amp;gt; *Gecko*: Defer (&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/811"&gt;https://github.com/mozilla/standards-positions/issues/811&lt;/a&gt;)
+&amp;gt;
+&amp;gt; *WebKit*: No signal (
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/195"&gt;https://github.com/WebKit/standards-positions/issues/195&lt;/a&gt;)
+&amp;gt;
+&amp;gt; *Web developers*: Positive (&lt;a  rel="nofollow" href="https://github.com/w3c/manifest/issues/737"&gt;https://github.com/w3c/manifest/issues/737&lt;/a&gt;)
+&amp;gt;
+&amp;gt; *Other signals*:
+&amp;gt;
+&amp;gt; WebView application risks
+&amp;gt;
+&amp;gt; Does this intent deprecate or change behavior of existing APIs, such that
+&amp;gt; it has potentially high risk for Android WebView-based applications?
+&amp;gt;
+&amp;gt; N/A. This feature is not supported on WebView so we will fallback to a
+&amp;gt; supported display mode.
+&amp;gt;
+&amp;gt;
+&amp;gt;
+&amp;gt; Goals for experimentation
+&amp;gt;
+&amp;gt; Gather feedback on the API design.
+&amp;gt;
+&amp;gt; Ongoing technical constraints
+&amp;gt;
+&amp;gt;
+&amp;gt;
+&amp;gt; Debuggability
+&amp;gt;
+&amp;gt; chrome://web-app-internals can be used for debugging, and the new manifest
+&amp;gt; field could also be added to the DevTools Application pane.
+&amp;gt;
+&amp;gt;
+&amp;gt; Will this feature be supported on all six Blink platforms (Windows, Mac,
+&amp;gt; Linux, Chrome OS, Android, and Android WebView)?No. Initially this will
+&amp;gt; only be available on ChromeOS, but will be expanded to other desktop
+&amp;gt; platforms in the future.
+&amp;gt;
+&amp;gt;
+&amp;gt; Is this feature fully tested by web-platform-tests
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+&amp;gt; ?No
+&amp;gt;
+&amp;gt; Flag name on chrome://flagschrome://flags/#enable-desktop-pwas-tab-strip
+&amp;gt; chrome://flags/#enable-desktop-pwas-tab-strip-customizations
+&amp;gt;
+&amp;gt; Finch feature nameNone
+&amp;gt;
+&amp;gt; Non-finch justificationNone
+&amp;gt;
+&amp;gt; Requires code in //chrome?True
+&amp;gt;
+&amp;gt; Tracking bug&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=897314"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=897314&lt;/a&gt;
+&amp;gt;
+&amp;gt; Launch bug&lt;a  rel="nofollow" href="https://launch.corp.google.com/launch/4253814"&gt;https://launch.corp.google.com/launch/4253814&lt;/a&gt;
+&amp;gt;
+&amp;gt; Estimated milestones
+&amp;gt;
+&amp;gt; Requesting to run an origin trial from 117-122 (inclusive).
+&amp;gt;
+&amp;gt;
+&amp;gt; Link to entry on the Chrome Platform Status
+&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5128143454076928"&gt;https://chromestatus.com/feature/5128143454076928&lt;/a&gt;
+&amp;gt;
+&amp;gt; Links to previous Intent discussionsIntent to prototype:
+&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/IvfIkjvQYuY/m/cixwOyEeAAAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/IvfIkjvQYuY/m/cixwOyEeAAAJ&lt;/a&gt;
+&amp;gt;
+&amp;gt; This intent message was generated by Chrome Platform Status
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+&amp;gt;
+&amp;gt; --
+&amp;gt; You received this message because you are subscribed to the Google Groups
+&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt; To view this discussion on the web visit
+&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABeVxY3HJP8hqiNkF186unEVXu6TquM0JuBpw_K5sH6uhxaOeg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABeVxY3HJP8hqiNkF186unEVXu6TquM0JuBpw_K5sH6uhxaOeg%40mail.gmail.com&lt;/a&gt;
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABeVxY3HJP8hqiNkF186unEVXu6TquM0JuBpw_K5sH6uhxaOeg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABeVxY3HJP8hqiNkF186unEVXu6TquM0JuBpw_K5sH6uhxaOeg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt; .
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfW4Eizzo2uj30kgrHJ%3DQvinef433yjcR4u-47RvoQCTWg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfW4Eizzo2uj30kgrHJ%3DQvinef433yjcR4u-47RvoQCTWg%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06820.html</id>
+        <title>[blink-dev] Intent to Experiment: Tabbed web apps</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06820.html"/>
+        <updated>2023-07-19T06:14:41.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06820.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Experiment%5C%3A+Tabbed+web+apps%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Experiment: Tabbed web apps&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Louise+Brett%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Louise Brett' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230718" rel="nofollow"&gt;Tue, 18 Jul 2023 23:14:41 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Contact emailsloubr...@google.com, alancut...@chromium.org,
+glen...@chromium.org, mgi...@chromium.org&lt;/pre&gt;&lt;pre&gt;
+
+Explainer
+&lt;a  rel="nofollow" href="https://github.com/WICG/manifest-incubations/blob/gh-pages/tabbed-mode-explainer.md"&gt;https://github.com/WICG/manifest-incubations/blob/gh-pages/tabbed-mode-explainer.md&lt;/a&gt;
+
+SpecificationNone
+
+Summary
+
+Allow web app windows to have a tab strip. This adds a new display mode
+&amp;quot;tabbed&amp;quot; and a new manifest field to allow customizations to the tab strip.
+
+
+Blink componentBlink&amp;gt;AppManifest
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EAppManifest"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EAppManifest&lt;/a&gt;&amp;gt;
+
+TAG review&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/841"&gt;https://github.com/w3ctag/design-reviews/issues/841&lt;/a&gt;
+
+TAG review statusPending
+
+Risks
+
+
+Interoperability and Compatibility
+
+
+
+*Gecko*: Defer (&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/811"&gt;https://github.com/mozilla/standards-positions/issues/811&lt;/a&gt;)
+
+*WebKit*: No signal (
+&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/195"&gt;https://github.com/WebKit/standards-positions/issues/195&lt;/a&gt;)
+
+*Web developers*: Positive (&lt;a  rel="nofollow" href="https://github.com/w3c/manifest/issues/737"&gt;https://github.com/w3c/manifest/issues/737&lt;/a&gt;)
+
+*Other signals*:
+
+WebView application risks
+
+Does this intent deprecate or change behavior of existing APIs, such that
+it has potentially high risk for Android WebView-based applications?
+
+N/A. This feature is not supported on WebView so we will fallback to a
+supported display mode.
+
+
+
+Goals for experimentation
+
+Gather feedback on the API design.
+
+Ongoing technical constraints
+
+
+
+Debuggability
+
+chrome://web-app-internals can be used for debugging, and the new manifest
+field could also be added to the DevTools Application pane.
+
+
+Will this feature be supported on all six Blink platforms (Windows, Mac,
+Linux, Chrome OS, Android, and Android WebView)?No. Initially this will
+only be available on ChromeOS, but will be expanded to other desktop
+platforms in the future.
+
+
+Is this feature fully tested by web-platform-tests
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+?No
+
+Flag name on chrome://flagschrome://flags/#enable-desktop-pwas-tab-strip
+chrome://flags/#enable-desktop-pwas-tab-strip-customizations
+
+Finch feature nameNone
+
+Non-finch justificationNone
+
+Requires code in //chrome?True
+
+Tracking bug&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=897314"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=897314&lt;/a&gt;
+
+Launch bug&lt;a  rel="nofollow" href="https://launch.corp.google.com/launch/4253814"&gt;https://launch.corp.google.com/launch/4253814&lt;/a&gt;
+
+Estimated milestones
+
+Requesting to run an origin trial from 117-122 (inclusive).
+
+
+Link to entry on the Chrome Platform Status
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5128143454076928"&gt;https://chromestatus.com/feature/5128143454076928&lt;/a&gt;
+
+Links to previous Intent discussionsIntent to prototype:
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/IvfIkjvQYuY/m/cixwOyEeAAAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/IvfIkjvQYuY/m/cixwOyEeAAAJ&lt;/a&gt;
+
+This intent message was generated by Chrome Platform Status
+&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABeVxY3HJP8hqiNkF186unEVXu6TquM0JuBpw_K5sH6uhxaOeg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABeVxY3HJP8hqiNkF186unEVXu6TquM0JuBpw_K5sH6uhxaOeg%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06819.html</id>
         <title>Re: [blink-dev] Re: Intent to Prototype: Web environment integrity API</title>
         <author>
@@ -8384,1275 +8957,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfXtkH6O82W%2BWm9ckCyYasSJt2cbs9VA4VZAmYhtivgj4g%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfXtkH6O82W%2BWm9ckCyYasSJt2cbs9VA4VZAmYhtivgj4g%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06773.html</id>
-        <title>Re: [blink-dev] Intent to Ship: Inherit Base URL snapshot for about:blank and about:srcdoc, with about:blank inheriting from initiator, not parent.</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06773.html"/>
-        <updated>2023-07-12T14:07:31.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06773.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Inherit+Base+URL+snapshot+for+about%5C%3Ablank+and+about%5C%3Asrcdoc%2C+with+about%5C%3Ablank+inheriting+from+initiator%2C+not+parent.%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Inherit Base URL snapshot for about:blank and about:srcdoc, with about:blank inheriting from initiator, not parent.&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Yoav+Weiss%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Yoav Weiss&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230712" rel="nofollow"&gt;Wed, 12 Jul 2023 07:07:31 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;LGTM3 for a careful rollout!
-
-On Wed, Jul 12, 2023 at 3:53 PM Daniel Bratell &amp;lt;bratel...@gmail.com&amp;gt; wrote:&lt;/pre&gt;&lt;pre&gt;
-
-&amp;gt; LGTM2
-&amp;gt;
-&amp;gt; /Daniel
-&amp;gt; On 2023-07-10 21:55, Mike Taylor wrote:
-&amp;gt;
-&amp;gt; LGTM1
-&amp;gt; On 7/10/23 11:23 AM, Dominic Farolino wrote:
-&amp;gt;
-&amp;gt; The niche-ness of these changes plus the fact that they've been rolled out
-&amp;gt; on Canary+Dev for some time *and* that we've already smoked out some
-&amp;gt; compat issues at that level of experimentation for the adjacent work the
-&amp;gt; team looked into (censoring the base URL for sandboxed about:srcdoc
-&amp;gt; Documents) makes me fairly comfortable that we have a good grip on the
-&amp;gt; compat implications of this, IMO.
-&amp;gt;
-&amp;gt; On Fri, Jul 7, 2023 at 12:01 PM W. James MacLean &amp;lt;wjmacl...@chromium.org&amp;gt;
-&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; At present there is no mechanism I'm aware of for tracking when baseURIs
-&amp;gt;&amp;gt; are accessed in scenarios where the behavior might be different from what
-&amp;gt;&amp;gt; is expected. I'm not quite sure what that would look like exactly, as at
-&amp;gt;&amp;gt; the document level we don't expect to know if initiator = parent or not. We
-&amp;gt;&amp;gt; expect the compat risk to be quite low, as the initiator != parent case
-&amp;gt;&amp;gt; seems likely to be rare. But it might not be zero and we don't have any
-&amp;gt;&amp;gt; numbers on what it might actually be.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; As Dominic mentioned, we think the risk is low enough that a careful &amp;
-&amp;gt;&amp;gt; gradual deployment (with a killswitch available, and an enterprise policy
-&amp;gt;&amp;gt; in place to allow disabling the new behavior at the enterprise level)
-&amp;gt;&amp;gt; should be safe. But if there's concern that might not be safe enough, we
-&amp;gt;&amp;gt; can look into it further. I've held off releasing this to beta for now,
-&amp;gt;&amp;gt; though it's been active on canary+dev for quite a while now.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Mon, 3 Jul 2023 at 00:03, Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt; wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; A couple of questions:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;    - Should we wait until the PR matures a bit and gets reviewed?
-&amp;gt;&amp;gt;&amp;gt;    WebKit's position is encouraging, but it'd be an even better signal to be
-&amp;gt;&amp;gt;&amp;gt;    able to land the PR.
-&amp;gt;&amp;gt;&amp;gt;    - How can we evaluate the compat risk here?
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; RE the latter, is there a way to usecount how often the baseURI is
-&amp;gt;&amp;gt;&amp;gt; accessed in places that will change behavior here? That can give us an
-&amp;gt;&amp;gt;&amp;gt; upper bound on potential breakage.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; On Mon, Jul 3, 2023 at 4:00 AM Domenic Denicola &amp;lt;dome...@chromium.org&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Let me just say, with my HTML Standard editor hat on, that I am very
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; excited for these changes. This area is currently a wasteland of
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; non-interoperable behavior, broken specifications, and
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; web-developer-expectations violations. The team has done some amazing work
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; to figure out a model that works well, is conceptually elegant, and has
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; minimal compat concerns. And although I haven't done my editor review yet,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; I'm excited to see that they've sent spec PRs and a good number of web
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; platform tests for this area.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; There may still be compat risks here, but I think the benefits of
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; getting a reasonable model for base URL inheritance are worth pushing
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; forward (with careful deployment and a kill-switch). Thanks so much to the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; team for this work.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Sat, Jul 1, 2023 at 3:41 AM W. James MacLean &amp;lt;wjmacl...@chromium.org&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Intent to Ship: Inherit Base URL snapshot for about:blank and
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; about:srcdoc, with about:blank inheriting from initiator, not parent.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Contact emails
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wjmacl...@chromium.org
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; cr...@chromium.org
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; d...@chromium.org
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Explainer
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Specification
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/whatwg/html/pull/9464"&gt;https://github.com/whatwg/html/pull/9464&lt;/a&gt; (original proposal
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/421#issuecomment-1260360824"&gt;https://github.com/whatwg/html/issues/421#issuecomment-1260360824&lt;/a&gt;&amp;gt;)
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Summary
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; This work aims to fix issues and improve the compatibility of
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Chromium's implementation of fallback base URL
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://html.spec.whatwg.org/C#fallback-base-url"&gt;https://html.spec.whatwg.org/C#fallback-base-url&lt;/a&gt;&amp;gt; specifically for
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; about:srcdoc and about:blank frames. The base URL can be accessed
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; directly with document.baseURI, and indirectly when resolving relative
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; URLs.  Chromium's current behavior differs from Safari &amp; Firefox in 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; several
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ways. Chromium and Safari only partially snapshot the base URL for an
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; about:blank/srcdoc document from its creator document, and the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; about:blank/srcdoc document usually does not observe later changes to
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; its creator document's base URL. Still, such changes may become visible in
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; corner cases (e.g., if the child makes and then reverses changes to its
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; own &amp;lt;base&amp;gt; element, its partial snapshot gets updated from its
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; creator).
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; We propose that the base URL supplied to about:srcdoc and about:blank
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; frames and popups are snapshotted from their initiator at the time the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; navigation begins. The implementation will also allow base URL to work
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; correctly for about:srcdoc frames when those frames are in a
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; different process from their parent (e.g., sandboxed srcdoc iframes).
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Web-Visible Changes in Chrome
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    -
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    Inherit Base URL from Initiator: We propose to change the spec and
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    implementation to inherit base URLs from the navigation initiator
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    rather than from the frame's creator (where creator is the parent
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    document for about:srcdoc/blank iframes, and the opener for
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    about:blank popups). The creator of a frame may be different from
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    the initiator of a navigation that creates a document, and it is 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; surprising
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    when the origin and base URL are inherited from different incompatible
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    frames.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    -
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       Example: Consider the case where a sibling iframe B, with a
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       base url different from its parent A, navigates its sibling iframe 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       about:blank. Legacy Chrome behavior gives the about:blank
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       iframe its parent A's base url, but its sibling B's origin; our 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; proposal
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       assigns both the origin and base URL from the sibling B 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (initiator). For
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       srcdoc attribute mutations, both base URL and origin come from the 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; parent
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       as before (unchanged).
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       -
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       window.open(): At present in Chrome, window.open() and
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       window.open(“about:blank”) lead to a popup frame with
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       document.baseURI = “about:blank”. With the proposed change, the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       popup frame will inherit the baseURI from the initiator. This 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; brings Chrome
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       into agreement with Safari, and essentially with Firefox (which 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; still sets
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       base URL to “about:blank” for parameter-free calls to
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       window.open()).
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       -
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    Snapshotting Base URL: We propose to change the spec and
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    implementation such that base URLs should not update in response
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    to parent base URLs changing. The current spec allows such dynamic 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; updates
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    only for about:-schemed Documents, per the fallback base URL
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    &amp;lt;&lt;a  rel="nofollow" href="https://html.spec.whatwg.org/C#fallback-base-url"&gt;https://html.spec.whatwg.org/C#fallback-base-url&lt;/a&gt;&amp;gt; mechanism. But
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    these dynamic updates (as opposed to the snapshot we propose) are
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    problematic in that (i) it is difficult to provide if the child frame 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; is
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    cross-process, and (ii) can leak information in cross-origin cases (
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    e.g. the child is sandboxed).
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    -
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       Chrome currently has a “broken” snapshotting behavior
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       (described above), though in most cases it behaves as a snapshot.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       -
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       Safari currently has the same broken snapshotting as Chrome.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       -
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       Firefox does not snapshot: it allows a frame to see dynamic
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       changes in its parent.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       -
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    Store in Session History: We propose to change the spec and
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    implementation to save the base URL in session history, alongside
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    the document's origin
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    &amp;lt;&lt;a  rel="nofollow" href="https://html.spec.whatwg.org/C#document-state-origin"&gt;https://html.spec.whatwg.org/C#document-state-origin&lt;/a&gt;&amp;gt;. Like the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    session history's origin, the base URL would only be used when
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    repopulating about:blank &amp; about:srcdoc documents from session
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    history. This change is only observable for back/forward navigations 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    or session history restorations of these about:-schemed documents,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    specifically when their original initiator document is not the parent, 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; or
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    no longer exists. From manual testing it appears neither Firefox nor 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Safari
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    currently persist base urls for about:blank in session history.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    -
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    Detached Document: Frames that have been removed from their
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    parent, but are still alive and still have their document, will keep 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; their
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    snapshotted base URL in the proposed behavior. The current spec for
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    about:-schemed iframes would have it refer to a non-existent
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    parent in such cases, which so the behavior is ill-defined.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Additional discussion of the underlying issues involved may be found
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; at:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/421#issuecomment-1260360824"&gt;https://github.com/whatwg/html/issues/421#issuecomment-1260360824&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    -
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    &lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/421#issuecomment-1260360824"&gt;https://github.com/whatwg/html/issues/421#issuecomment-1260360824&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    -
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    &lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/3989"&gt;https://github.com/whatwg/html/issues/3989&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    -
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    Design Doc
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1e7T1YR5aGDg-eGHKDNnKUWcz1Dr38t_O0-XJqsMeZcE/edit?usp=sharing&amp;resourcekey=0-qCAYJPulnTdo9hV_dPCdhw"&gt;https://docs.google.com/document/d/1e7T1YR5aGDg-eGHKDNnKUWcz1Dr38t_O0-XJqsMeZcE/edit?usp=sharing&amp;resourcekey=0-qCAYJPulnTdo9hV_dPCdhw&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    -
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    &lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/6316"&gt;https://github.com/whatwg/html/issues/6316&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink component
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EJavaScript%3EWebAssembly"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EJavaScript%3EWebAssembly&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; HTML&amp;gt;IFRAME
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review status
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Not applicable
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Risks
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; This change will cause about:blank inherit from the initiator of the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; navigation, instead of from the parent frame. In many cases these are the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; same. When they differ, pages may observe the change in behavior. To work
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; around the change, a &amp;lt;base&amp;gt; element can be used to explicitly set the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; desired base url.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Interoperability and Compatibility
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; At present Gecko and WebKit differ slightly, and our implementation
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; more closely matches WebKit in that it snapshots the inherited base url at
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the time of navigation. Our proposed implementation differs from both in
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; that the initiator provides the base url.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Gecko: &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/813"&gt;https://github.com/mozilla/standards-positions/issues/813&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; WebKit: Support
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/197"&gt;https://github.com/WebKit/standards-positions/issues/197&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Web developers:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Other signals:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; WebView application risks
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Yes, there is potential for risk here, if apps depend on the previous
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; web visible behavior of base URL inheritance. We will be monitoring the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; rollout and can disable on Android WebView if any issues arise.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Debuggability
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Existing support for observing document.baseURI in DevTools.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Mac, Linux, Chrome OS, Android, and Android WebView)?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Yes
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Yes
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    -
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    html/infrastructure/urls/terminology-0
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/tree/master/html/infrastructure/urls/terminology-0"&gt;https://github.com/web-platform-tests/wpt/tree/master/html/infrastructure/urls/terminology-0&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    -
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    html/infrastructure/urls/base-url/
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/tree/master/html/infrastructure/urls/base-url/"&gt;https://github.com/web-platform-tests/wpt/tree/master/html/infrastructure/urls/base-url/&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    -
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    CL 4652304
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    &amp;lt;&lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/4652304"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/4652304&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Flag name
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; UI flag: chrome://flags/#enable-new-base-url-inheritance-behavior
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Command line flag: --enable-features=NewBaseUrlInheritanceBehavior
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Requires code in //chrome?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; False
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Estimated milestones
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; M116
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (Implementation has been complete for a while now, and will be
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; launching with a field trial first.)
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Anticipated spec changes
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Beyond our proposal, there was
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/8105"&gt;https://github.com/whatwg/html/issues/8105&lt;/a&gt;&amp;gt; some discussion
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/9025"&gt;https://github.com/whatwg/html/issues/9025&lt;/a&gt;&amp;gt; of future changes to
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; prohibit base URL inheritance for sandboxed about:-schemed documents,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; but there are
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/8105#issuecomment-1183642551"&gt;https://github.com/whatwg/html/issues/8105#issuecomment-1183642551&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; compat concerns
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/9025#issuecomment-1498239984"&gt;https://github.com/whatwg/html/issues/9025#issuecomment-1498239984&lt;/a&gt;&amp;gt;,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; so that work is not included here.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5161101671530496"&gt;https://chromestatus.com/feature/5161101671530496&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+unsubscr...@chromium.org.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADAYvoe_DU3j3Viiz1uM2qWjSUOBLEMnorerdHOBAcptOW7kag%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADAYvoe_DU3j3Viiz1uM2qWjSUOBLEMnorerdHOBAcptOW7kag%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADAYvoe_DU3j3Viiz1uM2qWjSUOBLEMnorerdHOBAcptOW7kag%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADAYvoe_DU3j3Viiz1uM2qWjSUOBLEMnorerdHOBAcptOW7kag%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+unsubscr...@chromium.org.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAM0wra-2-MP_KecE6rBx5xcJb6QiM0BCpOEEoRdkJ_BxMHWwug%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAM0wra-2-MP_KecE6rBx5xcJb6QiM0BCpOEEoRdkJ_BxMHWwug%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAM0wra-2-MP_KecE6rBx5xcJb6QiM0BCpOEEoRdkJ_BxMHWwug%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAM0wra-2-MP_KecE6rBx5xcJb6QiM0BCpOEEoRdkJ_BxMHWwug%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt;&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt;&amp;gt; To view this discussion on the web visit
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADAYvof1yr%2BJmW0ByoFLzp%2BnK0gQwfOxkEOP4gNbKVHWCik-pw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADAYvof1yr%2BJmW0ByoFLzp%2BnK0gQwfOxkEOP4gNbKVHWCik-pw%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADAYvof1yr%2BJmW0ByoFLzp%2BnK0gQwfOxkEOP4gNbKVHWCik-pw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADAYvof1yr%2BJmW0ByoFLzp%2BnK0gQwfOxkEOP4gNbKVHWCik-pw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;
-&amp;gt; --
-&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt; To view this discussion on the web visit
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAP-uykD%3DyZ860rRusrecSLGixNfnbkNuyLWU7-8P5WyzfHsePQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAP-uykD%3DyZ860rRusrecSLGixNfnbkNuyLWU7-8P5WyzfHsePQ%40mail.gmail.com&lt;/a&gt;
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAP-uykD%3DyZ860rRusrecSLGixNfnbkNuyLWU7-8P5WyzfHsePQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAP-uykD%3DyZ860rRusrecSLGixNfnbkNuyLWU7-8P5WyzfHsePQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt; .
-&amp;gt;
-&amp;gt; --
-&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt; To view this discussion on the web visit
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/1d6c8843-c50c-b0e3-edb6-a2027500046d%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/1d6c8843-c50c-b0e3-edb6-a2027500046d%40chromium.org&lt;/a&gt;
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/1d6c8843-c50c-b0e3-edb6-a2027500046d%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/1d6c8843-c50c-b0e3-edb6-a2027500046d%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt; .
-&amp;gt;
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfV4TktrK3EzHFAdvF-8w6OMok90xmXBKMb_42Gbgaz3NQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfV4TktrK3EzHFAdvF-8w6OMok90xmXBKMb_42Gbgaz3NQ%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06772.html</id>
-        <title>Re: [blink-dev] Intent to Ship: Inherit Base URL snapshot for about:blank and about:srcdoc, with about:blank inheriting from initiator, not parent.</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06772.html"/>
-        <updated>2023-07-12T13:53:13.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06772.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Inherit+Base+URL+snapshot+for+about%5C%3Ablank+and+about%5C%3Asrcdoc%2C+with+about%5C%3Ablank+inheriting+from+initiator%2C+not+parent.%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Inherit Base URL snapshot for about:blank and about:srcdoc, with about:blank inheriting from initiator, not parent.&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Daniel+Bratell%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Daniel Bratell&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230712" rel="nofollow"&gt;Wed, 12 Jul 2023 06:53:13 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre style="margin: 0em;"&gt;
-LGTM2
-
-/Daniel&lt;/pre&gt;&lt;pre&gt;
-
-On 2023-07-10 21:55, Mike Taylor wrote:
-&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;
-
-LGTM1
-
-On 7/10/23 11:23 AM, Dominic Farolino wrote:
-&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;tt&gt;The niche-ness of these changes plus the fact that they've been 
-&lt;/tt&gt;&lt;tt&gt;rolled out on Canary+Dev for some time /and/ that we've already 
-&lt;/tt&gt;&lt;tt&gt;smoked out some compat issues at that level of experimentation for 
-&lt;/tt&gt;&lt;tt&gt;the adjacent work the team looked into (censoring the base URL for 
-&lt;/tt&gt;&lt;tt&gt;sandboxed about:srcdoc Documents) makes me fairly comfortable that we 
-&lt;/tt&gt;&lt;tt&gt;have a good grip on the compat implications of this, IMO.
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;tt&gt;On Fri, Jul 7, 2023 at 12:01 PM W. James MacLean 
-&lt;/tt&gt;&lt;tt&gt;&amp;lt;wjmacl...@chromium.org&amp;gt; wrote:
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-
-    At present there is no mechanism I'm aware of for tracking when
-    baseURIs are accessed in scenarios where the behavior might be
-    different from what is expected. I'm not quite sure what that
-    would look like exactly, as at the document level we don't expect
-    to know if initiator = parent or not. We expect the compat risk
-    to be quite low, as the initiator != parent case seems likely to
-    be rare. But it might not be zero and we don't have any numbers
-    on what it might actually be.
-
-    As Dominic mentioned, we think the risk is low enough that a
-    careful &amp; gradual deployment (with a killswitch available, and an
-    enterprise policy in place to allow disabling the new behavior at
-    the enterprise level) should be safe. But if there's concern that
-    might not be safe enough, we can look into it further. I've held
-    off releasing this to beta for now, though it's been active on
-    canary+dev for quite a while now.
-
-    On Mon, 3 Jul 2023 at 00:03, Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt;
-    wrote:
-
-        A couple of questions:
-
-          * Should we wait until the PR matures a bit and gets
-            reviewed? WebKit's position is encouraging, but it'd be
-            an even better signal to be able to land the PR.
-          * How can we evaluate the compat risk here?
-
-        RE the latter, is there a way to usecount how often the
-        baseURI is accessed in places that will change behavior here?
-        That can give us an upper bound on potential breakage.
-
-        On Mon, Jul 3, 2023 at 4:00 AM Domenic Denicola
-        &amp;lt;dome...@chromium.org&amp;gt; wrote:
-
-            Let me just say, with my HTML Standard editor hat on,
-            that I am very excited for these changes. This area is
-            currently a wasteland of non-interoperable behavior,
-            broken specifications, and web-developer-expectations
-            violations. The team has done some amazing work to figure
-            out a model that works well, is conceptually elegant, and
-            has minimal compat concerns. And although I haven't done
-            my editor review yet, I'm excited to see that they've
-            sent spec PRs and a good number of web platform tests for
-            this area.
-
-            There may still be compat risks here, but I think the
-            benefits of getting a reasonable model for base URL
-            inheritance are worth pushing forward (with careful
-            deployment and a kill-switch). Thanks so much to the team
-            for this work.
-
-            On Sat, Jul 1, 2023 at 3:41 AM W. James MacLean
-            &amp;lt;wjmacl...@chromium.org&amp;gt; wrote:
-
-                Intent to Ship: Inherit Base URL snapshot for
-                about:blank and about:srcdoc, with about:blank
-                inheriting from initiator, not parent.
-
-
-                        Contact emails
-
-                wjmacl...@chromium.org &amp;lt;&lt;a  rel="nofollow" href="mailto:wjmacl...@chromium.org"&gt;mailto:wjmacl...@chromium.org&lt;/a&gt;&amp;gt;
-
-                cr...@chromium.org &amp;lt;&lt;a  rel="nofollow" href="mailto:cr...@chromium.org"&gt;mailto:cr...@chromium.org&lt;/a&gt;&amp;gt;
-
-                d...@chromium.org &amp;lt;&lt;a  rel="nofollow" href="mailto:d...@chromium.org"&gt;mailto:d...@chromium.org&lt;/a&gt;&amp;gt;
-
-
-                        Explainer
-
-                None
-
-
-                        Specification
-
-                &lt;a  rel="nofollow" href="https://github.com/whatwg/html/pull/9464"&gt;https://github.com/whatwg/html/pull/9464&lt;/a&gt;
-                &amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/pull/9464"&gt;https://github.com/whatwg/html/pull/9464&lt;/a&gt;&amp;gt;(original
-                proposal
-                
-&amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/421#issuecomment-1260360824"&gt;https://github.com/whatwg/html/issues/421#issuecomment-1260360824&lt;/a&gt;&amp;gt;)
-
-
-                        Summary
-
-                This work aims to fix issues and improve the
-                compatibility of Chromium's implementation of
-                fallback base URL
-                &amp;lt;&lt;a  rel="nofollow" href="https://html.spec.whatwg.org/C#fallback-base-url"&gt;https://html.spec.whatwg.org/C#fallback-base-url&lt;/a&gt;&amp;gt;specifically
-                for about:srcdoc and about:blank frames. The base URL
-                can be accessed directly with document.baseURI, and
-                indirectly when resolving relative URLs.  Chromium's
-                current behavior differs from Safari &amp; Firefox in
-                several ways. Chromium and Safari only
-                partiallysnapshot the base URL for an
-                about:blank/srcdoc document from its creator
-                document, and the about:blank/srcdoc document usually
-                does not observe later changes to its creator
-                document's base URL. Still, such changes may become
-                visible in corner cases (e.g., if the child makes and
-                then reverses changes to its own&amp;lt;base&amp;gt; element, its
-                partial snapshot gets updated from its creator).
-
-                We propose that the base URL supplied to about:srcdoc
-                and about:blank frames and popups are snapshotted
-                from their initiator at the time the navigation
-                begins. The implementation will also allow base URL
-                to work correctly for about:srcdoc frames when those
-                frames are in a different process from their parent
-                (e.g., sandboxed srcdoc iframes).
-
-
-                        Web-Visible Changes in Chrome
-
-                 *
-
-                    Inherit Base URL from Initiator: We propose to
-                    change the spec and implementationto inherit base
-                    URLs from the navigation initiatorrather than
-                    from the frame's creator(where creatoris the
-                    parent document for about:srcdoc/blank iframes,
-                    and the opener for about:blank popups). The
-                    creator of a frame may be different from the
-                    initiator of a navigation that creates a
-                    document, and it is surprising when the origin
-                    and base URL are inherited from different
-                    incompatible frames.
-
-                     o
-
-                        Example: Consider the case where a sibling
-                        iframe B, with a base url different from its
-                        parent A, navigates its sibling iframe to
-                        about:blank. Legacy Chrome behavior gives the
-                        about:blank iframe its parent A's base url,
-                        but its sibling B's origin; our proposal
-                        assigns both the origin and base URL from the
-                        sibling B (initiator). For srcdoc attribute
-                        mutations, both base URL and origin come from
-                        the parent as before (unchanged).
-
-                     o
-
-                        window.open(): At present in Chrome,
-                        window.open() and window.open(“about:blank”)
-                        lead to a popup frame with document.baseURI =
-                        “about:blank”. With the proposed change, the
-                        popup frame will inherit the baseURI from the
-                        initiator. This brings Chrome into agreement
-                        with Safari, and essentially with Firefox
-                        (which still sets base URL to “about:blank”
-                        for parameter-free calls to window.open()).
-
-                 *
-
-                    Snapshotting Base URL: We propose to change the
-                    spec and implementationsuch that base URLs should
-                    not update in response to parent base URLs
-                    changing. The current spec allows such dynamic
-                    updates only for about:-schemed Documents, per
-                    the fallback base URL
-                    &amp;lt;&lt;a  rel="nofollow" href="https://html.spec.whatwg.org/C#fallback-base-url"&gt;https://html.spec.whatwg.org/C#fallback-base-url&lt;/a&gt;&amp;gt;mechanism.
-                    But these dynamic updates (as opposed to the
-                    snapshot we propose) are problematic in that (i)
-                    it is difficult to provide if the child frame is
-                    cross-process, and (ii) can leak information in
-                    cross-origin cases (e.g.the child is sandboxed).
-
-                     o
-
-                        Chrome currently has a “broken” snapshotting
-                        behavior (described above), though in most
-                        cases it behaves as a snapshot.
-
-                     o
-
-                        Safari currently has the same broken
-                        snapshotting as Chrome.
-
-                     o
-
-                        Firefox does not snapshot: it allows a frame
-                        to see dynamic changes in its parent.
-
-                 *
-
-                    Store in Session History: We propose to change
-                    the spec and implementationto save the base URL
-                    in session history, alongside the document's
-                    origin
-                    &amp;lt;&lt;a  rel="nofollow" href="https://html.spec.whatwg.org/C#document-state-origin"&gt;https://html.spec.whatwg.org/C#document-state-origin&lt;/a&gt;&amp;gt;.
-                    Like the session history's origin, the base URL
-                    would onlybe used when repopulating about:blank &amp;
-                    about:srcdoc documents from session history. This
-                    change is only observable for back/forward
-                    navigations to, orsession history restorations of
-                    these about:-schemed documents, specifically when
-                    their original initiator document is not the
-                    parent, or no longer exists. From manual testing
-                    it appears neither Firefox nor Safari currently
-                    persist base urls for about:blank in session history.
-
-                 *
-
-                    Detached Document: Frames that have been removed
-                    from their parent, but are still alive and still
-                    have their document, will keep their snapshotted
-                    base URL in the proposed behavior. The current
-                    spec for about:-schemed iframes would have it
-                    refer to a non-existent parent in such cases,
-                    which so the behavior is ill-defined.
-
-
-                Additional discussion of the underlying issues
-                involved may be found
-                
-at:&amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/421#issuecomment-1260360824"&gt;https://github.com/whatwg/html/issues/421#issuecomment-1260360824&lt;/a&gt;&amp;gt;
-
-                 *
-
-                    
-&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/421#issuecomment-1260360824"&gt;https://github.com/whatwg/html/issues/421#issuecomment-1260360824&lt;/a&gt;
-                    
-&amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/421#issuecomment-1260360824"&gt;https://github.com/whatwg/html/issues/421#issuecomment-1260360824&lt;/a&gt;&amp;gt;
-
-                 *
-
-                    &lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/3989"&gt;https://github.com/whatwg/html/issues/3989&lt;/a&gt;
-                    &amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/3989"&gt;https://github.com/whatwg/html/issues/3989&lt;/a&gt;&amp;gt;
-
-                 *
-
-                    Design Doc
-                    
-&amp;lt;&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1e7T1YR5aGDg-eGHKDNnKUWcz1Dr38t_O0-XJqsMeZcE/edit?usp=sharing&amp;resourcekey=0-qCAYJPulnTdo9hV_dPCdhw"&gt;https://docs.google.com/document/d/1e7T1YR5aGDg-eGHKDNnKUWcz1Dr38t_O0-XJqsMeZcE/edit?usp=sharing&amp;resourcekey=0-qCAYJPulnTdo9hV_dPCdhw&lt;/a&gt;&amp;gt;
-
-                 *
-
-                    &lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/6316"&gt;https://github.com/whatwg/html/issues/6316&lt;/a&gt;
-                    &amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/6316"&gt;https://github.com/whatwg/html/issues/6316&lt;/a&gt;&amp;gt;
-
-
-                        Blink component
-
-                Blink&amp;gt;
-                
-&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EJavaScript%3EWebAssembly"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EJavaScript%3EWebAssembly&lt;/a&gt;&amp;gt;HTML&amp;gt;IFRAME
-
-
-                        TAG review
-
-
-
-                        TAG review status
-
-                Not applicable
-
-
-
-                        Risks
-
-                This change will cause about:blank inherit from the
-                initiator of the navigation, instead of from the
-                parent frame. In many cases these are the same. When
-                they differ, pages may observe the change in
-                behavior. To work around the change, a &amp;lt;base&amp;gt; element
-                can be used to explicitly set the desired base url.
-
-
-                        Interoperability and Compatibility
-
-                At present Gecko and WebKit differ slightly, and our
-                implementation more closely matches WebKit in that it
-                snapshots the inherited base url at the time of
-                navigation. Our proposed implementation differs from
-                both in that the initiator provides the base url.
-
-
-                Gecko:
-                &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/813"&gt;https://github.com/mozilla/standards-positions/issues/813&lt;/a&gt;
-                &amp;lt;&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/813"&gt;https://github.com/mozilla/standards-positions/issues/813&lt;/a&gt;&amp;gt;
-
-                WebKit: Support
-                &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/197"&gt;https://github.com/WebKit/standards-positions/issues/197&lt;/a&gt;
-                &amp;lt;&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/197"&gt;https://github.com/WebKit/standards-positions/issues/197&lt;/a&gt;&amp;gt;
-
-                Web developers:
-
-                Other signals:
-
-
-                        WebView application risks
-
-                Yes, there is potential for risk here, if apps depend
-                on the previous web visible behavior of base URL
-                inheritance. We will be monitoring the rollout and
-                can disable on Android WebView if any issues arise.
-
-
-
-
-                        Debuggability
-
-                Existing support for observing document.baseURI in
-                DevTools.
-
-
-                        Will this feature be supported on all six
-                        Blink platforms (Windows, Mac, Linux, Chrome
-                        OS, Android, and Android WebView)?
-
-                Yes
-
-
-                        Is this feature fully tested by
-                        web-platform-tests
-                        
-&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;?
-
-                Yes
-
-                 *
-
-                    html/infrastructure/urls/terminology-0
-                    
-&amp;lt;&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/tree/master/html/infrastructure/urls/terminology-0"&gt;https://github.com/web-platform-tests/wpt/tree/master/html/infrastructure/urls/terminology-0&lt;/a&gt;&amp;gt;
-
-                 *
-
-                    html/infrastructure/urls/base-url/
-                    
-&amp;lt;&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/tree/master/html/infrastructure/urls/base-url/"&gt;https://github.com/web-platform-tests/wpt/tree/master/html/infrastructure/urls/base-url/&lt;/a&gt;&amp;gt;
-
-                 *
-
-                    CL 4652304
-                    
-&amp;lt;&lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/4652304"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/4652304&lt;/a&gt;&amp;gt;
-
-
-                        Flag name
-
-                UI flag:
-                chrome://flags/#enable-new-base-url-inheritance-behavior
-
-                Command line flag:
-                --enable-features=NewBaseUrlInheritanceBehavior
-
-
-                        Requires code in //chrome?
-
-                False
-
-
-                        Estimated milestones
-
-                M116
-                (Implementation has been complete for a while now,
-                and will be launching with a field trial first.)
-
-
-                        Anticipated spec changes
-
-                Beyond our proposal, there was
-                &amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/8105"&gt;https://github.com/whatwg/html/issues/8105&lt;/a&gt;&amp;gt;some
-                discussion
-                &amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/9025"&gt;https://github.com/whatwg/html/issues/9025&lt;/a&gt;&amp;gt;of future
-                changes to prohibit base URL inheritance for
-                sandboxed about:-schemed documents, but there are
-                
-&amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/8105#issuecomment-1183642551"&gt;https://github.com/whatwg/html/issues/8105#issuecomment-1183642551&lt;/a&gt;&amp;gt;compat
-                concerns
-                
-&amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/9025#issuecomment-1498239984"&gt;https://github.com/whatwg/html/issues/9025#issuecomment-1498239984&lt;/a&gt;&amp;gt;,
-                so that work is not included here.
-
-
-                        Link to entry on the Chrome Platform Status
-
-                &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5161101671530496"&gt;https://chromestatus.com/feature/5161101671530496&lt;/a&gt;
-                &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5161101671530496"&gt;https://chromestatus.com/feature/5161101671530496&lt;/a&gt;&amp;gt;
-
-
-&lt;/pre&gt;&lt;tt&gt;                -- 
-&lt;/tt&gt;&lt;tt&gt;                You received this message because you are subscribed
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-                to the Google Groups &amp;quot;blink-dev&amp;quot; group.
-                To unsubscribe from this group and stop receiving
-                emails from it, send an email to
-                blink-dev+unsubscr...@chromium.org.
-                To view this discussion on the web visit
-                
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADAYvoe_DU3j3Viiz1uM2qWjSUOBLEMnorerdHOBAcptOW7kag%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADAYvoe_DU3j3Viiz1uM2qWjSUOBLEMnorerdHOBAcptOW7kag%40mail.gmail.com&lt;/a&gt;
-                
-&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADAYvoe_DU3j3Viiz1uM2qWjSUOBLEMnorerdHOBAcptOW7kag%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADAYvoe_DU3j3Viiz1uM2qWjSUOBLEMnorerdHOBAcptOW7kag%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-
-&lt;/pre&gt;&lt;tt&gt;            -- 
-&lt;/tt&gt;&lt;tt&gt;            You received this message because you are subscribed to
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-            the Google Groups &amp;quot;blink-dev&amp;quot; group.
-            To unsubscribe from this group and stop receiving emails
-            from it, send an email to blink-dev+unsubscr...@chromium.org.
-            To view this discussion on the web visit
-            
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAM0wra-2-MP_KecE6rBx5xcJb6QiM0BCpOEEoRdkJ_BxMHWwug%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAM0wra-2-MP_KecE6rBx5xcJb6QiM0BCpOEEoRdkJ_BxMHWwug%40mail.gmail.com&lt;/a&gt;
-            
-&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAM0wra-2-MP_KecE6rBx5xcJb6QiM0BCpOEEoRdkJ_BxMHWwug%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAM0wra-2-MP_KecE6rBx5xcJb6QiM0BCpOEEoRdkJ_BxMHWwug%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-
-&lt;/pre&gt;&lt;tt&gt;    -- 
-&lt;/tt&gt;&lt;tt&gt;    You received this message because you are subscribed to the
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-    Google Groups &amp;quot;blink-dev&amp;quot; group.
-    To unsubscribe from this group and stop receiving emails from it,
-    send an email to blink-dev+unsubscr...@chromium.org.
-    To view this discussion on the web visit
-    
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADAYvof1yr%2BJmW0ByoFLzp%2BnK0gQwfOxkEOP4gNbKVHWCik-pw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADAYvof1yr%2BJmW0ByoFLzp%2BnK0gQwfOxkEOP4gNbKVHWCik-pw%40mail.gmail.com&lt;/a&gt;
-    
-&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADAYvof1yr%2BJmW0ByoFLzp%2BnK0gQwfOxkEOP4gNbKVHWCik-pw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADAYvof1yr%2BJmW0ByoFLzp%2BnK0gQwfOxkEOP4gNbKVHWCik-pw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-
---
-&lt;/pre&gt;&lt;tt&gt;You received this message because you are subscribed to the Google 
-&lt;/tt&gt;&lt;tt&gt;Groups &amp;quot;blink-dev&amp;quot; group.
-&lt;/tt&gt;&lt;tt&gt;To unsubscribe from this group and stop receiving emails from it, 
-&lt;/tt&gt;&lt;tt&gt;send an email to blink-dev+unsubscr...@chromium.org.
-&lt;/tt&gt;&lt;tt&gt;To view this discussion on the web visit 
-&lt;/tt&gt;&lt;tt&gt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAP-uykD%3DyZ860rRusrecSLGixNfnbkNuyLWU7-8P5WyzfHsePQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAP-uykD%3DyZ860rRusrecSLGixNfnbkNuyLWU7-8P5WyzfHsePQ%40mail.gmail.com&lt;/a&gt; 
-&lt;/tt&gt;&lt;tt&gt;&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAP-uykD%3DyZ860rRusrecSLGixNfnbkNuyLWU7-8P5WyzfHsePQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAP-uykD%3DyZ860rRusrecSLGixNfnbkNuyLWU7-8P5WyzfHsePQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-&lt;/tt&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;
---
-&lt;/pre&gt;&lt;tt&gt;You received this message because you are subscribed to the Google 
-&lt;/tt&gt;&lt;tt&gt;Groups &amp;quot;blink-dev&amp;quot; group.
-&lt;/tt&gt;&lt;tt&gt;To unsubscribe from this group and stop receiving emails from it, send 
-&lt;/tt&gt;&lt;tt&gt;an email to blink-dev+unsubscr...@chromium.org.
-&lt;/tt&gt;&lt;tt&gt;To view this discussion on the web visit 
-&lt;/tt&gt;&lt;tt&gt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/1d6c8843-c50c-b0e3-edb6-a2027500046d%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/1d6c8843-c50c-b0e3-edb6-a2027500046d%40chromium.org&lt;/a&gt; 
-&lt;/tt&gt;&lt;tt&gt;&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/1d6c8843-c50c-b0e3-edb6-a2027500046d%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/1d6c8843-c50c-b0e3-edb6-a2027500046d%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-&lt;/tt&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;
-
---
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/1f23d322-1243-5d34-b5ad-0afdb5e8bb9a%40gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/1f23d322-1243-5d34-b5ad-0afdb5e8bb9a%40gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06771.html</id>
-        <title>[blink-dev] Intent to Ship: MathML columnspan/rowspan attributes on &amp;lt;mtd&amp;gt; element</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06771.html"/>
-        <updated>2023-07-12T08:31:25.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06771.html summary</summary>
-        <content type="html">&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre style="margin: 0em;"&gt;
-
-       Hello,&lt;/pre&gt;&lt;pre&gt;&lt;/pre&gt;&lt;tt&gt;This is actually an intent to ship (sorry for sending email with the 
-&lt;/tt&gt;&lt;tt&gt;wrong title).
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;tt&gt;To summarize a bit conversations, columnspan/rowspan was something that 
-&lt;/tt&gt;&lt;tt&gt;was requested by web developers and is used in existing documents. We 
-&lt;/tt&gt;&lt;tt&gt;cannot just say &amp;quot;use CSS instead&amp;quot; as they are no equivalent properties.
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;tt&gt;Initially, we wanted to have this in the initial MathML implementation 
-&lt;/tt&gt;&lt;tt&gt;but things were postponed because we needed to decide between &amp;quot;make 
-&lt;/tt&gt;&lt;tt&gt;things more compatible with HTML&amp;quot; (i.e. colspan/rowspan names) or &amp;quot;make 
-&lt;/tt&gt;&lt;tt&gt;things backward compatible with MathML3&amp;quot; (i.e. columnspan/rowspan 
-&lt;/tt&gt;&lt;tt&gt;names). Given the latter is already implemented by Firefox/WebKit and 
-&lt;/tt&gt;&lt;tt&gt;used in existing documents and tools we decided to go with the latter 
-&lt;/tt&gt;&lt;tt&gt;(Mozilla also positioned negatively about changing the name).
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-
-
-
-       -------------
-
-
-
-       Contact emails
-
-fw...@chromium.org
-
-
-       Explainer
-
-None
-
-
-       Specification
-
-&lt;a  rel="nofollow" href="https://w3c.github.io/mathml-core/#entry-in-table-or-matrix-mtd"&gt;https://w3c.github.io/mathml-core/#entry-in-table-or-matrix-mtd&lt;/a&gt;
-
-
-       Summary
-
-&lt;/pre&gt;&lt;tt&gt;Implement attributes to specify the number of columns and rows that a 
-&lt;/tt&gt;&lt;tt&gt;MathML table cell is to span. This is similar to HTML colspan/rowspan 
-&lt;/tt&gt;&lt;tt&gt;attributes and does not have equivalent CSS properties.
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-
-
-
-       Blink component
-
-&lt;/pre&gt;&lt;tt&gt;Blink&amp;gt;MathML 
-&lt;/tt&gt;&lt;tt&gt;&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink&lt;/a&gt;&amp;gt;MathML&amp;gt;
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-
-
-       TAG review
-
-None
-
-
-       TAG review status
-
-Not applicable
-
-
-       Risks
-
-
-
-       Interoperability and Compatibility
-
-
-
-&lt;/pre&gt;&lt;tt&gt;/Gecko/: Shipped/Shipping 
-&lt;/tt&gt;&lt;tt&gt;(&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mtd#browser_compatibility"&gt;https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mtd#browser_compatibility&lt;/a&gt;) 
-&lt;/tt&gt;&lt;tt&gt;Mozilla positioned negatively about renaming 
-&lt;/tt&gt;&lt;tt&gt;&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/74"&gt;https://github.com/mozilla/standards-positions/issues/74&lt;/a&gt;
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;tt&gt;/WebKit/: Shipped/Shipping 
-&lt;/tt&gt;&lt;tt&gt;(&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mtd#browser_compatibility"&gt;https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mtd#browser_compatibility&lt;/a&gt;) 
-&lt;/tt&gt;&lt;tt&gt;
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-
-/Web developers/: Positive
-
-/Other signals/:
-
-
-       WebView application risks
-
-&lt;/pre&gt;&lt;tt&gt;Does this intent deprecate or change behavior of existing APIs, such 
-&lt;/tt&gt;&lt;tt&gt;that it has potentially high risk for Android WebView-based applications?
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-
-
-
-       Debuggability
-
-
-
-       Will this feature be supported on all six Blink platforms
-       (Windows, Mac, Linux, Chrome OS, Android, and Android WebView)?
-
-Yes
-
-
-       Is this feature fully tested by web-platform-tests
-       
-&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;?
-
-Yes
-
-
-&lt;/pre&gt;&lt;tt&gt;Tests are added in 
-&lt;/tt&gt;&lt;tt&gt;&lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/4061476"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/4061476&lt;/a&gt; 
-&lt;/tt&gt;&lt;tt&gt;However, advanced parsing such as checking the max limits 1000 and 65534 
-&lt;/tt&gt;&lt;tt&gt;defined in HTML is a bit tedious as MathML does not have an IDL for 
-&lt;/tt&gt;&lt;tt&gt;tables yet ( 
-&lt;/tt&gt;&lt;tt&gt;&lt;a  rel="nofollow" href="https://github.com/w3c/mathml-core/issues/166#issuecomment-1411721093"&gt;https://github.com/w3c/mathml-core/issues/166#issuecomment-1411721093&lt;/a&gt; 
-&lt;/tt&gt;&lt;tt&gt;&amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/mathml-core/issues/166#issuecomment-1411721093"&gt;https://github.com/w3c/mathml-core/issues/166#issuecomment-1411721093&lt;/a&gt;&amp;gt;&amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/mathml-core/issues/166#issuecomment-1411721093"&gt;https://github.com/w3c/mathml-core/issues/166#issuecomment-1411721093&lt;/a&gt;&amp;gt; 
-&lt;/tt&gt;&lt;tt&gt;) so for now they are written as internal tests.
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-
-
-       Flag name on chrome://flags
-
-
-
-       Finch feature name
-
-
-
-       Non-finch justification
-
-None
-
-
-       Requires code in //chrome?
-
-False
-
-
-       Estimated milestones
-
-Shipping on desktop     117
-
-Shipping on Android     117
-
-Shipping on WebView     117
-
-
-
-       Anticipated spec changes
-
-&lt;/pre&gt;&lt;tt&gt;Open questions about a feature may be a source of future web compat or 
-&lt;/tt&gt;&lt;tt&gt;interop issues. Please list open issues (e.g. links to known github 
-&lt;/tt&gt;&lt;tt&gt;issues in the project for the feature specification) whose resolution 
-&lt;/tt&gt;&lt;tt&gt;may introduce web compat/interop risk (e.g., changing to naming or 
-&lt;/tt&gt;&lt;tt&gt;structure of the API in a non-backward-compatible way).
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-
-
-
-       Link to entry on the Chrome Platform Status
-
-&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5157467960377344"&gt;https://chromestatus.com/feature/5157467960377344&lt;/a&gt;
-
-
-       Links to previous Intent discussions
-
-&lt;/pre&gt;&lt;tt&gt;Intent to Experiment: 
-&lt;/tt&gt;&lt;tt&gt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/2603ac64-2367-434f-cee3-42b3d9111639%40igalia.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/2603ac64-2367-434f-cee3-42b3d9111639%40igalia.com&lt;/a&gt; 
-&lt;/tt&gt;&lt;tt&gt;
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;tt&gt;This intent message was generated by Chrome Platform Status 
-&lt;/tt&gt;&lt;tt&gt;&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com"&gt;https://chromestatus.com&lt;/a&gt;&amp;gt;.
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-
-
---
-Frédéric Wang
-
---
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/c3ada6e8-03f7-57e6-7b63-9ccf3d9a4440%40igalia.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/c3ada6e8-03f7-57e6-7b63-9ccf3d9a4440%40igalia.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06770.html</id>
-        <title>[blink-dev] Intent to Experiment: MathML columnspan/rowspan attributes on &amp;lt;mtd&amp;gt; element</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06770.html"/>
-        <updated>2023-07-12T08:21:48.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06770.html summary</summary>
-        <content type="html">&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre style="margin: 0em;"&gt;
-
-       Contact emails&lt;/pre&gt;&lt;pre&gt;
-
-fw...@chromium.org
-
-
-       Explainer
-
-None
-
-
-       Specification
-
-&lt;a  rel="nofollow" href="https://w3c.github.io/mathml-core/#entry-in-table-or-matrix-mtd"&gt;https://w3c.github.io/mathml-core/#entry-in-table-or-matrix-mtd&lt;/a&gt;
-
-
-       Summary
-
-&lt;/pre&gt;&lt;tt&gt;Implement attributes to specify the number of columns and rows that a 
-&lt;/tt&gt;&lt;tt&gt;MathML table cell is to span. This is similar to HTML colspan/rowspan 
-&lt;/tt&gt;&lt;tt&gt;attributes and does not have equivalent CSS properties.
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-
-
-
-       Blink component
-
-&lt;/pre&gt;&lt;tt&gt;Blink&amp;gt;MathML 
-&lt;/tt&gt;&lt;tt&gt;&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink&lt;/a&gt;&amp;gt;MathML&amp;gt;
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-
-
-       TAG review
-
-None
-
-
-       TAG review status
-
-Not applicable
-
-
-       Risks
-
-
-
-       Interoperability and Compatibility
-
-
-
-&lt;/pre&gt;&lt;tt&gt;/Gecko/: Shipped/Shipping 
-&lt;/tt&gt;&lt;tt&gt;(&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mtd#browser_compatibility"&gt;https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mtd#browser_compatibility&lt;/a&gt;) 
-&lt;/tt&gt;&lt;tt&gt;Mozilla positioned negatively about renaming 
-&lt;/tt&gt;&lt;tt&gt;&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/74"&gt;https://github.com/mozilla/standards-positions/issues/74&lt;/a&gt;
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;tt&gt;/WebKit/: Shipped/Shipping 
-&lt;/tt&gt;&lt;tt&gt;(&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mtd#browser_compatibility"&gt;https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mtd#browser_compatibility&lt;/a&gt;) 
-&lt;/tt&gt;&lt;tt&gt;
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-
-/Web developers/: Positive
-
-/Other signals/:
-
-
-       WebView application risks
-
-&lt;/pre&gt;&lt;tt&gt;Does this intent deprecate or change behavior of existing APIs, such 
-&lt;/tt&gt;&lt;tt&gt;that it has potentially high risk for Android WebView-based applications?
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-
-
-
-       Goals for experimentation
-
-
-
-       Ongoing technical constraints
-
-
-
-       Debuggability
-
-
-
-       Will this feature be supported on all six Blink platforms
-       (Windows, Mac, Linux, Chrome OS, Android, and Android WebView)?
-
-Yes
-
-
-       Is this feature fully tested by web-platform-tests
-       
-&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;?
-
-&lt;/pre&gt;&lt;tt&gt;Tests are added in 
-&lt;/tt&gt;&lt;tt&gt;&lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/4061476"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/4061476&lt;/a&gt; 
-&lt;/tt&gt;&lt;tt&gt;However, advanced parsing such as checking the max limits 1000 and 65534 
-&lt;/tt&gt;&lt;tt&gt;defined in HTML is a bit tedious as MathML does not have an IDL for 
-&lt;/tt&gt;&lt;tt&gt;tables yet ( 
-&lt;/tt&gt;&lt;tt&gt;&lt;a  rel="nofollow" href="https://github.com/w3c/mathml-core/issues/166#issuecomment-1411721093"&gt;https://github.com/w3c/mathml-core/issues/166#issuecomment-1411721093&lt;/a&gt; 
-&lt;/tt&gt;&lt;tt&gt;&amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/mathml-core/issues/166#issuecomment-1411721093"&gt;https://github.com/w3c/mathml-core/issues/166#issuecomment-1411721093&lt;/a&gt;&amp;gt;&amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/mathml-core/issues/166#issuecomment-1411721093"&gt;https://github.com/w3c/mathml-core/issues/166#issuecomment-1411721093&lt;/a&gt;&amp;gt; 
-&lt;/tt&gt;&lt;tt&gt;) so for now they are written as internal tests.
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-
-
-       Flag name on chrome://flags
-
-
-
-       Finch feature name
-
-
-
-       Non-finch justification
-
-None
-
-
-       Requires code in //chrome?
-
-False
-
-
-       Estimated milestones
-
-Shipping on desktop     117
-
-Shipping on Android     117
-
-Shipping on WebView     117
-
-
-
-       Link to entry on the Chrome Platform Status
-
-&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5157467960377344"&gt;https://chromestatus.com/feature/5157467960377344&lt;/a&gt;
-
-
-       Links to previous Intent discussions
-
---
-Frédéric Wang
-
---
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/2603ac64-2367-434f-cee3-42b3d9111639%40igalia.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/2603ac64-2367-434f-cee3-42b3d9111639%40igalia.com&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
