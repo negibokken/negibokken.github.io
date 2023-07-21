@@ -5,6 +5,390 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06862.html</id>
+        <title>[blink-dev] Intent to Ship: Opaque Response Blocking (ORB, aka CORB++) v0.2</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06862.html"/>
+        <updated>2023-07-21T15:53:10.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06862.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Opaque+Response+Blocking+%5C%28ORB%2C+aka+CORB%5C%2B%5C%2B%5C%29+v0.2%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Ship: Opaque Response Blocking (ORB, aka CORB++) v0.2&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Daniel+Vogelheim%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Daniel Vogelheim' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230721" rel="nofollow"&gt;Fri, 21 Jul 2023 08:53:10 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Contact emailsvogelh...@chromium.org
+
+Specification&lt;a  rel="nofollow" href="https://github.com/whatwg/fetch/pull/1442"&gt;https://github.com/whatwg/fetch/pull/1442&lt;/a&gt;&lt;/pre&gt;&lt;pre&gt;
+
+Summary
+
+Opaque Response Blocking (ORB) is a replacement for Cross-Origin Read
+Blocking (CORB - &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5629709824032768"&gt;https://chromestatus.com/feature/5629709824032768&lt;/a&gt;). CORB
+and ORB are both heuristics that attempt to prevent cross-origin disclosure
+of “no-cors” subresources. This entry tracks &amp;quot;v0.2&amp;quot; of ORB - Chrome's
+second step towards a full ORB implementation. ORB specifies error handling
+for blocked resources differently from CORB: ORB raises network errors,
+while CORB injects an empty response. ORB &amp;quot;v0.1&amp;quot; still used CORB-style
+response injection. This change brings our implementation more in line with
+the ORB proposal, by changing the error handling of all fetches (except
+when initiated by a script) to be compliant with ORB. We've made a
+carve-out for script-initiated fetches (where we retain CORB behaviour for
+now) to limit compatibility risk.
+
+
+Blink componentInternals&amp;gt;Sandbox&amp;gt;SiteIsolation
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Internals%3ESandbox%3ESiteIsolation"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Internals%3ESandbox%3ESiteIsolation&lt;/a&gt;&amp;gt;
+
+TAG reviewNone
+(A TAG review of a particular aspect happened in:
+&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/618"&gt;https://github.com/w3ctag/design-reviews/issues/618&lt;/a&gt;)
+
+TAG review statusNot applicable
+
+Risks
+
+Interoperability and Compatibility
+
+This release does not modify blocking behaviour, but only how a blocked
+resource is represented. Ideally, this change shouldn't break any existing
+code since any resource that loads (or gets blocked) before will continue
+to do so after. However, it is possible to distinguish between the
+different types of error handling, and it may well happen that an
+application inadvertently relies on blocked resources &amp;quot;succeeding&amp;quot;. In our
+examinations so far, this chiefly concerns fetches using the `fetch()` API,
+where blocking with a network error results in a failed promise (instead of
+a success with an empty response). For this reason, we have carved out
+script-initiated fetches from &amp;quot;v0.2&amp;quot; and intend to handle them at a later
+date.
+
+
+*Gecko*: No signal (&lt;a  rel="nofollow" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1532642"&gt;https://bugzilla.mozilla.org/show_bug.cgi?id=1532642&lt;/a&gt;)
+In implementation.
+
+*WebKit*: No signal (&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/64"&gt;https://github.com/WebKit/standards-positions/issues/64&lt;/a&gt;
+)
+
+*Web developers*: No signals
+
+*Other signals*: &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/618"&gt;https://github.com/w3ctag/design-reviews/issues/618&lt;/a&gt;
+
+WebView application risks
+
+Does this intent deprecate or change behavior of existing APIs, such that
+it has potentially high risk for Android WebView-based applications?
+
+None
+
+
+Debuggability
+
+
+
+Will this feature be supported on all six Blink platforms (Windows, Mac,
+Linux, Chrome OS, Android, and Android WebView)?Yes
+
+Is this feature fully tested by web-platform-tests
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+?Yes (&lt;a  rel="nofollow" href="https://wpt.fyi/results/fetch/orb"&gt;https://wpt.fyi/results/fetch/orb&lt;/a&gt;)
+
+Flag name on chrome://flags
+
+Finch feature nameOpaqueResponseBlockingV02
+
+Requires code in //chrome?False
+
+Tracking bug&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1463725"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1463725&lt;/a&gt;
+
+Estimated milestones
+Shipping on desktop 117
+DevTrial on desktop 115
+Shipping on Android 117
+DevTrial on Android 115
+Shipping on WebView 117
+
+Anticipated spec changesNone
+
+Link to entry on the Chrome Platform Status
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5166834424217600"&gt;https://chromestatus.com/feature/5166834424217600&lt;/a&gt;
+
+Links to previous Intent discussions
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/ScjhKz3Z6U4"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/ScjhKz3Z6U4&lt;/a&gt;
+
+This intent message was generated by Chrome Platform Status
+&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CALG6KPPNdN%3DO0j0MhcfudkBtMoYnELhVRJ5nLftB8c1T1UdwbQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CALG6KPPNdN%3DO0j0MhcfudkBtMoYnELhVRJ5nLftB8c1T1UdwbQ%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06861.html</id>
+        <title>Re: [blink-dev] Re: Intent to Ship: HTTPS pages with Cache-control: no-store and Back/Forward Cache</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06861.html"/>
+        <updated>2023-07-21T15:46:33.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06861.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Ship%5C%3A+HTTPS+pages+with+Cache%5C-control%5C%3A+no%5C-store+and+Back%5C%2FForward+Cache%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Re: Intent to Ship: HTTPS pages with Cache-control: no-store and Back/Forward Cache&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Mingyu+Lei%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Mingyu Lei' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230721" rel="nofollow"&gt;Fri, 21 Jul 2023 08:46:33 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Hi Mike,
+
+Thanks for the comments. We have discussed the concerns you raised before
+and please find the replies below.&lt;/pre&gt;&lt;pre&gt;
+
+&lt;a  rel="nofollow" href="https://github.com/fergald/explainer-bfcache-ccns/blob/main/README.md#secure-cookies"&gt;https://github.com/fergald/explainer-bfcache-ccns/blob/main/README.md#secure-cookies&lt;/a&gt;
+&amp;gt; references &amp;quot;HTTPS-only&amp;quot; cookies, as well as &amp;quot;secure&amp;quot; vs &amp;quot;insecure&amp;quot; cookies.
+&amp;gt; By &amp;quot;HTTPS-only&amp;quot;, do you mean a cookie that sets the &amp;quot;secure&amp;quot; attribute
+&amp;gt; (including &amp;quot;__Secure-&amp;quot; prefixes), _and_ sets &amp;quot;HttpOnly&amp;quot;? Or something else?
+&amp;gt;
+
+
+&amp;gt; Later in
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/fergald/explainer-bfcache-ccns/blob/main/README.md#allow-ccns-documents-to-be-bfcached-without-the-api"&gt;https://github.com/fergald/explainer-bfcache-ccns/blob/main/README.md#allow-ccns-documents-to-be-bfcached-without-the-api&lt;/a&gt;,
+&amp;gt; the proposal is that CCNS pages are safe to bfcache if no &amp;quot;HTTP-only&amp;quot;
+&amp;gt; cookies have changed. Are these cookies setting only the &amp;quot;HttpOnly&amp;quot;
+&amp;gt; attribute, or is this intended to say &amp;quot;HTTPS-only&amp;quot; as above?
+&amp;gt;
+
+The short answer is that we will only monitor HttpOnly cookies, regardless
+of whether they are secure or not. The terms in the explainer were unclear,
+and we will fix them.
+
+I see that
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/786#issuecomment-1515742477"&gt;https://github.com/w3ctag/design-reviews/issues/786#issuecomment-1515742477&lt;/a&gt;
+&amp;gt; references this work. Did we learn anything from experimentation in the
+&amp;gt; wild (not sure if y'all ran an experiment)?
+&amp;gt;
+&amp;gt; I'm curious if y'all have looked at stats on the uptake of secure/httponly
+&amp;gt; cookies vs &amp;quot;non-secure&amp;quot; cookies being set by pages returned from RPCs sent
+&amp;gt; with an Authorization header (though I wouldn't be surprised if we don't
+&amp;gt; have UMA for that... perhaps just globally would be useful to consider).
+&amp;gt;
+
+We are currently conducting a Finch experiment to collect the hit rate on
+beta, and the data will be available next week. We will share it with you
+again after we have the data.
+
+With that data, we will be able to tell the percentage of page loads that
+observe HttpOnly cookie changes, any cookie changes, or no cookie changes.
+There will also be another dimension about whether the page had sent out
+RPC with CCNS response. There is no pre-existing UMA for this, but we have
+recorded the reasons why BFCache is not restored.
+
+My only concern (which may not be grounded in reality) would be for sites
+&amp;gt; not following best practices...
+
+
+We expect that there will be cases where pages are restored inappropriately
+where sites are not following good practice. We don't have an idea of the
+size of this problem. We will have data from the beta channel soon that
+will tell us what the difference would be in terms of BFCache hit-rate
+between *monitoring all cookies* and *only monitoring HttpOnly cookies*.
+Our thought process looks like this:
+
+If *monitoring all cookies* already gives us large hit-rate improvement,
+*or* the difference between *monitoring all cookies* and *only monitoring
+HttpOnly cookies* is small, then we are happy to just be conservative and
+go with *monitoring all cookies*. Otherwise*, we would like to discuss this
+further.
+
+
+** &amp;quot;Otherwise&amp;quot; means monitoring all cookies will only give us negligible
+cache hit-rate improvement, and monitoring HttpOnly cookies will give us a
+much larger increase.*
+
+Thanks,
+Mingyu
+
+On Wed, Jul 12, 2023 at 12:11 AM Mike Taylor &amp;lt;miketa...@chromium.org&amp;gt; wrote:
+
+&amp;gt; On 7/11/23 2:19 AM, 'Fergal Daly' via blink-dev wrote:
+&amp;gt;
+&amp;gt; [BCC chrome-bfca...@google.com]
+&amp;gt;
+&amp;gt; On Tue, 11 Jul 2023 at 15:16, Mingyu Lei &amp;lt;le...@google.com&amp;gt; wrote:
+&amp;gt;
+&amp;gt;&amp;gt; +chrome-bfcache &amp;lt;chrome-bfca...@google.com&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; On Tue, Jul 11, 2023 at 1:08 PM Mingyu Lei &amp;lt;le...@google.com&amp;gt; wrote:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Contact emails kenjibah...@chromium.org, fer...@chromium.org,
+&amp;gt;&amp;gt;&amp;gt; denom...@chromium.org, le...@chromium.org
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Specification
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/fergald/explainer-bfcache-ccns/blob/main/README.md"&gt;https://github.com/fergald/explainer-bfcache-ccns/blob/main/README.md&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Design docs
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://docs.google.com/document/d/1qX1w6L6laTzpFTh78dvT7wwC1060Z3he2Azp4BAwsUE/edit?usp=sharing"&gt;https://docs.google.com/document/d/1qX1w6L6laTzpFTh78dvT7wwC1060Z3he2Azp4BAwsUE/edit?usp=sharing&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/fergald/explainer-bfcache-ccns/blob/main/README.md"&gt;https://github.com/fergald/explainer-bfcache-ccns/blob/main/README.md&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; This is a really well-written explainer, thank you!
+&amp;gt;
+&amp;gt; One point of clarification:
+&amp;gt;
+&amp;gt;
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/fergald/explainer-bfcache-ccns/blob/main/README.md#secure-cookies"&gt;https://github.com/fergald/explainer-bfcache-ccns/blob/main/README.md#secure-cookies&lt;/a&gt;
+&amp;gt; references &amp;quot;HTTPS-only&amp;quot; cookies, as well as &amp;quot;secure&amp;quot; vs &amp;quot;insecure&amp;quot; cookies.
+&amp;gt; By &amp;quot;HTTPS-only&amp;quot;, do you mean a cookie that sets the &amp;quot;secure&amp;quot; attribute
+&amp;gt; (including &amp;quot;__Secure-&amp;quot; prefixes), _and_ sets &amp;quot;HttpOnly&amp;quot;? Or something else?
+&amp;gt;
+&amp;gt; Later in
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/fergald/explainer-bfcache-ccns/blob/main/README.md#allow-ccns-documents-to-be-bfcached-without-the-api"&gt;https://github.com/fergald/explainer-bfcache-ccns/blob/main/README.md#allow-ccns-documents-to-be-bfcached-without-the-api&lt;/a&gt;,
+&amp;gt; the proposal is that CCNS pages are safe to bfcache if no &amp;quot;HTTP-only&amp;quot;
+&amp;gt; cookies have changed. Are these cookies setting only the &amp;quot;HttpOnly&amp;quot;
+&amp;gt; attribute, or is this intended to say &amp;quot;HTTPS-only&amp;quot; as above?
+&amp;gt;
+&amp;gt; Summary
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; A behavior change to safely store (and restore) pages in the
+&amp;gt;&amp;gt;&amp;gt; Back/Forward Cache despite the presence of a &amp;quot;Cache-control: no-store&amp;quot; HTTP
+&amp;gt;&amp;gt;&amp;gt; header on HTTPS pages. This would allow pages to enter BFCache and be
+&amp;gt;&amp;gt;&amp;gt; restored as long as there are no changes to cookies or to RPCs using the
+&amp;gt;&amp;gt;&amp;gt; `Authorization:` header.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Blink component UI&amp;gt;Browser&amp;gt;Navigation&amp;gt;BFCache
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:UI%3EBrowser%3ENavigation%3EBFCache"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:UI%3EBrowser%3ENavigation%3EBFCache&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Search tags bfcache &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:bfcache"&gt;https://chromestatus.com/features#tags:bfcache&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; TAG review
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; I see that
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/786#issuecomment-1515742477"&gt;https://github.com/w3ctag/design-reviews/issues/786#issuecomment-1515742477&lt;/a&gt;
+&amp;gt; references this work. Did we learn anything from experimentation in the
+&amp;gt; wild (not sure if y'all ran an experiment)?
+&amp;gt;
+&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; TAG review status Not applicable
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Risks
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Interoperability and Compatibility
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; I'm curious if y'all have looked at stats on the uptake of
+&amp;gt; secure/httponly cookies vs &amp;quot;non-secure&amp;quot; cookies being set by pages returned
+&amp;gt; from RPCs sent with an Authorization header (though I wouldn't be surprised
+&amp;gt; if we don't have UMA for that... perhaps just globally would be useful to
+&amp;gt; consider).
+&amp;gt;
+&amp;gt; My only concern (which may not be grounded in reality) would be for sites
+&amp;gt; not following best practices...
+&amp;gt;
+&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; *Gecko*: No signal
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; *WebKit*: No signal
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Can we request signals?
+&amp;gt;
+&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; *Web developers*: No signals
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; *Other signals*:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; WebView application risks
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Does this intent deprecate or change behavior of existing APIs, such
+&amp;gt;&amp;gt;&amp;gt; that it has potentially high risk for Android WebView-based applications?
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Debuggability
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows, Mac,
+&amp;gt;&amp;gt;&amp;gt; Linux, Chrome OS, Android, and Android WebView)? No
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; BFCache is not supported on WebView, so this change has no impact there.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; ? No
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Flag name on chrome://flags
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Finch feature name CacheControlNoStoreEnterBackForwardCache
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Requires code in //chrome? False
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Tracking bug
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1228611"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1228611&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Launch bug &lt;a  rel="nofollow" href="https://launch.corp.google.com/launch/4251651"&gt;https://launch.corp.google.com/launch/4251651&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Estimated milestones
+&amp;gt;&amp;gt;&amp;gt; DevTrial on desktop 116
+&amp;gt;&amp;gt;&amp;gt; DevTrial on Android 116
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Anticipated spec changes
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Open questions about a feature may be a source of future web compat or
+&amp;gt;&amp;gt;&amp;gt; interop issues. Please list open issues (e.g. links to known github issues
+&amp;gt;&amp;gt;&amp;gt; in the project for the feature specification) whose resolution may
+&amp;gt;&amp;gt;&amp;gt; introduce web compat/interop risk (e.g., changing to naming or structure of
+&amp;gt;&amp;gt;&amp;gt; the API in a non-backward-compatible way).
+&amp;gt;&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/6705326844805120"&gt;https://chromestatus.com/feature/6705326844805120&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Links to previous Intent discussions
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; --
+&amp;gt; You received this message because you are subscribed to the Google Groups
+&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt; To view this discussion on the web visit
+&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAozHLkbL7vmubNOsrA2PKngz4xeV%3DXyuLN73oS4XBea50Xe9A%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAozHLkbL7vmubNOsrA2PKngz4xeV%3DXyuLN73oS4XBea50Xe9A%40mail.gmail.com&lt;/a&gt;
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAozHLkbL7vmubNOsrA2PKngz4xeV%3DXyuLN73oS4XBea50Xe9A%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAozHLkbL7vmubNOsrA2PKngz4xeV%3DXyuLN73oS4XBea50Xe9A%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt; .
+&amp;gt;
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAN_fHtm7NTkEphkqhxegCGOZ1V0b8mCs2a%2B5%3D4GpCZW1_9ZEUA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAN_fHtm7NTkEphkqhxegCGOZ1V0b8mCs2a%2B5%3D4GpCZW1_9ZEUA%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06860.html</id>
         <title>Re: [blink-dev] Intent to Ship: CORS non-wildcard request-header</title>
         <author>
@@ -11111,248 +11495,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5D%2B9W%3Ds65rqMytf1t99nVLVri_Bsaj%3DOOjF-i2gb16vprQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5D%2B9W%3Ds65rqMytf1t99nVLVri_Bsaj%3DOOjF-i2gb16vprQ%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06812.html</id>
-        <title>Re: [blink-dev] Intent to Prototype &amp; Ship: Clear Client Hints via Clear-Site-Data header</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06812.html"/>
-        <updated>2023-07-18T18:01:25.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06812.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Prototype+%5C%26+Ship%5C%3A+Clear+Client+Hints+via+Clear%5C-Site%5C-Data+header%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Prototype &amp; Ship: Clear Client Hints via Clear-Site-Data header&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Rick+Byers%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Rick Byers' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230718" rel="nofollow"&gt;Tue, 18 Jul 2023 11:01:25 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Seems like a pretty minor and straightforward addition to an already
-shipped feature to me. LGTM1&lt;/pre&gt;&lt;pre&gt;
-
-On Mon, Jul 17, 2023 at 4:39 PM Ari Chivukula &amp;lt;aric...@chromium.org&amp;gt; wrote:
-
-&amp;gt; Updating subject to reflect intent.
-&amp;gt;
-&amp;gt; ~ Ari Chivukula (Their/There/They're)
-&amp;gt;
-&amp;gt; On Mon, Jul 17, 2023, 14:35 Ari Chivukula &amp;lt;aric...@chromium.org&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; Contact emails
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; aric...@chromium.org, miketa...@chromium.org, yoavwe...@chromium.org
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Specification
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://w3c.github.io/webappsec-clear-site-data/"&gt;https://w3c.github.io/webappsec-clear-site-data/&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Summary
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Websites will now be able to clear the client hints cache using
-&amp;gt;&amp;gt; `Clear-Site-Data: “clientHints”`. Client hints will also now be cleared
-&amp;gt;&amp;gt; when “cookies”, “cache”, or “*” are targeted by the same header. This is
-&amp;gt;&amp;gt; because if the user clears cookies in the UI client hints are already
-&amp;gt;&amp;gt; cleared as well, the client hints cache is a cache, and to be consistent
-&amp;gt;&amp;gt; with wildcard targets respectively.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Blink component
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Blink&amp;gt;Network&amp;gt;ClientHints
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component%3ABlink%3ENetwork%3EClientHints"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component%3ABlink%3ENetwork%3EClientHints&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Motivation
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; The only current way for a website to force the client hint cache to be
-&amp;gt;&amp;gt; cleared is to send a single header like `Accept-CH:` with no content. If
-&amp;gt;&amp;gt; any other `Accept-CH:` headers are sent at all (empty or not) this will
-&amp;gt;&amp;gt; cause all of them to be ignored. If the `Accept-CH` header is injected into
-&amp;gt;&amp;gt; an HTTP response at multiple points, it can be difficult to silence them
-&amp;gt;&amp;gt; all when one part of the server wishes to clear all hints. This header
-&amp;gt;&amp;gt; provides a way to do that, as the `Clear-Site-Data: “clientHints”` header
-&amp;gt;&amp;gt; clears the cache and causes all other `Accept-Ch` or `Critical-CH` headers
-&amp;gt;&amp;gt; to be ignored.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; TAG review
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/871"&gt;https://github.com/w3ctag/design-reviews/issues/871&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Compatibility &amp; Interoperability
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; We would be the first to implement if approved.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Gecko: &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/848"&gt;https://github.com/mozilla/standards-positions/issues/848&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; WebKit: &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/230"&gt;https://github.com/WebKit/standards-positions/issues/230&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Web Developers: Requested by Akamai
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/client-hints-infrastructure/issues/155"&gt;https://github.com/WICG/client-hints-infrastructure/issues/155&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests?
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/client-hints/clear-site-data?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/client-hints/clear-site-data?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Tracking bug
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://crbug.com/1458394"&gt;https://crbug.com/1458394&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5105030738214912"&gt;https://chromestatus.com/feature/5105030738214912&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; --
-&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt; To view this discussion on the web visit
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5DKYg7BhzS4zACkGB8AyqRe3Q3_6ZZaN7ohCbbOAhJD%3DoQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5DKYg7BhzS4zACkGB8AyqRe3Q3_6ZZaN7ohCbbOAhJD%3DoQ%40mail.gmail.com&lt;/a&gt;
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5DKYg7BhzS4zACkGB8AyqRe3Q3_6ZZaN7ohCbbOAhJD%3DoQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5DKYg7BhzS4zACkGB8AyqRe3Q3_6ZZaN7ohCbbOAhJD%3DoQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt; .
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY8rVnbGk9bNC7GUVnRB4JWihfgg9NLgnW2hfYWyt0L3qw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY8rVnbGk9bNC7GUVnRB4JWihfgg9NLgnW2hfYWyt0L3qw%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg06811.html</id>
-        <title>Re: [blink-dev] Intent to Prototype &amp; Ship: Clear-Site-Data header wildcard syntax</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg06811.html"/>
-        <updated>2023-07-18T17:59:17.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg06811.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Prototype+%5C%26+Ship%5C%3A+Clear%5C-Site%5C-Data+header+wildcard+syntax%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Prototype &amp; Ship: Clear-Site-Data header wildcard syntax&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Rick+Byers%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Rick Byers' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230718" rel="nofollow"&gt;Tue, 18 Jul 2023 10:59:17 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Seems like a pretty tiny addition to an already shipped feature. Just one
-question on future compat:&lt;/pre&gt;&lt;pre&gt;
-
-On Mon, Jul 17, 2023 at 7:34 AM Ari Chivukula &amp;lt;aric...@chromium.org&amp;gt; wrote:
-
-&amp;gt; Contact emails
-&amp;gt;
-&amp;gt; aric...@chromium.org, miketa...@chromium.org, yoavwe...@chromium.org
-&amp;gt;
-&amp;gt; Specification
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://w3c.github.io/webappsec-clear-site-data/"&gt;https://w3c.github.io/webappsec-clear-site-data/&lt;/a&gt;
-&amp;gt;
-&amp;gt; Summary
-&amp;gt;
-&amp;gt; Websites will now be able to clear all storage targets (“cookies”,
-&amp;gt; “cache”, and “storage”) by sending `Clear-Site-Data: “*”`. Note that Chrome
-&amp;gt; does not support clearing “executionContexts” at the moment, but if we
-&amp;gt; added it in the future any header targeting “*” would then clear them too.
-&amp;gt;
-
-What's the risk we'll find we can't actually do that for web compat
-reasons? Eg. sites deploying &amp;quot;*&amp;quot; today without appreciating the
-implications of asking for pages to be reloaded, then when we add
-&amp;quot;executionContexts&amp;quot; support in the future the user experience degrades
-enough that we can't actually ship it as part of the &amp;quot;*&amp;quot; set? Do we have
-guidance for developers on when to use &amp;quot;*&amp;quot; vs. a specific list?
-
-Note: This was proposed in 2017, but never launched in Chrome.
-&amp;gt;
-&amp;gt; Blink component
-&amp;gt;
-&amp;gt; Blink&amp;gt;Storage
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component%3ABlink%3EStorage"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component%3ABlink%3EStorage&lt;/a&gt;&amp;gt;
-&amp;gt;
-&amp;gt; Motivation
-&amp;gt;
-&amp;gt; If a website really wanted to clear all data they would have to list all
-&amp;gt; possible targets in the header and be sure to check if any were added in
-&amp;gt; the future. By using “*” as the target, a website can be sure all data the
-&amp;gt; browser supports to clear via the header will be cleared.
-&amp;gt;
-&amp;gt; TAG review
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/62"&gt;https://github.com/w3ctag/design-reviews/issues/62&lt;/a&gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; Compatibility &amp; Interoperability
-&amp;gt;
-&amp;gt; We would be the first to implement if approved.
-&amp;gt;
-
-Does Firefox (and older Chrome) just ignore the &amp;quot;*&amp;quot; token today? I.e. can
-developers list a set of tokens along with &amp;quot;*&amp;quot; in order to use this
-compatibly on both Chrome and Firefox?
-
-Gecko: Positive &amp;lt;&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/90"&gt;https://github.com/mozilla/standards-positions/issues/90&lt;/a&gt;&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; WebKit: No current support
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Clear-Site-Data"&gt;https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Clear-Site-Data&lt;/a&gt;&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; Web Developers: None so far
-&amp;gt;
-&amp;gt; Is this feature fully tested by web-platform-tests?
-&amp;gt;
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/client-hints/clear-site-data?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/client-hints/clear-site-data?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/clear-site-data?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/clear-site-data?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; Tracking bug
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://crbug.com/1464260"&gt;https://crbug.com/1464260&lt;/a&gt;
-&amp;gt;
-&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5074132743487488"&gt;https://chromestatus.com/feature/5074132743487488&lt;/a&gt;
-&amp;gt;
-&amp;gt; --
-&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt; To view this discussion on the web visit
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5DLiBdF2iFZxhr7Uu0HEm6NtickKF2T_D1nvymYCCuV%3DHQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5DLiBdF2iFZxhr7Uu0HEm6NtickKF2T_D1nvymYCCuV%3DHQ%40mail.gmail.com&lt;/a&gt;
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5DLiBdF2iFZxhr7Uu0HEm6NtickKF2T_D1nvymYCCuV%3DHQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5DLiBdF2iFZxhr7Uu0HEm6NtickKF2T_D1nvymYCCuV%3DHQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt; .
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY8iC6RPyoign_4PqvrmO5WXj7pwfTbosVKFj2_GHF-1uQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY8iC6RPyoign_4PqvrmO5WXj7pwfTbosVKFj2_GHF-1uQ%40mail.gmail.com&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
