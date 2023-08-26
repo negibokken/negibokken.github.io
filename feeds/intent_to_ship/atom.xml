@@ -5,6 +5,273 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg07238.html</id>
+        <title>[blink-dev] Intent to Ship: Fenced Frames - Functionality Updates</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg07238.html"/>
+        <updated>2023-08-25T19:34:47.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg07238.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Fenced+Frames+%5C-+Functionality+Updates%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Ship: Fenced Frames - Functionality Updates&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Liam+Brady%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Liam Brady' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230825" rel="nofollow"&gt;Fri, 25 Aug 2023 12:34:47 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Contact emails
+
+shivani...@chromium.org, d...@chromium.org, jkar...@chromium.org, 
+lbr...@google.com 
+Explainer(s)&lt;/pre&gt;&lt;pre&gt;
+
+Send Automatic Beacons Once
+
+&lt;a  rel="nofollow" href="https://github.com/WICG/turtledove/pull/718"&gt;https://github.com/WICG/turtledove/pull/718&lt;/a&gt; 
+
+Serializable Fenced Frames Configs - Minor Change, No explainer available.
+
+Note: With this change, FencedFrameConfig objects will be serializable and 
+can be sent through &amp;quot;postMessage()&amp;quot; and other similar calls. 
+
+Creative Macros in Fenced Frames Ads Reporting (FFAR)
+
+&lt;a  rel="nofollow" href="https://github.com/WICG/turtledove/pull/763"&gt;https://github.com/WICG/turtledove/pull/763&lt;/a&gt;
+
+Spec(s)
+
+Send Automatic Beacons Once
+
+&lt;a  rel="nofollow" href="https://github.com/WICG/fenced-frame/pull/109"&gt;https://github.com/WICG/fenced-frame/pull/109&lt;/a&gt; 
+
+Serializable Fenced Frames Configs
+
+&lt;a  rel="nofollow" href="https://github.com/WICG/fenced-frame/pull/111"&gt;https://github.com/WICG/fenced-frame/pull/111&lt;/a&gt; 
+
+Creative Macros in Fenced Frames Ads Reporting (FFAR)
+
+Protected Audience: &lt;a  rel="nofollow" href="https://github.com/WICG/turtledove/pull/762/files"&gt;https://github.com/WICG/turtledove/pull/762/files&lt;/a&gt; 
+
+Fenced Frames: &lt;a  rel="nofollow" href="https://github.com/WICG/fenced-frame/pull/113"&gt;https://github.com/WICG/fenced-frame/pull/113&lt;/a&gt;
+
+ 
+
+Summary
+
+We launched Fenced Frames as a part of Chrome 115. We would like to add the 
+following three functionalities to Fenced Frames.
+
+1. Send Automatic Beacons Once
+
+A common feature in ad frames is the &amp;quot;why this ad?&amp;quot; link. Since that link 
+is separate from the ad itself, clicking &amp;quot;why this ad?&amp;quot;, and its subsequent 
+navigation, should be considered different from clicking directly on the 
+advertisement itself. With our current automatic beacon design, however, 
+once an automatic beacon is set (usually in the click handler for the ad 
+link), that beacon will send out for any subsequent top-level navigations, 
+including if &amp;quot;why this ad?&amp;quot; is clicked. This can result in erroneous 
+impressions being sent out.
+
+As a solution, this feature introduces a new &amp;quot;once&amp;quot; member to the FenceEvent 
+&amp;lt;&lt;a  rel="nofollow" href="https://wicg.github.io/fenced-frame/#dictdef-fenceevent"&gt;https://wicg.github.io/fenced-frame/#dictdef-fenceevent&lt;/a&gt;&amp;gt; dictionary passed 
+into &amp;quot;window.fence.setReportEventDataForAutomaticBeacons()&amp;quot;. If set to 
+true, the saved automatic beacon data will be cleared out after the next 
+beacon is sent, ensuring that automatic beacons with that data are only 
+sent once. This means that further clicks to non-ad parts of the frame that 
+result in top-level navigations will not send out erroneous beacons.
+
+(This feature already shipped in M116. That was our mistake. At the time, 
+we thought we would only need a PSA for it, and shipped it without it being 
+behind a flag. We apologize for the mistake.)
+
+2. Serializable FencedFramesConfigs
+
+With this change, FencedFrameConfig objects will be serializable and can be 
+sent through &amp;quot;postMessage()&amp;quot; and other similar calls. Serialization allows 
+for a case where the frame that runs an ad auction is not the same frame 
+that ends up embedding the winning ad in a fenced frame. FencedFrameConfigs 
+cannot be serialized to storage, nor can they be sent in a message that 
+crosses a fenced frame boundary. A FencedFrameConfig object is only valid 
+in the traversable navigable 
+&amp;lt;&lt;a  rel="nofollow" href="https://wicg.github.io/fenced-frame/#traversable-navigables"&gt;https://wicg.github.io/fenced-frame/#traversable-navigables&lt;/a&gt;&amp;gt; it was 
+originally created in, and, if sent outside to a different context, will 
+not be able to navigate, since the new traversable navigable 
+&amp;lt;&lt;a  rel="nofollow" href="https://wicg.github.io/fenced-frame/#traversable-navigables"&gt;https://wicg.github.io/fenced-frame/#traversable-navigables&lt;/a&gt;&amp;gt;'s fenced 
+frame config mapping 
+&amp;lt;&lt;a  rel="nofollow" href="https://wicg.github.io/fenced-frame/#traversable-navigable-fenced-frame-config-mapping"&gt;https://wicg.github.io/fenced-frame/#traversable-navigable-fenced-frame-config-mapping&lt;/a&gt;&amp;gt;
+ 
+will not contain the internal config needed to do the navigation.
+
+3. Creative macros in Fenced Frames Ads Reporting (FFAR)
+
+This feature extends the Fenced Frame Ads Reporting (FFAR) API to support 
+macro substitution in reporting URLs and allows reports to be sent to up to 
+ten other origins that have enrolled with the Privacy Sandbox and 
+allow-listed by the DSP. Use case: In online ad auctions for ad space, 
+advertisers buying through DSPs in several situations use other adtech 
+providers to monitor performance and keep track of how their advertising 
+dollars are spent. (issue link 
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/turtledove/issues/477"&gt;https://github.com/WICG/turtledove/issues/477&lt;/a&gt;&amp;gt;)
+
+Blink component
+
+Blink&amp;gt;FencedFrames 
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EFencedFrames"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EFencedFrames&lt;/a&gt;&amp;gt;
+
+TAG reviews and status
+
+Fenced frames existing TAG review appended with these spec changes 
+&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/838#issuecomment-1693631006"&gt;https://github.com/w3ctag/design-reviews/issues/838#issuecomment-1693631006&lt;/a&gt;
+
+Link to Origin Trial feedback summary
+
+No Origin Trial performed
+
+Is this feature supported on all six Blink platforms (Windows, Mac, Linux, 
+Chrome OS, Android, and Android WebView)?
+
+Supported on all the above platforms except Android WebView.
+
+Debuggability
+
+Additional debugging capabilities are not necessary for these feature 
+changes.
+
+Risks
+
+Compatibility
+
+There are no compatibility risks, as described below:
+
+1. Send Automatic Beacons Once: This is backward compatible with the 
+existing API since the default value of “once” is false which is the same 
+behavior as the previous behavior.
+
+2. Serializable FencedFramesConfigs: This is added functionality and 
+backward compatible with the existing FencedFramesConfig.
+
+3. Creative macros in Fenced Frames Ads Reporting (FFAR): This is adding a 
+new API and a backward compatible change to reportEvent.
+
+Interoperability
+
+there are no interoperability risks as no other browsers have decided to 
+implement these features yet.
+
+Is this feature fully tested by web-platform-tests 
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;?
+ 
+Link to test suite results from wpt.fyi.
+
+Yes
+
+Tests: &lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/tree/master/fenced-frame"&gt;https://github.com/web-platform-tests/wpt/tree/master/fenced-frame&lt;/a&gt;
+
+Results: 
+&lt;a  rel="nofollow" href="https://wpt.fyi/results/fenced-frame?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/fenced-frame?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
+
+Specifically, these features correspond to the following tests:
+
+Send Automatic Beacons Once:
+
+   - 
+   
+   automatic-beacon-two-events-clear.https.html (test 
+   
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-two-events-clear.https.html"&gt;https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-two-events-clear.https.html&lt;/a&gt;&amp;gt;)
+ 
+   (result 
+   
+&amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/fenced-frame/automatic-beacon-two-events-clear.https.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/fenced-frame/automatic-beacon-two-events-clear.https.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;&amp;gt;
+   )
+   - 
+   
+   automatic-beacon-two-events-persist.https.html (test 
+   
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-two-events-persist.https.html"&gt;https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-two-events-persist.https.html&lt;/a&gt;&amp;gt;)
+ 
+   (result 
+   
+&amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/fenced-frame/automatic-beacon-two-events-persist.https.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/fenced-frame/automatic-beacon-two-events-persist.https.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;&amp;gt;
+   )
+   
+Serializable FencedFrameConfigs:
+
+   - 
+   
+   deep-copy-config.https.html (test 
+   
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/deep-copy-config.https.html"&gt;https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/deep-copy-config.https.html&lt;/a&gt;&amp;gt;)
+ 
+   (result 
+   
+&amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/fenced-frame/deep-copy-config.https.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/fenced-frame/deep-copy-config.https.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;&amp;gt;
+   )
+   
+Creative macros in Fenced Frames Ads Reporting (FFAR):
+
+   - 
+   
+   fence-report-event-destination-url.https.html (test 
+   
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/fence-report-event-destination-url.https.html"&gt;https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/fence-report-event-destination-url.https.html&lt;/a&gt;&amp;gt;)
+ 
+   (result 
+   
+&amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/fenced-frame/fence-report-event-destination-url.https.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/fenced-frame/fence-report-event-destination-url.https.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;&amp;gt;
+   )
+   
+
+Anticipated spec changes
+
+None 
+
+Link to entry on the Chrome Platform Status
+
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5103970808233984"&gt;https://chromestatus.com/feature/5103970808233984&lt;/a&gt; 
+
+Links to previous Intent discussions
+
+Intent to prototype: 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/Ko9UXQYPgUE/m/URRsB-qvAAAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/Ko9UXQYPgUE/m/URRsB-qvAAAJ&lt;/a&gt;
+ 
+
+Intent to experiment:
+
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/y6G3cvKXjlg/m/Lcpmpi_LAgAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/y6G3cvKXjlg/m/Lcpmpi_LAgAJ&lt;/a&gt;
+ 
+
+Intent to extend origin trial:
+
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/SD8Ot2gpz4g/m/A9uA-_cGAwAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/SD8Ot2gpz4g/m/A9uA-_cGAwAJ&lt;/a&gt;
+ 
+
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/gpmaOi3of_w/m/SyMclFhMAAAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/gpmaOi3of_w/m/SyMclFhMAAAJ&lt;/a&gt;
+ 
+
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/CBrV-2DrYFI/m/RTojC6kHAgAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/CBrV-2DrYFI/m/RTojC6kHAgAJ&lt;/a&gt;
+ 
+
+Intent to ship:
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/tpw8wW0VenQ/m/mePLTiHlDQAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/tpw8wW0VenQ/m/mePLTiHlDQAJ&lt;/a&gt;
+ 
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/62771371-5dbb-4d02-a232-a99ded5b293fn%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/62771371-5dbb-4d02-a232-a99ded5b293fn%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg07237.html</id>
         <title>Re: [blink-dev] Re: Intent to Implement and Ship: User-Agent Client Hints on Android WebView</title>
         <author>
@@ -12002,281 +12269,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw_fE4j0k5Ha%3DQ0jS%2BYKsWLfhC3CYa_EBQpJHr9rQjTMQw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw_fE4j0k5Ha%3DQ0jS%2BYKsWLfhC3CYa_EBQpJHr9rQjTMQw%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg07188.html</id>
-        <title>Re: [blink-dev] Intent to Ship: Opaque Response Blocking (ORB, aka CORB++) v0.2</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg07188.html"/>
-        <updated>2023-08-22T14:38:26.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg07188.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Opaque+Response+Blocking+%5C%28ORB%2C+aka+CORB%5C%2B%5C%2B%5C%29+v0.2%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Opaque Response Blocking (ORB, aka CORB++) v0.2&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Yoav+Weiss%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Yoav Weiss&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230822" rel="nofollow"&gt;Tue, 22 Aug 2023 07:38:26 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;LGTM2
-
-On Wed, Aug 16, 2023 at 7:23 PM Chris Harrelson &amp;lt;chris...@chromium.org&amp;gt;
-wrote:&lt;/pre&gt;&lt;pre&gt;
-
-&amp;gt; LGTM1 to turn it on in M118 beta and report back to this group about use
-&amp;gt; counter results/bugs reported on beta before it reaches stable.
-&amp;gt;
-&amp;gt; On Fri, Aug 11, 2023 at 2:50 AM 'Daniel Vogelheim' via blink-dev &amp;lt;
-&amp;gt; blink-dev@chromium.org&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; On Wed, Jul 26, 2023 at 11:29 AM Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt;
-&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; On Tue, Jul 25, 2023 at 6:48 PM Daniel Vogelheim &amp;lt;vogelh...@google.com&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Tue, Jul 25, 2023 at 9:10 AM Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Mon, Jul 24, 2023 at 7:27 PM Daniel Vogelheim &amp;lt;vogelh...@google.com&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Mon, Jul 24, 2023 at 5:55 PM Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Mon, Jul 24, 2023 at 5:44 PM Daniel Vogelheim &amp;lt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; vogelh...@google.com&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Mon, Jul 24, 2023 at 5:24 PM Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Fri, Jul 21, 2023 at 5:53 PM 'Daniel Vogelheim' via blink-dev &amp;lt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; blink-dev@chromium.org&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Contact emailsvogelh...@chromium.org
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Specification&lt;a  rel="nofollow" href="https://github.com/whatwg/fetch/pull/1442"&gt;https://github.com/whatwg/fetch/pull/1442&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Summary
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Opaque Response Blocking (ORB) is a replacement for Cross-Origin
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Read Blocking (CORB -
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5629709824032768"&gt;https://chromestatus.com/feature/5629709824032768&lt;/a&gt;). CORB and ORB
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; are both heuristics that attempt to prevent cross-origin disclosure 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; of
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; “no-cors” subresources. This entry tracks &amp;quot;v0.2&amp;quot; of ORB - Chrome's 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; second
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; step towards a full ORB implementation. ORB specifies error handling 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; for
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; blocked resources differently from CORB: ORB raises network errors, 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; while
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; CORB injects an empty response. ORB &amp;quot;v0.1&amp;quot; still used CORB-style 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; response
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; injection. This change brings our implementation more in line with 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the ORB
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; proposal, by changing the error handling of all fetches (except when
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; initiated by a script) to be compliant with ORB. We've made a 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; carve-out for
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; script-initiated fetches (where we retain CORB behaviour for now) to 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; limit
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; compatibility risk.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink componentInternals&amp;gt;Sandbox&amp;gt;SiteIsolation
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Internals%3ESandbox%3ESiteIsolation"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Internals%3ESandbox%3ESiteIsolation&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG reviewNone
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (A TAG review of a particular aspect happened in:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/618"&gt;https://github.com/w3ctag/design-reviews/issues/618&lt;/a&gt;)
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review statusNot applicable
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Risks
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Interoperability and Compatibility
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; This release does not modify blocking behaviour, but only how a
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; blocked resource is represented. Ideally, this change shouldn't 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; break any
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; existing code since any resource that loads (or gets blocked) before 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; will
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; continue to do so after. However, it is possible to distinguish 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; between the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; different types of error handling, and it may well happen that an
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; application inadvertently relies on blocked resources &amp;quot;succeeding&amp;quot;. 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; In our
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; examinations so far, this chiefly concerns fetches using the 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; `fetch()` API,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; where blocking with a network error results in a failed promise 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (instead of
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; a success with an empty response). For this reason, we have carved 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; out
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; script-initiated fetches from &amp;quot;v0.2&amp;quot; and intend to handle them at a 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; later
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; date.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; OK, so how would this change be web exposed? Are there scenarios
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; where an &amp;quot;error&amp;quot; event would now fire instead of a &amp;quot;load&amp;quot; event?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Yes, exactly. If a site is waiting for an onload event - despite
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; not really caring about whether the load is actually meaningful, since 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; it
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; currently already loads empty - then it would see a behavioural change.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Do we have stats on how often that would happen? (e.g. how often an
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; onload event fires on an ORB empty resource?)
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; No. I didn't realize I could measure onload events firing
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; specifically for ORB-blocked resources. So I unfortunately don't have 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; that
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; data.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; The number of page views with any CORB/ORB-blocked resource in it
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; hovers around 0.35% of page loads. That should provide an upper bound, 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; but
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; doesn't tell us how many of them care about the onload/onerror events.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; One way to avoid a 2 months delay while we're waiting on data could be
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to add the use counters + a base feature and go ahead with a removal, but
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; turning it off if we see that the actual breakage exceeds some threshold.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Thoughts?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Turning this on via server-side experiments (and thus being able to
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; turn it off quickly on problem reports) is easy to do. It might make sense
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; to have it enabled on beta 50/50 for a while, to see whether anyone 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; notices.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; I find it surprisingly hard to implement the use counters: The code
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; that knows the network status (and thus _why_ a response might be empty) is
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; separated by several layers from the code that knows the element and
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; whether it has any event handlers. :-/
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; I agree that piping that information over from the browser to the
-&amp;gt;&amp;gt;&amp;gt; renderer would be an overkill (and may have security implications on
-&amp;gt;&amp;gt;&amp;gt; its own). In that case, a careful Finch may be sufficient.
-&amp;gt;&amp;gt;&amp;gt; One last thought - maybe it's possible to report the information to UKM
-&amp;gt;&amp;gt;&amp;gt; from both sides of the code, and join it at analysis time? (if that's not
-&amp;gt;&amp;gt;&amp;gt; too complex)
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; I've now landed the usecounter CL. What I'd like to do is: Enable the
-&amp;gt;&amp;gt; feature on beta now and wait for numbers to arrive from the usecounters.
-&amp;gt;&amp;gt; This would give us two signals on compatibility.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; According to the current schedule, the counters will make it into 118.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Gecko*: No signal (
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1532642"&gt;https://bugzilla.mozilla.org/show_bug.cgi?id=1532642&lt;/a&gt;) In
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; implementation.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *WebKit*: No signal (
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/64"&gt;https://github.com/WebKit/standards-positions/issues/64&lt;/a&gt;)
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Web developers*: No signals
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Other signals*:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/618"&gt;https://github.com/w3ctag/design-reviews/issues/618&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; WebView application risks
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Does this intent deprecate or change behavior of existing APIs,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; such that it has potentially high risk for Android WebView-based
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; applications?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Debuggability
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (Windows, Mac, Linux, Chrome OS, Android, and Android WebView)?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Yes
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ?Yes (&lt;a  rel="nofollow" href="https://wpt.fyi/results/fetch/orb"&gt;https://wpt.fyi/results/fetch/orb&lt;/a&gt;)
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Flag name on chrome://flags
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Finch feature nameOpaqueResponseBlockingV02
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Requires code in //chrome?False
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Tracking bug
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1463725"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1463725&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Estimated milestones
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Shipping on desktop 117
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; DevTrial on desktop 115
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Shipping on Android 117
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; DevTrial on Android 115
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Shipping on WebView 117
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Anticipated spec changesNone
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5166834424217600"&gt;https://chromestatus.com/feature/5166834424217600&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Links to previous Intent discussions
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/ScjhKz3Z6U4"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/ScjhKz3Z6U4&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Google Groups &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; send an email to blink-dev+unsubscr...@chromium.org.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CALG6KPPNdN%3DO0j0MhcfudkBtMoYnELhVRJ5nLftB8c1T1UdwbQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CALG6KPPNdN%3DO0j0MhcfudkBtMoYnELhVRJ5nLftB8c1T1UdwbQ%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CALG6KPPNdN%3DO0j0MhcfudkBtMoYnELhVRJ5nLftB8c1T1UdwbQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CALG6KPPNdN%3DO0j0MhcfudkBtMoYnELhVRJ5nLftB8c1T1UdwbQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt;&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt;&amp;gt; To view this discussion on the web visit
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CALG6KPMpGi0K71%3DF8i4SjKt_1RuVnpAiavv1mArDO--rzLSSwA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CALG6KPMpGi0K71%3DF8i4SjKt_1RuVnpAiavv1mArDO--rzLSSwA%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CALG6KPMpGi0K71%3DF8i4SjKt_1RuVnpAiavv1mArDO--rzLSSwA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CALG6KPMpGi0K71%3DF8i4SjKt_1RuVnpAiavv1mArDO--rzLSSwA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfWcnLZhP39z%2B41fEhWSV-ZfhYCcaAae_EUDDtfXTxUuqw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfWcnLZhP39z%2B41fEhWSV-ZfhYCcaAae_EUDDtfXTxUuqw%40mail.gmail.com&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
