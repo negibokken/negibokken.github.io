@@ -5,6 +5,906 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg07304.html</id>
+        <title>Re: [blink-dev] Intent to Ship: CSS font-variant-position property</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg07304.html"/>
+        <updated>2023-08-31T15:05:20.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg07304.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+CSS+font%5C-variant%5C-position+property%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: CSS font-variant-position property&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Marcel+Gerber%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Marcel Gerber&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230831" rel="nofollow"&gt;Thu, 31 Aug 2023 08:05:20 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;I also think that synthesizing is a core feature of this CSS property:
+Without synthesizing, the same functionality can also be achieved using 
+plain `font-feature-settings`. Using `font-variant-position` is nicer, sure.&lt;/pre&gt;&lt;pre&gt;
+
+But what happens if the requested webfont cannot be loaded for whatever 
+reason, and the page is rendered using a fallback system font, is very much 
+something that the current Chrome implementation of `font-variant-position` 
+doesn't solve in any way:
+It will just render the text using normal glyphs, which is very confusing 
+if they're supposed to be superset glyphs.
+
+For example, go to the MDN font-variant-position page 
+&amp;lt;&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/CSS/font-variant-position#result"&gt;https://developer.mozilla.org/en-US/docs/Web/CSS/font-variant-position#result&lt;/a&gt;&amp;gt; 
+and 
+look at the &amp;quot;Result&amp;quot; section in Chrome 117+: Even though the browser 
+supports `font-variant-position` now, the text there is completely rendered 
+using &amp;quot;normal&amp;quot; glyphs (assuming your system font doesn't have sup/sub 
+glyphs) and there is not the slightest indication that the text is supposed 
+to be in super/subscript.
+
+A compromise that would work well in my eyes is to at least synthesize if 
+we detect that the rendered font doesn't have *any superscript/subscript 
+glyphs at all*. That might be easier to detect in OpenType fonts than 
+checking for the existence of every single rendered glyph?
+
+On Thursday, 17 August 2023 at 14:00:57 UTC+2 Jonathan Kew wrote:
+
+&amp;gt; Note that the CSS Fonts 4 spec *requires* the browser to synthesize 
+&amp;gt; appropriate scaled/shifted glyphs if the font does not provide them:
+&amp;gt;
+&amp;gt; &amp;gt; In the case of OpenType fonts that lack subscript or superscript glyphs 
+&amp;gt; for a given character, user agents *must* synthesize appropriate 
+&amp;gt; subscript and superscript glyphs.
+&amp;gt;
+&amp;gt; (see &lt;a  rel="nofollow" href="https://drafts.csswg.org/css-fonts-4/#font-variant-position-prop"&gt;https://drafts.csswg.org/css-fonts-4/#font-variant-position-prop&lt;/a&gt;) 
+&amp;gt;
+&amp;gt; On Tuesday, 4 July 2023 at 18:23:14 UTC+1 Munira Tursunova wrote:
+&amp;gt;
+&amp;gt;&amp;gt; We decided to ship font-variant-position without adding a metric 
+&amp;gt;&amp;gt; measuring whether the feature is applied against a correct font because of 
+&amp;gt;&amp;gt; difficulties determining a stable document state at the shaping level, for 
+&amp;gt;&amp;gt; details, see 
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://docs.google.com/document/d/1dYiljb9pJmWtEIulsse_jzxJwLh3F14Y_X6WbHfETXg/edit?usp=sharing&amp;resourcekey=0-6TIx4OqLWmKBuzv3yR-qRA"&gt;https://docs.google.com/document/d/1dYiljb9pJmWtEIulsse_jzxJwLh3F14Y_X6WbHfETXg/edit?usp=sharing&amp;resourcekey=0-6TIx4OqLWmKBuzv3yR-qRA&lt;/a&gt;
+&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; On Wednesday, May 31, 2023 at 5:39:03 PM UTC+2 Daniel Bratell wrote:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; LGTM3
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; /Daniel
+&amp;gt;&amp;gt;&amp;gt; On 2023-05-31 17:38, Mike Taylor wrote:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; LGTM2
+&amp;gt;&amp;gt;&amp;gt; On 5/31/23 10:30 AM, Rick Byers wrote:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Yes, 100%. Very good point, I was definitely over-simplifying the 
+&amp;gt;&amp;gt;&amp;gt; measurement challenge. Thanks David!
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; On Tue, May 30, 2023, 5:47 p.m. David Baron &amp;lt;dba...@chromium.org&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; I was trying to avoid being too specific about what would be worth 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; measuring both because I haven't taken the time to think through all the 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; details, and because other folks on this thread have a lot of domain 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; expertise that can help figure out what makes sense.  I just wanted to 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; point out that if you are measuring stuff, it's worth considering that it 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; may be useful to measure something about usage of system versus downloaded 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; fonts in order to understand variation between machines (which I agree is 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; at least mostly variation between platforms). 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; -David
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Tue, May 30, 2023 at 11:44 AM Dominik Röttsches &amp;lt;dr...@google.com&amp;gt; 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Hi David and Rick, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; It's a shame to me to be holding back interop on the case of fonts 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; having the superscript or subscript glyphs out of fear for the case 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; where 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; they don't. Perhaps we can treat the case of font-variant-position being 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; used with fonts that lack the glyphs as a site bug that we can work to 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; address independently? Personally, as long as Safari and Chrome behave 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; same here, I'm skeptical that the lack of synthesis would turn into a 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; non-trivial problem in practice.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I think expectations as to what should the browser do vs. what is 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; reasonably expected of site owners in terms of font selection and visual 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; delivery is on a spectrum (font fallback being a similar case). 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; In the case of using font-variant-position, I tend to agree with Rick: 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I'd consider using font-variant-position without a suitable font is a 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; site 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; bug. Safari seems to be of the same opinion by shipping 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; font-variant-position without synthesis.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; If we were to ship without synthesis, would it be practical to have a 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; UseCounter which measures how often we see font-variant-position used 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; with 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; a font that lacks the glyphs? This would tell us how important the bug 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; is. 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; If it remains really rare, then IMHO we've probably already wasted more 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; energy worrying about it than it's worth. If it becomes more common over 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; time then I think we have a variety of options, chiefly implementing 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; synthesis, but also raising awareness with devtools features, UKM-based 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; site-specific outreach, and possibly even interventions of some form 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (like 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; using a fallback font?).  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; It's difficult to measure the visual end result accurately: 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Only at shaping time we know exactly which font binary is used. This 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; in HarfBuzzShaper and we can determine whether the `sups` and `subs` 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; OpenType features 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://learn.microsoft.com/en-us/typography/opentype/spec/features_pt#subs"&gt;https://learn.microsoft.com/en-us/typography/opentype/spec/features_pt#subs&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  are 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; requested (we would need extra code for determining whether these 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; features 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; were requested through font-variant-position: or font-feature-settings). 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Then we can determine whether the font has such a feature in its shaping 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; tables. The difficulty is: We reach the shaping code lots of times for 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; every relayout or web font arriving. So initially, we may shape with a 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; fallback font before the web font arrives, which affects the measurement 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; result. Measuring in shaping is not synchronized with a stable layout 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; stage 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; or something like a &amp;quot;done&amp;quot; state of the page. So we could get to an 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; approximation, but in shaping we can't currently determine what's the 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; last 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; state that &amp;quot;stayed&amp;quot; and was perceived by the user.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; David wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; So if it makes sense to add use counters to understand the 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; compatibility implications here, I think it may be worth adding what we 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; would need to understand the breakdown of how many sites are using this 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; in 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; a way that (a) is interoperable across browsers/machines versus (b) is 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; broken in some browsers and working on others versus (c) is broken on 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; some 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; machines and working on other machines, even using the same browser.  I 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; suspect this would mean something like measuring how often we see 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; font-variant-position used with a system font versus a downloadable 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; font.  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (This might also need to be recorded along with the data on whether the 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; font has or lacks the superscript/subscript glyphs, because the 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; intersection of the two might be interesting.)
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I do agree this feature is most meaningful in combination with web 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; fonts. Or even more specifically: Selecting font-variant-position needs 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; be carefully synced with the selected font and making sure the exact font 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; has high chances of getting loaded.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Do I understand correctly you suggest measuring font-variant-position 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; usage with system fonts vs. web fonts because of the differences between 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; machines? Or did you also mean platforms? 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; The system font set used from the web is relatively stable between 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; machines, meaning: Windows fonts are usually similar across machines 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (when 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; it comes to those selected from the web), so are Mac fonts.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; In any event, I did a quick check:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Mac: Helvetica, Times, and Courier New on Mac, and as far as I can 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; tell, neither has a specific superscript or subscript OpenType or AAT 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; font 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; feature. 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Windows: Out of Arial, Courier, Times, Verdana only Verdana has 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; subscript glyphs (no superscript), the others do not have such a feature. 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Bottom line: 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I am with Rick on shipping this and considering a lack of glyph 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; support up a site bug. 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Depending on feedback from API owners, if needed, we can measure an 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; approximation of selection of the feature vs. support in the font. 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; As is, this measurement may read too high (see above: initial shaping 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; with fallback font), but potentially we can filter that measurement and 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; only report selection of the feature vs. support in a successfully loaded 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; web-font. Development of such a measurement takes from 2 days to 9 days, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; depending on complexity (very basic, no distinction of 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; font-feature-settings and font-variant-position, no distinction of system 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; fonts to complex: distinguish font-feature-settings from 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; font-variant-position, distinguish system fonts, web fonts). 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Dominik
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Wed, May 24, 2023 at 5:41 PM Rick Byers &amp;lt;rby...@chromium.org&amp;gt; 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; It's a shame to me to be holding back interop on the case of fonts 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; having the superscript or subscript glyphs out of fear for the case 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; where 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; they don't. Perhaps we can treat the case of font-variant-position being 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; used with fonts that lack the glyphs as a site bug that we can work to 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; address independently? Personally, as long as Safari and Chrome behave 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; same here, I'm skeptical that the lack of synthesis would turn into a 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; non-trivial problem in practice. 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; If we were to ship without synthesis, would it be practical to have a 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; UseCounter which measures how often we see font-variant-position used 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; with 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; a font that lacks the glyphs? This would tell us how important the bug 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; is. 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; If it remains really rare, then IMHO we've probably already wasted more 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; energy worrying about it than it's worth. If it becomes more common over 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; time then I think we have a variety of options, chiefly implementing 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; synthesis, but also raising awareness with devtools features, UKM-based 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; site-specific outreach, and possibly even interventions of some form 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (like 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; using a fallback font?). 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Rick
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Fri, Feb 24, 2023 at 9:22 AM David Baron &amp;lt;dba...@chromium.org&amp;gt; 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Fri, Feb 24, 2023 at 5:49 AM Yoav Weiss &amp;lt;yoav...@chromium.org&amp;gt; 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Fri, Feb 24, 2023 at 11:27 AM Manuel Rego Casasnovas &amp;lt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; re...@igalia.com&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; There's a CSSWG issue about this topic in particular:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/7441"&gt;https://github.com/w3c/csswg-drafts/issues/7441&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is this something that can be put on the agenda for the CSSWG to 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; discuss?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I added this to the group's (long) agenda backlog.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (Also, a few other relevant CSSWG issues I found were 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; w3c/csswg-drafts#1888 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/1888"&gt;https://github.com/w3c/csswg-drafts/issues/1888&lt;/a&gt;&amp;gt;, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; w3c/csswg-drafts#2796 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/2796"&gt;https://github.com/w3c/csswg-drafts/issues/2796&lt;/a&gt;&amp;gt;, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; w3c/csswg-drafts#5225 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/5225"&gt;https://github.com/w3c/csswg-drafts/issues/5225&lt;/a&gt;&amp;gt;, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; w3c/csswg-drafts#5518 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/5518"&gt;https://github.com/w3c/csswg-drafts/issues/5518&lt;/a&gt;&amp;gt;, and also some 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; minutes from July 2020 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://lists.w3.org/Archives/Public/www-style/2020Aug/0006.html#:~:text=vertical%2Dalign%3A%20super%20and%20font%20metrics"&gt;https://lists.w3.org/Archives/Public/www-style/2020Aug/0006.html#:~:text=vertical%2Dalign%3A%20super%20and%20font%20metrics&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; and from September 2020 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://lists.w3.org/Archives/Public/www-style/2020Sep/0023.html#:~:text=should%20we%20add%20the%20super%20and%20subscript"&gt;https://lists.w3.org/Archives/Public/www-style/2020Sep/0023.html#:~:text=should%20we%20add%20the%20super%20and%20subscript&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; .)
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; One other point that I missed yesterday is that one of the key 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; reasons that these new properties can't be used for the default 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; rendering 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; of &amp;lt;sup&amp;gt;/&amp;lt;sub&amp;gt; elements is that they don't support *nested* 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; subscript/superscript.  One of the goals of the 2011 discussion I cited 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; above was to solve that issue in a reasonable way.  All of the current 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ways 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; of doing typographically correct super/subscripts only support a single 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; level of super/subscript, and not nesting.  This works for the majority 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; of 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; use cases, but not all.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; -David
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; -- 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; send an email to blink-dev+...@chromium.org.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAG0MU3ht%3DrZwCtQoUWJXR4avCaY2TvAa9NMiYAfMsdan94wzVw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAG0MU3ht%3DrZwCtQoUWJXR4avCaY2TvAa9NMiYAfMsdan94wzVw%40mail.gmail.com&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAG0MU3ht%3DrZwCtQoUWJXR4avCaY2TvAa9NMiYAfMsdan94wzVw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAG0MU3ht%3DrZwCtQoUWJXR4avCaY2TvAa9NMiYAfMsdan94wzVw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; -- 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; send an email to blink-dev+...@chromium.org.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY9fMAG16L3_KweN4FnnSnVsfevxHyH2qfdN1B42ef1Xmg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY9fMAG16L3_KweN4FnnSnVsfevxHyH2qfdN1B42ef1Xmg%40mail.gmail.com&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY9fMAG16L3_KweN4FnnSnVsfevxHyH2qfdN1B42ef1Xmg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY9fMAG16L3_KweN4FnnSnVsfevxHyH2qfdN1B42ef1Xmg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; -- 
+&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google 
+&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send 
+&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+...@chromium.org.
+&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit 
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY-SQGewKUSrL0MGTXh_L3DU_RSfah2t8SrS8K3FPaeR2g%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY-SQGewKUSrL0MGTXh_L3DU_RSfah2t8SrS8K3FPaeR2g%40mail.gmail.com&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY-SQGewKUSrL0MGTXh_L3DU_RSfah2t8SrS8K3FPaeR2g%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY-SQGewKUSrL0MGTXh_L3DU_RSfah2t8SrS8K3FPaeR2g%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/26c73025-f4c3-415b-869a-b45e2ea377adn%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/26c73025-f4c3-415b-869a-b45e2ea377adn%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg07303.html</id>
+        <title>Re: [blink-dev] Intent to Ship: Fenced Frames - Functionality Updates</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg07303.html"/>
+        <updated>2023-08-31T12:55:11.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg07303.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Fenced+Frames+%5C-+Functionality+Updates%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Fenced Frames - Functionality Updates&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Garrett+Tanzer%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Garrett Tanzer' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230831" rel="nofollow"&gt;Thu, 31 Aug 2023 05:55:11 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;After some discussion offline, we're going to sanitize the macro keys and 
+values with EscapeQueryParamValue 
+&amp;lt;&lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/main:base/strings/escape.h;l=29?q=EscapeQueryParamValue%20-f:out"&gt;https://source.chromium.org/chromium/chromium/src/+/main:base/strings/escape.h;l=29?q=EscapeQueryParamValue%20-f:out&lt;/a&gt;&amp;gt;
+ so 
+that macro substitution always stays within the original query parameter 
+field. This should prevent XSS-y substitutions while keeping the API 
+surface exactly the same for regular use.&lt;/pre&gt;&lt;pre&gt;
+
+This fix will be implemented in M118, and we've decided that it need not 
+block launch in M117 due to the low severity (especially because the 
+existing reportEvent surface grants the buyer reporting worklet complete 
+control over the destination URL, so the ad creative is already known to 
+trust the buyer wrt where its reports get sent).
+
+On Monday, August 28, 2023 at 11:55:39 AM UTC-4 Garrett Tanzer wrote:
+
+&amp;gt; Hi Daniel,
+&amp;gt;
+&amp;gt;    - There are a few relevant call sites in the overall reporting flow:
+&amp;gt;       - Declare allowlist of reporting destination origins
+&amp;gt;          - This happens in navigator.joinAdInterestGroup(), by an ad 
+&amp;gt;          auction buyer
+&amp;gt;       - Declare macros (key:value correspondences)
+&amp;gt;          - This happens in the buyer reporting worklet, by the same ad 
+&amp;gt;          auction buyer that declared the reporting destination origins
+&amp;gt;       - Perform report to custom url
+&amp;gt;          - This happens under the auction's winning ad creative's origin, 
+&amp;gt;          which isn't necessarily the same as the ad auction buyer, but it is 
+&amp;gt; chosen 
+&amp;gt;          by the ad auction buyer
+&amp;gt;       - Here is the sequence of events:
+&amp;gt;
+&amp;gt;
+&amp;gt;    1. 
+&amp;gt;       1. The browser ingests and validates the allowlist when the 
+&amp;gt;       interest group is declared.
+&amp;gt;       2. The browser ingests the macro key:value mapping when the auction 
+&amp;gt;       happens. The key/value strings have no structure that is validated. The 
+&amp;gt;       browser adds &amp;quot;${&amp;quot; and &amp;quot;}&amp;quot; around the user-provided keys in the macro 
+&amp;gt;       mapping. 
+&amp;gt;       3. In the ad that results from the auction:
+&amp;gt;          1. The ad sends a URL to the browser, including macros like 
+&amp;gt;          ${KEY}. The URL has to be a valid HTTPS url even with the macros 
+&amp;gt;          unsubstituted. (See impl: 
+&amp;gt;          
+&amp;gt; &lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/main:content/browser/renderer_host/render_frame_host_impl.cc;l=8644?q=content%2Fbrowser%2Frenderer_host%2Frender_frame_host_impl.cc%20-f:out"&gt;https://source.chromium.org/chromium/chromium/src/+/main:content/browser/renderer_host/render_frame_host_impl.cc;l=8644?q=content%2Fbrowser%2Frenderer_host%2Frender_frame_host_impl.cc%20-f:out&lt;/a&gt;
+&amp;gt;          )
+&amp;gt;          2. The browser performs a simple string substitution to replace 
+&amp;gt;          the keys with the values. The implementation is reused from 
+&amp;gt;          navigator.deprecatedReplaceInURN, another part of Protected 
+&amp;gt; Audience. It 
+&amp;gt;          doesn't substitute macros recursively, so you can't get an infinite 
+&amp;gt; loop. 
+&amp;gt;          deprecatedReplaceInURN has apparently not been spec'd, which is was 
+&amp;gt; unable 
+&amp;gt;          to quickly reuse that spec and left it as a TODO for now.
+&amp;gt;          3. The origin of the resulting URL is checked against the 
+&amp;gt;          allowlist. If it doesn't match any of them, no action is performed. 
+&amp;gt; If the 
+&amp;gt;          URL is invalid, this will create an opaque origin and therefore 
+&amp;gt; always fail 
+&amp;gt;          the check. (See impl: 
+&amp;gt;          
+&amp;gt; &lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/main:content/browser/fenced_frame/fenced_frame_reporter.cc;l=454?q=fenced_frame_reporter.cc%20-f:out"&gt;https://source.chromium.org/chromium/chromium/src/+/main:content/browser/fenced_frame/fenced_frame_reporter.cc;l=454?q=fenced_frame_reporter.cc%20-f:out&lt;/a&gt;)
+&amp;gt;  
+&amp;gt;          We may add an explicit URL valid/HTTPS check after substitution for 
+&amp;gt;          neatness/to be robust to any future changes to the allowlist 
+&amp;gt; checking.
+&amp;gt;          4. If the URL does pass the check, a GET fetch will be performed 
+&amp;gt;          on it (the result is unused). There's no other parsing/usage of the 
+&amp;gt; URL 
+&amp;gt;          other than performing a fetch.
+&amp;gt;       
+&amp;gt; So in summary, we were not very concerned about XSS because the entity 
+&amp;gt; choosing the macro pairings is the one we want to protect, and the entity 
+&amp;gt; providing the base URLs is semi-trusted. The less trusted entity is the 
+&amp;gt; site of the destination URL, which just receives a GET and doesn't get to 
+&amp;gt; control anything. Since the URL has to be valid both before and after the 
+&amp;gt; macro substitution, this limits how wacky the substitutions can get even if 
+&amp;gt; you don't trust one of those entities. The weirdest stuff you could do 
+&amp;gt; would be like &amp;quot;FOO}&amp;key=value1&amp;${BAR&amp;quot; -&amp;gt; &amp;quot;key=value2&amp;quot;, so that it becomes 
+&amp;gt; &amp;quot;${FOO}&amp;key=value1&amp;${BAR}&amp;quot; -&amp;gt; &amp;quot;key=value2&amp;quot;. We can add a check to exclude 
+&amp;gt; $,{,} characters in the macro key so even this isn't possible.
+&amp;gt;
+&amp;gt; Hope this answers your questions,
+&amp;gt; Garrett
+&amp;gt;
+&amp;gt; On Monday, August 28, 2023 at 9:35:34 AM UTC-4 Daniel Vogelheim wrote:
+&amp;gt;
+&amp;gt;&amp;gt; Hi Liam,
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; This intent has come up in the OWP security triage, and I'm trying to 
+&amp;gt;&amp;gt; figure out whether there's XSS potential in the 3rd sub-feature, &amp;quot;Creative 
+&amp;gt;&amp;gt; macros in FFAR&amp;quot;. This looks like a string-based pattern replacement where 
+&amp;gt;&amp;gt; the result string will then be parsed by the browser. Similar things have 
+&amp;gt;&amp;gt; lent themselves to XSS, e.g. when a string value contains meta characters 
+&amp;gt;&amp;gt; that code downstream will then parse in unexpected ways. Unfortunately, I 
+&amp;gt;&amp;gt; can't seem to find enough information about how exactly the replacement &amp; 
+&amp;gt;&amp;gt; subsequent usage works to make up my mind whether there's a concern or not. 
+&amp;gt;&amp;gt; Could you help me out with a bit more information?
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; What I've found is this:
+&amp;gt;&amp;gt; - In &amp;quot;&amp;lt;dfn&amp;gt;send a beacon&amp;lt;/dfn&amp;gt;&amp;quot;: &amp;quot;TODO: Substitute macros from |macro 
+&amp;gt;&amp;gt; map| into |destination url|.&amp;quot; (source 
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/fenced-frame/pull/113/files"&gt;https://github.com/WICG/fenced-frame/pull/113/files&lt;/a&gt;&amp;gt;)
+&amp;gt;&amp;gt; - In &amp;quot;&amp;lt;dfn&amp;gt;asynchronously finish reporting&amp;lt;/dfn&amp;gt;&amp;quot; I find where macro map 
+&amp;gt;&amp;gt; being set, but then it says: &amp;quot;TODO: Pass |macroMap| and 
+&amp;gt;&amp;gt; |allowedReportingOrigins| to [=Finalize a reporting destination=] when it 
+&amp;gt;&amp;gt; is updated to take the parameters.&amp;quot; (source 
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/turtledove/pull/762/files"&gt;https://github.com/WICG/turtledove/pull/762/files&lt;/a&gt;&amp;gt;) I can't find that 
+&amp;gt;&amp;gt; usage.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Questions I have:
+&amp;gt;&amp;gt; - Am I reading the right docs? Where else should I look?
+&amp;gt;&amp;gt; - Is this meant as a simple string-based substitution? Is there any 
+&amp;gt;&amp;gt; filtering of allowed characters, or so?
+&amp;gt;&amp;gt; - What happens with the result values?
+&amp;gt;&amp;gt; - Is the entity that sets the macro values always the same that has set 
+&amp;gt;&amp;gt; the patterns the values are being used for, or could those be different 
+&amp;gt;&amp;gt; entities?
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Thanks!
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; On Fri, Aug 25, 2023 at 9:34 PM 'Liam Brady' via blink-dev &amp;lt;
+&amp;gt;&amp;gt; blin...@chromium.org&amp;gt; wrote:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Contact emails
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; shiva...@chromium.org, d...@chromium.org, jka...@chromium.org, 
+&amp;gt;&amp;gt;&amp;gt; lbr...@google.com 
+&amp;gt;&amp;gt;&amp;gt; Explainer(s)
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Send Automatic Beacons Once
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/turtledove/pull/718"&gt;https://github.com/WICG/turtledove/pull/718&lt;/a&gt; 
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Serializable Fenced Frames Configs - Minor Change, No explainer 
+&amp;gt;&amp;gt;&amp;gt; available.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Note: With this change, FencedFrameConfig objects will be serializable 
+&amp;gt;&amp;gt;&amp;gt; and can be sent through &amp;quot;postMessage()&amp;quot; and other similar calls. 
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Creative Macros in Fenced Frames Ads Reporting (FFAR)
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/turtledove/pull/763"&gt;https://github.com/WICG/turtledove/pull/763&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Spec(s)
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Send Automatic Beacons Once
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/fenced-frame/pull/109"&gt;https://github.com/WICG/fenced-frame/pull/109&lt;/a&gt; 
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Serializable Fenced Frames Configs
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/fenced-frame/pull/111"&gt;https://github.com/WICG/fenced-frame/pull/111&lt;/a&gt; 
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Creative Macros in Fenced Frames Ads Reporting (FFAR)
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Protected Audience: &lt;a  rel="nofollow" href="https://github.com/WICG/turtledove/pull/762/files"&gt;https://github.com/WICG/turtledove/pull/762/files&lt;/a&gt; 
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Fenced Frames: &lt;a  rel="nofollow" href="https://github.com/WICG/fenced-frame/pull/113"&gt;https://github.com/WICG/fenced-frame/pull/113&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Summary
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; We launched Fenced Frames as a part of Chrome 115. We would like to add 
+&amp;gt;&amp;gt;&amp;gt; the following three functionalities to Fenced Frames.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; 1. Send Automatic Beacons Once
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; A common feature in ad frames is the &amp;quot;why this ad?&amp;quot; link. Since that 
+&amp;gt;&amp;gt;&amp;gt; link is separate from the ad itself, clicking &amp;quot;why this ad?&amp;quot;, and its 
+&amp;gt;&amp;gt;&amp;gt; subsequent navigation, should be considered different from clicking 
+&amp;gt;&amp;gt;&amp;gt; directly on the advertisement itself. With our current automatic beacon 
+&amp;gt;&amp;gt;&amp;gt; design, however, once an automatic beacon is set (usually in the click 
+&amp;gt;&amp;gt;&amp;gt; handler for the ad link), that beacon will send out for any subsequent 
+&amp;gt;&amp;gt;&amp;gt; top-level navigations, including if &amp;quot;why this ad?&amp;quot; is clicked. This can 
+&amp;gt;&amp;gt;&amp;gt; result in erroneous impressions being sent out.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; As a solution, this feature introduces a new &amp;quot;once&amp;quot; member to the 
+&amp;gt;&amp;gt;&amp;gt; FenceEvent &amp;lt;&lt;a  rel="nofollow" href="https://wicg.github.io/fenced-frame/#dictdef-fenceevent"&gt;https://wicg.github.io/fenced-frame/#dictdef-fenceevent&lt;/a&gt;&amp;gt; 
+&amp;gt;&amp;gt;&amp;gt; dictionary passed into 
+&amp;gt;&amp;gt;&amp;gt; &amp;quot;window.fence.setReportEventDataForAutomaticBeacons()&amp;quot;. If set to true, the 
+&amp;gt;&amp;gt;&amp;gt; saved automatic beacon data will be cleared out after the next beacon is 
+&amp;gt;&amp;gt;&amp;gt; sent, ensuring that automatic beacons with that data are only sent once. 
+&amp;gt;&amp;gt;&amp;gt; This means that further clicks to non-ad parts of the frame that result in 
+&amp;gt;&amp;gt;&amp;gt; top-level navigations will not send out erroneous beacons.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; (This feature already shipped in M116. That was our mistake. At the 
+&amp;gt;&amp;gt;&amp;gt; time, we thought we would only need a PSA for it, and shipped it without it 
+&amp;gt;&amp;gt;&amp;gt; being behind a flag. We apologize for the mistake.)
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; 2. Serializable FencedFramesConfigs
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; With this change, FencedFrameConfig objects will be serializable and can 
+&amp;gt;&amp;gt;&amp;gt; be sent through &amp;quot;postMessage()&amp;quot; and other similar calls. Serialization 
+&amp;gt;&amp;gt;&amp;gt; allows for a case where the frame that runs an ad auction is not the same 
+&amp;gt;&amp;gt;&amp;gt; frame that ends up embedding the winning ad in a fenced frame. 
+&amp;gt;&amp;gt;&amp;gt; FencedFrameConfigs cannot be serialized to storage, nor can they be sent in 
+&amp;gt;&amp;gt;&amp;gt; a message that crosses a fenced frame boundary. A FencedFrameConfig object 
+&amp;gt;&amp;gt;&amp;gt; is only valid in the traversable navigable 
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wicg.github.io/fenced-frame/#traversable-navigables"&gt;https://wicg.github.io/fenced-frame/#traversable-navigables&lt;/a&gt;&amp;gt; it was 
+&amp;gt;&amp;gt;&amp;gt; originally created in, and, if sent outside to a different context, will 
+&amp;gt;&amp;gt;&amp;gt; not be able to navigate, since the new traversable navigable 
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wicg.github.io/fenced-frame/#traversable-navigables"&gt;https://wicg.github.io/fenced-frame/#traversable-navigables&lt;/a&gt;&amp;gt;'s fenced 
+&amp;gt;&amp;gt;&amp;gt; frame config mapping 
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wicg.github.io/fenced-frame/#traversable-navigable-fenced-frame-config-mapping"&gt;https://wicg.github.io/fenced-frame/#traversable-navigable-fenced-frame-config-mapping&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt; will not contain the internal config needed to do the navigation.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; 3. Creative macros in Fenced Frames Ads Reporting (FFAR)
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; This feature extends the Fenced Frame Ads Reporting (FFAR) API to 
+&amp;gt;&amp;gt;&amp;gt; support macro substitution in reporting URLs and allows reports to be sent 
+&amp;gt;&amp;gt;&amp;gt; to up to ten other origins that have enrolled with the Privacy Sandbox and 
+&amp;gt;&amp;gt;&amp;gt; allow-listed by the DSP. Use case: In online ad auctions for ad space, 
+&amp;gt;&amp;gt;&amp;gt; advertisers buying through DSPs in several situations use other adtech 
+&amp;gt;&amp;gt;&amp;gt; providers to monitor performance and keep track of how their advertising 
+&amp;gt;&amp;gt;&amp;gt; dollars are spent. (issue link 
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/turtledove/issues/477"&gt;https://github.com/WICG/turtledove/issues/477&lt;/a&gt;&amp;gt;)
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Blink component
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Blink&amp;gt;FencedFrames 
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EFencedFrames"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EFencedFrames&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; TAG reviews and status
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Fenced frames existing TAG review appended with these spec changes 
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/838#issuecomment-1693631006"&gt;https://github.com/w3ctag/design-reviews/issues/838#issuecomment-1693631006&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Link to Origin Trial feedback summary
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; No Origin Trial performed
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Is this feature supported on all six Blink platforms (Windows, Mac, 
+&amp;gt;&amp;gt;&amp;gt; Linux, Chrome OS, Android, and Android WebView)?
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Supported on all the above platforms except Android WebView.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Debuggability
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Additional debugging capabilities are not necessary for these feature 
+&amp;gt;&amp;gt;&amp;gt; changes.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Risks
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Compatibility
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; There are no compatibility risks, as described below:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; 1. Send Automatic Beacons Once: This is backward compatible with the 
+&amp;gt;&amp;gt;&amp;gt; existing API since the default value of “once” is false which is the same 
+&amp;gt;&amp;gt;&amp;gt; behavior as the previous behavior.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; 2. Serializable FencedFramesConfigs: This is added functionality and 
+&amp;gt;&amp;gt;&amp;gt; backward compatible with the existing FencedFramesConfig.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; 3. Creative macros in Fenced Frames Ads Reporting (FFAR): This is 
+&amp;gt;&amp;gt;&amp;gt; adding a new API and a backward compatible change to reportEvent.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Interoperability
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; there are no interoperability risks as no other browsers have decided to 
+&amp;gt;&amp;gt;&amp;gt; implement these features yet.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests 
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;?
+&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt; Link to test suite results from wpt.fyi.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Yes
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Tests: 
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/tree/master/fenced-frame"&gt;https://github.com/web-platform-tests/wpt/tree/master/fenced-frame&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Results: 
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/fenced-frame?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/fenced-frame?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Specifically, these features correspond to the following tests:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Send Automatic Beacons Once:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;    - 
+&amp;gt;&amp;gt;&amp;gt;    
+&amp;gt;&amp;gt;&amp;gt;    automatic-beacon-two-events-clear.https.html (test 
+&amp;gt;&amp;gt;&amp;gt;    
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-two-events-clear.https.html"&gt;https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-two-events-clear.https.html&lt;/a&gt;&amp;gt;)
+&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;    (result 
+&amp;gt;&amp;gt;&amp;gt;    
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/fenced-frame/automatic-beacon-two-events-clear.https.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/fenced-frame/automatic-beacon-two-events-clear.https.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;    )
+&amp;gt;&amp;gt;&amp;gt;    - 
+&amp;gt;&amp;gt;&amp;gt;    
+&amp;gt;&amp;gt;&amp;gt;    automatic-beacon-two-events-persist.https.html (test 
+&amp;gt;&amp;gt;&amp;gt;    
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-two-events-persist.https.html"&gt;https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-two-events-persist.https.html&lt;/a&gt;&amp;gt;)
+&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;    (result 
+&amp;gt;&amp;gt;&amp;gt;    
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/fenced-frame/automatic-beacon-two-events-persist.https.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/fenced-frame/automatic-beacon-two-events-persist.https.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;    )
+&amp;gt;&amp;gt;&amp;gt;    
+&amp;gt;&amp;gt;&amp;gt; Serializable FencedFrameConfigs:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;    - 
+&amp;gt;&amp;gt;&amp;gt;    
+&amp;gt;&amp;gt;&amp;gt;    deep-copy-config.https.html (test 
+&amp;gt;&amp;gt;&amp;gt;    
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/deep-copy-config.https.html"&gt;https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/deep-copy-config.https.html&lt;/a&gt;&amp;gt;)
+&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;    (result 
+&amp;gt;&amp;gt;&amp;gt;    
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/fenced-frame/deep-copy-config.https.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/fenced-frame/deep-copy-config.https.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;    )
+&amp;gt;&amp;gt;&amp;gt;    
+&amp;gt;&amp;gt;&amp;gt; Creative macros in Fenced Frames Ads Reporting (FFAR):
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;    - 
+&amp;gt;&amp;gt;&amp;gt;    
+&amp;gt;&amp;gt;&amp;gt;    fence-report-event-destination-url.https.html (test 
+&amp;gt;&amp;gt;&amp;gt;    
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/fence-report-event-destination-url.https.html"&gt;https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/fence-report-event-destination-url.https.html&lt;/a&gt;&amp;gt;)
+&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;    (result 
+&amp;gt;&amp;gt;&amp;gt;    
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/fenced-frame/fence-report-event-destination-url.https.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/fenced-frame/fence-report-event-destination-url.https.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;    )
+&amp;gt;&amp;gt;&amp;gt;    
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Anticipated spec changes
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; None 
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5103970808233984"&gt;https://chromestatus.com/feature/5103970808233984&lt;/a&gt; 
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Links to previous Intent discussions
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Intent to prototype: 
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/Ko9UXQYPgUE/m/URRsB-qvAAAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/Ko9UXQYPgUE/m/URRsB-qvAAAJ&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Intent to experiment:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/y6G3cvKXjlg/m/Lcpmpi_LAgAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/y6G3cvKXjlg/m/Lcpmpi_LAgAJ&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Intent to extend origin trial:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/SD8Ot2gpz4g/m/A9uA-_cGAwAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/SD8Ot2gpz4g/m/A9uA-_cGAwAJ&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/gpmaOi3of_w/m/SyMclFhMAAAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/gpmaOi3of_w/m/SyMclFhMAAAJ&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/CBrV-2DrYFI/m/RTojC6kHAgAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/CBrV-2DrYFI/m/RTojC6kHAgAJ&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Intent to ship:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/tpw8wW0VenQ/m/mePLTiHlDQAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/tpw8wW0VenQ/m/mePLTiHlDQAJ&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; -- 
+&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google 
+&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send 
+&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+...@chromium.org.
+&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit 
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/62771371-5dbb-4d02-a232-a99ded5b293fn%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/62771371-5dbb-4d02-a232-a99ded5b293fn%40chromium.org&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/62771371-5dbb-4d02-a232-a99ded5b293fn%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/62771371-5dbb-4d02-a232-a99ded5b293fn%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/2b14ffdf-1fdb-4fa7-9054-65356c007b50n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/2b14ffdf-1fdb-4fa7-9054-65356c007b50n%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg07302.html</id>
+        <title>Re: [blink-dev] Intent to Ship: CSS Relative Color Syntax (RCS)</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg07302.html"/>
+        <updated>2023-08-31T12:41:06.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg07302.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+CSS+Relative+Color+Syntax+%5C%28RCS%5C%29%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: CSS Relative Color Syntax (RCS)&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Aaron+Krajeski%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Aaron Krajeski' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230831" rel="nofollow"&gt;Thu, 31 Aug 2023 05:41:06 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Thanks for your review Alex!
+
+&amp;gt; First, please use the Mozilla Standards Positions process to guage their
+temperature rather than links to bugs:&lt;/pre&gt;&lt;pre&gt;
+
+Chris Lilley opened a bug for that in July, no response yet:
+&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/841"&gt;https://github.com/mozilla/standards-positions/issues/841&lt;/a&gt;
+
+&amp;gt; Next, not having an explainer is not great, and pointing to a
+Google-internal doc is not on.
+
+How about the blog I responded to Rego with, is it sufficient?
+&lt;a  rel="nofollow" href="https://www.stefanjudis.com/notes/new-in-css-relative-colors/"&gt;https://www.stefanjudis.com/notes/new-in-css-relative-colors/&lt;/a&gt;
+
+&amp;gt; Lastly, please send this feature to the TAG as an FYI. There's no &amp;quot;pass&amp;quot;
+for new, large features like this.
+
+As an issue on github.com/w3ctag/design-reviews/issues? It being an FYI,
+can I keep it brief or do I need to dig around for &amp;quot;User research&amp;quot;, &amp;quot;Key
+pieces of existing multi-stakeholder review or discussion of this
+specification&amp;quot; from when the spec was originally written?
+
+Thanks!
+  Aaron
+
+
+
+
+On Wed, Aug 30, 2023 at 12:25 PM Alex Russell &amp;lt;slightly...@chromium.org&amp;gt;
+wrote:
+
+&amp;gt; Hey Aaron, thanks for the links.
+&amp;gt;
+&amp;gt; I'm goint to LGTM1 this on the condition you dot some i's and cross some
+&amp;gt; t's.
+&amp;gt;
+&amp;gt; First, please use the Mozilla Standards Positions process to guage their
+&amp;gt; temperature rather than links to bugs:
+&amp;gt;
+&amp;gt;     &lt;a  rel="nofollow" href="https://mozilla.github.io/standards-positions/"&gt;https://mozilla.github.io/standards-positions/&lt;/a&gt;
+&amp;gt;
+&amp;gt; When Mozilla replies, please update the issue and post the reply to this
+&amp;gt; thread.
+&amp;gt;
+&amp;gt; Next, not having an explainer is not great, and pointing to a
+&amp;gt; Google-internal doc is not on.
+&amp;gt;
+&amp;gt; Lastly, please send this feature to the TAG as an FYI. There's no &amp;quot;pass&amp;quot;
+&amp;gt; for new, large features like this.
+&amp;gt;
+&amp;gt; Best,
+&amp;gt;
+&amp;gt; Alex
+&amp;gt;
+&amp;gt; On Wednesday, August 30, 2023 at 8:34:31 AM UTC-7 Aaron Krajeski wrote:
+&amp;gt;
+&amp;gt;&amp;gt; That's not a public link, please could you make it public?
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; That's not a great explainer actually (it's my own doc) these are better:
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://blog.jim-nielsen.com/2021/css-relative-colors/"&gt;https://blog.jim-nielsen.com/2021/css-relative-colors/&lt;/a&gt;
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://www.stefanjudis.com/notes/new-in-css-relative-colors/"&gt;https://www.stefanjudis.com/notes/new-in-css-relative-colors/&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Why no signals from Gecko? Have we filled a standards position request
+&amp;gt;&amp;gt; or do we know other information about Gecko supporting this feature?
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; It's part of stable spec right now. Gecko has an implementation bug:
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1701488"&gt;https://bugzilla.mozilla.org/show_bug.cgi?id=1701488&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; I guess some developers have asked about this feature right? Do we have
+&amp;gt;&amp;gt; any info regarding that?
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Yes! Just to name a few:
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://www.matuzo.at/blog/2023/100daysof-day92/"&gt;https://www.matuzo.at/blog/2023/100daysof-day92/&lt;/a&gt;
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://12daysofweb.dev/2022/css-color-spaces-relative-color-syntax/"&gt;https://12daysofweb.dev/2022/css-color-spaces-relative-color-syntax/&lt;/a&gt;
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://www.stefanjudis.com/notes/new-in-css-relative-colors/"&gt;https://www.stefanjudis.com/notes/new-in-css-relative-colors/&lt;/a&gt;
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chriscoyier.net/2023/01/26/relative-color-syntax-plzzzzz/"&gt;https://chriscoyier.net/2023/01/26/relative-color-syntax-plzzzzz/&lt;/a&gt;
+&amp;gt;&amp;gt; &amp;quot;Both *Dave* &amp;lt;&lt;a  rel="nofollow" href="https://daverupert.com/2023/01/css-wishlist-2023/"&gt;https://daverupert.com/2023/01/css-wishlist-2023/&lt;/a&gt;&amp;gt; and
+&amp;gt;&amp;gt; *Tyler* &amp;lt;&lt;a  rel="nofollow" href="https://cloudfour.com/thinks/tylers-css-wish-list-for-2023/"&gt;https://cloudfour.com/thinks/tylers-css-wish-list-for-2023/&lt;/a&gt;&amp;gt; pointed
+&amp;gt;&amp;gt; to *the Relative Color Syntax*
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://www.w3.org/TR/css-color-5/#relative-colors"&gt;https://www.w3.org/TR/css-color-5/#relative-colors&lt;/a&gt;&amp;gt; on their 2023 CSS
+&amp;gt;&amp;gt; Wishlist.&amp;quot;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Thanks to arg...@chromium.org for finding these.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Sorry for the incompleteness of my I2S thread and thank you for the
+&amp;gt;&amp;gt; follow up Rego!
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Cheers,
+&amp;gt;&amp;gt;   Aaron
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; On Wed, Aug 30, 2023 at 10:54 AM Manuel Rego Casasnovas &amp;lt;r...@igalia.com&amp;gt;
+&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; On 29/08/2023 16:17, Aaron Krajeski wrote:
+&amp;gt;&amp;gt;&amp;gt; &amp;gt; *Explainer: *go/rcs-chromium &amp;lt;&lt;a  rel="nofollow" href="http://go/rcs-chromium"&gt;http://go/rcs-chromium&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; That's not a public link, please could you make it public?
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &amp;gt; Risks
+&amp;gt;&amp;gt;&amp;gt; &amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &amp;gt; Interoperability and Compatibility
+&amp;gt;&amp;gt;&amp;gt; &amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &amp;gt; None
+&amp;gt;&amp;gt;&amp;gt; &amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &amp;gt; /Gecko/: No signal
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Why no signals from Gecko? Have we filled a standards position request
+&amp;gt;&amp;gt;&amp;gt; or do we know other information about Gecko supporting this feature?
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &amp;gt; /WebKit/: Shipped (&lt;a  rel="nofollow" href="https://caniuse.com/css-relative-colors"&gt;https://caniuse.com/css-relative-colors&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt; &amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://caniuse.com/css-relative-colors"&gt;https://caniuse.com/css-relative-colors&lt;/a&gt;&amp;gt;)
+&amp;gt;&amp;gt;&amp;gt; &amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &amp;gt; /Web developers/: No signals
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; I guess some developers have asked about this feature right? Do we have
+&amp;gt;&amp;gt;&amp;gt; any info regarding that?
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Thanks,
+&amp;gt;&amp;gt;&amp;gt;   Rego
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPhTwY2hoE4ObOn1zqaWWO8949QGqewJf0VX-etZR0RPskuytA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPhTwY2hoE4ObOn1zqaWWO8949QGqewJf0VX-etZR0RPskuytA%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg07301.html</id>
         <title>Re: [blink-dev] Intent to Ship: Remove non-standard appearance keywords</title>
         <author>
@@ -12507,779 +13407,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/bbf9db38-ec5e-4744-ba7b-519243d98d2en%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/bbf9db38-ec5e-4744-ba7b-519243d98d2en%40chromium.org&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg07254.html</id>
-        <title>Re: [blink-dev] Intent to Ship: :user-valid and :user-invalid CSS pseudo-classes</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg07254.html"/>
-        <updated>2023-08-28T15:55:35.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg07254.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+%5C%3Auser%5C-valid+and+%5C%3Auser%5C-invalid+CSS+pseudo%5C-classes%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: :user-valid and :user-invalid CSS pseudo-classes&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22PhistucK%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;PhistucK&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230828" rel="nofollow"&gt;Mon, 28 Aug 2023 08:55:35 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Thank you!
-
-☆*PhistucK*&lt;/pre&gt;&lt;pre&gt;
-
-
-On Mon, Aug 28, 2023 at 4:46 PM Joey Arhar &amp;lt;jar...@chromium.org&amp;gt; wrote:
-
-&amp;gt; I filed a bug here:
-&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1476503"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1476503&lt;/a&gt;
-&amp;gt;
-&amp;gt; On Sat, Aug 26, 2023 at 4:04 PM PhistucK &amp;lt;phist...@gmail.com&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; Yeah, it was just a thought, maybe any new pseudo-class should
-&amp;gt;&amp;gt; automatically be added.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; ☆*PhistucK*
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Sat, Aug 26, 2023 at 10:26 PM Mason Freed &amp;lt;mas...@chromium.org&amp;gt; wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; On Saturday, August 26, 2023 at 10:31:30 AM UTC-7 PhistucK wrote:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; I guess all of them would be good. Not really why only a few
-&amp;gt;&amp;gt;&amp;gt; pseudo-classes are listed there...
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; This sounds like a great feature request for devtools in general. I
-&amp;gt;&amp;gt;&amp;gt; wonder if we could separate it out from shipping this one set of 2 pseudo
-&amp;gt;&amp;gt;&amp;gt; classes though?
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; ☆*PhistucK*
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; On Sat, Aug 26, 2023 at 6:18 PM Joey Arhar &amp;lt;jar...@chromium.org&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Sure I can try setting up the force element state feature for it.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; &amp;gt; along with other form-related ones
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Any ones you have in mind? I could try to do them all at once
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; On Sat, Aug 26, 2023 at 10:00 AM PhistucK &amp;lt;phist...@gmail.com&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Sounds good!
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; &amp;gt; Debuggability
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; &amp;gt; These new pseudo-classes will be supported by the DevTools styles
-&amp;gt;&amp;gt;&amp;gt; sidebar automatically, just like every other pseudo-class.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Can it (along with other form-related ones, I guess) be added to the
-&amp;gt;&amp;gt;&amp;gt; list of toggle-able pseudo classes (shown when you click on the &amp;quot;:hov&amp;quot;
-&amp;gt;&amp;gt;&amp;gt; button)?
-&amp;gt;&amp;gt;&amp;gt; [image: image.png]
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; ☆*PhistucK*
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; On Sat, Aug 26, 2023 at 9:14 AM Joey Arhar &amp;lt;jar...@chromium.org&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Contact emailsjar...@chromium.org
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; ExplainerNone
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Specification&lt;a  rel="nofollow" href="https://drafts.csswg.org/selectors-4/#user-pseudos"&gt;https://drafts.csswg.org/selectors-4/#user-pseudos&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Summary
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; The :user-invalid and the :user-valid pseudo-classes represent an
-&amp;gt;&amp;gt;&amp;gt; element with incorrect or correct input, respectively, but only after the
-&amp;gt;&amp;gt;&amp;gt; user has significantly interacted with it. This is similar to :valid and
-&amp;gt;&amp;gt;&amp;gt; :invalid, but with the added constraint that these pseudo-classes only
-&amp;gt;&amp;gt;&amp;gt; match after the user has interacted with the element.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Blink componentBlink&amp;gt;CSS
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; TAG reviewNone
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; TAG review statusNot applicable
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Risks
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Interoperability and Compatibility
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; There is no interop/compat risks because this is a new feature that has
-&amp;gt;&amp;gt;&amp;gt; already been implemented by safari and firefox and has WPTs.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; *Gecko*: Shipped/Shipping
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; *WebKit*: Shipped/Shipping
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; *Web developers*: No signals
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; *Other signals*:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Ergonomics
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; This feature will not be used in tandem with other platform APIs. The
-&amp;gt;&amp;gt;&amp;gt; default usage of this API will not make it hard for chrome to maintain good
-&amp;gt;&amp;gt;&amp;gt; performance.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Activation
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; It will not be challenging for developers to use this feature
-&amp;gt;&amp;gt;&amp;gt; immediately. There is already an MDN article for this feature, so I don't
-&amp;gt;&amp;gt;&amp;gt; think that we need additional outreach.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Security
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; There are no security risks for this feature.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; WebView application risks
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Does this intent deprecate or change behavior of existing APIs, such
-&amp;gt;&amp;gt;&amp;gt; that it has potentially high risk for Android WebView-based applications?
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Debuggability
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; These new pseudo-classes will be supported by the DevTools styles
-&amp;gt;&amp;gt;&amp;gt; sidebar automatically, just like every other pseudo-class.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows, Mac,
-&amp;gt;&amp;gt;&amp;gt; Linux, Chrome OS, Android, and Android WebView)?Yes
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; ?Yes
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Flag name on chrome://flagsUserValidUserInvalid
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Finch feature nameUserValidUserInvalid
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Requires code in //chrome?False
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Availability expectationThis feature is already being shipped by safari
-&amp;gt;&amp;gt;&amp;gt; and firefox, so it will be available on the web platform mainline as soon
-&amp;gt;&amp;gt;&amp;gt; as we launch it.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Adoption expectationThis feature will be considered the best practice
-&amp;gt;&amp;gt;&amp;gt; for its use case as soon as we launch it.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Adoption planThis is already implemented in safari and firefox, so we
-&amp;gt;&amp;gt;&amp;gt; don't need to do anything in order to gain adoption of this feature.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Sample links&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/CSS/:user-valid"&gt;https://developer.mozilla.org/en-US/docs/Web/CSS/:user-valid&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Estimated milestonesShipping on desktop118DevTrial on desktop118Shipping
-&amp;gt;&amp;gt;&amp;gt; on Android118DevTrial on Android118Shipping on WebView118
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Anticipated spec changes
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Open questions about a feature may be a source of future web compat or
-&amp;gt;&amp;gt;&amp;gt; interop issues. Please list open issues (e.g. links to known github issues
-&amp;gt;&amp;gt;&amp;gt; in the project for the feature specification) whose resolution may
-&amp;gt;&amp;gt;&amp;gt; introduce web compat/interop risk (e.g., changing to naming or structure of
-&amp;gt;&amp;gt;&amp;gt; the API in a non-backward-compatible way).
-&amp;gt;&amp;gt;&amp;gt; There are no anticipated spec changes.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt; feature/5132477781245952
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
-&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send
-&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+unsubscr...@chromium.org.
-&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit &lt;a  rel="nofollow" href="https://groups.google.com/a/"&gt;https://groups.google.com/a/&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt; chromium.org/d/msgid/blink-dev/CAK6btwKVw_WLSEZ348JyUXHVXfrNOBD7DN1U5svU
-&amp;gt;&amp;gt;&amp;gt; kQ%3D1TLADFg%40mail.gmail.com
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAK6btwKVw_WLSEZ348JyUXHVXfrNOBD7DN1U5svUkQ%3D1TLADFg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAK6btwKVw_WLSEZ348JyUXHVXfrNOBD7DN1U5svUkQ%3D1TLADFg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABc02_LEyn%3DPRKgON8DQOMTURY913zXii5pMnvyBDuSkpwwtUg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABc02_LEyn%3DPRKgON8DQOMTURY913zXii5pMnvyBDuSkpwwtUg%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg07253.html</id>
-        <title>Re: [blink-dev] Intent to Ship: :user-valid and :user-invalid CSS pseudo-classes</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg07253.html"/>
-        <updated>2023-08-28T15:46:22.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg07253.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+%5C%3Auser%5C-valid+and+%5C%3Auser%5C-invalid+CSS+pseudo%5C-classes%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: :user-valid and :user-invalid CSS pseudo-classes&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Joey+Arhar%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Joey Arhar&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230828" rel="nofollow"&gt;Mon, 28 Aug 2023 08:46:22 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;I filed a bug here:
-&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1476503"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1476503&lt;/a&gt;&lt;/pre&gt;&lt;pre&gt;
-
-On Sat, Aug 26, 2023 at 4:04 PM PhistucK &amp;lt;phist...@gmail.com&amp;gt; wrote:
-
-&amp;gt; Yeah, it was just a thought, maybe any new pseudo-class should
-&amp;gt; automatically be added.
-&amp;gt;
-&amp;gt; ☆*PhistucK*
-&amp;gt;
-&amp;gt;
-&amp;gt; On Sat, Aug 26, 2023 at 10:26 PM Mason Freed &amp;lt;mas...@chromium.org&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Saturday, August 26, 2023 at 10:31:30 AM UTC-7 PhistucK wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; I guess all of them would be good. Not really why only a few
-&amp;gt;&amp;gt; pseudo-classes are listed there...
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; This sounds like a great feature request for devtools in general. I
-&amp;gt;&amp;gt; wonder if we could separate it out from shipping this one set of 2 pseudo
-&amp;gt;&amp;gt; classes though?
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; ☆*PhistucK*
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Sat, Aug 26, 2023 at 6:18 PM Joey Arhar &amp;lt;jar...@chromium.org&amp;gt; wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Sure I can try setting up the force element state feature for it.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &amp;gt; along with other form-related ones
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Any ones you have in mind? I could try to do them all at once
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Sat, Aug 26, 2023 at 10:00 AM PhistucK &amp;lt;phist...@gmail.com&amp;gt; wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Sounds good!
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &amp;gt; Debuggability
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &amp;gt; These new pseudo-classes will be supported by the DevTools styles
-&amp;gt;&amp;gt; sidebar automatically, just like every other pseudo-class.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Can it (along with other form-related ones, I guess) be added to the list
-&amp;gt;&amp;gt; of toggle-able pseudo classes (shown when you click on the &amp;quot;:hov&amp;quot; button)?
-&amp;gt;&amp;gt; [image: image.png]
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; ☆*PhistucK*
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Sat, Aug 26, 2023 at 9:14 AM Joey Arhar &amp;lt;jar...@chromium.org&amp;gt; wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Contact emailsjar...@chromium.org
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; ExplainerNone
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Specification&lt;a  rel="nofollow" href="https://drafts.csswg.org/selectors-4/#user-pseudos"&gt;https://drafts.csswg.org/selectors-4/#user-pseudos&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Summary
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; The :user-invalid and the :user-valid pseudo-classes represent an element
-&amp;gt;&amp;gt; with incorrect or correct input, respectively, but only after the user has
-&amp;gt;&amp;gt; significantly interacted with it. This is similar to :valid and :invalid,
-&amp;gt;&amp;gt; but with the added constraint that these pseudo-classes only match after
-&amp;gt;&amp;gt; the user has interacted with the element.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Blink componentBlink&amp;gt;CSS
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; TAG reviewNone
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; TAG review statusNot applicable
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Risks
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Interoperability and Compatibility
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; There is no interop/compat risks because this is a new feature that has
-&amp;gt;&amp;gt; already been implemented by safari and firefox and has WPTs.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Gecko*: Shipped/Shipping
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *WebKit*: Shipped/Shipping
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Web developers*: No signals
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Other signals*:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Ergonomics
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; This feature will not be used in tandem with other platform APIs. The
-&amp;gt;&amp;gt; default usage of this API will not make it hard for chrome to maintain good
-&amp;gt;&amp;gt; performance.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Activation
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; It will not be challenging for developers to use this feature
-&amp;gt;&amp;gt; immediately. There is already an MDN article for this feature, so I don't
-&amp;gt;&amp;gt; think that we need additional outreach.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Security
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; There are no security risks for this feature.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; WebView application risks
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Does this intent deprecate or change behavior of existing APIs, such that
-&amp;gt;&amp;gt; it has potentially high risk for Android WebView-based applications?
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Debuggability
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; These new pseudo-classes will be supported by the DevTools styles sidebar
-&amp;gt;&amp;gt; automatically, just like every other pseudo-class.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows, Mac,
-&amp;gt;&amp;gt; Linux, Chrome OS, Android, and Android WebView)?Yes
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; ?Yes
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Flag name on chrome://flagsUserValidUserInvalid
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Finch feature nameUserValidUserInvalid
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Requires code in //chrome?False
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Availability expectationThis feature is already being shipped by safari
-&amp;gt;&amp;gt; and firefox, so it will be available on the web platform mainline as soon
-&amp;gt;&amp;gt; as we launch it.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Adoption expectationThis feature will be considered the best practice
-&amp;gt;&amp;gt; for its use case as soon as we launch it.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Adoption planThis is already implemented in safari and firefox, so we
-&amp;gt;&amp;gt; don't need to do anything in order to gain adoption of this feature.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Sample links&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/CSS/:user-valid"&gt;https://developer.mozilla.org/en-US/docs/Web/CSS/:user-valid&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Estimated milestonesShipping on desktop118DevTrial on desktop118Shipping
-&amp;gt;&amp;gt; on Android118DevTrial on Android118Shipping on WebView118
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Anticipated spec changes
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Open questions about a feature may be a source of future web compat or
-&amp;gt;&amp;gt; interop issues. Please list open issues (e.g. links to known github issues
-&amp;gt;&amp;gt; in the project for the feature specification) whose resolution may
-&amp;gt;&amp;gt; introduce web compat/interop risk (e.g., changing to naming or structure of
-&amp;gt;&amp;gt; the API in a non-backward-compatible way).
-&amp;gt;&amp;gt; There are no anticipated spec changes.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;
-&amp;gt;&amp;gt; feature/5132477781245952
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt;&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt;&amp;gt; To view this discussion on the web visit &lt;a  rel="nofollow" href="https://groups.google.com/a/"&gt;https://groups.google.com/a/&lt;/a&gt;
-&amp;gt;&amp;gt; chromium.org/d/msgid/blink-dev/CAK6btwKVw_WLSEZ348JyUXHVXfrNOBD7DN1U5svU
-&amp;gt;&amp;gt; kQ%3D1TLADFg%40mail.gmail.com
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAK6btwKVw_WLSEZ348JyUXHVXfrNOBD7DN1U5svUkQ%3D1TLADFg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAK6btwKVw_WLSEZ348JyUXHVXfrNOBD7DN1U5svUkQ%3D1TLADFg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAK6btw%2Bo3rPHGRtt12CK5kQV9yPCfam-8EV8fLN6O2ciBL_1jA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAK6btw%2Bo3rPHGRtt12CK5kQV9yPCfam-8EV8fLN6O2ciBL_1jA%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg07252.html</id>
-        <title>Re: [blink-dev] Intent to Ship: Fenced Frames - Functionality Updates</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg07252.html"/>
-        <updated>2023-08-28T15:34:31.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg07252.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Fenced+Frames+%5C-+Functionality+Updates%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Fenced Frames - Functionality Updates&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Liam+Brady%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Liam Brady' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230828" rel="nofollow"&gt;Mon, 28 Aug 2023 08:34:31 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Note that these features are targeted at M117. Will defer to gtanzer@ to 
-answer the FFAR questions.&lt;/pre&gt;&lt;pre&gt;
-
-On Monday, August 28, 2023 at 9:35:34 AM UTC-4 Daniel Vogelheim wrote:
-
-&amp;gt; Hi Liam,
-&amp;gt;
-&amp;gt; This intent has come up in the OWP security triage, and I'm trying to 
-&amp;gt; figure out whether there's XSS potential in the 3rd sub-feature, &amp;quot;Creative 
-&amp;gt; macros in FFAR&amp;quot;. This looks like a string-based pattern replacement where 
-&amp;gt; the result string will then be parsed by the browser. Similar things have 
-&amp;gt; lent themselves to XSS, e.g. when a string value contains meta characters 
-&amp;gt; that code downstream will then parse in unexpected ways. Unfortunately, I 
-&amp;gt; can't seem to find enough information about how exactly the replacement &amp; 
-&amp;gt; subsequent usage works to make up my mind whether there's a concern or not. 
-&amp;gt; Could you help me out with a bit more information?
-&amp;gt;
-&amp;gt; What I've found is this:
-&amp;gt; - In &amp;quot;&amp;lt;dfn&amp;gt;send a beacon&amp;lt;/dfn&amp;gt;&amp;quot;: &amp;quot;TODO: Substitute macros from |macro map| 
-&amp;gt; into |destination url|.&amp;quot; (source 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/fenced-frame/pull/113/files"&gt;https://github.com/WICG/fenced-frame/pull/113/files&lt;/a&gt;&amp;gt;)
-&amp;gt; - In &amp;quot;&amp;lt;dfn&amp;gt;asynchronously finish reporting&amp;lt;/dfn&amp;gt;&amp;quot; I find where macro map 
-&amp;gt; being set, but then it says: &amp;quot;TODO: Pass |macroMap| and 
-&amp;gt; |allowedReportingOrigins| to [=Finalize a reporting destination=] when it 
-&amp;gt; is updated to take the parameters.&amp;quot; (source 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/turtledove/pull/762/files"&gt;https://github.com/WICG/turtledove/pull/762/files&lt;/a&gt;&amp;gt;) I can't find that 
-&amp;gt; usage.
-&amp;gt;
-&amp;gt; Questions I have:
-&amp;gt; - Am I reading the right docs? Where else should I look?
-&amp;gt; - Is this meant as a simple string-based substitution? Is there any 
-&amp;gt; filtering of allowed characters, or so?
-&amp;gt; - What happens with the result values?
-&amp;gt; - Is the entity that sets the macro values always the same that has set 
-&amp;gt; the patterns the values are being used for, or could those be different 
-&amp;gt; entities?
-&amp;gt;
-&amp;gt; Thanks!
-&amp;gt;
-&amp;gt;
-&amp;gt; On Fri, Aug 25, 2023 at 9:34 PM 'Liam Brady' via blink-dev &amp;lt;
-&amp;gt; blin...@chromium.org&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; Contact emails
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; shiva...@chromium.org, d...@chromium.org, jka...@chromium.org, 
-&amp;gt;&amp;gt; lbr...@google.com 
-&amp;gt;&amp;gt; Explainer(s)
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Send Automatic Beacons Once
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/turtledove/pull/718"&gt;https://github.com/WICG/turtledove/pull/718&lt;/a&gt; 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Serializable Fenced Frames Configs - Minor Change, No explainer available.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Note: With this change, FencedFrameConfig objects will be serializable 
-&amp;gt;&amp;gt; and can be sent through &amp;quot;postMessage()&amp;quot; and other similar calls. 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Creative Macros in Fenced Frames Ads Reporting (FFAR)
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/turtledove/pull/763"&gt;https://github.com/WICG/turtledove/pull/763&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Spec(s)
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Send Automatic Beacons Once
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/fenced-frame/pull/109"&gt;https://github.com/WICG/fenced-frame/pull/109&lt;/a&gt; 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Serializable Fenced Frames Configs
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/fenced-frame/pull/111"&gt;https://github.com/WICG/fenced-frame/pull/111&lt;/a&gt; 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Creative Macros in Fenced Frames Ads Reporting (FFAR)
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Protected Audience: &lt;a  rel="nofollow" href="https://github.com/WICG/turtledove/pull/762/files"&gt;https://github.com/WICG/turtledove/pull/762/files&lt;/a&gt; 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Fenced Frames: &lt;a  rel="nofollow" href="https://github.com/WICG/fenced-frame/pull/113"&gt;https://github.com/WICG/fenced-frame/pull/113&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Summary
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; We launched Fenced Frames as a part of Chrome 115. We would like to add 
-&amp;gt;&amp;gt; the following three functionalities to Fenced Frames.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; 1. Send Automatic Beacons Once
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; A common feature in ad frames is the &amp;quot;why this ad?&amp;quot; link. Since that link 
-&amp;gt;&amp;gt; is separate from the ad itself, clicking &amp;quot;why this ad?&amp;quot;, and its subsequent 
-&amp;gt;&amp;gt; navigation, should be considered different from clicking directly on the 
-&amp;gt;&amp;gt; advertisement itself. With our current automatic beacon design, however, 
-&amp;gt;&amp;gt; once an automatic beacon is set (usually in the click handler for the ad 
-&amp;gt;&amp;gt; link), that beacon will send out for any subsequent top-level navigations, 
-&amp;gt;&amp;gt; including if &amp;quot;why this ad?&amp;quot; is clicked. This can result in erroneous 
-&amp;gt;&amp;gt; impressions being sent out.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; As a solution, this feature introduces a new &amp;quot;once&amp;quot; member to the 
-&amp;gt;&amp;gt; FenceEvent &amp;lt;&lt;a  rel="nofollow" href="https://wicg.github.io/fenced-frame/#dictdef-fenceevent"&gt;https://wicg.github.io/fenced-frame/#dictdef-fenceevent&lt;/a&gt;&amp;gt; 
-&amp;gt;&amp;gt; dictionary passed into 
-&amp;gt;&amp;gt; &amp;quot;window.fence.setReportEventDataForAutomaticBeacons()&amp;quot;. If set to true, the 
-&amp;gt;&amp;gt; saved automatic beacon data will be cleared out after the next beacon is 
-&amp;gt;&amp;gt; sent, ensuring that automatic beacons with that data are only sent once. 
-&amp;gt;&amp;gt; This means that further clicks to non-ad parts of the frame that result in 
-&amp;gt;&amp;gt; top-level navigations will not send out erroneous beacons.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; (This feature already shipped in M116. That was our mistake. At the time, 
-&amp;gt;&amp;gt; we thought we would only need a PSA for it, and shipped it without it being 
-&amp;gt;&amp;gt; behind a flag. We apologize for the mistake.)
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; 2. Serializable FencedFramesConfigs
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; With this change, FencedFrameConfig objects will be serializable and can 
-&amp;gt;&amp;gt; be sent through &amp;quot;postMessage()&amp;quot; and other similar calls. Serialization 
-&amp;gt;&amp;gt; allows for a case where the frame that runs an ad auction is not the same 
-&amp;gt;&amp;gt; frame that ends up embedding the winning ad in a fenced frame. 
-&amp;gt;&amp;gt; FencedFrameConfigs cannot be serialized to storage, nor can they be sent in 
-&amp;gt;&amp;gt; a message that crosses a fenced frame boundary. A FencedFrameConfig object 
-&amp;gt;&amp;gt; is only valid in the traversable navigable 
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wicg.github.io/fenced-frame/#traversable-navigables"&gt;https://wicg.github.io/fenced-frame/#traversable-navigables&lt;/a&gt;&amp;gt; it was 
-&amp;gt;&amp;gt; originally created in, and, if sent outside to a different context, will 
-&amp;gt;&amp;gt; not be able to navigate, since the new traversable navigable 
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wicg.github.io/fenced-frame/#traversable-navigables"&gt;https://wicg.github.io/fenced-frame/#traversable-navigables&lt;/a&gt;&amp;gt;'s fenced 
-&amp;gt;&amp;gt; frame config mapping 
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wicg.github.io/fenced-frame/#traversable-navigable-fenced-frame-config-mapping"&gt;https://wicg.github.io/fenced-frame/#traversable-navigable-fenced-frame-config-mapping&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt; will not contain the internal config needed to do the navigation.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; 3. Creative macros in Fenced Frames Ads Reporting (FFAR)
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; This feature extends the Fenced Frame Ads Reporting (FFAR) API to support 
-&amp;gt;&amp;gt; macro substitution in reporting URLs and allows reports to be sent to up to 
-&amp;gt;&amp;gt; ten other origins that have enrolled with the Privacy Sandbox and 
-&amp;gt;&amp;gt; allow-listed by the DSP. Use case: In online ad auctions for ad space, 
-&amp;gt;&amp;gt; advertisers buying through DSPs in several situations use other adtech 
-&amp;gt;&amp;gt; providers to monitor performance and keep track of how their advertising 
-&amp;gt;&amp;gt; dollars are spent. (issue link 
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/turtledove/issues/477"&gt;https://github.com/WICG/turtledove/issues/477&lt;/a&gt;&amp;gt;)
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Blink component
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Blink&amp;gt;FencedFrames 
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EFencedFrames"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EFencedFrames&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; TAG reviews and status
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Fenced frames existing TAG review appended with these spec changes 
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/838#issuecomment-1693631006"&gt;https://github.com/w3ctag/design-reviews/issues/838#issuecomment-1693631006&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Link to Origin Trial feedback summary
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; No Origin Trial performed
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Is this feature supported on all six Blink platforms (Windows, Mac, 
-&amp;gt;&amp;gt; Linux, Chrome OS, Android, and Android WebView)?
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Supported on all the above platforms except Android WebView.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Debuggability
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Additional debugging capabilities are not necessary for these feature 
-&amp;gt;&amp;gt; changes.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Risks
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Compatibility
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; There are no compatibility risks, as described below:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; 1. Send Automatic Beacons Once: This is backward compatible with the 
-&amp;gt;&amp;gt; existing API since the default value of “once” is false which is the same 
-&amp;gt;&amp;gt; behavior as the previous behavior.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; 2. Serializable FencedFramesConfigs: This is added functionality and 
-&amp;gt;&amp;gt; backward compatible with the existing FencedFramesConfig.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; 3. Creative macros in Fenced Frames Ads Reporting (FFAR): This is adding 
-&amp;gt;&amp;gt; a new API and a backward compatible change to reportEvent.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Interoperability
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; there are no interoperability risks as no other browsers have decided to 
-&amp;gt;&amp;gt; implement these features yet.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests 
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;?
-&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt; Link to test suite results from wpt.fyi.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Yes
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Tests: &lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/tree/master/fenced-frame"&gt;https://github.com/web-platform-tests/wpt/tree/master/fenced-frame&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Results: 
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/fenced-frame?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/fenced-frame?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Specifically, these features correspond to the following tests:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Send Automatic Beacons Once:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;    - 
-&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt;    automatic-beacon-two-events-clear.https.html (test 
-&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-two-events-clear.https.html"&gt;https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-two-events-clear.https.html&lt;/a&gt;&amp;gt;)
-&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;    (result 
-&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/fenced-frame/automatic-beacon-two-events-clear.https.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/fenced-frame/automatic-beacon-two-events-clear.https.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;    )
-&amp;gt;&amp;gt;    - 
-&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt;    automatic-beacon-two-events-persist.https.html (test 
-&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-two-events-persist.https.html"&gt;https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-two-events-persist.https.html&lt;/a&gt;&amp;gt;)
-&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;    (result 
-&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/fenced-frame/automatic-beacon-two-events-persist.https.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/fenced-frame/automatic-beacon-two-events-persist.https.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;    )
-&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt; Serializable FencedFrameConfigs:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;    - 
-&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt;    deep-copy-config.https.html (test 
-&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/deep-copy-config.https.html"&gt;https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/deep-copy-config.https.html&lt;/a&gt;&amp;gt;)
-&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;    (result 
-&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/fenced-frame/deep-copy-config.https.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/fenced-frame/deep-copy-config.https.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;    )
-&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt; Creative macros in Fenced Frames Ads Reporting (FFAR):
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;    - 
-&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt;    fence-report-event-destination-url.https.html (test 
-&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/fence-report-event-destination-url.https.html"&gt;https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/fence-report-event-destination-url.https.html&lt;/a&gt;&amp;gt;)
-&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;    (result 
-&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/fenced-frame/fence-report-event-destination-url.https.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/fenced-frame/fence-report-event-destination-url.https.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;    )
-&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Anticipated spec changes
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; None 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5103970808233984"&gt;https://chromestatus.com/feature/5103970808233984&lt;/a&gt; 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Links to previous Intent discussions
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Intent to prototype: 
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/Ko9UXQYPgUE/m/URRsB-qvAAAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/Ko9UXQYPgUE/m/URRsB-qvAAAJ&lt;/a&gt;
-&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Intent to experiment:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/y6G3cvKXjlg/m/Lcpmpi_LAgAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/y6G3cvKXjlg/m/Lcpmpi_LAgAJ&lt;/a&gt;
-&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Intent to extend origin trial:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/SD8Ot2gpz4g/m/A9uA-_cGAwAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/SD8Ot2gpz4g/m/A9uA-_cGAwAJ&lt;/a&gt;
-&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/gpmaOi3of_w/m/SyMclFhMAAAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/gpmaOi3of_w/m/SyMclFhMAAAJ&lt;/a&gt;
-&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/CBrV-2DrYFI/m/RTojC6kHAgAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/CBrV-2DrYFI/m/RTojC6kHAgAJ&lt;/a&gt;
-&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Intent to ship:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/tpw8wW0VenQ/m/mePLTiHlDQAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/tpw8wW0VenQ/m/mePLTiHlDQAJ&lt;/a&gt;
-&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; -- 
-&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups 
-&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an 
-&amp;gt;&amp;gt; email to blink-dev+...@chromium.org.
-&amp;gt;&amp;gt; To view this discussion on the web visit 
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/62771371-5dbb-4d02-a232-a99ded5b293fn%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/62771371-5dbb-4d02-a232-a99ded5b293fn%40chromium.org&lt;/a&gt;
-&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/62771371-5dbb-4d02-a232-a99ded5b293fn%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/62771371-5dbb-4d02-a232-a99ded5b293fn%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/006709e0-ee4d-4c49-8ee9-91fb1fca0775n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/006709e0-ee4d-4c49-8ee9-91fb1fca0775n%40chromium.org&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
