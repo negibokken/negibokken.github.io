@@ -5,6 +5,281 @@
     <link href="https://negibokken.github.io/feeds/chromium_commits/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>https://chromium.googlesource.com/chromium/src/+/75b1a0639ed109b1f52600956adbe559ac61cc03%5E%21/</id>
+        <title>[Windows] Do not include string terminator in GetWindowText</title>
+        <author>
+            <name>Chromium commit feed</name>
+        </author>
+        <link href="https://chromium.googlesource.com/chromium/src/+/75b1a0639ed109b1f52600956adbe559ac61cc03%5E%21/"/>
+        <updated>2023-09-18T00:08:36.000Z</updated>
+        <summary>https://chromium.googlesource.com/chromium/src/+/75b1a0639ed109b1f52600956adbe559ac61cc03%5E%21/</summary>
+        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;WindowEnumerator::GetWindowText was including the trailing string&lt;br/&gt;&lt;br/&gt;terminator in the body of the returned string. This CL fixes that as&lt;br/&gt;&lt;br/&gt;well as makes several other changes:&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;- WindowEnumeratorTest.EnumerateTopLevelWindows had the same bug in its&lt;br/&gt;&lt;br/&gt;  independent implementation of GetWindowText. It is also fixed.&lt;br/&gt;&lt;br/&gt;- WindowEnumerator has been whittled down to a single function, so&lt;br/&gt;&lt;br/&gt;  there's no need for a class anymore. It's now simply&lt;br/&gt;&lt;br/&gt;  base::win::EnumerateChildWindows, which is a little easier to use.&lt;br/&gt;&lt;br/&gt;- base/win/window_enumerator.h no longer includes windows.h.&lt;br/&gt;&lt;br/&gt;- GetWindowText has been renamed to GetWindowTextString so that it&lt;br/&gt;&lt;br/&gt;  doesn't accidentally get renamed to GetWindowTextW by windows.h.&lt;br/&gt;&lt;br/&gt;- GetWindowTextString also handles the case where the actual text is&lt;br/&gt;&lt;br/&gt;  fewer characters than reported by GetWindowTextLength. MSDN explains a&lt;br/&gt;&lt;br/&gt;  few cases where this could happen.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: 1482637&lt;br/&gt;&lt;br/&gt;Change-Id: I8cb9b5706fb43bdb10e79afc9c832d9a4e5ee6af&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4868390&lt;br/&gt;&lt;br/&gt;Auto-Submit: Greg Thompson &lt;grt@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Reviewed-by: S Ganesh &lt;ganesh@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Reviewed-by: Avi Drissman &lt;avi@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Avi Drissman &lt;avi@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197669}&lt;br/&gt;&lt;br/&gt;</content>
+    </entry>
+    <entry>
+        <id>https://chromium.googlesource.com/chromium/src/+/193699f41e6bc53f5e30ba5bb5ef8551151d722a%5E%21/</id>
+        <title>dlp: Fix DCHECK crash when a warning times out</title>
+        <author>
+            <name>Chromium commit feed</name>
+        </author>
+        <link href="https://chromium.googlesource.com/chromium/src/+/193699f41e6bc53f5e30ba5bb5ef8551151d722a%5E%21/"/>
+        <updated>2023-09-18T00:06:25.000Z</updated>
+        <summary>https://chromium.googlesource.com/chromium/src/+/193699f41e6bc53f5e30ba5bb5ef8551151d722a%5E%21/</summary>
+        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;When a DLP warning times out we call the IOTaskController to complete&lt;br/&gt;&lt;br/&gt;that task with an error. While we set the state correctly, completing&lt;br/&gt;&lt;br/&gt;the task moves its progress_ to the complete_callback, which means that&lt;br/&gt;&lt;br/&gt;processing the status update with that state can fail, specifically&lt;br/&gt;&lt;br/&gt;when converting origin URLs which are now empty causing a DCHECK inside&lt;br/&gt;&lt;br/&gt;storage_key.cc to fail.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;However, after the task completes, it again sends the update to all the&lt;br/&gt;&lt;br/&gt;observers and is removed from the IOTaskController::OnIOTaskComplete()&lt;br/&gt;&lt;br/&gt;again. This only applies to CopyOrMoveIOTask-s, so to fix the issue,&lt;br/&gt;&lt;br/&gt;CompleteWithError() now behaves similar to Cancel() - it only sets the&lt;br/&gt;&lt;br/&gt;correct ProgressStatus with the error state and policy error details.&lt;br/&gt;&lt;br/&gt;IOTaskController afterwards notifies the observers with the new status,&lt;br/&gt;&lt;br/&gt;and removes the task which then deletes it and stops any in-flight&lt;br/&gt;&lt;br/&gt;operations.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;R=ayaelattar@chromium.org, lucmult@chromium.org&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: b:299583281&lt;br/&gt;&lt;br/&gt;Change-Id: Id66c765c0482ad3abb0ca75f9a777d1d79259607&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4853906&lt;br/&gt;&lt;br/&gt;Reviewed-by: Luciano Pacheco &lt;lucmult@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Luciano Pacheco &lt;lucmult@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Reviewed-by: Aya Elsayed &lt;ayaelattar@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Auto-Submit: Aida Zolic &lt;aidazolic@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197668}&lt;br/&gt;&lt;br/&gt;</content>
+    </entry>
+    <entry>
+        <id>https://chromium.googlesource.com/chromium/src/+/9dff5b137849c2b4c9f7eba4def3b5a983536357%5E%21/</id>
+        <title>Allow editor service to use content::ServiceProcessHost</title>
+        <author>
+            <name>Chromium commit feed</name>
+        </author>
+        <link href="https://chromium.googlesource.com/chromium/src/+/9dff5b137849c2b4c9f7eba4def3b5a983536357%5E%21/"/>
+        <updated>2023-09-18T00:03:43.000Z</updated>
+        <summary>https://chromium.googlesource.com/chromium/src/+/9dff5b137849c2b4c9f7eba4def3b5a983536357%5E%21/</summary>
+        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Currently, "editor_service_connector.cc/.h" files can not import&lt;br/&gt;&lt;br/&gt;"content/public/browser/service_process_host.h" because of the&lt;br/&gt;&lt;br/&gt;import ban rule "-content" specified in&lt;br/&gt;&lt;br/&gt;"chrome/browser/ash/input_method/DEPS". This CL adds "editor" into the&lt;br/&gt;&lt;br/&gt;allowlist so that "editor_service_connector" can start importing the&lt;br/&gt;&lt;br/&gt;source file.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: b:298285960&lt;br/&gt;&lt;br/&gt;Change-Id: I93db153a5a18828f38a846fd90aae8d62e15ad98&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4870976&lt;br/&gt;&lt;br/&gt;Commit-Queue: Chuong Ho &lt;hdchuong@google.com&gt;&lt;br/&gt;&lt;br/&gt;Reviewed-by: Darren Shen &lt;shend@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197667}&lt;br/&gt;&lt;br/&gt;</content>
+    </entry>
+    <entry>
+        <id>https://chromium.googlesource.com/chromium/src/+/99c0b25ed3ba3fc71cf0cf71d945b1c24e335c8d%5E%21/</id>
+        <title>Revert "[Files App] Enable kArcFileTasksUseAppService"</title>
+        <author>
+            <name>Chromium commit feed</name>
+        </author>
+        <link href="https://chromium.googlesource.com/chromium/src/+/99c0b25ed3ba3fc71cf0cf71d945b1c24e335c8d%5E%21/"/>
+        <updated>2023-09-17T23:58:01.000Z</updated>
+        <summary>https://chromium.googlesource.com/chromium/src/+/99c0b25ed3ba3fc71cf0cf71d945b1c24e335c8d%5E%21/</summary>
+        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;This reverts commit 1720aaa5ac99aa8738d90a6fa4f65b6e2ec9ef81.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Reason for revert: Uprev rvc container fails for grunt and Hana&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Original change's description:&lt;br/&gt;&lt;br/&gt;&gt; [Files App] Enable kArcFileTasksUseAppService&lt;br/&gt;&lt;br/&gt;&gt;&lt;br/&gt;&lt;br/&gt;&gt; This results in Files app querying App Service to find and execute ARC&lt;br/&gt;&lt;br/&gt;&gt; file tasks and ultimately allows us to deprecate arc_file_tasks.cc.&lt;br/&gt;&lt;br/&gt;&gt;&lt;br/&gt;&lt;br/&gt;&gt; Bug: 1340095, b/270483199&lt;br/&gt;&lt;br/&gt;&gt; Change-Id: I07d325d79452407efd66f934958dd7a42e59b821&lt;br/&gt;&lt;br/&gt;&gt; Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4845930&lt;br/&gt;&lt;br/&gt;&gt; Commit-Queue: Vivian Pao &lt;vpao@google.com&gt;&lt;br/&gt;&lt;br/&gt;&gt; Reviewed-by: Tim Sergeant &lt;tsergeant@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;&gt; Cr-Commit-Position: refs/heads/main@{#1195761}&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: 1340095, b/270483199&lt;br/&gt;&lt;br/&gt;Change-Id: Ide1f23240cb41a95335f7756ce92ada18bdecede&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4869212&lt;br/&gt;&lt;br/&gt;Commit-Queue: Muhammad Hasan Khan &lt;mhasank@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Bot-Commit: Rubber Stamper &lt;rubber-stamper@appspot.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197666}&lt;br/&gt;&lt;br/&gt;</content>
+    </entry>
+    <entry>
+        <id>https://chromium.googlesource.com/chromium/src/+/409d6ee0a4f0cf194670e8cf9fdd2ad63652ca83%5E%21/</id>
+        <title>Roll Chrome Win64 PGO Profile</title>
+        <author>
+            <name>Chromium commit feed</name>
+        </author>
+        <link href="https://chromium.googlesource.com/chromium/src/+/409d6ee0a4f0cf194670e8cf9fdd2ad63652ca83%5E%21/"/>
+        <updated>2023-09-17T23:41:11.000Z</updated>
+        <summary>https://chromium.googlesource.com/chromium/src/+/409d6ee0a4f0cf194670e8cf9fdd2ad63652ca83%5E%21/</summary>
+        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Roll Chrome Win64 PGO profile from chrome-win64-main-1694973573-dd1984e1dc72df3e722d16afecfb05333b8cfc34.profdata to chrome-win64-main-1694984163-388990383c90a75aa7694f6c62fbf213eed5b37b.profdata&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;If this roll has caused a breakage, revert this CL and stop the roller&lt;br/&gt;&lt;br/&gt;using the controls here:&lt;br/&gt;&lt;br/&gt;https://autoroll.skia.org/r/pgo-win64-chromium&lt;br/&gt;&lt;br/&gt;Please CC chrome-brapp-engprod@google.com,pgo-profile-sheriffs@google.com on the revert to ensure that a human&lt;br/&gt;&lt;br/&gt;is aware of the problem.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To file a bug in Chromium main branch: https://bugs.chromium.org/p/chromium/issues/entry&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To report a problem with the AutoRoller itself, please file a bug:&lt;br/&gt;&lt;br/&gt;https://bugs.chromium.org/p/skia/issues/entry?template=Autoroller+Bug&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Documentation for the AutoRoller is here:&lt;br/&gt;&lt;br/&gt;https://skia.googlesource.com/buildbot/+doc/main/autoroll/README.md&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Cq-Include-Trybots: luci.chrome.try:win64-chrome&lt;br/&gt;&lt;br/&gt;Tbr: pgo-profile-sheriffs@google.com&lt;br/&gt;&lt;br/&gt;Change-Id: I808d96e078a39ea32c3e250fd9f40fd91eea0530&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4870842&lt;br/&gt;&lt;br/&gt;Bot-Commit: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197665}&lt;br/&gt;&lt;br/&gt;</content>
+    </entry>
+    <entry>
+        <id>https://chromium.googlesource.com/chromium/src/+/051f7633497c3f66c00e2809ef94a8c2dac548a5%5E%21/</id>
+        <title>Remove use of localized message that only consists of placeholder. There's nothing to translate (and no translations existing at https://localizer.google.com/messages/details/ChromeClient/6834191013089934647).</title>
+        <author>
+            <name>Chromium commit feed</name>
+        </author>
+        <link href="https://chromium.googlesource.com/chromium/src/+/051f7633497c3f66c00e2809ef94a8c2dac548a5%5E%21/"/>
+        <updated>2023-09-17T23:29:54.000Z</updated>
+        <summary>https://chromium.googlesource.com/chromium/src/+/051f7633497c3f66c00e2809ef94a8c2dac548a5%5E%21/</summary>
+        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;This should be a no-op.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Change-Id: I34185ffee41db84065dce3a588e89717529148f4&lt;br/&gt;&lt;br/&gt;Bug: 1471371&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4870618&lt;br/&gt;&lt;br/&gt;Auto-Submit: Jens Mueller &lt;muellerj@google.com&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Jens Mueller &lt;muellerj@google.com&gt;&lt;br/&gt;&lt;br/&gt;Reviewed-by: Kyle Horimoto &lt;khorimoto@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Kyle Horimoto &lt;khorimoto@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197664}&lt;br/&gt;&lt;br/&gt;</content>
+    </entry>
+    <entry>
+        <id>https://chromium.googlesource.com/chromium/src/+/fb52883c096070721acb7e1d012d0ff39aebaba6%5E%21/</id>
+        <title>Roll Chrome Mac Arm PGO Profile</title>
+        <author>
+            <name>Chromium commit feed</name>
+        </author>
+        <link href="https://chromium.googlesource.com/chromium/src/+/fb52883c096070721acb7e1d012d0ff39aebaba6%5E%21/"/>
+        <updated>2023-09-17T23:08:58.000Z</updated>
+        <summary>https://chromium.googlesource.com/chromium/src/+/fb52883c096070721acb7e1d012d0ff39aebaba6%5E%21/</summary>
+        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Roll Chrome Mac Arm PGO profile from chrome-mac-arm-main-1694980791-47c3818c9e1ca331fe42e7b4cd38873d799fdf91.profdata to chrome-mac-arm-main-1694986133-7836b0c1a7c295513b0e5e25f4f307beeed08400.profdata&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;If this roll has caused a breakage, revert this CL and stop the roller&lt;br/&gt;&lt;br/&gt;using the controls here:&lt;br/&gt;&lt;br/&gt;https://autoroll.skia.org/r/pgo-mac-arm-chromium&lt;br/&gt;&lt;br/&gt;Please CC chrome-brapp-engprod@google.com,pgo-profile-sheriffs@google.com on the revert to ensure that a human&lt;br/&gt;&lt;br/&gt;is aware of the problem.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To file a bug in Chromium main branch: https://bugs.chromium.org/p/chromium/issues/entry&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To report a problem with the AutoRoller itself, please file a bug:&lt;br/&gt;&lt;br/&gt;https://bugs.chromium.org/p/skia/issues/entry?template=Autoroller+Bug&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Documentation for the AutoRoller is here:&lt;br/&gt;&lt;br/&gt;https://skia.googlesource.com/buildbot/+doc/main/autoroll/README.md&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Cq-Include-Trybots: luci.chrome.try:mac-chrome&lt;br/&gt;&lt;br/&gt;Tbr: pgo-profile-sheriffs@google.com&lt;br/&gt;&lt;br/&gt;Change-Id: I3bf5790a93dc77ac78aa3eb6ef65f1a1e3bc824d&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4870706&lt;br/&gt;&lt;br/&gt;Commit-Queue: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Bot-Commit: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197663}&lt;br/&gt;&lt;br/&gt;</content>
+    </entry>
+    <entry>
+        <id>https://chromium.googlesource.com/chromium/src/+/c4d2c7116479617a1d83916288650734f14f3add%5E%21/</id>
+        <title>Use int64_t for VideoTransform matrix calculations.</title>
+        <author>
+            <name>Chromium commit feed</name>
+        </author>
+        <link href="https://chromium.googlesource.com/chromium/src/+/c4d2c7116479617a1d83916288650734f14f3add%5E%21/"/>
+        <updated>2023-09-17T22:38:51.000Z</updated>
+        <summary>https://chromium.googlesource.com/chromium/src/+/c4d2c7116479617a1d83916288650734f14f3add%5E%21/</summary>
+        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;abs(int32_min) is undefined; using int64_t resolves this concern.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Also add missing const qualifiers for API sanity.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;R=tmathmeyer&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Fixed: 1482673&lt;br/&gt;&lt;br/&gt;Change-Id: I965ea9358091dbee6d67574f3f3f6dcd89455aea&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4870183&lt;br/&gt;&lt;br/&gt;Commit-Queue: Dale Curtis &lt;dalecurtis@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Reviewed-by: Ted (Chromium) Meyer &lt;tmathmeyer@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Ted (Chromium) Meyer &lt;tmathmeyer@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Auto-Submit: Dale Curtis &lt;dalecurtis@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197662}&lt;br/&gt;&lt;br/&gt;</content>
+    </entry>
+    <entry>
+        <id>https://chromium.googlesource.com/chromium/src/+/7f17d53309d9fe77cf0a77003111e5ec4fd1ae02%5E%21/</id>
+        <title>[skylab_tests] Update skylab cros img (LKGM)</title>
+        <author>
+            <name>Chromium commit feed</name>
+        </author>
+        <link href="https://chromium.googlesource.com/chromium/src/+/7f17d53309d9fe77cf0a77003111e5ec4fd1ae02%5E%21/"/>
+        <updated>2023-09-17T22:16:25.000Z</updated>
+        <summary>https://chromium.googlesource.com/chromium/src/+/7f17d53309d9fe77cf0a77003111e5ec4fd1ae02%5E%21/</summary>
+        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;This cl only affect Lacros or Skylab on-device config builders like&lt;br/&gt;&lt;br/&gt;lacros-amd64-generic-chrome-skylab or "ChromeOS FYI Release Skylab&lt;br/&gt;&lt;br/&gt;(kevin)". This cl will certainly NOT affect linux-lacros builders&lt;br/&gt;&lt;br/&gt;(linux-lacros-tester-rel, linux-lacros-rel, etc) or any other platforms.&lt;br/&gt;&lt;br/&gt;This CL will update cros image version for skylab tests.&lt;br/&gt;&lt;br/&gt;CROS_BOARD_LKGM is updated according to chromeos/CHROMEOS_LKGM;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;If this CL caused regressions, please revert and pause the autoroller at&lt;br/&gt;&lt;br/&gt;https://luci-scheduler.appspot.com/jobs/chrome/lacros-skylab-tests-cros-img-roller&lt;br/&gt;&lt;br/&gt;Also please file a bug to OS&gt;LaCrOS&gt;Partner, and CC svenzheng@chromium.org.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;R=rubber-stamper@appspot.gserviceaccount.com&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Cq-Include-Trybots: luci.chrome.try:lacros-amd64-generic-chrome-skylab&lt;br/&gt;&lt;br/&gt;Cq-Include-Trybots: luci.chrome.try:lacros-arm-generic-chrome-skylab&lt;br/&gt;&lt;br/&gt;Cq-Include-Trybots: luci.chrome.try:lacros-arm64-generic-chrome-skylab&lt;br/&gt;&lt;br/&gt;Requires-Testing: True&lt;br/&gt;&lt;br/&gt;Change-Id: I4036c03a8265d958474646053809c34884793eb0&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4867931&lt;br/&gt;&lt;br/&gt;Auto-Submit: skylab-test-cros-roller@chops-service-accounts.iam.gserviceaccount.com &lt;skylab-test-cros-roller@chops-service-accounts.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Bot-Commit: Rubber Stamper &lt;rubber-stamper@appspot.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Rubber Stamper &lt;rubber-stamper@appspot.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197661}&lt;br/&gt;&lt;br/&gt;</content>
+    </entry>
+    <entry>
+        <id>https://chromium.googlesource.com/chromium/src/+/15546991cfb2f9effdc7597ee5f2d2d0883e4f29%5E%21/</id>
+        <title>Update Chromium third party docs for minified and obfuscated code.</title>
+        <author>
+            <name>Chromium commit feed</name>
+        </author>
+        <link href="https://chromium.googlesource.com/chromium/src/+/15546991cfb2f9effdc7597ee5f2d2d0883e4f29%5E%21/"/>
+        <updated>2023-09-17T22:13:09.000Z</updated>
+        <summary>https://chromium.googlesource.com/chromium/src/+/15546991cfb2f9effdc7597ee5f2d2d0883e4f29%5E%21/</summary>
+        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Provide some guidance which says this isn't a good idea for security&lt;br/&gt;&lt;br/&gt;reasons and for understandability.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: b/290296620&lt;br/&gt;&lt;br/&gt;Change-Id: I0f6bd0aba1c614b8f8cd3e41513ce345cd33a5ac&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4864623&lt;br/&gt;&lt;br/&gt;Reviewed-by: Adrian Taylor &lt;adetaylor@google.com&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Rachael Newitt &lt;renewitt@google.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197660}&lt;br/&gt;&lt;br/&gt;</content>
+    </entry>
+    <entry>
+        <id>https://chromium.googlesource.com/chromium/src/+/57930ba997f2f0a9c3d5024641aab1f0de439124%5E%21/</id>
+        <title>Implement counters functionality for StyleContainmentScopeTree</title>
+        <author>
+            <name>Chromium commit feed</name>
+        </author>
+        <link href="https://chromium.googlesource.com/chromium/src/+/57930ba997f2f0a9c3d5024641aab1f0de439124%5E%21/"/>
+        <updated>2023-09-17T21:28:53.000Z</updated>
+        <summary>https://chromium.googlesource.com/chromium/src/+/57930ba997f2f0a9c3d5024641aab1f0de439124%5E%21/</summary>
+        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;As part of the css counters rework, the idea is to move contain: style&lt;br/&gt;&lt;br/&gt;logic from counters to scope tree. This CL prepares the functionality&lt;br/&gt;&lt;br/&gt;of the tree to be able to handle counters in correct way. For this,&lt;br/&gt;&lt;br/&gt;CountersScope and CountersScopeTree are introduced that manage counters&lt;br/&gt;&lt;br/&gt;inside one `contain: style` scope, represented by StyleContainmentScope.&lt;br/&gt;&lt;br/&gt;The next step is to remove old logic from counters and connect them to the tree.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Design doc:&lt;br/&gt;&lt;br/&gt;https://docs.google.com/document/d/1lc7OouWnelduHuRBxsQ9rmSS85q7E-h42NrOpKVkkoU&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: 990657&lt;br/&gt;&lt;br/&gt;Change-Id: I66b0f6873bec72fb6afc9d65a06efb8bc9a9743a&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4710628&lt;br/&gt;&lt;br/&gt;Commit-Queue: Daniil Sakhapov &lt;sakhapov@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Reviewed-by: Vladimir Levin &lt;vmpstr@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197659}&lt;br/&gt;&lt;br/&gt;</content>
+    </entry>
+    <entry>
+        <id>https://chromium.googlesource.com/chromium/src/+/fdf871b0cc3ff44287602877b505d7b1151b2bd8%5E%21/</id>
+        <title>Roll Chrome Win32 PGO Profile</title>
+        <author>
+            <name>Chromium commit feed</name>
+        </author>
+        <link href="https://chromium.googlesource.com/chromium/src/+/fdf871b0cc3ff44287602877b505d7b1151b2bd8%5E%21/"/>
+        <updated>2023-09-17T21:19:51.000Z</updated>
+        <summary>https://chromium.googlesource.com/chromium/src/+/fdf871b0cc3ff44287602877b505d7b1151b2bd8%5E%21/</summary>
+        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Roll Chrome Win32 PGO profile from chrome-win32-main-1694961664-5a035dd9db4b7fb54c58d6be7c33493f4f9c5b24.profdata to chrome-win32-main-1694973573-5898a3133c38895a33a3a69e1627b3f3e1c2ba93.profdata&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;If this roll has caused a breakage, revert this CL and stop the roller&lt;br/&gt;&lt;br/&gt;using the controls here:&lt;br/&gt;&lt;br/&gt;https://autoroll.skia.org/r/pgo-win32-chromium&lt;br/&gt;&lt;br/&gt;Please CC chrome-brapp-engprod@google.com,pgo-profile-sheriffs@google.com on the revert to ensure that a human&lt;br/&gt;&lt;br/&gt;is aware of the problem.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To file a bug in Chromium main branch: https://bugs.chromium.org/p/chromium/issues/entry&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To report a problem with the AutoRoller itself, please file a bug:&lt;br/&gt;&lt;br/&gt;https://bugs.chromium.org/p/skia/issues/entry?template=Autoroller+Bug&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Documentation for the AutoRoller is here:&lt;br/&gt;&lt;br/&gt;https://skia.googlesource.com/buildbot/+doc/main/autoroll/README.md&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Cq-Include-Trybots: luci.chrome.try:win-chrome&lt;br/&gt;&lt;br/&gt;Tbr: pgo-profile-sheriffs@google.com&lt;br/&gt;&lt;br/&gt;Change-Id: I0d468d4af5041d2f4c7b4e572eec383e6f16fdff&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4870687&lt;br/&gt;&lt;br/&gt;Bot-Commit: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197658}&lt;br/&gt;&lt;br/&gt;</content>
+    </entry>
+    <entry>
+        <id>https://chromium.googlesource.com/chromium/src/+/48bed18dba599790741353e4d119150ef237d71e%5E%21/</id>
+        <title>Roll Chrome Win64 PGO Profile</title>
+        <author>
+            <name>Chromium commit feed</name>
+        </author>
+        <link href="https://chromium.googlesource.com/chromium/src/+/48bed18dba599790741353e4d119150ef237d71e%5E%21/"/>
+        <updated>2023-09-17T21:04:19.000Z</updated>
+        <summary>https://chromium.googlesource.com/chromium/src/+/48bed18dba599790741353e4d119150ef237d71e%5E%21/</summary>
+        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Roll Chrome Win64 PGO profile from chrome-win64-main-1694961664-9b51a3d7745c4fcc26e2b2ae511fab5f559184f2.profdata to chrome-win64-main-1694973573-dd1984e1dc72df3e722d16afecfb05333b8cfc34.profdata&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;If this roll has caused a breakage, revert this CL and stop the roller&lt;br/&gt;&lt;br/&gt;using the controls here:&lt;br/&gt;&lt;br/&gt;https://autoroll.skia.org/r/pgo-win64-chromium&lt;br/&gt;&lt;br/&gt;Please CC chrome-brapp-engprod@google.com,pgo-profile-sheriffs@google.com on the revert to ensure that a human&lt;br/&gt;&lt;br/&gt;is aware of the problem.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To file a bug in Chromium main branch: https://bugs.chromium.org/p/chromium/issues/entry&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To report a problem with the AutoRoller itself, please file a bug:&lt;br/&gt;&lt;br/&gt;https://bugs.chromium.org/p/skia/issues/entry?template=Autoroller+Bug&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Documentation for the AutoRoller is here:&lt;br/&gt;&lt;br/&gt;https://skia.googlesource.com/buildbot/+doc/main/autoroll/README.md&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Cq-Include-Trybots: luci.chrome.try:win64-chrome&lt;br/&gt;&lt;br/&gt;Tbr: pgo-profile-sheriffs@google.com&lt;br/&gt;&lt;br/&gt;Change-Id: Ia767b97bae5dd4cb921dbe3bc190bffed9ec42ff&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4870840&lt;br/&gt;&lt;br/&gt;Commit-Queue: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Bot-Commit: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197657}&lt;br/&gt;&lt;br/&gt;</content>
+    </entry>
+    <entry>
+        <id>https://chromium.googlesource.com/chromium/src/+/358812e1be9903975b68aee3ab511cdef03fa8ba%5E%21/</id>
+        <title>Roll Chrome Mac Arm PGO Profile</title>
+        <author>
+            <name>Chromium commit feed</name>
+        </author>
+        <link href="https://chromium.googlesource.com/chromium/src/+/358812e1be9903975b68aee3ab511cdef03fa8ba%5E%21/"/>
+        <updated>2023-09-17T20:56:03.000Z</updated>
+        <summary>https://chromium.googlesource.com/chromium/src/+/358812e1be9903975b68aee3ab511cdef03fa8ba%5E%21/</summary>
+        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Roll Chrome Mac Arm PGO profile from chrome-mac-arm-main-1694973573-b89dc563ae0b0474d06ea76e515e7e41b4d2f61f.profdata to chrome-mac-arm-main-1694980791-47c3818c9e1ca331fe42e7b4cd38873d799fdf91.profdata&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;If this roll has caused a breakage, revert this CL and stop the roller&lt;br/&gt;&lt;br/&gt;using the controls here:&lt;br/&gt;&lt;br/&gt;https://autoroll.skia.org/r/pgo-mac-arm-chromium&lt;br/&gt;&lt;br/&gt;Please CC chrome-brapp-engprod@google.com,pgo-profile-sheriffs@google.com on the revert to ensure that a human&lt;br/&gt;&lt;br/&gt;is aware of the problem.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To file a bug in Chromium main branch: https://bugs.chromium.org/p/chromium/issues/entry&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To report a problem with the AutoRoller itself, please file a bug:&lt;br/&gt;&lt;br/&gt;https://bugs.chromium.org/p/skia/issues/entry?template=Autoroller+Bug&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Documentation for the AutoRoller is here:&lt;br/&gt;&lt;br/&gt;https://skia.googlesource.com/buildbot/+doc/main/autoroll/README.md&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Cq-Include-Trybots: luci.chrome.try:mac-chrome&lt;br/&gt;&lt;br/&gt;Tbr: pgo-profile-sheriffs@google.com&lt;br/&gt;&lt;br/&gt;Change-Id: I5c606222f0528b64b8e10afb4dd32bf4815c9092&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4870182&lt;br/&gt;&lt;br/&gt;Commit-Queue: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Bot-Commit: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197656}&lt;br/&gt;&lt;br/&gt;</content>
+    </entry>
+    <entry>
+        <id>https://chromium.googlesource.com/chromium/src/+/67238ca6adb6051dee7b63d7d9b1374a0d8ce2d6%5E%21/</id>
+        <title>Roll Chrome Mac Arm PGO Profile</title>
+        <author>
+            <name>Chromium commit feed</name>
+        </author>
+        <link href="https://chromium.googlesource.com/chromium/src/+/67238ca6adb6051dee7b63d7d9b1374a0d8ce2d6%5E%21/"/>
+        <updated>2023-09-17T20:41:22.000Z</updated>
+        <summary>https://chromium.googlesource.com/chromium/src/+/67238ca6adb6051dee7b63d7d9b1374a0d8ce2d6%5E%21/</summary>
+        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Roll Chrome Mac Arm PGO profile from chrome-mac-arm-main-1694965336-6e56ccee9a9e733c1443ad56b366acf3b03b8c3c.profdata to chrome-mac-arm-main-1694973573-b89dc563ae0b0474d06ea76e515e7e41b4d2f61f.profdata&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;If this roll has caused a breakage, revert this CL and stop the roller&lt;br/&gt;&lt;br/&gt;using the controls here:&lt;br/&gt;&lt;br/&gt;https://autoroll.skia.org/r/pgo-mac-arm-chromium&lt;br/&gt;&lt;br/&gt;Please CC chrome-brapp-engprod@google.com,pgo-profile-sheriffs@google.com on the revert to ensure that a human&lt;br/&gt;&lt;br/&gt;is aware of the problem.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To file a bug in Chromium main branch: https://bugs.chromium.org/p/chromium/issues/entry&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To report a problem with the AutoRoller itself, please file a bug:&lt;br/&gt;&lt;br/&gt;https://bugs.chromium.org/p/skia/issues/entry?template=Autoroller+Bug&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Documentation for the AutoRoller is here:&lt;br/&gt;&lt;br/&gt;https://skia.googlesource.com/buildbot/+doc/main/autoroll/README.md&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Cq-Include-Trybots: luci.chrome.try:mac-chrome&lt;br/&gt;&lt;br/&gt;Tbr: pgo-profile-sheriffs@google.com&lt;br/&gt;&lt;br/&gt;Change-Id: I67c2006af82e6dc0b4af75b757bdb30cbc254e11&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4870862&lt;br/&gt;&lt;br/&gt;Commit-Queue: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Bot-Commit: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197655}&lt;br/&gt;&lt;br/&gt;</content>
+    </entry>
+    <entry>
+        <id>https://chromium.googlesource.com/chromium/src/+/9a412a428563d2692b68e556635cc34d8a6e71b3%5E%21/</id>
+        <title>Roll Chrome Mac PGO Profile</title>
+        <author>
+            <name>Chromium commit feed</name>
+        </author>
+        <link href="https://chromium.googlesource.com/chromium/src/+/9a412a428563d2692b68e556635cc34d8a6e71b3%5E%21/"/>
+        <updated>2023-09-17T20:37:32.000Z</updated>
+        <summary>https://chromium.googlesource.com/chromium/src/+/9a412a428563d2692b68e556635cc34d8a6e71b3%5E%21/</summary>
+        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Roll Chrome Mac PGO profile from chrome-mac-main-1694949884-d21a3e1d23533a4e16a17d2f9b1245319aafd534.profdata to chrome-mac-main-1694973573-70e827739d82c24f36cbff398eb2fa9899eeabf4.profdata&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;If this roll has caused a breakage, revert this CL and stop the roller&lt;br/&gt;&lt;br/&gt;using the controls here:&lt;br/&gt;&lt;br/&gt;https://autoroll.skia.org/r/pgo-mac-chromium&lt;br/&gt;&lt;br/&gt;Please CC chrome-brapp-engprod@google.com,pgo-profile-sheriffs@google.com on the revert to ensure that a human&lt;br/&gt;&lt;br/&gt;is aware of the problem.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To file a bug in Chromium main branch: https://bugs.chromium.org/p/chromium/issues/entry&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To report a problem with the AutoRoller itself, please file a bug:&lt;br/&gt;&lt;br/&gt;https://bugs.chromium.org/p/skia/issues/entry?template=Autoroller+Bug&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Documentation for the AutoRoller is here:&lt;br/&gt;&lt;br/&gt;https://skia.googlesource.com/buildbot/+doc/main/autoroll/README.md&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Cq-Include-Trybots: luci.chrome.try:mac-chrome&lt;br/&gt;&lt;br/&gt;Tbr: pgo-profile-sheriffs@google.com&lt;br/&gt;&lt;br/&gt;Change-Id: Ic30962bf89274d192a3b3747e185c95c6783a975&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4870860&lt;br/&gt;&lt;br/&gt;Commit-Queue: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Bot-Commit: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197654}&lt;br/&gt;&lt;br/&gt;</content>
+    </entry>
+    <entry>
+        <id>https://chromium.googlesource.com/chromium/src/+/8b933423e64cc5fe4faaffc28b7d3a3269e38394%5E%21/</id>
+        <title>Roll Chrome Win ARM64 PGO Profile</title>
+        <author>
+            <name>Chromium commit feed</name>
+        </author>
+        <link href="https://chromium.googlesource.com/chromium/src/+/8b933423e64cc5fe4faaffc28b7d3a3269e38394%5E%21/"/>
+        <updated>2023-09-17T20:21:11.000Z</updated>
+        <summary>https://chromium.googlesource.com/chromium/src/+/8b933423e64cc5fe4faaffc28b7d3a3269e38394%5E%21/</summary>
+        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Roll Chrome Win ARM64 PGO profile from chrome-win-arm64-main-1694949884-4c7c8685f7c65018e610c1a5388526400953a80e.profdata to chrome-win-arm64-main-1694973573-5d57749912861ee5fe267315de1d3072f5fc8b2a.profdata&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;If this roll has caused a breakage, revert this CL and stop the roller&lt;br/&gt;&lt;br/&gt;using the controls here:&lt;br/&gt;&lt;br/&gt;https://autoroll.skia.org/r/pgo-win-arm64-chromium&lt;br/&gt;&lt;br/&gt;Please CC chrome-brapp-engprod@google.com,pgo-profile-sheriffs@google.com on the revert to ensure that a human&lt;br/&gt;&lt;br/&gt;is aware of the problem.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To file a bug in Chromium main branch: https://bugs.chromium.org/p/chromium/issues/entry&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To report a problem with the AutoRoller itself, please file a bug:&lt;br/&gt;&lt;br/&gt;https://bugs.chromium.org/p/skia/issues/entry?template=Autoroller+Bug&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Documentation for the AutoRoller is here:&lt;br/&gt;&lt;br/&gt;https://skia.googlesource.com/buildbot/+doc/main/autoroll/README.md&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Tbr: pgo-profile-sheriffs@google.com&lt;br/&gt;&lt;br/&gt;Change-Id: I00f2653cb30a798eb5d8b3beff7e91fbdf0c3b00&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4870863&lt;br/&gt;&lt;br/&gt;Commit-Queue: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Bot-Commit: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197653}&lt;br/&gt;&lt;br/&gt;</content>
+    </entry>
+    <entry>
+        <id>https://chromium.googlesource.com/chromium/src/+/51032bc615f83ef4896d636a2696609408bafabe%5E%21/</id>
+        <title>Roll Chrome Linux PGO Profile</title>
+        <author>
+            <name>Chromium commit feed</name>
+        </author>
+        <link href="https://chromium.googlesource.com/chromium/src/+/51032bc615f83ef4896d636a2696609408bafabe%5E%21/"/>
+        <updated>2023-09-17T19:59:51.000Z</updated>
+        <summary>https://chromium.googlesource.com/chromium/src/+/51032bc615f83ef4896d636a2696609408bafabe%5E%21/</summary>
+        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Roll Chrome Linux PGO profile from chrome-linux-main-1694949884-f47a6dc703ba5d11f84b4b14d458dddefef1a6cf.profdata to chrome-linux-main-1694973573-288396a66c2341dd1c14754cb3b07637e6d5fe48.profdata&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;If this roll has caused a breakage, revert this CL and stop the roller&lt;br/&gt;&lt;br/&gt;using the controls here:&lt;br/&gt;&lt;br/&gt;https://autoroll.skia.org/r/pgo-linux-chromium&lt;br/&gt;&lt;br/&gt;Please CC chrome-brapp-engprod@google.com,pgo-profile-sheriffs@google.com on the revert to ensure that a human&lt;br/&gt;&lt;br/&gt;is aware of the problem.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To file a bug in Chromium main branch: https://bugs.chromium.org/p/chromium/issues/entry&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To report a problem with the AutoRoller itself, please file a bug:&lt;br/&gt;&lt;br/&gt;https://bugs.chromium.org/p/skia/issues/entry?template=Autoroller+Bug&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Documentation for the AutoRoller is here:&lt;br/&gt;&lt;br/&gt;https://skia.googlesource.com/buildbot/+doc/main/autoroll/README.md&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Cq-Include-Trybots: luci.chrome.try:linux-chrome&lt;br/&gt;&lt;br/&gt;Tbr: pgo-profile-sheriffs@google.com&lt;br/&gt;&lt;br/&gt;Change-Id: Ia8067f3220fe099e07a0fa7898ff17e0744fcde0&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4869400&lt;br/&gt;&lt;br/&gt;Commit-Queue: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Bot-Commit: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197652}&lt;br/&gt;&lt;br/&gt;</content>
+    </entry>
+    <entry>
+        <id>https://chromium.googlesource.com/chromium/src/+/b18915560744bca7d5455cfc981acfadbc47721a%5E%21/</id>
+        <title>Automated Commit: LKGM 15619.0.0 for chromeos.</title>
+        <author>
+            <name>Chromium commit feed</name>
+        </author>
+        <link href="https://chromium.googlesource.com/chromium/src/+/b18915560744bca7d5455cfc981acfadbc47721a%5E%21/"/>
+        <updated>2023-09-17T19:52:23.000Z</updated>
+        <summary>https://chromium.googlesource.com/chromium/src/+/b18915560744bca7d5455cfc981acfadbc47721a%5E%21/</summary>
+        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Uploaded by https://ci.chromium.org/b/8769745470190889953&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;CQ_INCLUDE_TRYBOTS=luci.chrome.try:chromeos-betty-pi-arc-chrome&lt;br/&gt;&lt;br/&gt;CQ_INCLUDE_TRYBOTS=luci.chrome.try:chromeos-eve-chrome&lt;br/&gt;&lt;br/&gt;CQ_INCLUDE_TRYBOTS=luci.chrome.try:chromeos-jacuzzi-chrome&lt;br/&gt;&lt;br/&gt;CQ_INCLUDE_TRYBOTS=luci.chrome.try:chromeos-octopus-chrome&lt;br/&gt;&lt;br/&gt;CQ_INCLUDE_TRYBOTS=luci.chrome.try:chromeos-reven-chrome&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Change-Id: Ibad449c07fe7c65c2af1ea5949d3dd843cebfdd7&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4870598&lt;br/&gt;&lt;br/&gt;Commit-Queue: ChromeOS bot &lt;3su6n15k.default@developer.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Bot-Commit: ChromeOS bot &lt;3su6n15k.default@developer.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197651}&lt;br/&gt;&lt;br/&gt;</content>
+    </entry>
+    <entry>
+        <id>https://chromium.googlesource.com/chromium/src/+/ad76b2697ca94a1ce7023498c2a30f41d3fe83e8%5E%21/</id>
+        <title>Roll Dawn from 43823c6a7cde to 74bf9dfd0bfb (1 revision)</title>
+        <author>
+            <name>Chromium commit feed</name>
+        </author>
+        <link href="https://chromium.googlesource.com/chromium/src/+/ad76b2697ca94a1ce7023498c2a30f41d3fe83e8%5E%21/"/>
+        <updated>2023-09-17T19:43:26.000Z</updated>
+        <summary>https://chromium.googlesource.com/chromium/src/+/ad76b2697ca94a1ce7023498c2a30f41d3fe83e8%5E%21/</summary>
+        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;https://dawn.googlesource.com/dawn.git/+log/43823c6a7cde..74bf9dfd0bfb&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;2023-09-17 cwallez@chromium.org DeviceBase::Destroy only AssumeCommandsCompleted if we have a queue.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;If this roll has caused a breakage, revert this CL and stop the roller&lt;br/&gt;&lt;br/&gt;using the controls here:&lt;br/&gt;&lt;br/&gt;https://autoroll.skia.org/r/dawn-chromium-autoroll&lt;br/&gt;&lt;br/&gt;Please CC bclayton@google.com,cwallez@google.com on the revert to ensure that a human&lt;br/&gt;&lt;br/&gt;is aware of the problem.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To file a bug in Dawn: https://bugs.chromium.org/p/dawn/issues/entry&lt;br/&gt;&lt;br/&gt;To file a bug in Chromium: https://bugs.chromium.org/p/chromium/issues/entry&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To report a problem with the AutoRoller itself, please file a bug:&lt;br/&gt;&lt;br/&gt;https://bugs.chromium.org/p/skia/issues/entry?template=Autoroller+Bug&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Documentation for the AutoRoller is here:&lt;br/&gt;&lt;br/&gt;https://skia.googlesource.com/buildbot/+doc/main/autoroll/README.md&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Cq-Include-Trybots: luci.chromium.try:dawn-android-arm-deps-rel;luci.chromium.try:dawn-android-arm64-deps-rel;luci.chromium.try:dawn-linux-x64-deps-rel;luci.chromium.try:dawn-mac-x64-deps-rel;luci.chromium.try:dawn-win10-x64-deps-rel;luci.chromium.try:dawn-win10-x86-deps-rel&lt;br/&gt;&lt;br/&gt;Bug: chromium:1474147,chromium:1475434,chromium:1480229&lt;br/&gt;&lt;br/&gt;Tbr: bclayton@google.com&lt;br/&gt;&lt;br/&gt;Change-Id: I8de7c957faa5b4b7077e61b0abfffb499b0eff60&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4869399&lt;br/&gt;&lt;br/&gt;Commit-Queue: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Bot-Commit: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197650}&lt;br/&gt;&lt;br/&gt;</content>
+    </entry>
+    <entry>
+        <id>https://chromium.googlesource.com/chromium/src/+/fbf7d8aa42afc165c9975fe53600b2abc196dd87%5E%21/</id>
+        <title>Roll Chrome Android ARM32 PGO Profile</title>
+        <author>
+            <name>Chromium commit feed</name>
+        </author>
+        <link href="https://chromium.googlesource.com/chromium/src/+/fbf7d8aa42afc165c9975fe53600b2abc196dd87%5E%21/"/>
+        <updated>2023-09-17T19:26:43.000Z</updated>
+        <summary>https://chromium.googlesource.com/chromium/src/+/fbf7d8aa42afc165c9975fe53600b2abc196dd87%5E%21/</summary>
+        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Roll Chrome Android ARM32 PGO profile from chrome-android32-main-1694949884-32eaa2238ac57243740eb256efe75c0584d9e19d.profdata to chrome-android32-main-1694973573-b3d3aec418fe88aabf49251a518251c656fb3c3e.profdata&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;If this roll has caused a breakage, revert this CL and stop the roller&lt;br/&gt;&lt;br/&gt;using the controls here:&lt;br/&gt;&lt;br/&gt;https://autoroll.skia.org/r/pgo-android-arm32-chromium&lt;br/&gt;&lt;br/&gt;Please CC chrome-brapp-engprod@google.com,pgo-profile-sheriffs@google.com on the revert to ensure that a human&lt;br/&gt;&lt;br/&gt;is aware of the problem.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To file a bug in Chromium main branch: https://bugs.chromium.org/p/chromium/issues/entry&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To report a problem with the AutoRoller itself, please file a bug:&lt;br/&gt;&lt;br/&gt;https://bugs.chromium.org/p/skia/issues/entry?template=Autoroller+Bug&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Documentation for the AutoRoller is here:&lt;br/&gt;&lt;br/&gt;https://skia.googlesource.com/buildbot/+doc/main/autoroll/README.md&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Tbr: pgo-profile-sheriffs@google.com&lt;br/&gt;&lt;br/&gt;Change-Id: Ia55e0d5f8165b1d2f1c44d6874de2836123662c2&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4870688&lt;br/&gt;&lt;br/&gt;Commit-Queue: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Bot-Commit: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197649}&lt;br/&gt;&lt;br/&gt;</content>
+    </entry>
+    <entry>
+        <id>https://chromium.googlesource.com/chromium/src/+/dff87b1a893fb0b29fd49e9657bd7eb704436612%5E%21/</id>
+        <title>Explicitly set features in RetainEthernetIPAddr tests</title>
+        <author>
+            <name>Chromium commit feed</name>
+        </author>
+        <link href="https://chromium.googlesource.com/chromium/src/+/dff87b1a893fb0b29fd49e9657bd7eb704436612%5E%21/"/>
+        <updated>2023-09-17T19:24:33.000Z</updated>
+        <summary>https://chromium.googlesource.com/chromium/src/+/dff87b1a893fb0b29fd49e9657bd7eb704436612%5E%21/</summary>
+        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;The *NetworkPolicyApplication* browser_tests that care about the&lt;br/&gt;&lt;br/&gt;default "Recommended" handling of Ethernt IP address fields (i.e. that&lt;br/&gt;&lt;br/&gt;depend on the enablement of DisablePolicyEthernetRecommendedWorkaround)&lt;br/&gt;&lt;br/&gt;started behaving differently on different builders with CL:4866161 due&lt;br/&gt;&lt;br/&gt;to testing/variations/fieldtrial_testing_config.json not being applied&lt;br/&gt;&lt;br/&gt;on all builders.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;This makes these tests explicitly set the feature to the expected value.&lt;br/&gt;&lt;br/&gt;While we're at it, we're returning to one RetainEthernetIPAddr test with&lt;br/&gt;&lt;br/&gt;the feature enabled and one with the feature disabled for clarity.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: b:271988376, 1483397&lt;br/&gt;&lt;br/&gt;Change-Id: I0ef026282f16d7ad0c91cefd7508e0a811596779&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4864951&lt;br/&gt;&lt;br/&gt;Reviewed-by: Anqing Zhao &lt;anqing@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Pavol Marko &lt;pmarko@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197648}&lt;br/&gt;&lt;br/&gt;</content>
+    </entry>
+    <entry>
+        <id>https://chromium.googlesource.com/chromium/src/+/bc2368aa0986992298030fde414ad4aaa52c32f4%5E%21/</id>
+        <title>[lacros skew tests] Refresh skew tests for M119</title>
+        <author>
+            <name>Chromium commit feed</name>
+        </author>
+        <link href="https://chromium.googlesource.com/chromium/src/+/bc2368aa0986992298030fde414ad4aaa52c32f4%5E%21/"/>
+        <updated>2023-09-17T19:03:35.000Z</updated>
+        <summary>https://chromium.googlesource.com/chromium/src/+/bc2368aa0986992298030fde414ad4aaa52c32f4%5E%21/</summary>
+        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;This CL updates the ash version ['119.0.6014.0'] for Lacros version skew testing.&lt;br/&gt;&lt;br/&gt;This cl only affect linux-lacros config builders like&lt;br/&gt;&lt;br/&gt;linux-lacros-tester-rel, linux-lacros-rel.&lt;br/&gt;&lt;br/&gt;This cl will certainly NOT affect Lacros on-device builders&lt;br/&gt;&lt;br/&gt;(lacros-amd64-generic-rel, lacros-amd64-generic-chrome-skylab,&lt;br/&gt;&lt;br/&gt;etc) or any other platforms.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;If this CL caused regressions, please revert and stop the autoroller&lt;br/&gt;&lt;br/&gt;at https://luci-scheduler.appspot.com/jobs/chrome/lacros-version-skew-roller&lt;br/&gt;&lt;br/&gt;Also please file a bug to OS&gt;LaCrOS&gt;Partner, and CC svenzheng@chromium.org.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;R=rubber-stamper@appspot.gserviceaccount.com&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: None&lt;br/&gt;&lt;br/&gt;Change-Id: I751c5a0dde36803d9c9a26b5ad7e48bb229a1dd4&lt;br/&gt;&lt;br/&gt;Requires-Testing: True&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4864454&lt;br/&gt;&lt;br/&gt;Commit-Queue: Rubber Stamper &lt;rubber-stamper@appspot.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Auto-Submit: chrome-weblayer-builder &lt;chrome-weblayer-builder@chops-service-accounts.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Bot-Commit: Rubber Stamper &lt;rubber-stamper@appspot.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197647}&lt;br/&gt;&lt;br/&gt;</content>
+    </entry>
+    <entry>
+        <id>https://chromium.googlesource.com/chromium/src/+/7160ad8f8ec1a5f4926284c4b4050e12d42a26f6%5E%21/</id>
+        <title>Roll Chrome Android ARM64 PGO Profile</title>
+        <author>
+            <name>Chromium commit feed</name>
+        </author>
+        <link href="https://chromium.googlesource.com/chromium/src/+/7160ad8f8ec1a5f4926284c4b4050e12d42a26f6%5E%21/"/>
+        <updated>2023-09-17T18:48:19.000Z</updated>
+        <summary>https://chromium.googlesource.com/chromium/src/+/7160ad8f8ec1a5f4926284c4b4050e12d42a26f6%5E%21/</summary>
+        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Roll Chrome Android ARM64 PGO profile from chrome-android64-main-1694949884-e88a15f3b4927f565c03e4f73b56132f55cace36.profdata to chrome-android64-main-1694973573-50819c315cdac25bd895c85c67eda8a14b6d2cea.profdata&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;If this roll has caused a breakage, revert this CL and stop the roller&lt;br/&gt;&lt;br/&gt;using the controls here:&lt;br/&gt;&lt;br/&gt;https://autoroll.skia.org/r/pgo-android-arm64-chromium&lt;br/&gt;&lt;br/&gt;Please CC chrome-brapp-engprod@google.com,pgo-profile-sheriffs@google.com on the revert to ensure that a human&lt;br/&gt;&lt;br/&gt;is aware of the problem.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To file a bug in Chromium main branch: https://bugs.chromium.org/p/chromium/issues/entry&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To report a problem with the AutoRoller itself, please file a bug:&lt;br/&gt;&lt;br/&gt;https://bugs.chromium.org/p/skia/issues/entry?template=Autoroller+Bug&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Documentation for the AutoRoller is here:&lt;br/&gt;&lt;br/&gt;https://skia.googlesource.com/buildbot/+doc/main/autoroll/README.md&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Tbr: pgo-profile-sheriffs@google.com&lt;br/&gt;&lt;br/&gt;Change-Id: If91bff6d1f12aef1fa4b83ee0ab3e760d070a82a&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4870838&lt;br/&gt;&lt;br/&gt;Bot-Commit: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197646}&lt;br/&gt;&lt;br/&gt;</content>
+    </entry>
+    <entry>
+        <id>https://chromium.googlesource.com/chromium/src/+/c686a4f3ff93f853c58adef573e8c45f7d2645d4%5E%21/</id>
+        <title>Roll Chrome Win64 PGO Profile</title>
+        <author>
+            <name>Chromium commit feed</name>
+        </author>
+        <link href="https://chromium.googlesource.com/chromium/src/+/c686a4f3ff93f853c58adef573e8c45f7d2645d4%5E%21/"/>
+        <updated>2023-09-17T18:28:48.000Z</updated>
+        <summary>https://chromium.googlesource.com/chromium/src/+/c686a4f3ff93f853c58adef573e8c45f7d2645d4%5E%21/</summary>
+        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Roll Chrome Win64 PGO profile from chrome-win64-main-1694949884-bade5f6e3e920f8dc2d25b8a0ec6144123028647.profdata to chrome-win64-main-1694961664-9b51a3d7745c4fcc26e2b2ae511fab5f559184f2.profdata&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;If this roll has caused a breakage, revert this CL and stop the roller&lt;br/&gt;&lt;br/&gt;using the controls here:&lt;br/&gt;&lt;br/&gt;https://autoroll.skia.org/r/pgo-win64-chromium&lt;br/&gt;&lt;br/&gt;Please CC chrome-brapp-engprod@google.com,pgo-profile-sheriffs@google.com on the revert to ensure that a human&lt;br/&gt;&lt;br/&gt;is aware of the problem.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To file a bug in Chromium main branch: https://bugs.chromium.org/p/chromium/issues/entry&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To report a problem with the AutoRoller itself, please file a bug:&lt;br/&gt;&lt;br/&gt;https://bugs.chromium.org/p/skia/issues/entry?template=Autoroller+Bug&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Documentation for the AutoRoller is here:&lt;br/&gt;&lt;br/&gt;https://skia.googlesource.com/buildbot/+doc/main/autoroll/README.md&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Cq-Include-Trybots: luci.chrome.try:win64-chrome&lt;br/&gt;&lt;br/&gt;Tbr: pgo-profile-sheriffs@google.com&lt;br/&gt;&lt;br/&gt;Change-Id: Idbf45bd043b57bf1d66bb584a285c55f96a0aa59&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4870389&lt;br/&gt;&lt;br/&gt;Commit-Queue: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Bot-Commit: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197645}&lt;br/&gt;&lt;br/&gt;</content>
+    </entry>
+    <entry>
         <id>https://chromium.googlesource.com/chromium/src/+/4189cd5d22f6f90b3616aacfe5209442c8598289%5E%21/</id>
         <title>Roll Chrome Win32 PGO Profile</title>
         <author>
@@ -1928,280 +2203,5 @@
         <updated>2023-09-16T01:58:37.000Z</updated>
         <summary>https://chromium.googlesource.com/chromium/src/+/308b2b0764e7feaef3845ffd9ff50a838054a334%5E%21/</summary>
         <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: 1476360&lt;br/&gt;&lt;br/&gt;Change-Id: I00efbafd6ea79d0bf1c2d639668c98325c6e5161&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4867146&lt;br/&gt;&lt;br/&gt;Reviewed-by: Michael Crouse &lt;mcrouse@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Matt Mueller &lt;mattm@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197470}&lt;br/&gt;&lt;br/&gt;</content>
-    </entry>
-    <entry>
-        <id>https://chromium.googlesource.com/chromium/src/+/59531e646fd55f2d18315c6af0d0badb41f8c672%5E%21/</id>
-        <title>Update V8 to version 11.9.100.</title>
-        <author>
-            <name>Chromium commit feed</name>
-        </author>
-        <link href="https://chromium.googlesource.com/chromium/src/+/59531e646fd55f2d18315c6af0d0badb41f8c672%5E%21/"/>
-        <updated>2023-09-16T01:43:21.000Z</updated>
-        <summary>https://chromium.googlesource.com/chromium/src/+/59531e646fd55f2d18315c6af0d0badb41f8c672%5E%21/</summary>
-        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Summary of changes available at:&lt;br/&gt;&lt;br/&gt;https://chromium.googlesource.com/v8/v8/+log/be2a5e12..17083685&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Please follow these instructions for assigning/CC'ing issues:&lt;br/&gt;&lt;br/&gt;https://v8.dev/docs/triage-issues&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Please close rolling in case of a roll revert:&lt;br/&gt;&lt;br/&gt;https://v8-roll.appspot.com/&lt;br/&gt;&lt;br/&gt;This only works with a Google account.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;CQ_INCLUDE_TRYBOTS=luci.chromium.try:linux-blink-rel&lt;br/&gt;&lt;br/&gt;CQ_INCLUDE_TRYBOTS=luci.chromium.try:linux_optional_gpu_tests_rel&lt;br/&gt;&lt;br/&gt;CQ_INCLUDE_TRYBOTS=luci.chromium.try:mac_optional_gpu_tests_rel&lt;br/&gt;&lt;br/&gt;CQ_INCLUDE_TRYBOTS=luci.chromium.try:win_optional_gpu_tests_rel&lt;br/&gt;&lt;br/&gt;CQ_INCLUDE_TRYBOTS=luci.chromium.try:android_optional_gpu_tests_rel&lt;br/&gt;&lt;br/&gt;CQ_INCLUDE_TRYBOTS=luci.chromium.try:dawn-linux-x64-deps-rel&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;R=hablich@chromium.org,vahl@chromium.org,v8-waterfall-sheriff@grotations.appspotmail.com&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Change-Id: Ibdcd350a935dba1974ae79e95c7a62f9487b5301&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4869475&lt;br/&gt;&lt;br/&gt;Commit-Queue: v8-ci-autoroll-builder &lt;v8-ci-autoroll-builder@chops-service-accounts.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Bot-Commit: v8-ci-autoroll-builder &lt;v8-ci-autoroll-builder@chops-service-accounts.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197469}&lt;br/&gt;&lt;br/&gt;</content>
-    </entry>
-    <entry>
-        <id>https://chromium.googlesource.com/chromium/src/+/656e7a23bb5d3292a5f952605977ab42ba05507f%5E%21/</id>
-        <title>cros: Add crash keys for overview window drag bug</title>
-        <author>
-            <name>Chromium commit feed</name>
-        </author>
-        <link href="https://chromium.googlesource.com/chromium/src/+/656e7a23bb5d3292a5f952605977ab42ba05507f%5E%21/"/>
-        <updated>2023-09-16T01:42:47.000Z</updated>
-        <summary>https://chromium.googlesource.com/chromium/src/+/656e7a23bb5d3292a5f952605977ab42ba05507f%5E%21/</summary>
-        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Test: compiles&lt;br/&gt;&lt;br/&gt;Bug: b/300700394&lt;br/&gt;&lt;br/&gt;Change-Id: Ib34084ec59b2a5c2a6660075a2d3b61d135cfcbf&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4869647&lt;br/&gt;&lt;br/&gt;Commit-Queue: Sammie Quon &lt;sammiequon@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Reviewed-by: Ahmed Fakhry &lt;afakhry@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197468}&lt;br/&gt;&lt;br/&gt;</content>
-    </entry>
-    <entry>
-        <id>https://chromium.googlesource.com/chromium/src/+/f6aab2c70ae14f143775de170ed1798786f830de%5E%21/</id>
-        <title>Roll ANGLE from cd8495b0b317 to 92218933df79 (1 revision)</title>
-        <author>
-            <name>Chromium commit feed</name>
-        </author>
-        <link href="https://chromium.googlesource.com/chromium/src/+/f6aab2c70ae14f143775de170ed1798786f830de%5E%21/"/>
-        <updated>2023-09-16T01:41:40.000Z</updated>
-        <summary>https://chromium.googlesource.com/chromium/src/+/f6aab2c70ae14f143775de170ed1798786f830de%5E%21/</summary>
-        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;https://chromium.googlesource.com/angle/angle.git/+log/cd8495b0b317..92218933df79&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;2023-09-15 abdolrashidi@google.com Add VMA version to logcat&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;If this roll has caused a breakage, revert this CL and stop the roller&lt;br/&gt;&lt;br/&gt;using the controls here:&lt;br/&gt;&lt;br/&gt;https://autoroll.skia.org/r/angle-chromium-autoroll&lt;br/&gt;&lt;br/&gt;Please CC angle-team@google.com,ianelliott@google.com on the revert to ensure that a human&lt;br/&gt;&lt;br/&gt;is aware of the problem.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To file a bug in ANGLE: https://bugs.chromium.org/p/angleproject/issues/entry&lt;br/&gt;&lt;br/&gt;To file a bug in Chromium: https://bugs.chromium.org/p/chromium/issues/entry&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To report a problem with the AutoRoller itself, please file a bug:&lt;br/&gt;&lt;br/&gt;https://bugs.chromium.org/p/skia/issues/entry?template=Autoroller+Bug&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Documentation for the AutoRoller is here:&lt;br/&gt;&lt;br/&gt;https://skia.googlesource.com/buildbot/+doc/main/autoroll/README.md&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Cq-Include-Trybots: luci.chromium.try:android_optional_gpu_tests_rel;luci.chromium.try:linux_optional_gpu_tests_rel;luci.chromium.try:mac_optional_gpu_tests_rel;luci.chromium.try:win_optional_gpu_tests_rel;luci.chromium.try:linux-swangle-try-x64;luci.chromium.try:win-swangle-try-x86&lt;br/&gt;&lt;br/&gt;Bug: None&lt;br/&gt;&lt;br/&gt;Tbr: ianelliott@google.com&lt;br/&gt;&lt;br/&gt;Change-Id: I546df8f8a4003cf1e43011f3099dd45ca1ea0c12&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4869343&lt;br/&gt;&lt;br/&gt;Commit-Queue: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Bot-Commit: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197467}&lt;br/&gt;&lt;br/&gt;</content>
-    </entry>
-    <entry>
-        <id>https://chromium.googlesource.com/chromium/src/+/42b474cc4899601a878d04b6c9245737b81cf231%5E%21/</id>
-        <title>Add WebP bpp (bits per pixel) histograms</title>
-        <author>
-            <name>Chromium commit feed</name>
-        </author>
-        <link href="https://chromium.googlesource.com/chromium/src/+/42b474cc4899601a878d04b6c9245737b81cf231%5E%21/"/>
-        <updated>2023-09-16T01:39:22.000Z</updated>
-        <summary>https://chromium.googlesource.com/chromium/src/+/42b474cc4899601a878d04b6c9245737b81cf231%5E%21/</summary>
-        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Add a family of 23 Blink.DecodedImage.WebPDensity.Count.* histograms to&lt;br/&gt;&lt;br/&gt;record the bits-per-pixel values of WebP images for various image sizes&lt;br/&gt;&lt;br/&gt;(where size is the area = width * height).&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;- 9 histograms for image sizes 0.1 MP ~ 0.9 MP, in increments of 0.1 MP&lt;br/&gt;&lt;br/&gt;- 13 histograms for image sizes 1 MP - 13 MP, in increments of 1 MP&lt;br/&gt;&lt;br/&gt;- 1 histogram for image sizes &gt; 13 MP&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To avoid recording outliers in these histograms, only lossy, still (not&lt;br/&gt;&lt;br/&gt;animated) images without an alpha plane are recorded in these&lt;br/&gt;&lt;br/&gt;histograms.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;The histograms are updated when the images are successfully decoded.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Change the comparison&lt;br/&gt;&lt;br/&gt;    demux_state_ &lt;= WEBP_DEMUX_PARSING_HEADER&lt;br/&gt;&lt;br/&gt;to the equivalent comparison&lt;br/&gt;&lt;br/&gt;    demux_state_ &lt; WEBP_DEMUX_PARSED_HEADER&lt;br/&gt;&lt;br/&gt;and change&lt;br/&gt;&lt;br/&gt;    DCHECK_GT(demux_state_, WEBP_DEMUX_PARSING_HEADER)&lt;br/&gt;&lt;br/&gt;to&lt;br/&gt;&lt;br/&gt;    DCHECK_GE(demux_state_, WEBP_DEMUX_PARSED_HEADER)&lt;br/&gt;&lt;br/&gt;so that demux_state_ is compared with WEBP_DEMUX_PARSED_HEADER&lt;br/&gt;&lt;br/&gt;consistently.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: 1456182&lt;br/&gt;&lt;br/&gt;Change-Id: Ia876ad9845f7aee112d7a9ec319edaace96fc965&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4828711&lt;br/&gt;&lt;br/&gt;Reviewed-by: Peter Kasting &lt;pkasting@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Reviewed-by: Takashi Toyoshima &lt;toyoshim@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Wan-Teh Chang &lt;wtc@google.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197466}&lt;br/&gt;&lt;br/&gt;</content>
-    </entry>
-    <entry>
-        <id>https://chromium.googlesource.com/chromium/src/+/8ea8560044d54c54b609f3f68b6b82cf00a8feae%5E%21/</id>
-        <title>Use NetLogStringValue() in NetLogCorsURLLoaderStartParams()</title>
-        <author>
-            <name>Chromium commit feed</name>
-        </author>
-        <link href="https://chromium.googlesource.com/chromium/src/+/8ea8560044d54c54b609f3f68b6b82cf00a8feae%5E%21/"/>
-        <updated>2023-09-16T01:34:41.000Z</updated>
-        <summary>https://chromium.googlesource.com/chromium/src/+/8ea8560044d54c54b609f3f68b6b82cf00a8feae%5E%21/</summary>
-        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Request headers may contain invalid UTF-8 sequences. Use&lt;br/&gt;&lt;br/&gt;NetLogStringValue() to escape them if exist.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: 1480616&lt;br/&gt;&lt;br/&gt;Change-Id: I107fa211555ce42df2441b9cc4586db0038fa6a3&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4867670&lt;br/&gt;&lt;br/&gt;Commit-Queue: Kenichi Ishibashi &lt;bashi@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Reviewed-by: Adam Rice &lt;ricea@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197465}&lt;br/&gt;&lt;br/&gt;</content>
-    </entry>
-    <entry>
-        <id>https://chromium.googlesource.com/chromium/src/+/8f45db42064d54073e676d7b91bb84981e92ab53%5E%21/</id>
-        <title>Android: Roll NDK to add lldb binaries</title>
-        <author>
-            <name>Chromium commit feed</name>
-        </author>
-        <link href="https://chromium.googlesource.com/chromium/src/+/8f45db42064d54073e676d7b91bb84981e92ab53%5E%21/"/>
-        <updated>2023-09-16T01:19:36.000Z</updated>
-        <summary>https://chromium.googlesource.com/chromium/src/+/8f45db42064d54073e676d7b91bb84981e92ab53%5E%21/</summary>
-        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: 1266055&lt;br/&gt;&lt;br/&gt;Change-Id: Icc5e9171e0a0cb480f715b76d8f376e6f431c272&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4864604&lt;br/&gt;&lt;br/&gt;Auto-Submit: Andrew Grieve &lt;agrieve@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Reviewed-by: Samuel Huang &lt;huangs@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Andrew Grieve &lt;agrieve@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197464}&lt;br/&gt;&lt;br/&gt;</content>
-    </entry>
-    <entry>
-        <id>https://chromium.googlesource.com/chromium/src/+/4785ed6b7192a1b046daa09d78275cffedbd525c%5E%21/</id>
-        <title>Roll Skia from 0057898979a1 to 7c179932cc06 (2 revisions)</title>
-        <author>
-            <name>Chromium commit feed</name>
-        </author>
-        <link href="https://chromium.googlesource.com/chromium/src/+/4785ed6b7192a1b046daa09d78275cffedbd525c%5E%21/"/>
-        <updated>2023-09-16T01:18:22.000Z</updated>
-        <summary>https://chromium.googlesource.com/chromium/src/+/4785ed6b7192a1b046daa09d78275cffedbd525c%5E%21/</summary>
-        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;https://skia.googlesource.com/skia.git/+log/0057898979a1..7c179932cc06&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;2023-09-15 skia-autoroll@skia-public.iam.gserviceaccount.com Roll SK Tool from 18fd0925a396 to 76d21d4985f8&lt;br/&gt;&lt;br/&gt;2023-09-15 johnstiles@google.com Add device-name to Caps when test-utils is active.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;If this roll has caused a breakage, revert this CL and stop the roller&lt;br/&gt;&lt;br/&gt;using the controls here:&lt;br/&gt;&lt;br/&gt;https://autoroll.skia.org/r/skia-autoroll&lt;br/&gt;&lt;br/&gt;Please CC jmbetancourt@google.com,skiabot@google.com on the revert to ensure that a human&lt;br/&gt;&lt;br/&gt;is aware of the problem.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To file a bug in Skia: https://bugs.chromium.org/p/skia/issues/entry&lt;br/&gt;&lt;br/&gt;To file a bug in Chromium: https://bugs.chromium.org/p/chromium/issues/entry&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To report a problem with the AutoRoller itself, please file a bug:&lt;br/&gt;&lt;br/&gt;https://bugs.chromium.org/p/skia/issues/entry?template=Autoroller+Bug&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Documentation for the AutoRoller is here:&lt;br/&gt;&lt;br/&gt;https://skia.googlesource.com/buildbot/+doc/main/autoroll/README.md&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Cq-Include-Trybots: luci.chromium.try:android_optional_gpu_tests_rel;luci.chromium.try:linux-blink-rel;luci.chromium.try:linux-chromeos-compile-dbg;luci.chromium.try:linux_optional_gpu_tests_rel;luci.chromium.try:mac_optional_gpu_tests_rel;luci.chromium.try:win_optional_gpu_tests_rel&lt;br/&gt;&lt;br/&gt;Cq-Do-Not-Cancel-Tryjobs: true&lt;br/&gt;&lt;br/&gt;Bug: None&lt;br/&gt;&lt;br/&gt;Tbr: jmbetancourt@google.com&lt;br/&gt;&lt;br/&gt;Change-Id: Ib3c86695621852e87c32b5f7de9499d89eefe0ea&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4869694&lt;br/&gt;&lt;br/&gt;Commit-Queue: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Bot-Commit: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197463}&lt;br/&gt;&lt;br/&gt;</content>
-    </entry>
-    <entry>
-        <id>https://chromium.googlesource.com/chromium/src/+/5ae079e6a78efa04a7a51ed789ec9d4f473e384a%5E%21/</id>
-        <title>Roll devtools-internal from eb5488f2da2c to 358ee4720950 (1 revision)</title>
-        <author>
-            <name>Chromium commit feed</name>
-        </author>
-        <link href="https://chromium.googlesource.com/chromium/src/+/5ae079e6a78efa04a7a51ed789ec9d4f473e384a%5E%21/"/>
-        <updated>2023-09-16T01:11:38.000Z</updated>
-        <summary>https://chromium.googlesource.com/chromium/src/+/5ae079e6a78efa04a7a51ed789ec9d4f473e384a%5E%21/</summary>
-        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;https://chrome-internal.googlesource.com/devtools/devtools-internal.git/+log/eb5488f2da2c..358ee4720950&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Also rolling transitive DEPS:&lt;br/&gt;&lt;br/&gt;  https://chromium.googlesource.com/devtools/devtools-frontend.git/+log/205c83cb6de06b922bff5489cb46544b122950b6..8de299b6fe27450a6b4edd86f0d2ec8ff3bf8dde&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;If this roll has caused a breakage, revert this CL and stop the roller&lt;br/&gt;&lt;br/&gt;using the controls here:&lt;br/&gt;&lt;br/&gt;https://skia-autoroll.corp.goog/r/devtools-internal-chromium&lt;br/&gt;&lt;br/&gt;Please CC devtools-waterfall-sheriff-onduty@grotations.appspotmail.com,liviurau@google.com on the revert to ensure that a human&lt;br/&gt;&lt;br/&gt;is aware of the problem.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To report a problem with the AutoRoller itself, please file a bug:&lt;br/&gt;&lt;br/&gt;https://bugs.chromium.org/p/skia/issues/entry?template=Autoroller+Bug&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Documentation for the AutoRoller is here:&lt;br/&gt;&lt;br/&gt;https://skia.googlesource.com/buildbot/+doc/main/autoroll/README.md&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Cq-Include-Trybots: luci.chrome.try:linux-chromeos-chrome&lt;br/&gt;&lt;br/&gt;Bug: None&lt;br/&gt;&lt;br/&gt;Tbr: devtools-waterfall-sheriff-onduty@grotations.appspotmail.com&lt;br/&gt;&lt;br/&gt;Change-Id: I8d8d41300a31eec4c9a1c39b81c6ae36144c4fba&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4869636&lt;br/&gt;&lt;br/&gt;Bot-Commit: chromium-internal-autoroll &lt;chromium-internal-autoroll@skia-corp.google.com.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: chromium-internal-autoroll &lt;chromium-internal-autoroll@skia-corp.google.com.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197462}&lt;br/&gt;&lt;br/&gt;</content>
-    </entry>
-    <entry>
-        <id>https://chromium.googlesource.com/chromium/src/+/811f5bb8f44a22332e4912f7f5a6b430444448b7%5E%21/</id>
-        <title>[Media Router] Remove kMediaRouterOTRInstance.</title>
-        <author>
-            <name>Chromium commit feed</name>
-        </author>
-        <link href="https://chromium.googlesource.com/chromium/src/+/811f5bb8f44a22332e4912f7f5a6b430444448b7%5E%21/"/>
-        <updated>2023-09-16T01:05:25.000Z</updated>
-        <summary>https://chromium.googlesource.com/chromium/src/+/811f5bb8f44a22332e4912f7f5a6b430444448b7%5E%21/</summary>
-        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Remove code, flags, and related tests for this feature as it launched&lt;br/&gt;&lt;br/&gt;to stable in M116.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Also addresses a TODO to use ProfileSelections in&lt;br/&gt;&lt;br/&gt;ChromeMediaRouterFactory.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Additional cleanups of incognito-related code in Media Router will be&lt;br/&gt;&lt;br/&gt;done in followup CLs.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: 1291723,1455493&lt;br/&gt;&lt;br/&gt;Change-Id: Idf55c2f47c6238f36780747c0fa3f2cf3d4f949b&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4867131&lt;br/&gt;&lt;br/&gt;Reviewed-by: Ryan Sultanem &lt;rsult@google.com&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Mark Foltz &lt;mfoltz@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Reviewed-by: Takumi Fujimoto &lt;takumif@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197461}&lt;br/&gt;&lt;br/&gt;</content>
-    </entry>
-    <entry>
-        <id>https://chromium.googlesource.com/chromium/src/+/45485913b24af0e821fdb88f3c05775745032ca4%5E%21/</id>
-        <title>Misc. cleanup: content/</title>
-        <author>
-            <name>Chromium commit feed</name>
-        </author>
-        <link href="https://chromium.googlesource.com/chromium/src/+/45485913b24af0e821fdb88f3c05775745032ca4%5E%21/"/>
-        <updated>2023-09-16T01:03:56.000Z</updated>
-        <summary>https://chromium.googlesource.com/chromium/src/+/45485913b24af0e821fdb88f3c05775745032ca4%5E%21/</summary>
-        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;* StringPrintf() -&gt; NumberToString() for a simple numeric conversion&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: none&lt;br/&gt;&lt;br/&gt;Change-Id: I01f82e4c0e4fc63beac0e4ed1b40b39b960ab755&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4869243&lt;br/&gt;&lt;br/&gt;Reviewed-by: Siddhartha S &lt;ssid@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Code-Coverage: findit-for-me@appspot.gserviceaccount.com &lt;findit-for-me@appspot.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Auto-Submit: Peter Kasting &lt;pkasting@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Siddhartha S &lt;ssid@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197460}&lt;br/&gt;&lt;br/&gt;</content>
-    </entry>
-    <entry>
-        <id>https://chromium.googlesource.com/chromium/src/+/3741f97797b0b144cbe06646a31b9bedc56f4241%5E%21/</id>
-        <title>arc/gio: Keep list item position when changing action type</title>
-        <author>
-            <name>Chromium commit feed</name>
-        </author>
-        <link href="https://chromium.googlesource.com/chromium/src/+/3741f97797b0b144cbe06646a31b9bedc56f4241%5E%21/"/>
-        <updated>2023-09-16T01:02:49.000Z</updated>
-        <summary>https://chromium.googlesource.com/chromium/src/+/3741f97797b0b144cbe06646a31b9bedc56f4241%5E%21/</summary>
-        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;This CL&lt;br/&gt;&lt;br/&gt;- changes the implementation of OnActionTypeChange in EditingList&lt;br/&gt;&lt;br/&gt;  to keep the list item position at the same index when changing action&lt;br/&gt;&lt;br/&gt;  type.&lt;br/&gt;&lt;br/&gt;- changes the implementation of ShowButtonOptionMenu in unit_tests.&lt;br/&gt;&lt;br/&gt;  Because in previous implementation, the target view may be covered by&lt;br/&gt;&lt;br/&gt;  other UI, which makes the target menu doesn't show up.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: b/300598404&lt;br/&gt;&lt;br/&gt;Test: manual test by changing action type&lt;br/&gt;&lt;br/&gt;Test: out/Default/unit_tests --gtest_filter=*ButtonOptionsMenu*&lt;br/&gt;&lt;br/&gt;Change-Id: I3a01c7e5606d3c0eeb39c0c2b77063c709c810bf&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4868003&lt;br/&gt;&lt;br/&gt;Auto-Submit: Cici Ruan &lt;cuicuiruan@google.com&gt;&lt;br/&gt;&lt;br/&gt;Reviewed-by: David Jacobo &lt;djacobo@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Cici Ruan &lt;cuicuiruan@google.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197459}&lt;br/&gt;&lt;br/&gt;</content>
-    </entry>
-    <entry>
-        <id>https://chromium.googlesource.com/chromium/src/+/3e9f66f281644b4740ddf65d1921c184485bd4bc%5E%21/</id>
-        <title>Use TimeFormatAsIso8601() more pervasively.</title>
-        <author>
-            <name>Chromium commit feed</name>
-        </author>
-        <link href="https://chromium.googlesource.com/chromium/src/+/3e9f66f281644b4740ddf65d1921c184485bd4bc%5E%21/"/>
-        <updated>2023-09-16T01:02:41.000Z</updated>
-        <summary>https://chromium.googlesource.com/chromium/src/+/3e9f66f281644b4740ddf65d1921c184485bd4bc%5E%21/</summary>
-        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: 1476086&lt;br/&gt;&lt;br/&gt;Change-Id: Icffa7789f4f98a80033cd7c727fdb673a4c3226d&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4867730&lt;br/&gt;&lt;br/&gt;Code-Coverage: findit-for-me@appspot.gserviceaccount.com &lt;findit-for-me@appspot.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Peter Kasting &lt;pkasting@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Reviewed-by: Brian Sheedy &lt;bsheedy@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Auto-Submit: Peter Kasting &lt;pkasting@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Reviewed-by: Lei Zhang &lt;thestig@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Reviewed-by: Thomas Guilbert &lt;tguilbert@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197458}&lt;br/&gt;&lt;br/&gt;</content>
-    </entry>
-    <entry>
-        <id>https://chromium.googlesource.com/chromium/src/+/cd9bcadc6defb21cbb30e96b08e8ea6a57a6936d%5E%21/</id>
-        <title>Copy clear the initial contents for all buffers of swap chain</title>
-        <author>
-            <name>Chromium commit feed</name>
-        </author>
-        <link href="https://chromium.googlesource.com/chromium/src/+/cd9bcadc6defb21cbb30e96b08e8ea6a57a6936d%5E%21/"/>
-        <updated>2023-09-16T01:00:00.000Z</updated>
-        <summary>https://chromium.googlesource.com/chromium/src/+/cd9bcadc6defb21cbb30e96b08e8ea6a57a6936d%5E%21/</summary>
-        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Intel MTL uses triple-buffer video swapchain. Some green artifacts&lt;br/&gt;&lt;br/&gt;can be seen when switching video full-screen/window. This fixes the&lt;br/&gt;&lt;br/&gt;problem by expanding copy-clear to cover triple-buffer swap chain.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: 1447972&lt;br/&gt;&lt;br/&gt;Change-Id: Idf19afe2c49325ee8c00ae79131aa19daeeaf788&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4861603&lt;br/&gt;&lt;br/&gt;Reviewed-by: Maggie Chen &lt;magchen@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Jie A Chen &lt;jie.a.chen@intel.com&gt;&lt;br/&gt;&lt;br/&gt;Reviewed-by: Sunny Sachanandani &lt;sunnyps@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197457}&lt;br/&gt;&lt;br/&gt;</content>
-    </entry>
-    <entry>
-        <id>https://chromium.googlesource.com/chromium/src/+/3cce6734c145b98f2f976bc7d6f73d7c67cd406a%5E%21/</id>
-        <title>Simple changes suggested by Peter Kasting</title>
-        <author>
-            <name>Chromium commit feed</name>
-        </author>
-        <link href="https://chromium.googlesource.com/chromium/src/+/3cce6734c145b98f2f976bc7d6f73d7c67cd406a%5E%21/"/>
-        <updated>2023-09-16T00:55:01.000Z</updated>
-        <summary>https://chromium.googlesource.com/chromium/src/+/3cce6734c145b98f2f976bc7d6f73d7c67cd406a%5E%21/</summary>
-        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Replace &lt;cstring&gt; with &lt;string.h&gt; for the declarations of memcmp() and&lt;br/&gt;&lt;br/&gt;memcpy().&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Peter suggested similar changes in&lt;br/&gt;&lt;br/&gt;https://chromium-review.googlesource.com/c/chromium/src/+/4828711.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Change-Id: Ic4dfc91674d11eaa5f86bf56ff65753d863c8de4&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4868654&lt;br/&gt;&lt;br/&gt;Reviewed-by: Peter Kasting &lt;pkasting@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Wan-Teh Chang &lt;wtc@google.com&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Peter Kasting &lt;pkasting@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Auto-Submit: Wan-Teh Chang &lt;wtc@google.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197456}&lt;br/&gt;&lt;br/&gt;</content>
-    </entry>
-    <entry>
-        <id>https://chromium.googlesource.com/chromium/src/+/a7c43377b214ada59ea839b6c5ca1d8bcf4e5b4b%5E%21/</id>
-        <title>Add color extraction for local background images</title>
-        <author>
-            <name>Chromium commit feed</name>
-        </author>
-        <link href="https://chromium.googlesource.com/chromium/src/+/a7c43377b214ada59ea839b6c5ca1d8bcf4e5b4b%5E%21/"/>
-        <updated>2023-09-16T00:45:06.000Z</updated>
-        <summary>https://chromium.googlesource.com/chromium/src/+/a7c43377b214ada59ea839b6c5ca1d8bcf4e5b4b%5E%21/</summary>
-        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: b/297265324&lt;br/&gt;&lt;br/&gt;Change-Id: I629a9433d69d33fce175019a5b3bd218648a7df4&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4866868&lt;br/&gt;&lt;br/&gt;Reviewed-by: Tibor Goldschwendt &lt;tiborg@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Code-Coverage: findit-for-me@appspot.gserviceaccount.com &lt;findit-for-me@appspot.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Riley Tatum &lt;rtatum@google.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197455}&lt;br/&gt;&lt;br/&gt;</content>
-    </entry>
-    <entry>
-        <id>https://chromium.googlesource.com/chromium/src/+/00200ad8ad16388d9630bda5d44fbf9dd1cfe2ef%5E%21/</id>
-        <title>snap-group: Implement the rounded corners for overview group item</title>
-        <author>
-            <name>Chromium commit feed</name>
-        </author>
-        <link href="https://chromium.googlesource.com/chromium/src/+/00200ad8ad16388d9630bda5d44fbf9dd1cfe2ef%5E%21/"/>
-        <updated>2023-09-16T00:41:38.000Z</updated>
-        <summary>https://chromium.googlesource.com/chromium/src/+/00200ad8ad16388d9630bda5d44fbf9dd1cfe2ef%5E%21/</summary>
-        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;This cl applies the rounded corners on the overview group item so&lt;br/&gt;&lt;br/&gt;that the exposed corners will be rounded.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Fixed: b/300168983&lt;br/&gt;&lt;br/&gt;Demo: http://b/300168983#comment2&lt;br/&gt;&lt;br/&gt;Test: Added unit test + manual&lt;br/&gt;&lt;br/&gt;Change-Id: I6183d079bd69bffe1f32b5bd4627553fc4120aa6&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4865730&lt;br/&gt;&lt;br/&gt;Reviewed-by: Sammie Quon &lt;sammiequon@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Michele Fan &lt;michelefan@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197454}&lt;br/&gt;&lt;br/&gt;</content>
-    </entry>
-    <entry>
-        <id>https://chromium.googlesource.com/chromium/src/+/04699c875b6de74a6a9f24c98af540c700782c93%5E%21/</id>
-        <title>Roll Chrome Win32 PGO Profile</title>
-        <author>
-            <name>Chromium commit feed</name>
-        </author>
-        <link href="https://chromium.googlesource.com/chromium/src/+/04699c875b6de74a6a9f24c98af540c700782c93%5E%21/"/>
-        <updated>2023-09-16T00:39:06.000Z</updated>
-        <summary>https://chromium.googlesource.com/chromium/src/+/04699c875b6de74a6a9f24c98af540c700782c93%5E%21/</summary>
-        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Roll Chrome Win32 PGO profile from chrome-win32-main-1694800614-0bfa2e0aee062d74dafb34adb511f4ae19fa0156.profdata to chrome-win32-main-1694811593-a8b0f73aa362261409e6feb3f06ff534f42f72fe.profdata&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;If this roll has caused a breakage, revert this CL and stop the roller&lt;br/&gt;&lt;br/&gt;using the controls here:&lt;br/&gt;&lt;br/&gt;https://autoroll.skia.org/r/pgo-win32-chromium&lt;br/&gt;&lt;br/&gt;Please CC chrome-brapp-engprod@google.com,pgo-profile-sheriffs@google.com on the revert to ensure that a human&lt;br/&gt;&lt;br/&gt;is aware of the problem.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To file a bug in Chromium main branch: https://bugs.chromium.org/p/chromium/issues/entry&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To report a problem with the AutoRoller itself, please file a bug:&lt;br/&gt;&lt;br/&gt;https://bugs.chromium.org/p/skia/issues/entry?template=Autoroller+Bug&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Documentation for the AutoRoller is here:&lt;br/&gt;&lt;br/&gt;https://skia.googlesource.com/buildbot/+doc/main/autoroll/README.md&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Cq-Include-Trybots: luci.chrome.try:win-chrome&lt;br/&gt;&lt;br/&gt;Tbr: pgo-profile-sheriffs@google.com&lt;br/&gt;&lt;br/&gt;Change-Id: Ia7f2f1733e4a46cfcf152350d557cf247d8b7821&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4869423&lt;br/&gt;&lt;br/&gt;Bot-Commit: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197453}&lt;br/&gt;&lt;br/&gt;</content>
-    </entry>
-    <entry>
-        <id>https://chromium.googlesource.com/chromium/src/+/d07b809f4284b1d3e30228bd4527df3046618ac2%5E%21/</id>
-        <title>[responsive toolbar] Add overflow button</title>
-        <author>
-            <name>Chromium commit feed</name>
-        </author>
-        <link href="https://chromium.googlesource.com/chromium/src/+/d07b809f4284b1d3e30228bd4527df3046618ac2%5E%21/"/>
-        <updated>2023-09-16T00:34:22.000Z</updated>
-        <summary>https://chromium.googlesource.com/chromium/src/+/d07b809f4284b1d3e30228bd4527df3046618ac2%5E%21/</summary>
-        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Adds a chevron button that shows up once at least one toolbar element&lt;br/&gt;&lt;br/&gt;overflows. It for now has no-op with left press but will have a drop&lt;br/&gt;&lt;br/&gt;down menu displaying the overflowed buttons in the future.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: 1469138&lt;br/&gt;&lt;br/&gt;Change-Id: I97dd464729bc11a717d35593fd826fda290b8e1d&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4803574&lt;br/&gt;&lt;br/&gt;Reviewed-by: Yuheng Huang &lt;yuhengh@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Reviewed-by: Thomas Lukaszewicz &lt;tluk@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: pengchao Cai &lt;pengchaocai@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Code-Coverage: findit-for-me@appspot.gserviceaccount.com &lt;findit-for-me@appspot.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Reviewed-by: Dana Fried &lt;dfried@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197452}&lt;br/&gt;&lt;br/&gt;</content>
-    </entry>
-    <entry>
-        <id>https://chromium.googlesource.com/chromium/src/+/dac140f0e40044147d584a91b74d66bf2130e031%5E%21/</id>
-        <title>network: mask shill Service.UIData</title>
-        <author>
-            <name>Chromium commit feed</name>
-        </author>
-        <link href="https://chromium.googlesource.com/chromium/src/+/dac140f0e40044147d584a91b74d66bf2130e031%5E%21/"/>
-        <updated>2023-09-16T00:23:47.000Z</updated>
-        <summary>https://chromium.googlesource.com/chromium/src/+/dac140f0e40044147d584a91b74d66bf2130e031%5E%21/</summary>
-        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Always consider shill Service.UIData as data that cannot be logged.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: None&lt;br/&gt;&lt;br/&gt;Test: None&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Change-Id: I5263f0ec4dc7e0bb482a195bc38b8e03995273e3&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4867834&lt;br/&gt;&lt;br/&gt;Reviewed-by: Kyle Horimoto &lt;khorimoto@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Reviewed-by: Nikhil Nayunigari &lt;nikhilcn@google.com&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Hugo Benichi &lt;hugobenichi@google.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197451}&lt;br/&gt;&lt;br/&gt;</content>
-    </entry>
-    <entry>
-        <id>https://chromium.googlesource.com/chromium/src/+/cd97d4728164a3a7c1ee1913f542abde9596af6e%5E%21/</id>
-        <title>Reland "[lacros-a11y]: add initial support for Ash-driven C++ Lacros SpokenFeedbackTests"</title>
-        <author>
-            <name>Chromium commit feed</name>
-        </author>
-        <link href="https://chromium.googlesource.com/chromium/src/+/cd97d4728164a3a7c1ee1913f542abde9596af6e%5E%21/"/>
-        <updated>2023-09-16T00:20:13.000Z</updated>
-        <summary>https://chromium.googlesource.com/chromium/src/+/cd97d4728164a3a7c1ee1913f542abde9596af6e%5E%21/</summary>
-        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;This reverts commit a7778153d17e0fe5f66ae95e7e0ebf9875a86541.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Reason for revert: Should be less flaky after crrev.com/c/4837376&lt;br/&gt;&lt;br/&gt;which passes --disable-gpu and causes a11y JS test flakes to&lt;br/&gt;&lt;br/&gt;drop from 40% to ~2%.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Original change's description:&lt;br/&gt;&lt;br/&gt;&gt; Revert "[lacros-a11y]: add initial support for Ash-driven C++ Lacros SpokenFeedbackTests"&lt;br/&gt;&lt;br/&gt;&gt;&lt;br/&gt;&lt;br/&gt;&gt; This reverts commit 11e9e3ec89f52f16f19e80a75580ed018b11fb21.&lt;br/&gt;&lt;br/&gt;&gt;&lt;br/&gt;&lt;br/&gt;&gt; Reason for revert:&lt;br/&gt;&lt;br/&gt;&gt; Speculative revert. This seems to be failing SpokenFeedbackTests on&lt;br/&gt;&lt;br/&gt;&gt; linux-chromeos-rel.&lt;br/&gt;&lt;br/&gt;&gt; https://ci.chromium.org/ui/p/chromium/builders/ci/linux-chromeos-rel/68038/overview&lt;br/&gt;&lt;br/&gt;&gt;&lt;br/&gt;&lt;br/&gt;&gt; Original change's description:&lt;br/&gt;&lt;br/&gt;&gt; &gt; [lacros-a11y]: add initial support for Ash-driven C++ Lacros SpokenFeedbackTests&lt;br/&gt;&lt;br/&gt;&gt; &gt;&lt;br/&gt;&lt;br/&gt;&gt; &gt; This change adds the needed setup for SpokenFeedbackTests to launch a&lt;br/&gt;&lt;br/&gt;&gt; &gt; Lacros browser whenever a url is opened.&lt;br/&gt;&lt;br/&gt;&gt; &gt;&lt;br/&gt;&lt;br/&gt;&gt; &gt; In addition, it adds a new helper `NavigateToUrl` which opens the given&lt;br/&gt;&lt;br/&gt;&gt; &gt; url in either Lacros or Ash depending on whether the&lt;br/&gt;&lt;br/&gt;&gt; &gt; `--lacros-chrome-path` got passed to Chrome (via AshBrowserTestStarter).&lt;br/&gt;&lt;br/&gt;&gt; &gt;&lt;br/&gt;&lt;br/&gt;&gt; &gt; Note that these tests could be driven by a Lacros binary (browser test)&lt;br/&gt;&lt;br/&gt;&gt; &gt; if they get invoked (after a mojo IPC) and report back results with&lt;br/&gt;&lt;br/&gt;&gt; &gt; minimal changes required and backward compat when run through an Ash&lt;br/&gt;&lt;br/&gt;&gt; &gt; browser test.&lt;br/&gt;&lt;br/&gt;&gt; &gt;&lt;br/&gt;&lt;br/&gt;&gt; &gt; Finally, a subset of tests are left for follow ups (see&lt;br/&gt;&lt;br/&gt;&gt; &gt; linux-chromeos.browser_tests.require_lacros.filter).&lt;br/&gt;&lt;br/&gt;&gt; &gt;&lt;br/&gt;&lt;br/&gt;&gt; &gt; Test: cq/try bots&lt;br/&gt;&lt;br/&gt;&gt; &gt; Bug: none&lt;br/&gt;&lt;br/&gt;&gt; &gt; Change-Id: I23865715af72e0c46ca7ac839aaffaeeeabaec5e&lt;br/&gt;&lt;br/&gt;&gt; &gt; Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4707196&lt;br/&gt;&lt;br/&gt;&gt; &gt; Reviewed-by: Katie Dektar &lt;katie@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;&gt; &gt; Commit-Queue: David Tseng &lt;dtseng@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;&gt; &gt; Cr-Commit-Position: refs/heads/main@{#1175491}&lt;br/&gt;&lt;br/&gt;&gt;&lt;br/&gt;&lt;br/&gt;&gt; Bug: none&lt;br/&gt;&lt;br/&gt;&gt; Change-Id: Id39f14549213d91562a5387bdd0eaf64bf09e7b6&lt;br/&gt;&lt;br/&gt;&gt; No-Presubmit: true&lt;br/&gt;&lt;br/&gt;&gt; No-Tree-Checks: true&lt;br/&gt;&lt;br/&gt;&gt; No-Try: true&lt;br/&gt;&lt;br/&gt;&gt; Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4723927&lt;br/&gt;&lt;br/&gt;&gt; Bot-Commit: Rubber Stamper &lt;rubber-stamper@appspot.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;&gt; Commit-Queue: Hiroki Nakagawa &lt;nhiroki@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;&gt; Owners-Override: Hiroki Nakagawa &lt;nhiroki@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;&gt; Cr-Commit-Position: refs/heads/main@{#1175893}&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;AX-Relnotes: N/A&lt;br/&gt;&lt;br/&gt;Bug: b/290096429&lt;br/&gt;&lt;br/&gt;Change-Id: I483924fa124b370d6b73697d45de166e068d21d6&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4868741&lt;br/&gt;&lt;br/&gt;Reviewed-by: David Tseng &lt;dtseng@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: David Tseng &lt;dtseng@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197450}&lt;br/&gt;&lt;br/&gt;</content>
-    </entry>
-    <entry>
-        <id>https://chromium.googlesource.com/chromium/src/+/95918222cdf573493b46cb2145766de74957b0f7%5E%21/</id>
-        <title>Roll Chrome Win64 PGO Profile</title>
-        <author>
-            <name>Chromium commit feed</name>
-        </author>
-        <link href="https://chromium.googlesource.com/chromium/src/+/95918222cdf573493b46cb2145766de74957b0f7%5E%21/"/>
-        <updated>2023-09-16T00:18:02.000Z</updated>
-        <summary>https://chromium.googlesource.com/chromium/src/+/95918222cdf573493b46cb2145766de74957b0f7%5E%21/</summary>
-        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Roll Chrome Win64 PGO profile from chrome-win64-main-1694800614-ee299add2a30b9cbdeca7e375dd622bb5f72bc20.profdata to chrome-win64-main-1694811593-77d6b232095c668689beeece09bc71551a61f8d9.profdata&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;If this roll has caused a breakage, revert this CL and stop the roller&lt;br/&gt;&lt;br/&gt;using the controls here:&lt;br/&gt;&lt;br/&gt;https://autoroll.skia.org/r/pgo-win64-chromium&lt;br/&gt;&lt;br/&gt;Please CC chrome-brapp-engprod@google.com,pgo-profile-sheriffs@google.com on the revert to ensure that a human&lt;br/&gt;&lt;br/&gt;is aware of the problem.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To file a bug in Chromium main branch: https://bugs.chromium.org/p/chromium/issues/entry&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To report a problem with the AutoRoller itself, please file a bug:&lt;br/&gt;&lt;br/&gt;https://bugs.chromium.org/p/skia/issues/entry?template=Autoroller+Bug&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Documentation for the AutoRoller is here:&lt;br/&gt;&lt;br/&gt;https://skia.googlesource.com/buildbot/+doc/main/autoroll/README.md&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Cq-Include-Trybots: luci.chrome.try:win64-chrome&lt;br/&gt;&lt;br/&gt;Tbr: pgo-profile-sheriffs@google.com&lt;br/&gt;&lt;br/&gt;Change-Id: If1566cf982766ac09013058e18d03612fcb7aac3&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4869535&lt;br/&gt;&lt;br/&gt;Commit-Queue: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Bot-Commit: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197449}&lt;br/&gt;&lt;br/&gt;</content>
-    </entry>
-    <entry>
-        <id>https://chromium.googlesource.com/chromium/src/+/93d53a637614b3fbe654f82c0c4da34339802055%5E%21/</id>
-        <title>[Omnibox] Enable perf features by default</title>
-        <author>
-            <name>Chromium commit feed</name>
-        </author>
-        <link href="https://chromium.googlesource.com/chromium/src/+/93d53a637614b3fbe654f82c0c4da34339802055%5E%21/"/>
-        <updated>2023-09-16T00:09:17.000Z</updated>
-        <summary>https://chromium.googlesource.com/chromium/src/+/93d53a637614b3fbe654f82c0c4da34339802055%5E%21/</summary>
-        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: 1430541&lt;br/&gt;&lt;br/&gt;Change-Id: Id76b3f3ba8daeab2814ef63e47f0602cd0a5aac8&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4863392&lt;br/&gt;&lt;br/&gt;Reviewed-by: Tomasz Wiszkowski &lt;ender@google.com&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Patrick Noland &lt;pnoland@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Code-Coverage: findit-for-me@appspot.gserviceaccount.com &lt;findit-for-me@appspot.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197448}&lt;br/&gt;&lt;br/&gt;</content>
-    </entry>
-    <entry>
-        <id>https://chromium.googlesource.com/chromium/src/+/a0b198cb5df31f0e338c917be2b94035fa9f088f%5E%21/</id>
-        <title>Roll androidx from YK6HvD7TL_NbUT86b... to vYR3NnLGxynx0SHml...</title>
-        <author>
-            <name>Chromium commit feed</name>
-        </author>
-        <link href="https://chromium.googlesource.com/chromium/src/+/a0b198cb5df31f0e338c917be2b94035fa9f088f%5E%21/"/>
-        <updated>2023-09-16T00:03:50.000Z</updated>
-        <summary>https://chromium.googlesource.com/chromium/src/+/a0b198cb5df31f0e338c917be2b94035fa9f088f%5E%21/</summary>
-        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;If this roll has caused a breakage, revert this CL and stop the roller&lt;br/&gt;&lt;br/&gt;using the controls here:&lt;br/&gt;&lt;br/&gt;https://autoroll.skia.org/r/androidx-chromium&lt;br/&gt;&lt;br/&gt;Please CC clank-build@google.com,clank-library-failures@google.com,wnwen@google.com on the revert to ensure that a human&lt;br/&gt;&lt;br/&gt;is aware of the problem.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To file a bug in Chromium: https://bugs.chromium.org/p/chromium/issues/entry&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To report a problem with the AutoRoller itself, please file a bug:&lt;br/&gt;&lt;br/&gt;https://bugs.chromium.org/p/skia/issues/entry?template=Autoroller+Bug&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Documentation for the AutoRoller is here:&lt;br/&gt;&lt;br/&gt;https://skia.googlesource.com/buildbot/+doc/main/autoroll/README.md&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Cq-Include-Trybots: luci.chrome.try:android-internal-binary-size;luci.chrome.try:android-internal-rel&lt;br/&gt;&lt;br/&gt;Tbr: clank-library-failures@google.com&lt;br/&gt;&lt;br/&gt;Change-Id: I2edfdb48990fde94da3671b4a59238295c53fa94&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4869574&lt;br/&gt;&lt;br/&gt;Commit-Queue: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Bot-Commit: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197447}&lt;br/&gt;&lt;br/&gt;</content>
-    </entry>
-    <entry>
-        <id>https://chromium.googlesource.com/chromium/src/+/0c94708aa5795eb44699a8174c8d29fcc1b67b49%5E%21/</id>
-        <title>os settings: move cpp files to new location (11/N)</title>
-        <author>
-            <name>Chromium commit feed</name>
-        </author>
-        <link href="https://chromium.googlesource.com/chromium/src/+/0c94708aa5795eb44699a8174c8d29fcc1b67b49%5E%21/"/>
-        <updated>2023-09-16T00:02:29.000Z</updated>
-        <summary>https://chromium.googlesource.com/chromium/src/+/0c94708aa5795eb44699a8174c8d29fcc1b67b49%5E%21/</summary>
-        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;* Move the bluetooth page related files&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: b/284187997&lt;br/&gt;&lt;br/&gt;Tested: Opened Settings &gt; Bluetooth &gt; Devices saved to your account&lt;br/&gt;&lt;br/&gt;Change-Id: I7ac387367866461ea017a94acd0c07d2ee0818ba&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4866866&lt;br/&gt;&lt;br/&gt;Reviewed-by: Juliet Lévesque &lt;julietlevesque@google.com&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Xiaohui Chen &lt;xiaohuic@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197446}&lt;br/&gt;&lt;br/&gt;</content>
-    </entry>
-    <entry>
-        <id>https://chromium.googlesource.com/chromium/src/+/56731192888c0b0a0131034f3e9172f7b2037c71%5E%21/</id>
-        <title>Bookmarks++: Enable PowerBookmarksSidePanel on ToT</title>
-        <author>
-            <name>Chromium commit feed</name>
-        </author>
-        <link href="https://chromium.googlesource.com/chromium/src/+/56731192888c0b0a0131034f3e9172f7b2037c71%5E%21/"/>
-        <updated>2023-09-16T00:02:14.000Z</updated>
-        <summary>https://chromium.googlesource.com/chromium/src/+/56731192888c0b0a0131034f3e9172f7b2037c71%5E%21/</summary>
-        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: 1479688, launch/4225832&lt;br/&gt;&lt;br/&gt;Change-Id: I3e0d64808d241a232daf53d5792d03ed11928a35&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4863498&lt;br/&gt;&lt;br/&gt;Code-Coverage: findit-for-me@appspot.gserviceaccount.com &lt;findit-for-me@appspot.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Auto-Submit: Emily Shack &lt;emshack@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Emily Shack &lt;emshack@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Reviewed-by: Brandon Wylie &lt;wylieb@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1197445}&lt;br/&gt;&lt;br/&gt;</content>
     </entry>
 </feed>
