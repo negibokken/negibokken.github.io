@@ -5,6 +5,169 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg07558.html</id>
+        <title>[blink-dev] Intent to Ship: DTLS ClientHello extension permutation (WebRTC)</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg07558.html"/>
+        <updated>2023-09-22T06:00:38.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg07558.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+DTLS+ClientHello+extension+permutation+%5C%28WebRTC%5C%29%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Ship: DTLS ClientHello extension permutation (WebRTC)&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Philipp+Hancke%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Philipp Hancke' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230921" rel="nofollow"&gt;Thu, 21 Sep 2023 23:00:38 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Contact emails
+phan...@microsoft.com, h...@chromium.org
+
+Specification
+&lt;a  rel="nofollow" href="https://datatracker.ietf.org/doc/rfc8446"&gt;https://datatracker.ietf.org/doc/rfc8446&lt;/a&gt;&lt;/pre&gt;&lt;pre&gt;
+
+Summary
+
+Randomize the order of DTLS ClientHello extensions, to reduce potential
+ecosystem brittleness.
+
+
+This is a WebRTC specific follow-up to
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/bYZK81WxYBo/m/lKLrZ_P2BwAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/bYZK81WxYBo/m/lKLrZ_P2BwAJ&lt;/a&gt;
+which
+launched successfully a while back.
+
+
+WebRTC uses DTLS (datagram TLS over UDP) multiplexed with STUN and RTP and
+also uses a SRTP specific extension (use_srtp defined in RFC 5764) to
+negotiate encryption keys.
+
+Middleboxes might expect the use_srtp flag in a certain position which
+changes with this feature.
+
+
+Blink component
+Blink&amp;gt;WebRTC
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EWebRTC"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EWebRTC&lt;/a&gt;&amp;gt;
+
+TAG review
+None
+
+TAG review status
+Not applicable
+
+Risks
+
+
+Interoperability and Compatibility
+
+It is possible that WebRTC's ClientHello extension ordering is already
+ossified. This change may cause compatibility issues with middleboxes, SBCs
+or other network monitoring software. We will do a slow rollout and monitor
+breakage.
+
+
+*Gecko*: Positive (&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/709"&gt;https://github.com/mozilla/standards-positions/issues/709&lt;/a&gt;)
+Applied to TLS and DTLS equally
+
+*WebKit*: No signal (&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/92"&gt;https://github.com/WebKit/standards-positions/issues/92&lt;/a&gt;
+)
+
+*Web developers*: No signals
+
+*Other signals*:
+
+Ergonomics
+
+n/a, not developer facing
+
+
+Activation
+
+n/a, not developer facing
+
+
+Security
+
+Using a fixed extension order can encourage server implementers to
+fingerprint Chrome and then assume specific implementation behavior. This
+can limit ecosystem agility when Chrome implements future modifications to
+DTLS, if the server implementations are not prepared for Chrome to change
+its ClientHello. Chrome will randomly order extensions, subject to the
+pre_shared_key constraint in the RFC. This will reduce the risk of server
+and middleboxes fixating on details of our current ClientHello. This should
+make the DTLS ecosystem more robust to changes.
+
+
+WebView application risks
+
+*Does this intent deprecate or change behavior of existing APIs, such that
+it has potentially high risk for Android WebView-based applications?*
+
+None
+
+
+Debuggability
+
+n/a, inner function of TLS stack. Possible to inspect using tools like
+Wireshark
+
+
+Will this feature be supported on all six Blink platforms (Windows, Mac,
+Linux, Chrome OS, Android, and Android WebView)?
+Yes
+
+Is this feature fully tested by web-platform-tests
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+?
+No
+
+Flag name on chrome://flags
+None
+
+Finch feature name
+WebRTC-PermuteTlsClientHello
+
+Requires code in //chrome?
+False
+
+Tracking bug
+&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/webrtc/issues/detail?id=15467"&gt;https://bugs.chromium.org/p/webrtc/issues/detail?id=15467&lt;/a&gt;
+
+Estimated milestones
+Shipping on desktop 120
+
+
+Anticipated spec changes
+
+*Open questions about a feature may be a source of future web compat or
+interop issues. Please list open issues (e.g. links to known github issues
+in the project for the feature specification) whose resolution may
+introduce web compat/interop risk (e.g., changing to naming or structure of
+the API in a non-backward-compatible way).*
+None
+
+Link to entry on the Chrome Platform Status
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5191245718880256"&gt;https://chromestatus.com/feature/5191245718880256&lt;/a&gt;
+
+This intent message was generated by Chrome Platform Status
+&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADxkKi%2BWEyR_PRHcAfNNR0w1SECOZ%2B3PqVN3x%3DGcYjK10tE6sg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADxkKi%2BWEyR_PRHcAfNNR0w1SECOZ%2B3PqVN3x%3DGcYjK10tE6sg%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg07557.html</id>
         <title>Re: [blink-dev] Intent to Ship: Horizontal rules inside select elements</title>
         <author>
@@ -12832,164 +12995,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CACZRgz4DFaV3Y2HELx8AC2G1fpt_VbpXQbpmV%2BL7Y23456zfzg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CACZRgz4DFaV3Y2HELx8AC2G1fpt_VbpXQbpmV%2BL7Y23456zfzg%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg07508.html</id>
-        <title>[blink-dev] Intent to Implement and Ship: CaptureStartFocusBehavior enum value "focus-capturing-application"</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg07508.html"/>
-        <updated>2023-09-19T10:49:59.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg07508.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Implement+and+Ship%5C%3A+CaptureStartFocusBehavior+enum+value+%5C%22focus%5C-capturing%5C-application%5C%22%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Implement and Ship: CaptureStartFocusBehavior enum value "focus-capturing-application"&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Fran%C3%A7ois+Beaufort%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'François Beaufort' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230919" rel="nofollow"&gt;Tue, 19 Sep 2023 03:49:59 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Contact emails
-
-fbeauf...@google.com&lt;/pre&gt;&lt;pre&gt;
-
-elada...@google.com
-
-Explainer
-
-&lt;a  rel="nofollow" href="https://github.com/WICG/conditional-focus/blob/main/README.md"&gt;https://github.com/WICG/conditional-focus/blob/main/README.md&lt;/a&gt;
-
-Specification
-
-&lt;a  rel="nofollow" href="https://www.w3.org/TR/screen-capture/#idl-def-CaptureStartFocusBehavior.focus-capturing-application"&gt;https://www.w3.org/TR/screen-capture/#idl-def-CaptureStartFocusBehavior.focus-capturing-application&lt;/a&gt;
-
-Summary
-
-The Screen Capture API lets the user select a tab, window, or screen to
-capture as a media stream. Using the existing CaptureController
-setFocusBehavior() method, web apps control whether the captured tab or
-window will be focused when capture starts, or whether the browser will
-leave focus with whichever surface last had focus.
-
-
-The new enum value &amp;quot;focus-capturing-application&amp;quot; allows web apps to give a
-hint to the browser that the capturing page prefers to remain focused. The
-old value &amp;quot;no-focus-change&amp;quot; now indicates that the application prefers that
-the user agent not change focus, leaving focus with whichever surface last
-had focus following the user's interaction with the user agent and/or
-operating system. In Chrome’s current implementation, this means leaving
-the capturing application focused. In the future, if Chrome adopts the
-macOS picker, it could behave differently on Mac. This behavior could prove
-useful for a11y-conscious applications that prefer to minimize the number
-of focus-changes a user experiences, as those can be challenging for users
-with screen-readers.
-
-Blink component
-
-Blink&amp;gt;GetDisplayMedia
-&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EGetDisplayMedia"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EGetDisplayMedia&lt;/a&gt;&amp;gt;
-
-TAG review
-
-N/A We didn’t file a specific TAG review for this feature as the addition
-of this enum doesn’t have any architectural changes impact to the spec and
-the web in general.
-
-TAG review status
-
-Pending
-
-Risks
-Interoperability and Compatibility
-
-None
-
-Gecko: No signal
-
-WebKit: No signal - Youenn Fablet from Apple requested this API change in
-&lt;a  rel="nofollow" href="https://github.com/w3c/mediacapture-screen-share/issues/263"&gt;https://github.com/w3c/mediacapture-screen-share/issues/263&lt;/a&gt;.
-
-Web developers: No signal
-
-Other signals:
-
-WebView application risks
-
-Does this intent deprecate or change behavior of existing APIs, such that
-it has potentially high risk for Android WebView-based applications?
-
-None
-
-
-Debuggability
-
-No DevTools changes are required, treated like any other attribute/enum.
-
-Will this feature be supported on all six Blink platforms (Windows, Mac,
-Linux, Chrome OS, Android, and Android WebView)?
-
-Supported on all platforms that support getDisplayMedia. Namely, all
-desktop platforms.
-
-Is this feature fully tested by web-platform-tests
-&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-?
-
-Yes. See
-&lt;a  rel="nofollow" href="https://wpt.fyi/results/screen-capture/getdisplaymedia-capture-controller.https.window.html"&gt;https://wpt.fyi/results/screen-capture/getdisplaymedia-capture-controller.https.window.html&lt;/a&gt;
-
-Flag name on chrome://flags
-
-None
-
-Finch feature name
-
-None
-
-Requires code in //chrome?
-
-No.
-
-Tracking bug
-
-&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1480383"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1480383&lt;/a&gt;
-
-Estimated milestones
-
-Shipping on desktop
-
-119
-
-Anticipated spec changes
-
-Open questions about a feature may be a source of future web compat or
-interop issues. Please list open issues (e.g. links to known github issues
-in the project for the feature specification) whose resolution may
-introduce web compat/interop risk (e.g., changing to naming or structure of
-the API in a non-backward-compatible way).
-
-None
-
-Link to entry on the Chrome Platform Status
-
-&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5119529898475520"&gt;https://chromestatus.com/feature/5119529898475520&lt;/a&gt;
-
-This intent message was generated by Chrome Platform Status
-&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPpwU5KrkGMo%3DyATVuio-rpiLcbPJb6FGyk3i%2BdfvXGuBoE-kg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPpwU5KrkGMo%3DyATVuio-rpiLcbPJb6FGyk3i%2BdfvXGuBoE-kg%40mail.gmail.com&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
