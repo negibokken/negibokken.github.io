@@ -5,6 +5,359 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg07665.html</id>
+        <title>[blink-dev] Intent to Prototype: Extending Storage Access API (SAA) to non-cookie storage</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg07665.html"/>
+        <updated>2023-10-02T13:44:03.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg07665.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Prototype%5C%3A+Extending+Storage+Access+API+%5C%28SAA%5C%29+to+non%5C-cookie+storage%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Prototype: Extending Storage Access API (SAA) to non-cookie storage&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Ari+Chivukula%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Ari Chivukula&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231002" rel="nofollow"&gt;Mon, 02 Oct 2023 06:44:03 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Contact emails
+
+aric...@chromium.org, wanderv...@chromium.org, johann...@chromium.org,
+hele...@google.com&lt;/pre&gt;&lt;pre&gt;
+
+Specification
+
+&lt;a  rel="nofollow" href="https://arichiv.github.io/saa-non-cookie-storage/"&gt;https://arichiv.github.io/saa-non-cookie-storage/&lt;/a&gt;
+
+Summary
+
+We propose an extension of the Storage Access API
+&amp;lt;&lt;a  rel="nofollow" href="https://webkit.org/blog/8124/introducing-storage-access-api/"&gt;https://webkit.org/blog/8124/introducing-storage-access-api/&lt;/a&gt;&amp;gt; (backwards
+compatible) to allow access to unpartitioned (cookie and non-cookie)
+storage in a third-party context, and imagine the API mechanics to be
+roughly like this (JS running in an embedded iframe):
+
+
+// Request a new storage handle via rSA (this should prompt the user)
+
+let handle = await document.requestStorageAccess({all: true});
+
+// Write some cross-site localstorage
+
+handle.localStorage.setItem(&amp;quot;userid&amp;quot;, &amp;quot;1234&amp;quot;);
+
+// Open or create an indexedDB that is shared with the 1P context
+
+let messageDB = handle.defaultBucket.indexedDB.open(&amp;quot;messages&amp;quot;);
+
+
+The same flow would be used by iframes to get a storage handle when their
+top-level ancestor successfully called rSAFor
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/privacycg/requestStorageAccessFor"&gt;https://github.com/privacycg/requestStorageAccessFor&lt;/a&gt;&amp;gt;, just that in this
+case the storage-access permission was already granted and thus the rSA
+call would not require a user gesture or show a prompt, allowing for
+“hidden” iframes accessing storage.
+
+
+Browsers currently shipping the Storage Access API apply varying methods of
+when or how to ask the user for permission to grant 3p cookie access to a
+site. Given that this proposal involves extending the existing Storage
+Access API, while maintaining largely the same implications (from a
+privacy/security perspective) to the user, a consistent prompt for cookie
+and non-cookie access is preferred. No prompt is needed when the origins
+are RWS (Related Website Sets, the new name for First Party Sets).
+
+
+Blink component
+
+Blink&amp;gt;Storage
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EStorage"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EStorage&lt;/a&gt;&amp;gt;
+
+
+Motivation
+
+There has been increasing developer
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/GoogleChromeLabs/privacy-sandbox-dev-support/issues/124"&gt;https://github.com/GoogleChromeLabs/privacy-sandbox-dev-support/issues/124&lt;/a&gt;&amp;gt;
+and implementer &amp;lt;&lt;a  rel="nofollow" href="https://github.com/privacycg/storage-access/issues/102"&gt;https://github.com/privacycg/storage-access/issues/102&lt;/a&gt;&amp;gt;
+interest in first-party DOM Storage
+&amp;lt;&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API"&gt;https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API&lt;/a&gt;&amp;gt; and Quota
+Managed Storage
+&amp;lt;&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API"&gt;https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API&lt;/a&gt;&amp;gt; being
+available in third-party contexts the same way that Cookies already can be
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/privacycg/storage-access"&gt;https://github.com/privacycg/storage-access&lt;/a&gt;&amp;gt;. In the absence of such a
+solution, we would in effect be pushing developers to migrate to Cookies
+from other storage mechanisms. There are significant tradeoffs between
+Cookie and non-Cookie storage (size, flexibility, server exposure, network
+request size, etc.) that could cause a detriment in user experience from a
+privacy, security and performance perspective. To prevent sub-optimal use
+of cookies and to preserve context, we propose a solution for developers to
+regain 3p access to unpartitioned storage in select instances to avoid
+user-facing breakage in browsers shipping storage partitioning.
+
+TAG review
+
+&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/906"&gt;https://github.com/w3ctag/design-reviews/issues/906&lt;/a&gt;
+
+Compatibility
+
+The Storage Access API is already implemented in Safari, Firefox, and Chrome
+&amp;lt;&lt;a  rel="nofollow" href="https://caniuse.com/mdn-api_document_requeststorageaccess"&gt;https://caniuse.com/mdn-api_document_requeststorageaccess&lt;/a&gt;&amp;gt;, but the
+proposed API shape would not change existing behavior without new arguments
+added.
+
+
+Interoperability
+
+Gecko: &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/898"&gt;https://github.com/mozilla/standards-positions/issues/898&lt;/a&gt;
+
+WebKit: &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/262"&gt;https://github.com/WebKit/standards-positions/issues/262&lt;/a&gt;
+
+Web developers: Positive
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/GoogleChromeLabs/privacy-sandbox-dev-support/issues/124"&gt;https://github.com/GoogleChromeLabs/privacy-sandbox-dev-support/issues/124&lt;/a&gt;&amp;gt;
+
+Debuggability
+
+Storage written can be examined in devtools.
+
+Is this feature fully tested by web-platform-tests?
+
+Tests will be added.
+
+Tracking bug
+
+&lt;a  rel="nofollow" href="https://crbug.com/1484966"&gt;https://crbug.com/1484966&lt;/a&gt;
+
+Link to entry on the Chrome Platform Status
+
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5175585823522816"&gt;https://chromestatus.com/feature/5175585823522816&lt;/a&gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5DJnuU4g1dfF%3DreU_eqs2Uy19xc%2BdbEeUGTPp99VTENQHg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5DJnuU4g1dfF%3DreU_eqs2Uy19xc%2BdbEeUGTPp99VTENQHg%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg07664.html</id>
+        <title>[blink-dev] Intent to Ship: Relaxed CSS Nesting</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg07664.html"/>
+        <updated>2023-10-02T11:30:38.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg07664.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Relaxed+CSS+Nesting%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Ship: Relaxed CSS Nesting&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Anders+Hartvoll+Ruud%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Anders Hartvoll Ruud&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231002" rel="nofollow"&gt;Mon, 02 Oct 2023 04:30:38 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Contact emails
+
+andr...@chromium.org&lt;/pre&gt;&lt;pre&gt;
+
+Specification
+
+&lt;a  rel="nofollow" href="https://drafts.csswg.org/css-syntax/#consume-block-contents"&gt;https://drafts.csswg.org/css-syntax/#consume-block-contents&lt;/a&gt;
+
+Summary
+
+Allows nested style rules
+&amp;lt;&lt;a  rel="nofollow" href="https://drafts.csswg.org/css-nesting-1/#nested-style-rule"&gt;https://drafts.csswg.org/css-nesting-1/#nested-style-rule&lt;/a&gt;&amp;gt; to begin with
+an identifier. For example, the following will now be possible:
+
+p {
+
+  span { color: green; }
+
+}
+
+&amp;lt;p&amp;gt;
+
+  &amp;lt;span&amp;gt;I am green&amp;lt;/span&amp;gt;
+
+&amp;lt;/p&amp;gt;
+
+Before this change, the inner span selector had to be “escaped” using :is()
+or similar, due to restrictions in css-syntax. These restrictions have now
+been lifted by giving the parser the ability to restart
+&amp;lt;&lt;a  rel="nofollow" href="https://drafts.csswg.org/css-syntax/#token-stream-restore-a-mark"&gt;https://drafts.csswg.org/css-syntax/#token-stream-restore-a-mark&lt;/a&gt;&amp;gt;.
+
+Blink component
+
+Blink&amp;gt;CSS
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS&lt;/a&gt;&amp;gt;
+
+TAG review
+
+None
+
+TAG review status
+
+Not applicable
+
+Risks
+
+Interoperability and Compatibility
+
+To address some problematic parsing edge cases, the CSSWG has made two
+additional changes to css-syntax that have theoretical web-facing impact.
+These changes will ship in this intent as well:
+
+
+   1.
+
+   Braces ({}) are now fundamentally invalid in standard properties, unless
+   they span the whole value. No property grammar allows {} in any part of
+   the value currently, so this is already invalid, but when var() is used
+   in combination with {}, this intent changes when it becomes invalid.
+   With this intent, e.g. color: var(--x) {}; becomes invalid parse-time
+   instead of at computed-value time
+   &amp;lt;&lt;a  rel="nofollow" href="https://drafts.csswg.org/css-variables/#invalid-at-computed-value-time"&gt;https://drafts.csswg.org/css-variables/#invalid-at-computed-value-time&lt;/a&gt;&amp;gt;.
+   This is an observable difference, but there’s no known reason for this
+   to occur in practice outside of mistakes. Nevertheless, I have tried to
+   estimate the number of possibly-impacted sites:  ~0.0011% (Web Compat
+   Analysis: Relaxed Nesting
+   
+&amp;lt;&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1WxIAXWFy3q9XJrFK8k2J5my71jn8Cvdxq6Z8NAg99Q0/edit#bookmark=id.ufp2erlyto93"&gt;https://docs.google.com/document/d/1WxIAXWFy3q9XJrFK8k2J5my71jn8Cvdxq6Z8NAg99Q0/edit#bookmark=id.ufp2erlyto93&lt;/a&gt;&amp;gt;
+   [@chromium.org]).
+   2.
+
+   A style rule prelude (i.e. the selector list) can no longer start with
+   --ident:. Again, this is in a sense already “invalid”, since HTML
+   elements never start with -- (including custom elements, which must start
+   with a letter), so such rules can never match anything. This intent makes
+   the situation a parse error instead. Estimated impact: ~0.0007% (Web
+   Compat Analysis: Relaxed Nesting
+   
+&amp;lt;&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1WxIAXWFy3q9XJrFK8k2J5my71jn8Cvdxq6Z8NAg99Q0/edit#bookmark=id.geo17wxm8bwh"&gt;https://docs.google.com/document/d/1WxIAXWFy3q9XJrFK8k2J5my71jn8Cvdxq6Z8NAg99Q0/edit#bookmark=id.geo17wxm8bwh&lt;/a&gt;&amp;gt;
+   [@chromium.org]).
+
+
+Gecko: Shipped/Shipping (
+&lt;a  rel="nofollow" href="https://www.mozilla.org/en-US/firefox/117.0/releasenotes"&gt;https://www.mozilla.org/en-US/firefox/117.0/releasenotes&lt;/a&gt;)
+
+WebKit: In development (&lt;a  rel="nofollow" href="https://github.com/WebKit/WebKit/pull/17189"&gt;https://github.com/WebKit/WebKit/pull/17189&lt;/a&gt;)
+
+Web developers: No signals
+
+Other signals:
+
+WebView application risks
+
+Does this intent deprecate or change behavior of existing APIs, such that
+it has potentially high risk for Android WebView-based applications?
+
+None
+
+
+Debuggability
+
+Nested style rules that start with identifiers appear in the inspector like
+other nested style rules.
+
+
+Will this feature be supported on all six Blink platforms (Windows, Mac,
+Linux, Chrome OS, Android, and Android WebView)?
+
+Yes
+
+Is this feature fully tested by web-platform-tests
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+?
+
+Yes
+
+The tests exist in wpt_internal/css/css-nesting/ident at the time of
+writing, but will be upstreamed when the feature is turned on.
+
+Flag name on chrome://flags
+
+CSSNestingIdent
+
+Finch feature name
+
+I’m not sure what a “Finch feature name” is. There have been no Finch trials
+related to this, but the feature is guarded by the Blink runtime flag
+“CSSNestingIdent” with “base_feature” unset, which automatically generates
+a corresponding base::Feature.
+
+Non-finch justification
+
+None
+
+Requires code in //chrome?
+
+False
+
+Estimated milestones
+
+Shipping on desktop
+
+120
+
+Shipping on Android
+
+120
+
+Shipping on WebView
+
+120
+
+
+
+Anticipated spec changes
+
+These issues need to be resolved and/or edited into the spec before
+shipping.
+
+
+   -
+
+   &lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/9317"&gt;https://github.com/w3c/csswg-drafts/issues/9317&lt;/a&gt;
+   The behavior that braces are invalid in standard properties (unless it’s
+   the whole value) was resolved at TPAC 2023, but css-syntax has not been
+   updated yet.
+   -
+
+   &lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/9336"&gt;https://github.com/w3c/csswg-drafts/issues/9336&lt;/a&gt;
+   This is a tweak to the error recovery of the --ident: case. This needs a
+   resolution, and an edit.
+
+
+There are no anticipated spec changes after shipping.
+
+Link to entry on the Chrome Platform Status
+
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5070369895743488"&gt;https://chromestatus.com/feature/5070369895743488&lt;/a&gt;
+
+This intent message was generated by Chrome Platform Status
+&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAKFBnUpW7rNg%3DUMe34ERTnaFug2W1FPzmYEypOKqLN1Kk1OE2Q%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAKFBnUpW7rNg%3DUMe34ERTnaFug2W1FPzmYEypOKqLN1Kk1OE2Q%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg07663.html</id>
         <title>[blink-dev] Re: Intent to Ship: Close requests for CloseWatcher, &amp;lt;dialog&amp;gt;, and popover=""</title>
         <author>
@@ -8981,1120 +9334,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw_2EYaQVQpqaCnNoAiKjFEwgOmqigL8iQiKz9dPic-MFg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw_2EYaQVQpqaCnNoAiKjFEwgOmqigL8iQiKz9dPic-MFg%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg07615.html</id>
-        <title>Re: [blink-dev] Intent to Ship: Deprecate TLS SHA-1 server signatures</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg07615.html"/>
-        <updated>2023-09-27T15:51:10.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg07615.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Deprecate+TLS+SHA%5C-1+server+signatures%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Deprecate TLS SHA-1 server signatures&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Chris+Harrelson%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Chris Harrelson&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230927" rel="nofollow"&gt;Wed, 27 Sep 2023 08:51:10 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;LGTM3
-
-On Wed, Sep 27, 2023 at 8:11 AM Daniel Bratell &amp;lt;bratel...@gmail.com&amp;gt; wrote:&lt;/pre&gt;&lt;pre&gt;
-
-&amp;gt; LGTM2 (for the original request, just to be clear)
-&amp;gt;
-&amp;gt; I assume it will have the normal flag that will allow it to be turned off
-&amp;gt; if our interpretation is incorrect, since it is so hard to measure with a
-&amp;gt; high accuracy.
-&amp;gt;
-&amp;gt; /Daniel
-&amp;gt; On 2023-09-26 18:33, David Benjamin wrote:
-&amp;gt;
-&amp;gt; To clarify, I meant that we should apply this to WebRTC *in a
-&amp;gt; separate launch*. This one will just be HTTPS. We don't have numbers or a
-&amp;gt; flag for WebRTC right now, and we usually end up doing WebRTC separately
-&amp;gt; anyway, for better or worse. :-)
-&amp;gt;
-&amp;gt; On Tue, Sep 26, 2023 at 12:31 PM David Benjamin &amp;lt;david...@chromium.org&amp;gt;
-&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; Ah yeah, we should apply this to WebRTC too. Based on the kinds of issues
-&amp;gt;&amp;gt; we've seen, hopefully that one will be easy (I wouldn't expect WebRTC to be
-&amp;gt;&amp;gt; impacted by the kinds of server bugs we've seen), but certainly we'll need
-&amp;gt;&amp;gt; numbers.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Measurement is a little complicated for HTTPS (we had to do this fallback
-&amp;gt;&amp;gt; dance to avoid a ton of false positives on old Schannel behavior, which is
-&amp;gt;&amp;gt; why we had to pick up transient network errors as a different source of
-&amp;gt;&amp;gt; false positives). But since WebRTC talks to different kinds of peers, I
-&amp;gt;&amp;gt; suspect you all can just histogram the server-selected algorithm with
-&amp;gt;&amp;gt; SSL_get_peer_signature_algorithm, and just assume that's an accurate enough
-&amp;gt;&amp;gt; predictor. (TLS is client-offer / server-select, so we never learn the
-&amp;gt;&amp;gt; server's full capabilities, only what it happened to pick in response to
-&amp;gt;&amp;gt; our ClientHello. This makes measurements inherently more complex
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/RShdgyaDoX4/m/ly5-WQEBBgAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/RShdgyaDoX4/m/ly5-WQEBBgAJ&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; than measuring JavaScript API usage, but in simple cases just measuring
-&amp;gt;&amp;gt; the server selection gives good enough numbers.)
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Tue, Sep 26, 2023 at 5:26 AM Philipp Hancke &amp;lt;
-&amp;gt;&amp;gt; philipp.han...@googlemail.com&amp;gt; wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Should/can this also be applied to WebRTC's DTLS connections?
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; (we don't have numbers but that can be fixed)
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Am Mo., 25. Sept. 2023 um 19:13 Uhr schrieb Yoav Weiss &amp;lt;
-&amp;gt;&amp;gt;&amp;gt; yoavwe...@chromium.org&amp;gt;:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; LGTM1 to remove support, given that 0.009% of TLS connections divided
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; by ~30 is roughly at our typical threshold. Also given the dominance of
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; subresource TLS connections, it's likely that breakage would hit one of
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; those subresources, making it less likely to cause functional damage
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; (compared to e.g. the navigation request TLS connection).
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Mon, Sep 25, 2023 at 6:03 PM David Adrian &amp;lt;dadr...@google.com&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; There are approximately 30x TLS connections relative to pageloads, due
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to subresources. Once you have a TLS connection open for a main frame, I'm
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; not sure how many page loads happen across it. Probably a lot, but it's
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; still dominated by subresources.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; In practice, the 0.02% bound appears to have shaken out to sub 0.01%
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (0.009%), determined by looking at differences in the &amp;quot;OK&amp;quot; result for
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Net.SSL_Connection_Error.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Tue, Sep 19, 2023 at 8:59 PM Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Wed, Sep 20, 2023 at 12:47 AM David Benjamin &amp;lt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; david...@chromium.org&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Tue, Sep 19, 2023 at 1:50 AM Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Tue, Sep 19, 2023 at 7:45 AM Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Tue, Sep 19, 2023 at 1:35 AM 'Jeffrey Yasskin' via blink-dev &amp;lt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; blink-dev@chromium.org&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Mon, Sep 18, 2023 at 4:11 PM David Adrian &amp;lt;dadr...@google.com&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;gt; This should probably be an &amp;quot;Intent to Deprecate and Remove&amp;quot;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; rather than an &amp;quot;Intent to Ship&amp;quot;.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; You're absolutely right that it should be, unfortunately that's
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; not the subject Chrome Status generated. I'll file an issue.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Oops, yes, you did everything right here. There's already
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/GoogleChrome/chromium-dashboard/issues/2749"&gt;https://github.com/GoogleChrome/chromium-dashboard/issues/2749&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; about changing this subject line, and now
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/GoogleChrome/chromium-dashboard/issues/3346"&gt;https://github.com/GoogleChrome/chromium-dashboard/issues/3346&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to align the Chrome Status UI with the launching-features page.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;gt; The RFC's introduction at
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://www.rfc-editor.org/rfc/rfc9155.html#name-introduction"&gt;https://www.rfc-editor.org/rfc/rfc9155.html#name-introduction&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; is a pretty good explainer for why we should remove SHA-1 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; signatures.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Agreed. Noting in general, there is a large process mismatch
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; between TLS launches and the Blink launch process, as discussed in
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/CmlXjQeNWDI/m/r-AUe0OqAQAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/CmlXjQeNWDI/m/r-AUe0OqAQAJ&lt;/a&gt;.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; That's why this Intent looks a little different.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I wouldn't categorize it as a large process mismatch. But that's
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; an orthogonal discussion.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; As for the launch itself, I'll note it's been at 10% on Finch
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; for a couple weeks and everything looks gray, so we should be safe 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to ramp
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; up to 100%. The only thing of note was a correlation with an 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; unrelated
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; crash in Blink
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1479083#c2"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1479083#c2&lt;/a&gt;&amp;gt;,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; since the deprecation rollout was fairly large. It only showed at 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; 10%, not
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; 1%.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  How would we know of breakage in those 10%? Would that look like
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; users filing issues? Something else?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Mon, Sep 18, 2023 at 3:53 PM Jeffrey Yasskin &amp;lt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; jyass...@google.com&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; This should probably be an &amp;quot;Intent to Deprecate and Remove&amp;quot;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://www.chromium.org/blink/launching-features/#feature-deprecations"&gt;https://www.chromium.org/blink/launching-features/#feature-deprecations&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; rather than an &amp;quot;Intent to Ship&amp;quot;. I'll let an API owner say if 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; there's a
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; reason to re-send it; probably there isn't.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Mon, Sep 18, 2023 at 3:47 PM 'David Adrian' via blink-dev &amp;lt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; blink-dev@chromium.org&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Contact emails dadr...@google.com
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Explainer None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; The RFC's introduction at
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://www.rfc-editor.org/rfc/rfc9155.html#name-introduction"&gt;https://www.rfc-editor.org/rfc/rfc9155.html#name-introduction&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; is a pretty good explainer for why we should remove SHA-1 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; signatures.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Specification &lt;a  rel="nofollow" href="https://www.rfc-editor.org/rfc/rfc9155.html"&gt;https://www.rfc-editor.org/rfc/rfc9155.html&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Summary
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Chrome is removing support for signature algorithms using
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; SHA-1 for server signatures during the TLS handshake. This does 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; not affect
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; SHA-1 support in server certificates, which was already removed, 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; or in
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; client certificates, which continues to be supported. SHA-1 can be
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; temporarily re-enabled via the temporary
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; InsecureHashesInTLSHandshakesEnabled enterprise policy. This 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; policy will be
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; removed in Chrome 123.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink component Internals&amp;gt;Network&amp;gt;SSL
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Internals%3ENetwork%3ESSL"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Internals%3ENetwork%3ESSL&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Search tags tls &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:tls"&gt;https://chromestatus.com/features#tags:tls&lt;/a&gt;&amp;gt;,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ssl &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:ssl"&gt;https://chromestatus.com/features#tags:ssl&lt;/a&gt;&amp;gt;, sha1
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:sha1"&gt;https://chromestatus.com/features#tags:sha1&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review status Not applicable
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Risks
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Interoperability and Compatibility
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; At most 0.02% of page loads use the SHA1 fallback. However, we
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; cannot disambiguate between a flaky first connection, and actually
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; requiring SHA1. We expect the actual amount is lower.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Are we thinking that 0.02% is a loose upper bound? Is that correct?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; As with anything in TLS, the protocol is client-offer /
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; server-select, which means we pick up all the implications of that. We 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; can
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; measure what the server selects, but that doesn't actually tell us what
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; will happen if we change the ClientHello:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; - Perhaps the server preferentially chooses SHA-1, but will pick
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; SHA-2 if not offered. (I.e. SHA-1-preferring instead of SHA-1-requiring)
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; - Perhaps the server picks SHA-2 regardless but, for some odd
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; reason, breaks when SHA-1 is not offered. This could be a buggy,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; non-compliant fingerprinting script, or some weird behavior.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Usually, these effects are small enough that we just measure the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; server selection and don't worry about it. Here, we could not do that.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; First, we knew from previously sampling sites that some servers (older 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; IIS)
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; fall in the first category. These servers would not break, but would 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; seem
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to break if we measure the server selection. We also knew, again from
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; sampling and due to the multiple places where this ClientHello field is
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; used, the second category also shows up (in many cases, also older IIS).
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; These servers would break but would seem not to if we measure the server
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; selection.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Thus, we used a different measurement strategy. We send a SHA-1-less
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ClientHello and then, on error, retry with SHA-1 restored. This does not
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; work for security (an attacker can always force us onto the second 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; round),
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; but it helps counteract the above effects for a more accurate
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; measurement... up to a point. Up to a point because, in exchange for
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; clearing those effects, we pick a different effect: transient network
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; errors will also trigger the retry. And thus our numbers inherently have
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; noise at the scale of transient network errors.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; See also
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/RShdgyaDoX4/m/ly5-WQEBBgAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/RShdgyaDoX4/m/ly5-WQEBBgAJ&lt;/a&gt;,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; where we previously discussed this same client-offer / server-select
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; property.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; This is a difference from web platform things, where we can simply
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; observe in Chrome what APIs the site uses and moves on.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Any way to sample a few sites to validate that assumption?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I'm not sure what you mean. Networks occasionally flake, so any kind
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; of fallback measurements will capture some flakiness. Sampling sites 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; won't
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; tell us anything about that.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; For web platform features, where we have both usecounters in the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; HTTPArchive and potentially UKM, we can gather potentially breaking
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; URLs/origins, grab a few dozens random names from the list and deep dive
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; into them to see if they show breakage or not.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I'm not sure that we have anything similar for the netstack, where we
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; could e.g. report the failures in ways that enable us to later follow up
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; and run a similar manual check. (e.g. by reporting the failing DNS name
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; and/or IP)
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Also, are those 0.02% driven by origins? Specific user platforms?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Something else?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; This is 0.02% of TLS connections (sorry, page loads was a typo).
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; OK, that seems better, as presumably the denominator is smaller then
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; it would be for page loads (which is what we typically use). Do you have 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; a
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; sense of the difference between denominators? (so, how many page loads
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; typically happen per TLS connection?)
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; This is another of those differences between networking and web
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; platform features. The denominator is unavoidably different because of
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; where in the stack this logic applies. Where it is actually an
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; incompatibility with a site, it will be based on the origin. This is 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; almost
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; always due to a bug in the server software because every TLS 1.2
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; implementations supports SHA-2. (E.g. very very old OpenSSLs, with 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; several
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; known, unrelated security vulnerabilities have a bug where, with some
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; server software, mess this up.)
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Where it is a transient network error above it is, well, a transient
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; network error and presumably driven by network conditions.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Gecko*: Positive (
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/812"&gt;https://github.com/mozilla/standards-positions/issues/812&lt;/a&gt;)
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *WebKit*: Positive (
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/196"&gt;https://github.com/WebKit/standards-positions/issues/196&lt;/a&gt;)
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Web developers*: No signals
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Other signals*:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; WebView application risks
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Does this intent deprecate or change behavior of existing
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; APIs, such that it has potentially high risk for Android 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; WebView-based
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; applications?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Debuggability
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; n/a, this happens pre-devtools
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (Windows, Mac, Linux, Chrome OS, Android, and Android WebView)?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Yes
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ? No
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Flag name on chrome://flags use-sha1-server-handshakes
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Finch feature name DisableSHA1ServerSignature
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Requires code in //chrome? False
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Tracking bug
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=658905"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=658905&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Launch bug &lt;a  rel="nofollow" href="https://launch.corp.google.com/launch/4233200"&gt;https://launch.corp.google.com/launch/4233200&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Estimated milestones
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Shipping on desktop 117
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; OriginTrial desktop last 116
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; OriginTrial desktop first 115
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; DevTrial on desktop 115
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Shipping on Android 117
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; OriginTrial Android last 116
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; OriginTrial Android first 115
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; DevTrial on Android 115
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; OriginTrial webView last 116
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; OriginTrial webView first 115
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Anticipated spec changes
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Open questions about a feature may be a source of future web
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; compat or interop issues. Please list open issues (e.g. links to 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; known
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; github issues in the project for the feature specification) whose
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; resolution may introduce web compat/interop risk (e.g., changing 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to naming
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; or structure of the API in a non-backward-compatible way).
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/4832850040324096"&gt;https://chromestatus.com/feature/4832850040324096&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Links to previous Intent discussions Intent to Experiment:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGkh42JZz%3De_TRVwumqgTj-A7543BR7JLBUR_GzVN_oOWhKVvg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGkh42JZz%3De_TRVwumqgTj-A7543BR7JLBUR_GzVN_oOWhKVvg%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Google Groups &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; it, send an email to blink-dev+unsubscr...@chromium.org.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGkh42LiSGgfN1trVXfrmCW0Upk9r9GK4XYZQm5Y8RSzphn_DA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGkh42LiSGgfN1trVXfrmCW0Upk9r9GK4XYZQm5Y8RSzphn_DA%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGkh42LiSGgfN1trVXfrmCW0Upk9r9GK4XYZQm5Y8RSzphn_DA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGkh42LiSGgfN1trVXfrmCW0Upk9r9GK4XYZQm5Y8RSzphn_DA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Google Groups &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; send an email to blink-dev+unsubscr...@chromium.org.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CANh-dXnM7SzAOh2y6hcuezDpo-yCW%3DtNg0%3D1ErEMCFN%3DSSpsQQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CANh-dXnM7SzAOh2y6hcuezDpo-yCW%3DtNg0%3D1ErEMCFN%3DSSpsQQ%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CANh-dXnM7SzAOh2y6hcuezDpo-yCW%3DtNg0%3D1ErEMCFN%3DSSpsQQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CANh-dXnM7SzAOh2y6hcuezDpo-yCW%3DtNg0%3D1ErEMCFN%3DSSpsQQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; send an email to blink-dev+unsubscr...@chromium.org.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfVPG6np80msDXGDyzqOMA6E-7mtqFQpDSw8w5m3X%3DEKOg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfVPG6np80msDXGDyzqOMA6E-7mtqFQpDSw8w5m3X%3DEKOg%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfVPG6np80msDXGDyzqOMA6E-7mtqFQpDSw8w5m3X%3DEKOg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfVPG6np80msDXGDyzqOMA6E-7mtqFQpDSw8w5m3X%3DEKOg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+unsubscr...@chromium.org.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfXorTe7SSPt8iZt5ZjVi0Qh8qd%2BPdEGMOzSQj45e0Z1VQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfXorTe7SSPt8iZt5ZjVi0Qh8qd%2BPdEGMOzSQj45e0Z1VQ%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfXorTe7SSPt8iZt5ZjVi0Qh8qd%2BPdEGMOzSQj45e0Z1VQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfXorTe7SSPt8iZt5ZjVi0Qh8qd%2BPdEGMOzSQj45e0Z1VQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; --
-&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt; To view this discussion on the web visit
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAF8qwaB5P6Ys%3DxMyB%3D7HvLJEa0Axp5uCcfbPQqurN2ADdasYgQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAF8qwaB5P6Ys%3DxMyB%3D7HvLJEa0Axp5uCcfbPQqurN2ADdasYgQ%40mail.gmail.com&lt;/a&gt;
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAF8qwaB5P6Ys%3DxMyB%3D7HvLJEa0Axp5uCcfbPQqurN2ADdasYgQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAF8qwaB5P6Ys%3DxMyB%3D7HvLJEa0Axp5uCcfbPQqurN2ADdasYgQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt; .
-&amp;gt;
-&amp;gt; --
-&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt; To view this discussion on the web visit
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/29ca51ba-5890-4767-82d1-0e4e21669374%40gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/29ca51ba-5890-4767-82d1-0e4e21669374%40gmail.com&lt;/a&gt;
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/29ca51ba-5890-4767-82d1-0e4e21669374%40gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/29ca51ba-5890-4767-82d1-0e4e21669374%40gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt; .
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw_Y9eDaxps5B6ToeF%3Dm3gZGOCCjY3Sj6FV5E%2BR2aij3WA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw_Y9eDaxps5B6ToeF%3Dm3gZGOCCjY3Sj6FV5E%2BR2aij3WA%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg07614.html</id>
-        <title>Re: [blink-dev] Intent to Ship: Deprecate TLS SHA-1 server signatures</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg07614.html"/>
-        <updated>2023-09-27T15:11:16.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg07614.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Deprecate+TLS+SHA%5C-1+server+signatures%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Deprecate TLS SHA-1 server signatures&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Daniel+Bratell%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Daniel Bratell&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20230927" rel="nofollow"&gt;Wed, 27 Sep 2023 08:11:16 -0700&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre style="margin: 0em;"&gt;
-LGTM2 (for the original request, just to be clear)
-
-&lt;/pre&gt;&lt;tt&gt;I assume it will have the normal flag that will allow it to be turned 
-&lt;/tt&gt;&lt;tt&gt;off if our interpretation is incorrect, since it is so hard to measure 
-&lt;/tt&gt;&lt;tt&gt;with a high accuracy.
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;pre&gt;
-
-/Daniel
-
-On 2023-09-26 18:33, David Benjamin wrote:
-&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;tt&gt;To clarify, I meant that we should apply this to WebRTC /in a 
-&lt;/tt&gt;&lt;tt&gt;separate launch/. This one will just be HTTPS. We don't have numbers 
-&lt;/tt&gt;&lt;tt&gt;or a flag for WebRTC right now, and we usually end up doing WebRTC 
-&lt;/tt&gt;&lt;tt&gt;separately anyway, for better or worse. :-)
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;tt&gt;On Tue, Sep 26, 2023 at 12:31 PM David Benjamin 
-&lt;/tt&gt;&lt;tt&gt;&amp;lt;david...@chromium.org&amp;gt; wrote:
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-
-    Ah yeah, we should apply this to WebRTC too. Based on the kinds of
-    issues we've seen, hopefully that one will be easy (I wouldn't
-    expect WebRTC to be impacted by the kinds of server bugs we've
-    seen), but certainly we'll need numbers.
-
-    Measurement is a little complicated for HTTPS (we had to do this
-    fallback dance to avoid a ton of false positives on old Schannel
-    behavior, which is why we had to pick up transient network errors
-    as a different source of false positives). But since WebRTC talks
-    to different kinds of peers, I suspect you all can just histogram
-    the server-selected algorithm with
-    SSL_get_peer_signature_algorithm, and just assume that's an
-    accurate enough predictor. (TLS is client-offer / server-select,
-    so we never learn the server's full capabilities, only what it
-    happened to pick in response to our ClientHello. This makes
-    measurements inherently more complex
-    
-&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/RShdgyaDoX4/m/ly5-WQEBBgAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/RShdgyaDoX4/m/ly5-WQEBBgAJ&lt;/a&gt;&amp;gt;
-    than measuring JavaScript API usage, but in simple cases just
-    measuring the server selection gives good enough numbers.)
-
-    On Tue, Sep 26, 2023 at 5:26 AM Philipp Hancke
-    &amp;lt;philipp.han...@googlemail.com&amp;gt; wrote:
-
-        Should/can this also be applied to WebRTC's DTLS connections?
-
-        (we don't have numbers but that can be fixed)
-
-        Am Mo., 25. Sept. 2023 um 19:13 Uhr schrieb Yoav Weiss
-        &amp;lt;yoavwe...@chromium.org&amp;gt;:
-
-            LGTM1 to remove support, given that 0.009% of TLS
-            connections divided by ~30 is roughly at our typical
-            threshold. Also given the dominance of subresource TLS
-            connections, it's likely that breakage would hit one of
-            those subresources, making it less likely to cause
-            functional damage (compared to e.g. the navigation request
-            TLS connection).
-
-            On Mon, Sep 25, 2023 at 6:03 PM David Adrian
-            &amp;lt;dadr...@google.com&amp;gt; wrote:
-
-                There are approximately 30x TLS connections relative
-                to pageloads, due to subresources. Once you have a TLS
-                connection open for a main frame, I'm not sure how
-                many page loads happen across it. Probably a lot, but
-                it's still dominated by subresources.
-
-                In practice, the 0.02% bound appears to have shaken
-                out to sub 0.01% (0.009%), determined by looking at
-                differences in the &amp;quot;OK&amp;quot; result for
-                Net.SSL_Connection_Error.
-
-                On Tue, Sep 19, 2023 at 8:59 PM Yoav Weiss
-                &amp;lt;yoavwe...@chromium.org&amp;gt; wrote:
-
-
-
-                    On Wed, Sep 20, 2023 at 12:47 AM David Benjamin
-                    &amp;lt;david...@chromium.org&amp;gt; wrote:
-
-                        On Tue, Sep 19, 2023 at 1:50 AM Yoav Weiss
-                        &amp;lt;yoavwe...@chromium.org&amp;gt; wrote:
-
-                            On Tue, Sep 19, 2023 at 7:45 AM Yoav Weiss
-                            &amp;lt;yoavwe...@chromium.org&amp;gt; wrote:
-
-                                On Tue, Sep 19, 2023 at 1:35 AM
-                                'Jeffrey Yasskin' via blink-dev
-                                &amp;lt;blink-dev@chromium.org&amp;gt; wrote:
-
-                                    On Mon, Sep 18, 2023 at 4:11 PM
-                                    David Adrian &amp;lt;dadr...@google.com&amp;gt;
-                                    wrote:
-
-                                        &amp;gt; This should probably be an
-                                        &amp;quot;Intent to Deprecate and
-                                        Remove&amp;quot; rather than an &amp;quot;Intent
-                                        to Ship&amp;quot;.
-
-                                        You're absolutely right that
-                                        it should be, unfortunately
-                                        that's not the subject Chrome
-                                        Status generated. I'll file an
-                                        issue.
-
-
-                                    Oops, yes, you did everything
-                                    right here. There's already
-                                    
-&lt;a  rel="nofollow" href="https://github.com/GoogleChrome/chromium-dashboard/issues/2749"&gt;https://github.com/GoogleChrome/chromium-dashboard/issues/2749&lt;/a&gt;
-                                    about changing this subject line,
-                                    and now
-                                    
-&lt;a  rel="nofollow" href="https://github.com/GoogleChrome/chromium-dashboard/issues/3346"&gt;https://github.com/GoogleChrome/chromium-dashboard/issues/3346&lt;/a&gt;
-                                    to align the Chrome Status UI with
-                                    the launching-features page.
-
-                                        &amp;gt; The RFC's introduction at
-                                        
-&lt;a  rel="nofollow" href="https://www.rfc-editor.org/rfc/rfc9155.html#name-introduction"&gt;https://www.rfc-editor.org/rfc/rfc9155.html#name-introduction&lt;/a&gt;
-                                        is a pretty good explainer for
-                                        why we should remove SHA-1
-                                        signatures.
-
-                                        Agreed. Noting in general,
-                                        there is a large process
-                                        mismatch between TLS launches
-                                        and the Blink launch process,
-                                        as discussed in
-                                        
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/CmlXjQeNWDI/m/r-AUe0OqAQAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/CmlXjQeNWDI/m/r-AUe0OqAQAJ&lt;/a&gt;.
-                                        That's why this Intent looks a
-                                        little different.
-
-
-                                I wouldn't categorize it as a large
-                                process mismatch. But that's an
-                                orthogonal discussion.
-
-
-                                        As for the launch itself, I'll
-                                        note it's been at 10% on Finch
-                                        for a couple weeks and
-                                        everything looks gray, so we
-                                        should be safe to ramp up to
-                                        100%. The only thing of note
-                                        was a correlation with an
-                                        unrelated crash in Blink
-                                        
-&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1479083#c2"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1479083#c2&lt;/a&gt;&amp;gt;,
-                                        since the deprecation rollout
-                                        was fairly large. It only
-                                        showed at 10%, not 1%.
-
-
-                             How would we know of breakage in those
-                            10%? Would that look like users filing
-                            issues? Something else?
-
-
-                                        On Mon, Sep 18, 2023 at
-                                        3:53 PM Jeffrey Yasskin
-                                        &amp;lt;jyass...@google.com&amp;gt; wrote:
-
-                                            This should probably be an
-                                            &amp;quot;Intent to Deprecate and
-                                            Remove&amp;quot;
-                                            
-&amp;lt;&lt;a  rel="nofollow" href="https://www.chromium.org/blink/launching-features/#feature-deprecations"&gt;https://www.chromium.org/blink/launching-features/#feature-deprecations&lt;/a&gt;&amp;gt;
-                                            rather than an &amp;quot;Intent to
-                                            Ship&amp;quot;. I'll let an API
-                                            owner say if there's a
-                                            reason to re-send it;
-                                            probably there isn't.
-
-                                            On Mon, Sep 18, 2023 at
-                                            3:47 PM 'David Adrian' via
-                                            blink-dev
-                                            &amp;lt;blink-dev@chromium.org&amp;gt;
-                                            wrote:
-
-
-                                                        Contact emails
-
-                                                dadr...@google.com
-
-
-                                                        Explainer
-
-                                                None
-
-
-                                            The RFC's introduction at
-                                            
-&lt;a  rel="nofollow" href="https://www.rfc-editor.org/rfc/rfc9155.html#name-introduction"&gt;https://www.rfc-editor.org/rfc/rfc9155.html#name-introduction&lt;/a&gt;
-                                            is a pretty good explainer
-                                            for why we should remove
-                                            SHA-1 signatures.
-
-
-                                                        Specification
-
-                                                
-&lt;a  rel="nofollow" href="https://www.rfc-editor.org/rfc/rfc9155.html"&gt;https://www.rfc-editor.org/rfc/rfc9155.html&lt;/a&gt;
-
-
-                                                        Summary
-
-                                                Chrome is removing
-                                                support for signature
-                                                algorithms using SHA-1
-                                                for server signatures
-                                                during the TLS
-                                                handshake. This does
-                                                not affect SHA-1
-                                                support in server
-                                                certificates, which
-                                                was already removed,
-                                                or in client
-                                                certificates, which
-                                                continues to be
-                                                supported. SHA-1 can
-                                                be temporarily
-                                                re-enabled via the
-                                                temporary
-                                                
-InsecureHashesInTLSHandshakesEnabled
-                                                enterprise policy.
-                                                This policy will be
-                                                removed in Chrome 123.
-
-
-
-                                                        Blink component
-
-                                                Internals&amp;gt;Network&amp;gt;SSL
-                                                
-&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Internals%3ENetwork%3ESSL"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Internals%3ENetwork%3ESSL&lt;/a&gt;&amp;gt;
-
-
-                                                        Search tags
-
-                                                tls
-                                                
-&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:tls"&gt;https://chromestatus.com/features#tags:tls&lt;/a&gt;&amp;gt;,
-                                                ssl
-                                                
-&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:ssl"&gt;https://chromestatus.com/features#tags:ssl&lt;/a&gt;&amp;gt;,
-                                                sha1
-                                                
-&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:sha1"&gt;https://chromestatus.com/features#tags:sha1&lt;/a&gt;&amp;gt;
-
-
-                                                        TAG review
-
-                                                None
-
-
-                                                        TAG review status
-
-                                                Not applicable
-
-
-                                                        Risks
-
-
-
-                                                        Interoperability
-                                                        and Compatibility
-
-                                                At most 0.02% of page
-                                                loads use the SHA1
-                                                fallback. However, we
-                                                cannot disambiguate
-                                                between a flaky first
-                                                connection, and
-                                                actually requiring
-                                                SHA1. We expect the
-                                                actual amount is lower.
-
-
-                                Are we thinking that 0.02% is a loose
-                                upper bound? Is that correct?
-
-
-                        As with anything in TLS, the protocol is
-                        client-offer / server-select, which means we
-                        pick up all the implications of that. We can
-                        measure what the server selects, but that
-                        doesn't actually tell us what will happen if
-                        we change the ClientHello:
-                        - Perhaps the server preferentially chooses
-                        SHA-1, but will pick SHA-2 if not offered.
-                        (I.e. SHA-1-preferring instead of SHA-1-requiring)
-                        - Perhaps the server picks SHA-2 regardless
-                        but, for some odd reason, breaks when SHA-1 is
-                        not offered. This could be a buggy,
-                        non-compliant fingerprinting script, or some
-                        weird behavior.
-
-                        Usually, these effects are small enough that
-                        we just measure the server selection and don't
-                        worry about it. Here, we could not do that.
-                        First, we knew from previously sampling sites
-                        that some servers (older IIS) fall in the
-                        first category. These servers would not break,
-                        but would seem to break if we measure the
-                        server selection. We also knew, again from
-                        sampling and due to the multiple places where
-                        this ClientHello field is used, the second
-                        category also shows up (in many cases, also
-                        older IIS). These servers would break but
-                        would seem not to if we measure the server
-                        selection.
-
-                        Thus, we used a different measurement
-                        strategy. We send a SHA-1-less ClientHello and
-                        then, on error, retry with SHA-1 restored.
-                        This does not work for security (an attacker
-                        can always force us onto the second round),
-                        but it helps counteract the above effects for
-                        a more accurate measurement... up to a point.
-                        Up to a point because, in exchange for
-                        clearing those effects, we pick a different
-                        effect: transient network errors will also
-                        trigger the retry. And thus our numbers
-                        inherently have noise at the scale of
-                        transient network errors.
-
-                        See also
-                        
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/RShdgyaDoX4/m/ly5-WQEBBgAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/RShdgyaDoX4/m/ly5-WQEBBgAJ&lt;/a&gt;,
-                        where we previously discussed this same
-                        client-offer / server-select property.
-
-                        This is a difference from web platform things,
-                        where we can simply observe in Chrome what
-                        APIs the site uses and moves on.
-
-                                Any way to sample a few sites to
-                                validate that assumption?
-
-
-                        I'm not sure what you mean. Networks
-                        occasionally flake, so any kind of fallback
-                        measurements will capture some flakiness.
-                        Sampling sites won't tell us anything about that.
-
-
-                    For web platform features, where we have both
-                    usecounters in the HTTPArchive and potentially
-                    UKM, we can gather potentially breaking
-                    URLs/origins, grab a few dozens random names from
-                    the list and deep dive into them to see if they
-                    show breakage or not.
-
-                    I'm not sure that we have anything similar for the
-                    netstack, where we could e.g. report the failures
-                    in ways that enable us to later follow up and run
-                    a similar manual check. (e.g. by reporting the
-                    failing DNS name and/or IP)
-
-                            Also, are those 0.02% driven by origins?
-                            Specific user platforms? Something else?
-
-
-                        This is 0.02% of TLS connections (sorry, page
-                        loads was a typo).
-
-
-                    OK, that seems better, as presumably the
-                    denominator is smaller then it would be for page
-                    loads (which is what we typically use). Do you
-                    have a sense of the difference between
-                    denominators? (so, how many page loads typically
-                    happen per TLS connection?)
-
-                        This is another of those differences between
-                        networking and web platform features. The
-                        denominator is unavoidably different because
-                        of where in the stack this logic applies.
-                        Where it is actually an incompatibility with a
-                        site, it will be based on the origin. This is
-                        almost always due to a bug in the server
-                        software because every TLS 1.2
-                        implementations supports SHA-2. (E.g. very
-                        very old OpenSSLs, with several known,
-                        unrelated security vulnerabilities have a bug
-                        where, with some server software, mess this up.)
-
-                        Where it is a transient network error above it
-                        is, well, a transient network error and
-                        presumably driven by network conditions.
-
-
-                                                /Gecko/: Positive
-                                                
-(&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/812"&gt;https://github.com/mozilla/standards-positions/issues/812&lt;/a&gt;)
-
-                                                /WebKit/: Positive
-                                                
-(&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/196"&gt;https://github.com/WebKit/standards-positions/issues/196&lt;/a&gt;)
-
-                                                /Web developers/: No
-                                                signals
-
-                                                /Other signals/:
-
-
-                                                        WebView
-                                                        application risks
-
-                                                Does this intent
-                                                deprecate or change
-                                                behavior of existing
-                                                APIs, such that it has
-                                                potentially high risk
-                                                for Android
-                                                WebView-based
-                                                applications?
-
-                                                None
-
-
-
-                                                        Debuggability
-
-                                                n/a, this happens
-                                                pre-devtools
-
-
-
-                                                        Will this
-                                                        feature be
-                                                        supported on
-                                                        all six Blink
-                                                        platforms
-                                                        (Windows, Mac,
-                                                        Linux, Chrome
-                                                        OS, Android,
-                                                        and Android
-                                                        WebView)?
-
-                                                Yes
-
-
-                                                        Is this
-                                                        feature fully
-                                                        tested by
-                                                        web-platform-tests
-                                                        
-&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;?
-
-                                                No
-
-
-                                                        Flag name on
-                                                        chrome://flags
-
-                                                use-sha1-server-handshakes
-
-
-                                                        Finch feature name
-
-                                                DisableSHA1ServerSignature
-
-
-                                                        Requires code
-                                                        in //chrome?
-
-                                                False
-
-
-                                                        Tracking bug
-
-                                                
-&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=658905"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=658905&lt;/a&gt;
-
-
-                                                        Launch bug
-
-                                                
-&lt;a  rel="nofollow" href="https://launch.corp.google.com/launch/4233200"&gt;https://launch.corp.google.com/launch/4233200&lt;/a&gt;
-
-
-                                                        Estimated
-                                                        milestones
-
-                                                Shipping on desktop     117
-                                                OriginTrial desktop
-                                                last    116
-                                                OriginTrial desktop
-                                                first   115
-                                                DevTrial on desktop     115
-
-                                                Shipping on Android     117
-                                                OriginTrial Android
-                                                last    116
-                                                OriginTrial Android
-                                                first   115
-                                                DevTrial on Android     115
-
-                                                OriginTrial webView
-                                                last    116
-                                                OriginTrial webView
-                                                first   115
-
-
-
-                                                        Anticipated
-                                                        spec changes
-
-                                                Open questions about a
-                                                feature may be a
-                                                source of future web
-                                                compat or interop
-                                                issues. Please list
-                                                open issues (e.g.
-                                                links to known github
-                                                issues in the project
-                                                for the feature
-                                                specification) whose
-                                                resolution may
-                                                introduce web
-                                                compat/interop risk
-                                                (e.g., changing to
-                                                naming or structure of
-                                                the API in a
-                                                non-backward-compatible
-                                                way).
-
-                                                None
-
-
-                                                        Link to entry
-                                                        on the Chrome
-                                                        Platform Status
-
-                                                
-&lt;a  rel="nofollow" href="https://chromestatus.com/feature/4832850040324096"&gt;https://chromestatus.com/feature/4832850040324096&lt;/a&gt;
-
-
-                                                        Links to
-                                                        previous
-                                                        Intent discussions
-
-                                                Intent to Experiment:
-                                                
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGkh42JZz%3De_TRVwumqgTj-A7543BR7JLBUR_GzVN_oOWhKVvg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGkh42JZz%3De_TRVwumqgTj-A7543BR7JLBUR_GzVN_oOWhKVvg%40mail.gmail.com&lt;/a&gt;
-
-
-                                                This intent message
-                                                was generated by
-                                                Chrome Platform Status
-                                                &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-&lt;/pre&gt;&lt;tt&gt;                                                -- 
-&lt;/tt&gt;&lt;tt&gt;                                                You received this
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-                                                message because you
-                                                are subscribed to the
-                                                Google Groups
-                                                &amp;quot;blink-dev&amp;quot; group.
-                                                To unsubscribe from
-                                                this group and stop
-                                                receiving emails from
-                                                it, send an email to
-                                                
-blink-dev+unsubscr...@chromium.org.
-                                                To view this
-                                                discussion on the web
-                                                visit
-                                                
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGkh42LiSGgfN1trVXfrmCW0Upk9r9GK4XYZQm5Y8RSzphn_DA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGkh42LiSGgfN1trVXfrmCW0Upk9r9GK4XYZQm5Y8RSzphn_DA%40mail.gmail.com&lt;/a&gt;
-                                                
-&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGkh42LiSGgfN1trVXfrmCW0Upk9r9GK4XYZQm5Y8RSzphn_DA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGkh42LiSGgfN1trVXfrmCW0Upk9r9GK4XYZQm5Y8RSzphn_DA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-
-&lt;/pre&gt;&lt;tt&gt;                                    -- 
-&lt;/tt&gt;&lt;tt&gt;                                    You received this message because
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-                                    you are subscribed to the Google
-                                    Groups &amp;quot;blink-dev&amp;quot; group.
-                                    To unsubscribe from this group and
-                                    stop receiving emails from it,
-                                    send an email to
-                                    blink-dev+unsubscr...@chromium.org.
-                                    To view this discussion on the web
-                                    visit
-                                    
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CANh-dXnM7SzAOh2y6hcuezDpo-yCW%3DtNg0%3D1ErEMCFN%3DSSpsQQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CANh-dXnM7SzAOh2y6hcuezDpo-yCW%3DtNg0%3D1ErEMCFN%3DSSpsQQ%40mail.gmail.com&lt;/a&gt;
-                                    
-&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CANh-dXnM7SzAOh2y6hcuezDpo-yCW%3DtNg0%3D1ErEMCFN%3DSSpsQQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CANh-dXnM7SzAOh2y6hcuezDpo-yCW%3DtNg0%3D1ErEMCFN%3DSSpsQQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-
-&lt;/pre&gt;&lt;tt&gt;                            -- 
-&lt;/tt&gt;&lt;tt&gt;                            You received this message because you are
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-                            subscribed to the Google Groups
-                            &amp;quot;blink-dev&amp;quot; group.
-                            To unsubscribe from this group and stop
-                            receiving emails from it, send an email to
-                            blink-dev+unsubscr...@chromium.org.
-                            To view this discussion on the web visit
-                            
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfVPG6np80msDXGDyzqOMA6E-7mtqFQpDSw8w5m3X%3DEKOg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfVPG6np80msDXGDyzqOMA6E-7mtqFQpDSw8w5m3X%3DEKOg%40mail.gmail.com&lt;/a&gt;
-                            
-&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfVPG6np80msDXGDyzqOMA6E-7mtqFQpDSw8w5m3X%3DEKOg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfVPG6np80msDXGDyzqOMA6E-7mtqFQpDSw8w5m3X%3DEKOg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-
-&lt;/pre&gt;&lt;tt&gt;            -- 
-&lt;/tt&gt;&lt;tt&gt;            You received this message because you are subscribed to
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-            the Google Groups &amp;quot;blink-dev&amp;quot; group.
-            To unsubscribe from this group and stop receiving emails
-            from it, send an email to blink-dev+unsubscr...@chromium.org.
-            To view this discussion on the web visit
-            
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfXorTe7SSPt8iZt5ZjVi0Qh8qd%2BPdEGMOzSQj45e0Z1VQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfXorTe7SSPt8iZt5ZjVi0Qh8qd%2BPdEGMOzSQj45e0Z1VQ%40mail.gmail.com&lt;/a&gt;
-            
-&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfXorTe7SSPt8iZt5ZjVi0Qh8qd%2BPdEGMOzSQj45e0Z1VQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfXorTe7SSPt8iZt5ZjVi0Qh8qd%2BPdEGMOzSQj45e0Z1VQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-
---
-&lt;/pre&gt;&lt;tt&gt;You received this message because you are subscribed to the Google 
-&lt;/tt&gt;&lt;tt&gt;Groups &amp;quot;blink-dev&amp;quot; group.
-&lt;/tt&gt;&lt;tt&gt;To unsubscribe from this group and stop receiving emails from it, send 
-&lt;/tt&gt;&lt;tt&gt;an email to blink-dev+unsubscr...@chromium.org.
-&lt;/tt&gt;&lt;tt&gt;To view this discussion on the web visit 
-&lt;/tt&gt;&lt;tt&gt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAF8qwaB5P6Ys%3DxMyB%3D7HvLJEa0Axp5uCcfbPQqurN2ADdasYgQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAF8qwaB5P6Ys%3DxMyB%3D7HvLJEa0Axp5uCcfbPQqurN2ADdasYgQ%40mail.gmail.com&lt;/a&gt; 
-&lt;/tt&gt;&lt;tt&gt;&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAF8qwaB5P6Ys%3DxMyB%3D7HvLJEa0Axp5uCcfbPQqurN2ADdasYgQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAF8qwaB5P6Ys%3DxMyB%3D7HvLJEa0Axp5uCcfbPQqurN2ADdasYgQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-&lt;/tt&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;
-
---
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/29ca51ba-5890-4767-82d1-0e4e21669374%40gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/29ca51ba-5890-4767-82d1-0e4e21669374%40gmail.com&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
