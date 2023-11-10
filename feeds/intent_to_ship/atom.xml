@@ -5,6 +5,268 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08355.html</id>
+        <title>Re: [blink-dev] Re: PSA: Web contents will honor the Android OS bold text setting</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08355.html"/>
+        <updated>2023-11-10T17:05:20.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08355.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+PSA%5C%3A+Web+contents+will+honor+the+Android+OS+bold+text+setting%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Re: PSA: Web contents will honor the Android OS bold text setting&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Philip+J%C3%A4genstedt%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Philip Jägenstedt&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231110" rel="nofollow"&gt;Fri, 10 Nov 2023 09:05:20 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Hi Mark,
+
+There is certainly precedent for supporting OS-level settings like this,
+and doing it is important for the users who use the settings and expect
+consistent experience. As Dominik notes, most such modes are detectable,
+and for some the page can react to the preference using prefers-* media
+queries. (I think it depends on whether we want pages to have the power to
+override the preference, or merely detect it.) To ship something that is
+observable in style or layout but that doesn't have usual detection/control
+would make this less predictable for web developers. We would be forced to
+address the problem sooner or later, so I'd recommend doing it up front.&lt;/pre&gt;&lt;pre&gt;
+
+An Intent to Ship is the right path to take eventually, and you would start
+that from chromestatus.com. However, I think the first order of affairs is
+coming up with a proposal for the detection and/or opt-out should look
+like, presumably a media query. I'll reach out in private and suggest next
+steps.
+
+Best regards,
+Philip
+
+On Fri, Nov 10, 2023 at 4:12 PM Dominik Röttsches &amp;lt;dr...@chromium.org&amp;gt;
+wrote:
+
+&amp;gt; Hi Mark,
+&amp;gt;
+&amp;gt; Thanks for sending this and for the summary you made for plans of upcoming
+&amp;gt; a11y integrations to web content. In my view, there's more to discussion
+&amp;gt; needed.
+&amp;gt;
+&amp;gt; I understand the desire to transfer an Android a11y feature to the web and
+&amp;gt; make it available seamlessly in the browser, as well. Thanks for providing
+&amp;gt; the background and examples. The subject should probably be prefixed with
+&amp;gt; &amp;quot;Intent To Ship&amp;quot; to highlight it for review by API owners.
+&amp;gt;
+&amp;gt; You're describing the implementation
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/4809211"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/4809211&lt;/a&gt;&amp;gt; as
+&amp;gt; interfering after style resolution and building and modifying all
+&amp;gt; FontDescriptions with font weight increased uniformly by 300.
+&amp;gt;
+&amp;gt; Let me surface a couple of concerns here that we touched upon in the CL
+&amp;gt; you uploaded
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/core/css/resolver/font_builder.cc;l=623?q=%22FontBuilder::CreateFont%22&amp;ss=chromium"&gt;https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/core/css/resolver/font_builder.cc;l=623?q=%22FontBuilder::CreateFont%22&amp;ss=chromium&lt;/a&gt;&amp;gt;
+&amp;gt; and in discussion with pdr@.
+&amp;gt;
+&amp;gt;    1. Availability of font weights: There are differences in availability
+&amp;gt;    of bolder weights in web content compared to user interfaces in Android,
+&amp;gt;    when bold or black weights are not provided by the page. In Android, the
+&amp;gt;    system UI fonts are provided by the OS. I am not sure what the default UI
+&amp;gt;    font on Android is atm, but the OS has control to provide them as a
+&amp;gt;    variable font with a wide weight range, or provide even a black (weight
+&amp;gt;    900) weight.
+&amp;gt;    While this feature may look reasonable on system UIs, as bold and
+&amp;gt;    black fonts may be available, on web content this may lead to two less
+&amp;gt;    desirable situations:
+&amp;gt;       - Synthesis or lack of bold font: A bold weight is not available
+&amp;gt;       for a web font, as the page has not included one: font-synthesis is
+&amp;gt;       applied, or if font-synthesis: none; is specified in CSS: no synthesis
+&amp;gt;       occured and bolding does not show.
+&amp;gt;       - Loss of bold semantics: Text is already bold, then the bolding
+&amp;gt;       adds 300 weight, requesting a black font weight, which is not available.
+&amp;gt;       For that, we don't do synthesis, so the distinction between regular text
+&amp;gt;       and bold text is lost.
+&amp;gt;    2. Observability in web content: Contrary to other a11y features like
+&amp;gt;    zoom, this change would actively modify the DOM and potentially break
+&amp;gt;    assumptions authors made about their content. Reading the computed style of
+&amp;gt;    the element would not match the style as specified by the author anymore -
+&amp;gt;    it would be a somewhat magic DOM change.
+&amp;gt;    3. Detectability and opt-out: With a couple of other accessibility
+&amp;gt;    related features, for example a user's preference for reduced motion, dark
+&amp;gt;    or light mode, high contrast etc.  there are media queries
+&amp;gt;    &amp;lt;&lt;a  rel="nofollow" href="https://drafts.csswg.org/mediaqueries-5/#mf-user-preferences"&gt;https://drafts.csswg.org/mediaqueries-5/#mf-user-preferences&lt;/a&gt;&amp;gt; to
+&amp;gt;    detect these. Authors can then design for that request. Such a detection
+&amp;gt;    affordance I find missing from this proposal.
+&amp;gt;    4. Interoperability: It's not ensured that other browsers, for example
+&amp;gt;    FF on Android, would apply and implement the system setting in an identical
+&amp;gt;    way, leading potentially to a different resulting page. It would then
+&amp;gt;    become hard for page authors to still achieve a consistent user experience
+&amp;gt;    of their site, as the page appears different in each browser.
+&amp;gt;    5. Utility in different languages: Granted, as this is a system
+&amp;gt;    setting, this is ultimately up to the user: but for multilingual users
+&amp;gt;    reading content in different scripts, for example an alphabetic and an
+&amp;gt;    ideographic script, this may not be ideal, as ideographic scripts may not
+&amp;gt;    necessarily become easier to read when bolded. Bolding could be applied
+&amp;gt;    selectively per :lang attribute if there was a media query.
+&amp;gt;
+&amp;gt; Since you're explaining that there is no design doc for the Android side
+&amp;gt; change, I am still curious about the original motivation:
+&amp;gt;
+&amp;gt;    1. Do you have any research findings regarding user trials of this
+&amp;gt;    feature showing the legibility benefit?
+&amp;gt;    2. Do we have any use data: Of the user population that has access to
+&amp;gt;    this feature, how many are activating it?
+&amp;gt;    3. Is there any feedback from app developers on this?
+&amp;gt;
+&amp;gt; I am by no means an a11y expert but I would propose to synchronize this
+&amp;gt; with the CSS working group and the accessibility working group.
+&amp;gt;
+&amp;gt; As an alternative, perhaps we can introduce prefers-bold-text media query,
+&amp;gt; and maybe have a default in the user agent stylesheet that sets the body
+&amp;gt; element's font-weight to bolder if the hypothetical prefers-bold-text media
+&amp;gt; query is matched.
+&amp;gt;
+&amp;gt; Dominik
+&amp;gt;
+&amp;gt;
+&amp;gt; On Thu, Nov 9, 2023 at 5:46 PM Mark Schillaci &amp;lt;mschill...@google.com&amp;gt;
+&amp;gt; wrote:
+&amp;gt;
+&amp;gt;&amp;gt; Title:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Intent to Ship: Honoring Android OS-Level Bold Text Settings
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Body:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Contact emails
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; mschill...@google.com, dr...@google.com
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Explainer
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Help users who need more contrast in their fonts for increased
+&amp;gt;&amp;gt; readability, by adding support for a new Android a11y API that opts into
+&amp;gt;&amp;gt; text being always bold.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Spec
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; No formal design doc
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Relevant CL: crrev.com/c/4809211
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; The FontBuilder::CreateFont method (link
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/core/css/resolver/font_builder.cc;l=623?q=%22FontBuilder::CreateFont%22&amp;ss=chromium"&gt;https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/core/css/resolver/font_builder.cc;l=623?q=%22FontBuilder::CreateFont%22&amp;ss=chromium&lt;/a&gt;&amp;gt;)
+&amp;gt;&amp;gt; will include a call to a new method, FontBuilder::UpdateWeightAdjustment
+&amp;gt;&amp;gt; (see CL). This adjustment will be added to the current font weight and
+&amp;gt;&amp;gt; clamped to the min/max weight values for that font. The font weight
+&amp;gt;&amp;gt; adjustment can be any number; but with the current Android OS it will be 0
+&amp;gt;&amp;gt; by default (no bolding), or 300 when a user has enabled bold text. For
+&amp;gt;&amp;gt; example, a font with weight 400 would become weight 700 when the user has
+&amp;gt;&amp;gt; enabled the OS-level setting. This will apply to all elements on the web.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Summary
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; The Android OS has an accessibility option to enable “Bold text”. When
+&amp;gt;&amp;gt; enabled, all content rendered by Android will be in bold. We intend to make
+&amp;gt;&amp;gt; this user setting affect web contents in addition to the native OS widgets.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Supporting Links
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; No formal explainer doc
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Configuration.java:
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://developer.android.com/reference/android/content/res/Configuration#fontWeightAdjustment"&gt;https://developer.android.com/reference/android/content/res/Configuration#fontWeightAdjustment&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Android 12 announcement: &lt;a  rel="nofollow" href="https://www.android.com/android-12/"&gt;https://www.android.com/android-12/&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Google support page:
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://support.google.com/accessibility/android/answer/11183305?hl=en"&gt;https://support.google.com/accessibility/android/answer/11183305?hl=en&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Demo link
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Video link (Alphabet internal)
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://drive.google.com/file/d/1Pn5MXkIcMluw716CUB0i8Ztk6iHnfNgm/view?usp=sharing&amp;resourcekey=0-6mV47b3k5O01J_OgDy9h6g"&gt;https://drive.google.com/file/d/1Pn5MXkIcMluw716CUB0i8Ztk6iHnfNgm/view?usp=sharing&amp;resourcekey=0-6mV47b3k5O01J_OgDy9h6g&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Screenshots of the feature enabled without and with bold text user
+&amp;gt;&amp;gt; setting:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Motivation
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; This is an accessibility feature, and we want parity between the web and
+&amp;gt;&amp;gt; Android OS.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Risks
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Interoperability and Compatibility
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; No interoperability or compatibility risks as this is an Android only
+&amp;gt;&amp;gt; feature. This will not run on any other platforms.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Solving the intended problem
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; See demo.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Ergonomics
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; This feature is likely to be used in parallel to text size scaling or
+&amp;gt;&amp;gt; page zooming, since both are intended to assist low-vision users.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Activation
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; No
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Is this feature supported on all six Blink platforms (Windows, Mac,
+&amp;gt;&amp;gt; Linux, Chrome OS, Android, and Android WebView)?
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; No, this is an Android only feature. It is controlled by a setting that
+&amp;gt;&amp;gt; is only available in the Android OS-level settings.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt; ?
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Progressed upstreamed.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Link to entry on the feature dashboard &amp;lt;&lt;a  rel="nofollow" href="https://www.chromestatus.com/"&gt;https://www.chromestatus.com/&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5145839765028864"&gt;https://chromestatus.com/feature/5145839765028864&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Requesting approval to ship?
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Yes
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;  Honoring Android OS-Level Bold Text Settings
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1lAvXGK8fV8LOsbcRB_KNaY3UXKG7JGSGKOKccSN5mws/edit?usp=drive_web&amp;resourcekey=0-7pN6ICsESCR0hIbX-Dw74A"&gt;https://docs.google.com/document/d/1lAvXGK8fV8LOsbcRB_KNaY3UXKG7JGSGKOKccSN5mws/edit?usp=drive_web&amp;resourcekey=0-7pN6ICsESCR0hIbX-Dw74A&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; --
+&amp;gt; You received this message because you are subscribed to the Google Groups
+&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt; To view this discussion on the web visit
+&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAN6muBu6CvMWnQWJ_Li_ik0UwvWZtVv%2Bbf1M5G_SHdQYKGZBCw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAN6muBu6CvMWnQWJ_Li_ik0UwvWZtVv%2Bbf1M5G_SHdQYKGZBCw%40mail.gmail.com&lt;/a&gt;
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAN6muBu6CvMWnQWJ_Li_ik0UwvWZtVv%2Bbf1M5G_SHdQYKGZBCw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAN6muBu6CvMWnQWJ_Li_ik0UwvWZtVv%2Bbf1M5G_SHdQYKGZBCw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt; .
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAARdPYeqGaUJ_5VNV2x0hHL%2B6Qf%3D3qwuSrEMW--m%2BhrW2BaerA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAARdPYeqGaUJ_5VNV2x0hHL%2B6Qf%3D3qwuSrEMW--m%2BhrW2BaerA%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08354.html</id>
         <title>[blink-dev] Re: PSA: Web contents will honor the Android OS bold text setting</title>
         <author>
@@ -17162,226 +17424,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfVT%2BDdvQL0hxDM9SW2PkfC7c%3DSw3FB6CC0a%2BSrseNT-Jg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfVT%2BDdvQL0hxDM9SW2PkfC7c%3DSw3FB6CC0a%2BSrseNT-Jg%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08305.html</id>
-        <title>Re: [blink-dev] Intent to Ship: WebGPU timestamp queries</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08305.html"/>
-        <updated>2023-11-08T15:38:16.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08305.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+WebGPU+timestamp+queries%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: WebGPU timestamp queries&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Daniel+Bratell%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Daniel Bratell&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231108" rel="nofollow"&gt;Wed, 08 Nov 2023 07:38:16 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre style="margin: 0em;"&gt;
-LGTM2
-
-&lt;/pre&gt;&lt;tt&gt;100 microseconds sound very coarse for this, but I guess that just means 
-&lt;/tt&gt;&lt;tt&gt;they have to average data over many frames. And if they are happy, I'm 
-&lt;/tt&gt;&lt;tt&gt;happy.
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;pre&gt;
-
-/Daniel
-
-On 2023-11-08 09:41, Yoav Weiss wrote:
-&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;
-LGTM1
-
-Thanks for working through this issue!!
-
-&lt;/pre&gt;&lt;tt&gt;On Wed, Nov 8, 2023 at 2:34 AM Domenic Denicola &amp;lt;dome...@chromium.org&amp;gt; 
-&lt;/tt&gt;&lt;tt&gt;wrote:
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-
-
-
-    On Tue, Nov 7, 2023 at 5:42 PM François Beaufort
-    &amp;lt;fbeauf...@google.com&amp;gt; wrote:
-
-
-
-        On Mon, Oct 30, 2023 at 7:39 PM Mike Taylor
-        &amp;lt;miketa...@chromium.org&amp;gt; wrote:
-
-            On 10/30/23 12:59 PM, Corentin Wallez wrote:
-
-&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;
-            On Fri, Oct 27, 2023 at 2:19 AM Domenic Denicola
-            &amp;lt;dome...@chromium.org&amp;gt; wrote:
-
-
-
-                On Thu, Oct 26, 2023 at 7:21 PM François Beaufort
-                &amp;lt;fbeauf...@google.com&amp;gt; wrote:
-
-
-
-                    On Thu, Oct 26, 2023 at 11:05 AM Domenic Denicola
-                    &amp;lt;dome...@chromium.org&amp;gt; wrote:
-
-
-
-                        On Thu, Oct 26, 2023 at 5:21 PM 'François
-                        Beaufort' via blink-dev
-                        &amp;lt;blink-dev@chromium.org&amp;gt; wrote:
-
-
-                                    Contact emails
-
-                            fbeauf...@google.com, cwal...@google.com
-
-
-                                    Explainer
-
-                            &lt;a  rel="nofollow" href="https://github.com/gpuweb/gpuweb/issues/614"&gt;https://github.com/gpuweb/gpuweb/issues/614&lt;/a&gt;
-                            &amp;lt;&lt;a  rel="nofollow" href="https://github.com/gpuweb/gpuweb/issues/614"&gt;https://github.com/gpuweb/gpuweb/issues/614&lt;/a&gt;&amp;gt;
-
-
-                                    Specification
-
-                            &lt;a  rel="nofollow" href="https://gpuweb.github.io/gpuweb/#timestamp"&gt;https://gpuweb.github.io/gpuweb/#timestamp&lt;/a&gt;
-                            &amp;lt;&lt;a  rel="nofollow" href="https://gpuweb.github.io/gpuweb/#timestamp"&gt;https://gpuweb.github.io/gpuweb/#timestamp&lt;/a&gt;&amp;gt;
-
-
-                                    Summary
-
-                            WebGPU timestamp queries allow WebGPU
-                            applications to measure precisely (down
-                            to the nanosecond) how much time their
-                            GPU commands take to execute, especially
-                            at the beginning and end of passes.
-                            Timestamp queries are heavily used to
-                            gain insights into the performance and
-                            behavior of GPU workloads.
-
-                            While the WebGPU specification makes
-                            timestamp queries an optional feature due
-                            to timing attack concerns, we believe
-                            that timestamp queries quantization
-                            provides a good middle ground by reducing
-                            the precision of timers. To offer even
-                            more advanced protection against timing
-                            attacks and fingerprinting, timestamp
-                            queries are also coarsened based on site
-                            isolation status:
-
-                            - Isolated contexts: timestamp queries
-                            are exposed with a resolution of 100
-                            microseconds.
-
-                            - Non-isolated contexts: timestamp
-                            queries are not exposed at all.
-
-
-                        By &amp;quot;isolated&amp;quot; do you mean &amp;quot;has the
-                        cross-origin isolated capability
-                        
-&amp;lt;&lt;a  rel="nofollow" href="https://html.spec.whatwg.org/#concept-settings-object-cross-origin-isolated-capability"&gt;https://html.spec.whatwg.org/#concept-settings-object-cross-origin-isolated-capability&lt;/a&gt;&amp;gt;&amp;quot;?
-
-
-                    Yes.
-
-
-                        I wasn't able to find any spec or tests for
-                        this requirement, which seems like a
-                        potential interoperability issue.
-
-
-                    The WebGPU spec currently says: &amp;quot;The feature is
-                    optional, and a WebGPU implementation may limit
-                    its exposure only to those scenarios that are
-                    trusted.&amp;quot;
-                    See
-                    
-&lt;a  rel="nofollow" href="https://gpuweb.github.io/gpuweb/#security-timing:~:text=The%20feature%20is%20optional%2C%20and%20a%20WebGPU%20implementation%20may%20limit%20its%20exposure%20only%20to%20those%20scenarios%20that%20are%20trusted"&gt;https://gpuweb.github.io/gpuweb/#security-timing:~:text=The%20feature%20is%20optional%2C%20and%20a%20WebGPU%20implementation%20may%20limit%20its%20exposure%20only%20to%20those%20scenarios%20that%20are%20trusted&lt;/a&gt;
-
-
-                I realize that. I was suggesting that, for
-                interoperability purposes, you should consider
-                specifying the actual condition, instead of leaving
-                it vague and optional. (E.g. at least in other
-                standards bodies, we have guidance to avoid optional
-                or implementation-defined features; instead, we try
-                to work together with other browser engines to come
-                to a common, interoperable implementation, backed by
-                a test suite.)
-
-                I hope the API Owners can consider this when deciding
-                whether or not to approve, as I believe that letting
-                these sorts of non-specified and non-tested features
-                be shipped is harmful for the platform's health.
-
-            I'll add discussion of that to the agenda for this week's
-            WebGPU meeting: can we agree on the availability of
-            timestamp queries (provided there is hardware support)
-            and the quantization depending on contexts. (but to be
-            perfectly honest I think we'll have pushback). Of course
-            the WebGPU standard body tries to avoid
-            implementation-defined features, and instead have
-            deterministic and tested features, but timestamps is one
-            of the ones that might need to be an exception to it.
-            Let's see what consensus the group comes to!
-&lt;/pre&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;
-            Thank you - looking forward to the update.
-
-
-        Good news! The members of the GPU for the Web Community Group
-        have accepted a proposal
-        &amp;lt;&lt;a  rel="nofollow" href="https://github.com/gpuweb/gpuweb/issues/4175#issuecomment-1789865938"&gt;https://github.com/gpuweb/gpuweb/issues/4175#issuecomment-1789865938&lt;/a&gt;&amp;gt;
-        to allow timestamps regardless of site isolation, always with
-        the non-isolated resolution from hr-time
-        &amp;lt;&lt;a  rel="nofollow" href="https://w3c.github.io/hr-time/#dfn-coarsen-time"&gt;https://w3c.github.io/hr-time/#dfn-coarsen-time&lt;/a&gt;&amp;gt; (100us).
-        Check out the spec PR at
-        &lt;a  rel="nofollow" href="https://github.com/gpuweb/gpuweb/pull/4359"&gt;https://github.com/gpuweb/gpuweb/pull/4359&lt;/a&gt; and updated spec at
-        &lt;a  rel="nofollow" href="https://gpuweb.github.io/gpuweb/#security-timing. This"&gt;https://gpuweb.github.io/gpuweb/#security-timing. This&lt;/a&gt;
-        decision aims to address the interoperability concerns raised
-        earlier.
-
-
-    That's great! Using the same time resolution as the rest of the
-    platform makes sense, and this definitely addresses my interop
-    concerns. Thanks to you and the group for making this change!
-&lt;/pre&gt;&lt;tt&gt;    -- 
-&lt;/tt&gt;&lt;tt&gt;    You received this message because you are subscribed to the Google
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-    Groups &amp;quot;blink-dev&amp;quot; group.
-    To unsubscribe from this group and stop receiving emails from it,
-    send an email to blink-dev+unsubscr...@chromium.org.
-    To view this discussion on the web visit
-    
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAM0wra_p2U%2BwqkMrhH12DgMzph_77Ps4xk0Bn_ZspD%2BWEYzuqA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAM0wra_p2U%2BwqkMrhH12DgMzph_77Ps4xk0Bn_ZspD%2BWEYzuqA%40mail.gmail.com&lt;/a&gt;
-    
-&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAM0wra_p2U%2BwqkMrhH12DgMzph_77Ps4xk0Bn_ZspD%2BWEYzuqA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAM0wra_p2U%2BwqkMrhH12DgMzph_77Ps4xk0Bn_ZspD%2BWEYzuqA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-
---
-&lt;/pre&gt;&lt;tt&gt;You received this message because you are subscribed to the Google 
-&lt;/tt&gt;&lt;tt&gt;Groups &amp;quot;blink-dev&amp;quot; group.
-&lt;/tt&gt;&lt;tt&gt;To unsubscribe from this group and stop receiving emails from it, send 
-&lt;/tt&gt;&lt;tt&gt;an email to blink-dev+unsubscr...@chromium.org.
-&lt;/tt&gt;&lt;tt&gt;To view this discussion on the web visit 
-&lt;/tt&gt;&lt;tt&gt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfUuxbMGbLHiKmhCttPF3H4c23NkvCjMu7dY_Ok8NDQkxw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfUuxbMGbLHiKmhCttPF3H4c23NkvCjMu7dY_Ok8NDQkxw%40mail.gmail.com&lt;/a&gt; 
-&lt;/tt&gt;&lt;tt&gt;&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfUuxbMGbLHiKmhCttPF3H4c23NkvCjMu7dY_Ok8NDQkxw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfUuxbMGbLHiKmhCttPF3H4c23NkvCjMu7dY_Ok8NDQkxw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-&lt;/tt&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;
-
---
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/4b86877b-ca04-464d-85df-2b4ce479194a%40gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/4b86877b-ca04-464d-85df-2b4ce479194a%40gmail.com&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
