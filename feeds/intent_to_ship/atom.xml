@@ -5,6 +5,1386 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08505.html</id>
+        <title>[blink-dev] Re: Intent to Prototype: Extending Storage Access API (SAA) to non-cookie storage</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08505.html"/>
+        <updated>2023-11-29T00:18:07.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08505.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Prototype%5C%3A+Extending+Storage+Access+API+%5C%28SAA%5C%29+to+non%5C-cookie+storage%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Re: Intent to Prototype: Extending Storage Access API (SAA) to non-cookie storage&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Jesper+van+den+Ende%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Jesper van den Ende&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231128" rel="nofollow"&gt;Tue, 28 Nov 2023 16:18:07 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Hi all,
+
+I noticed the TODOs for shared workers were removed.
+My application relies on cross origin shared workers and to be honest this 
+was the main part of the proposal I was looking forward to haha.
+I'm currently relying on the origin trial for disabling third party storage 
+partitioning.
+Are there any plans for the shared worker use case? I'm not sure what to do 
+once the origin trial expires. And as far as I can tell there is no good 
+alternative for what I'm trying to achieve.
+Specifically, I'd like to be able to discover other tabs (that are also 
+broadcasting their existence using the same shared worker) and then 
+initiate a connection to them.
+One alternative I could think of was using WebRTC for this, but ideally I'd 
+like this to work while the user is offline, which is not possible with 
+WebRTC.&lt;/pre&gt;&lt;pre&gt;
+
+Is there any discussion about the plan to remove shared workers from the 
+proposal? I couldn't find anything about SameSite=Strict cookies anywhere 
+other than the commit that removed the TODOs.
+
+Cheers,
+Jesper
+On Monday, October 2, 2023 at 3:44:05 PM UTC+2 Ari Chivukula wrote:
+
+&amp;gt; Contact emails
+&amp;gt;
+&amp;gt; ari...@chromium.org, wande...@chromium.org, joha...@chromium.org, 
+&amp;gt; hel...@google.com
+&amp;gt;
+&amp;gt; Specification
+&amp;gt;
+&amp;gt; &lt;a  rel="nofollow" href="https://arichiv.github.io/saa-non-cookie-storage/"&gt;https://arichiv.github.io/saa-non-cookie-storage/&lt;/a&gt;
+&amp;gt;
+&amp;gt; Summary
+&amp;gt;
+&amp;gt; We propose an extension of the Storage Access API 
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://webkit.org/blog/8124/introducing-storage-access-api/"&gt;https://webkit.org/blog/8124/introducing-storage-access-api/&lt;/a&gt;&amp;gt; (backwards 
+&amp;gt; compatible) to allow access to unpartitioned (cookie and non-cookie) 
+&amp;gt; storage in a third-party context, and imagine the API mechanics to be 
+&amp;gt; roughly like this (JS running in an embedded iframe):
+&amp;gt;
+&amp;gt;
+&amp;gt; // Request a new storage handle via rSA (this should prompt the user)
+&amp;gt;
+&amp;gt; let handle = await document.requestStorageAccess({all: true});
+&amp;gt;
+&amp;gt; // Write some cross-site localstorage
+&amp;gt;
+&amp;gt; handle.localStorage.setItem(&amp;quot;userid&amp;quot;, &amp;quot;1234&amp;quot;);
+&amp;gt;
+&amp;gt; // Open or create an indexedDB that is shared with the 1P context
+&amp;gt;
+&amp;gt; let messageDB = handle.defaultBucket.indexedDB.open(&amp;quot;messages&amp;quot;);
+&amp;gt;
+&amp;gt;
+&amp;gt; The same flow would be used by iframes to get a storage handle when their 
+&amp;gt; top-level ancestor successfully called rSAFor 
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/privacycg/requestStorageAccessFor"&gt;https://github.com/privacycg/requestStorageAccessFor&lt;/a&gt;&amp;gt;, just that in this 
+&amp;gt; case the storage-access permission was already granted and thus the rSA 
+&amp;gt; call would not require a user gesture or show a prompt, allowing for 
+&amp;gt; “hidden” iframes accessing storage.
+&amp;gt;
+&amp;gt;
+&amp;gt; Browsers currently shipping the Storage Access API apply varying methods 
+&amp;gt; of when or how to ask the user for permission to grant 3p cookie access to 
+&amp;gt; a site. Given that this proposal involves extending the existing Storage 
+&amp;gt; Access API, while maintaining largely the same implications (from a 
+&amp;gt; privacy/security perspective) to the user, a consistent prompt for cookie 
+&amp;gt; and non-cookie access is preferred. No prompt is needed when the origins 
+&amp;gt; are RWS (Related Website Sets, the new name for First Party Sets).
+&amp;gt;
+&amp;gt;
+&amp;gt; Blink component
+&amp;gt;
+&amp;gt; Blink&amp;gt;Storage 
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EStorage"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EStorage&lt;/a&gt;&amp;gt;
+&amp;gt;
+&amp;gt;
+&amp;gt; Motivation
+&amp;gt;
+&amp;gt; There has been increasing developer 
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/GoogleChromeLabs/privacy-sandbox-dev-support/issues/124"&gt;https://github.com/GoogleChromeLabs/privacy-sandbox-dev-support/issues/124&lt;/a&gt;&amp;gt; 
+&amp;gt; and implementer &amp;lt;&lt;a  rel="nofollow" href="https://github.com/privacycg/storage-access/issues/102"&gt;https://github.com/privacycg/storage-access/issues/102&lt;/a&gt;&amp;gt; 
+&amp;gt; interest in first-party DOM Storage 
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API"&gt;https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API&lt;/a&gt;&amp;gt; and Quota 
+&amp;gt; Managed Storage 
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API"&gt;https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API&lt;/a&gt;&amp;gt; being 
+&amp;gt; available in third-party contexts the same way that Cookies already can be 
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/privacycg/storage-access"&gt;https://github.com/privacycg/storage-access&lt;/a&gt;&amp;gt;. In the absence of such a 
+&amp;gt; solution, we would in effect be pushing developers to migrate to Cookies 
+&amp;gt; from other storage mechanisms. There are significant tradeoffs between 
+&amp;gt; Cookie and non-Cookie storage (size, flexibility, server exposure, network 
+&amp;gt; request size, etc.) that could cause a detriment in user experience from a 
+&amp;gt; privacy, security and performance perspective. To prevent sub-optimal use 
+&amp;gt; of cookies and to preserve context, we propose a solution for developers to 
+&amp;gt; regain 3p access to unpartitioned storage in select instances to avoid 
+&amp;gt; user-facing breakage in browsers shipping storage partitioning.
+&amp;gt;
+&amp;gt; TAG review
+&amp;gt;
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/906"&gt;https://github.com/w3ctag/design-reviews/issues/906&lt;/a&gt;
+&amp;gt;
+&amp;gt; Compatibility
+&amp;gt;
+&amp;gt; The Storage Access API is already implemented in Safari, Firefox, and 
+&amp;gt; Chrome &amp;lt;&lt;a  rel="nofollow" href="https://caniuse.com/mdn-api_document_requeststorageaccess"&gt;https://caniuse.com/mdn-api_document_requeststorageaccess&lt;/a&gt;&amp;gt;, but 
+&amp;gt; the proposed API shape would not change existing behavior without new 
+&amp;gt; arguments added.
+&amp;gt;
+&amp;gt;
+&amp;gt; Interoperability
+&amp;gt;
+&amp;gt; Gecko: &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/898"&gt;https://github.com/mozilla/standards-positions/issues/898&lt;/a&gt;
+&amp;gt;
+&amp;gt; WebKit: &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/262"&gt;https://github.com/WebKit/standards-positions/issues/262&lt;/a&gt;
+&amp;gt;
+&amp;gt; Web developers: Positive 
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/GoogleChromeLabs/privacy-sandbox-dev-support/issues/124"&gt;https://github.com/GoogleChromeLabs/privacy-sandbox-dev-support/issues/124&lt;/a&gt;&amp;gt;
+&amp;gt;
+&amp;gt; Debuggability
+&amp;gt;
+&amp;gt; Storage written can be examined in devtools.
+&amp;gt;
+&amp;gt; Is this feature fully tested by web-platform-tests?
+&amp;gt;
+&amp;gt; Tests will be added.
+&amp;gt;
+&amp;gt; Tracking bug
+&amp;gt;
+&amp;gt; &lt;a  rel="nofollow" href="https://crbug.com/1484966"&gt;https://crbug.com/1484966&lt;/a&gt;
+&amp;gt;
+&amp;gt; Link to entry on the Chrome Platform Status
+&amp;gt;
+&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5175585823522816"&gt;https://chromestatus.com/feature/5175585823522816&lt;/a&gt;
+&amp;gt;
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/32fcac14-6a79-4907-90d4-af06def0e240n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/32fcac14-6a79-4907-90d4-af06def0e240n%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08504.html</id>
+        <title>[blink-dev] Re: Intent to Prototype: Extending Storage Access API (SAA) to non-cookie storage</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08504.html"/>
+        <updated>2023-11-29T00:18:00.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08504.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Prototype%5C%3A+Extending+Storage+Access+API+%5C%28SAA%5C%29+to+non%5C-cookie+storage%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Re: Intent to Prototype: Extending Storage Access API (SAA) to non-cookie storage&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Jesper+van+den+Ende%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Jesper van den Ende&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231128" rel="nofollow"&gt;Tue, 28 Nov 2023 16:18:00 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Awesome, thanks for the info!
+
+A broadcast channel doesn't work for my use case unfortunately.
+I'd like to create a MessageChannel 
+&amp;lt;&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/API/MessageChannel"&gt;https://developer.mozilla.org/en-US/docs/Web/API/MessageChannel&lt;/a&gt;&amp;gt; and then 
+transfer the two MessagePorts to both tabs.
+Since a broadcast channel doesn't allow transferring objects 
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/7088#issuecomment-922529073"&gt;https://github.com/whatwg/html/issues/7088#issuecomment-922529073&lt;/a&gt;&amp;gt;, 
+there's no way for me to send messages to both tabs without it also being 
+sent to all other tabs.
+And with no way to transfer things such as ArrayBuffers, I reckon this 
+would also be pretty inefficient for some operations.
+But maybe I'm missing something? One thing that comes to mind is using the 
+MessageEvent.source to get access to the window of another tab and then 
+send a message to it directly. But I'm not sure if that would work.&lt;/pre&gt;&lt;pre&gt;
+
+On Tuesday, November 28, 2023 at 10:44:54 PM UTC+1 Ari Chivukula wrote:
+
+&amp;gt; Thanks for letting us know about your use case. Yes, Chrome has decided 
+&amp;gt; not to pursue Shared Worker access via the handle returned by 
+&amp;gt; requestStorageAccess given it would allow access to SameSite=Strict cookies 
+&amp;gt; to a third-party iframe via that shared worker. We are examining an 
+&amp;gt; alternate option where requestStorageAccess will be available in workers: 
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/privacycg/storage-access/issues/157"&gt;https://github.com/privacycg/storage-access/issues/157&lt;/a&gt;
+&amp;gt;
+&amp;gt; Either way, this change will probably require switching from using a 
+&amp;gt; (shared) Shared Worker for tab discovery to something like Broadcast 
+&amp;gt; Channel 
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/API/Broadcast_Channel_API"&gt;https://developer.mozilla.org/en-US/docs/Web/API/Broadcast_Channel_API&lt;/a&gt;&amp;gt;which 
+&amp;gt; would allow for cross-tab messaging without the need to be online.
+&amp;gt;
+&amp;gt; ~ Ari Chivukula (Their/There/They're)
+&amp;gt;
+&amp;gt;
+&amp;gt; On Tue, Nov 28, 2023 at 4:35 PM Jesper van den Ende &amp;lt;jesper...@gmail.com&amp;gt; 
+&amp;gt; wrote:
+&amp;gt;
+&amp;gt;&amp;gt; Hi all,
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; I noticed the TODOs for shared workers were removed.
+&amp;gt;&amp;gt; My application relies on cross origin shared workers and to be honest 
+&amp;gt;&amp;gt; this was the main part of the proposal I was looking forward to haha.
+&amp;gt;&amp;gt; I'm currently relying on the origin trial for disabling third party 
+&amp;gt;&amp;gt; storage partitioning.
+&amp;gt;&amp;gt; Are there any plans for the shared worker use case? I'm not sure what to 
+&amp;gt;&amp;gt; do once the origin trial expires. And as far as I can tell there is no good 
+&amp;gt;&amp;gt; alternative for what I'm trying to achieve.
+&amp;gt;&amp;gt; Specifically, I'd like to be able to discover other tabs (that are also 
+&amp;gt;&amp;gt; broadcasting their existence using the same shared worker) and then 
+&amp;gt;&amp;gt; initiate a connection to them.
+&amp;gt;&amp;gt; One alternative I could think of was using WebRTC for this, but ideally 
+&amp;gt;&amp;gt; I'd like this to work while the user is offline, which is not possible with 
+&amp;gt;&amp;gt; WebRTC.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Is there any discussion about the plan to remove shared workers from the 
+&amp;gt;&amp;gt; proposal? I couldn't find anything about SameSite=Strict cookies anywhere 
+&amp;gt;&amp;gt; other than the commit that removed the TODOs.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Cheers,
+&amp;gt;&amp;gt; Jesper
+&amp;gt;&amp;gt;
+&amp;gt; On Monday, October 2, 2023 at 3:44:05 PM UTC+2 Ari Chivukula wrote:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Contact emails
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; ari...@chromium.org, wande...@chromium.org, joha...@chromium.org, 
+&amp;gt;&amp;gt;&amp;gt; hel...@google.com
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Specification
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://arichiv.github.io/saa-non-cookie-storage/"&gt;https://arichiv.github.io/saa-non-cookie-storage/&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Summary
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; We propose an extension of the Storage Access API 
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://webkit.org/blog/8124/introducing-storage-access-api/"&gt;https://webkit.org/blog/8124/introducing-storage-access-api/&lt;/a&gt;&amp;gt; 
+&amp;gt;&amp;gt;&amp;gt; (backwards compatible) to allow access to unpartitioned (cookie and 
+&amp;gt;&amp;gt;&amp;gt; non-cookie) storage in a third-party context, and imagine the API mechanics 
+&amp;gt;&amp;gt;&amp;gt; to be roughly like this (JS running in an embedded iframe):
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; // Request a new storage handle via rSA (this should prompt the user)
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; let handle = await document.requestStorageAccess({all: true});
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; // Write some cross-site localstorage
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; handle.localStorage.setItem(&amp;quot;userid&amp;quot;, &amp;quot;1234&amp;quot;);
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; // Open or create an indexedDB that is shared with the 1P context
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; let messageDB = handle.defaultBucket.indexedDB.open(&amp;quot;messages&amp;quot;);
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; The same flow would be used by iframes to get a storage handle when 
+&amp;gt;&amp;gt;&amp;gt; their top-level ancestor successfully called rSAFor 
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/privacycg/requestStorageAccessFor"&gt;https://github.com/privacycg/requestStorageAccessFor&lt;/a&gt;&amp;gt;, just that in 
+&amp;gt;&amp;gt;&amp;gt; this case the storage-access permission was already granted and thus the 
+&amp;gt;&amp;gt;&amp;gt; rSA call would not require a user gesture or show a prompt, allowing for 
+&amp;gt;&amp;gt;&amp;gt; “hidden” iframes accessing storage.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Browsers currently shipping the Storage Access API apply varying methods 
+&amp;gt;&amp;gt;&amp;gt; of when or how to ask the user for permission to grant 3p cookie access to 
+&amp;gt;&amp;gt;&amp;gt; a site. Given that this proposal involves extending the existing Storage 
+&amp;gt;&amp;gt;&amp;gt; Access API, while maintaining largely the same implications (from a 
+&amp;gt;&amp;gt;&amp;gt; privacy/security perspective) to the user, a consistent prompt for cookie 
+&amp;gt;&amp;gt;&amp;gt; and non-cookie access is preferred. No prompt is needed when the origins 
+&amp;gt;&amp;gt;&amp;gt; are RWS (Related Website Sets, the new name for First Party Sets).
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Blink component
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Blink&amp;gt;Storage 
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EStorage"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EStorage&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Motivation
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; There has been increasing developer 
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/GoogleChromeLabs/privacy-sandbox-dev-support/issues/124"&gt;https://github.com/GoogleChromeLabs/privacy-sandbox-dev-support/issues/124&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt; and implementer &amp;lt;&lt;a  rel="nofollow" href="https://github.com/privacycg/storage-access/issues/102"&gt;https://github.com/privacycg/storage-access/issues/102&lt;/a&gt;&amp;gt; 
+&amp;gt;&amp;gt;&amp;gt; interest in first-party DOM Storage 
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API"&gt;https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API&lt;/a&gt;&amp;gt; and 
+&amp;gt;&amp;gt;&amp;gt; Quota 
+&amp;gt;&amp;gt;&amp;gt; Managed Storage 
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API"&gt;https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API&lt;/a&gt;&amp;gt; being 
+&amp;gt;&amp;gt;&amp;gt; available in third-party contexts the same way that Cookies already can 
+&amp;gt;&amp;gt;&amp;gt; be &amp;lt;&lt;a  rel="nofollow" href="https://github.com/privacycg/storage-access"&gt;https://github.com/privacycg/storage-access&lt;/a&gt;&amp;gt;. In the absence of 
+&amp;gt;&amp;gt;&amp;gt; such a solution, we would in effect be pushing developers to migrate to 
+&amp;gt;&amp;gt;&amp;gt; Cookies from other storage mechanisms. There are significant tradeoffs 
+&amp;gt;&amp;gt;&amp;gt; between Cookie and non-Cookie storage (size, flexibility, server exposure, 
+&amp;gt;&amp;gt;&amp;gt; network request size, etc.) that could cause a detriment in user experience 
+&amp;gt;&amp;gt;&amp;gt; from a privacy, security and performance perspective. To prevent 
+&amp;gt;&amp;gt;&amp;gt; sub-optimal use of cookies and to preserve context, we propose a solution 
+&amp;gt;&amp;gt;&amp;gt; for developers to regain 3p access to unpartitioned storage in select 
+&amp;gt;&amp;gt;&amp;gt; instances to avoid user-facing breakage in browsers shipping storage 
+&amp;gt;&amp;gt;&amp;gt; partitioning.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; TAG review
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/906"&gt;https://github.com/w3ctag/design-reviews/issues/906&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Compatibility
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; The Storage Access API is already implemented in Safari, Firefox, and 
+&amp;gt;&amp;gt;&amp;gt; Chrome &amp;lt;&lt;a  rel="nofollow" href="https://caniuse.com/mdn-api_document_requeststorageaccess"&gt;https://caniuse.com/mdn-api_document_requeststorageaccess&lt;/a&gt;&amp;gt;, but 
+&amp;gt;&amp;gt;&amp;gt; the proposed API shape would not change existing behavior without new 
+&amp;gt;&amp;gt;&amp;gt; arguments added.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Interoperability
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Gecko: &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/898"&gt;https://github.com/mozilla/standards-positions/issues/898&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; WebKit: &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/262"&gt;https://github.com/WebKit/standards-positions/issues/262&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Web developers: Positive 
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/GoogleChromeLabs/privacy-sandbox-dev-support/issues/124"&gt;https://github.com/GoogleChromeLabs/privacy-sandbox-dev-support/issues/124&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Debuggability
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Storage written can be examined in devtools.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests?
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Tests will be added.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Tracking bug
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://crbug.com/1484966"&gt;https://crbug.com/1484966&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5175585823522816"&gt;https://chromestatus.com/feature/5175585823522816&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/8c0a7937-5cc4-4aec-b4eb-a7f1a4783b93n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/8c0a7937-5cc4-4aec-b4eb-a7f1a4783b93n%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08503.html</id>
+        <title>[blink-dev] Re: Intent to Prototype: Extending Storage Access API (SAA) to non-cookie storage</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08503.html"/>
+        <updated>2023-11-28T23:05:02.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08503.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Prototype%5C%3A+Extending+Storage+Access+API+%5C%28SAA%5C%29+to+non%5C-cookie+storage%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Re: Intent to Prototype: Extending Storage Access API (SAA) to non-cookie storage&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Ari+Chivukula%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Ari Chivukula&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231128" rel="nofollow"&gt;Tue, 28 Nov 2023 15:05:02 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Testing locally, event.source seems always to be null when using Broadcast
+Channel. This seems to align with the spec which doesn't mention setting
+source at all for the MessageEvent:
+&lt;a  rel="nofollow" href="https://html.spec.whatwg.org/multipage/web-messaging.html#broadcasting-to-other-browsing-contexts"&gt;https://html.spec.whatwg.org/multipage/web-messaging.html#broadcasting-to-other-browsing-contexts&lt;/a&gt;
+and the chrome code which doesn't set it:
+&lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/modules/broadcastchannel/broadcast_channel.cc;drc=8e78783dc1f7007bad46d657c9f332614e240fd8;l=173"&gt;https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/modules/broadcastchannel/broadcast_channel.cc;drc=8e78783dc1f7007bad46d657c9f332614e240fd8;l=173&lt;/a&gt;&lt;/pre&gt;&lt;pre&gt;
+
+It looks like storing the ArrayBuffer as a Blob (
+&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL_static"&gt;https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL_static&lt;/a&gt;)
+and sharing the resulting URL via BroadcastChannel or other means may work,
+but I'm unsure about the efficiency of such an approach.
+
+~ Ari Chivukula (Their/There/They're)
+
+
+On Tue, Nov 28, 2023 at 5:35 PM Jesper van den Ende &amp;lt;jesperthe...@gmail.com&amp;gt;
+wrote:
+
+&amp;gt; Awesome, thanks for the info!
+&amp;gt;
+&amp;gt; A broadcast channel doesn't work for my use case unfortunately.
+&amp;gt; I'd like to create a MessageChannel
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/API/MessageChannel"&gt;https://developer.mozilla.org/en-US/docs/Web/API/MessageChannel&lt;/a&gt;&amp;gt; and
+&amp;gt; then transfer the two MessagePorts to both tabs.
+&amp;gt; Since a broadcast channel doesn't allow transferring objects
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/7088#issuecomment-922529073"&gt;https://github.com/whatwg/html/issues/7088#issuecomment-922529073&lt;/a&gt;&amp;gt;,
+&amp;gt; there's no way for me to send messages to both tabs without it also being
+&amp;gt; sent to all other tabs.
+&amp;gt; And with no way to transfer things such as ArrayBuffers, I reckon this
+&amp;gt; would also be pretty inefficient for some operations.
+&amp;gt; But maybe I'm missing something? One thing that comes to mind is using the
+&amp;gt; MessageEvent.source to get access to the window of another tab and then
+&amp;gt; send a message to it directly. But I'm not sure if that would work.
+&amp;gt;
+&amp;gt; On Tuesday, November 28, 2023 at 10:44:54 PM UTC+1 Ari Chivukula wrote:
+&amp;gt;
+&amp;gt;&amp;gt; Thanks for letting us know about your use case. Yes, Chrome has decided
+&amp;gt;&amp;gt; not to pursue Shared Worker access via the handle returned by
+&amp;gt;&amp;gt; requestStorageAccess given it would allow access to SameSite=Strict cookies
+&amp;gt;&amp;gt; to a third-party iframe via that shared worker. We are examining an
+&amp;gt;&amp;gt; alternate option where requestStorageAccess will be available in workers:
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/privacycg/storage-access/issues/157"&gt;https://github.com/privacycg/storage-access/issues/157&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Either way, this change will probably require switching from using a
+&amp;gt;&amp;gt; (shared) Shared Worker for tab discovery to something like Broadcast
+&amp;gt;&amp;gt; Channel
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/API/Broadcast_Channel_API"&gt;https://developer.mozilla.org/en-US/docs/Web/API/Broadcast_Channel_API&lt;/a&gt;&amp;gt;which
+&amp;gt;&amp;gt; would allow for cross-tab messaging without the need to be online.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; ~ Ari Chivukula (Their/There/They're)
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; On Tue, Nov 28, 2023 at 4:35 PM Jesper van den Ende &amp;lt;jesper...@gmail.com&amp;gt;
+&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Hi all,
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; I noticed the TODOs for shared workers were removed.
+&amp;gt;&amp;gt;&amp;gt; My application relies on cross origin shared workers and to be honest
+&amp;gt;&amp;gt;&amp;gt; this was the main part of the proposal I was looking forward to haha.
+&amp;gt;&amp;gt;&amp;gt; I'm currently relying on the origin trial for disabling third party
+&amp;gt;&amp;gt;&amp;gt; storage partitioning.
+&amp;gt;&amp;gt;&amp;gt; Are there any plans for the shared worker use case? I'm not sure what to
+&amp;gt;&amp;gt;&amp;gt; do once the origin trial expires. And as far as I can tell there is no good
+&amp;gt;&amp;gt;&amp;gt; alternative for what I'm trying to achieve.
+&amp;gt;&amp;gt;&amp;gt; Specifically, I'd like to be able to discover other tabs (that are also
+&amp;gt;&amp;gt;&amp;gt; broadcasting their existence using the same shared worker) and then
+&amp;gt;&amp;gt;&amp;gt; initiate a connection to them.
+&amp;gt;&amp;gt;&amp;gt; One alternative I could think of was using WebRTC for this, but ideally
+&amp;gt;&amp;gt;&amp;gt; I'd like this to work while the user is offline, which is not possible with
+&amp;gt;&amp;gt;&amp;gt; WebRTC.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Is there any discussion about the plan to remove shared workers from the
+&amp;gt;&amp;gt;&amp;gt; proposal? I couldn't find anything about SameSite=Strict cookies anywhere
+&amp;gt;&amp;gt;&amp;gt; other than the commit that removed the TODOs.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Cheers,
+&amp;gt;&amp;gt;&amp;gt; Jesper
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; On Monday, October 2, 2023 at 3:44:05 PM UTC+2 Ari Chivukula wrote:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Contact emails
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; ari...@chromium.org, wande...@chromium.org, joha...@chromium.org,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; hel...@google.com
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Specification
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://arichiv.github.io/saa-non-cookie-storage/"&gt;https://arichiv.github.io/saa-non-cookie-storage/&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Summary
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; We propose an extension of the Storage Access API
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://webkit.org/blog/8124/introducing-storage-access-api/"&gt;https://webkit.org/blog/8124/introducing-storage-access-api/&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; (backwards compatible) to allow access to unpartitioned (cookie and
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; non-cookie) storage in a third-party context, and imagine the API mechanics
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; to be roughly like this (JS running in an embedded iframe):
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; // Request a new storage handle via rSA (this should prompt the user)
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; let handle = await document.requestStorageAccess({all: true});
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; // Write some cross-site localstorage
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; handle.localStorage.setItem(&amp;quot;userid&amp;quot;, &amp;quot;1234&amp;quot;);
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; // Open or create an indexedDB that is shared with the 1P context
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; let messageDB = handle.defaultBucket.indexedDB.open(&amp;quot;messages&amp;quot;);
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; The same flow would be used by iframes to get a storage handle when
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; their top-level ancestor successfully called rSAFor
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/privacycg/requestStorageAccessFor"&gt;https://github.com/privacycg/requestStorageAccessFor&lt;/a&gt;&amp;gt;, just that in
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; this case the storage-access permission was already granted and thus the
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; rSA call would not require a user gesture or show a prompt, allowing for
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; “hidden” iframes accessing storage.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Browsers currently shipping the Storage Access API apply varying
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; methods of when or how to ask the user for permission to grant 3p cookie
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; access to a site. Given that this proposal involves extending the existing
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Storage Access API, while maintaining largely the same implications (from a
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; privacy/security perspective) to the user, a consistent prompt for cookie
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; and non-cookie access is preferred. No prompt is needed when the origins
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; are RWS (Related Website Sets, the new name for First Party Sets).
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink component
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink&amp;gt;Storage
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EStorage"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EStorage&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Motivation
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; There has been increasing developer
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/GoogleChromeLabs/privacy-sandbox-dev-support/issues/124"&gt;https://github.com/GoogleChromeLabs/privacy-sandbox-dev-support/issues/124&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; and implementer
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/privacycg/storage-access/issues/102"&gt;https://github.com/privacycg/storage-access/issues/102&lt;/a&gt;&amp;gt; interest in
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; first-party DOM Storage
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API"&gt;https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API&lt;/a&gt;&amp;gt; and 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Quota
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Managed Storage
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API"&gt;https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API&lt;/a&gt;&amp;gt; being
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; available in third-party contexts the same way that Cookies already
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; can be &amp;lt;&lt;a  rel="nofollow" href="https://github.com/privacycg/storage-access"&gt;https://github.com/privacycg/storage-access&lt;/a&gt;&amp;gt;. In the absence
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; of such a solution, we would in effect be pushing developers to migrate to
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Cookies from other storage mechanisms. There are significant tradeoffs
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; between Cookie and non-Cookie storage (size, flexibility, server exposure,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; network request size, etc.) that could cause a detriment in user experience
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; from a privacy, security and performance perspective. To prevent
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; sub-optimal use of cookies and to preserve context, we propose a solution
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; for developers to regain 3p access to unpartitioned storage in select
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; instances to avoid user-facing breakage in browsers shipping storage
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; partitioning.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/906"&gt;https://github.com/w3ctag/design-reviews/issues/906&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Compatibility
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; The Storage Access API is already implemented in Safari, Firefox, and
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Chrome &amp;lt;&lt;a  rel="nofollow" href="https://caniuse.com/mdn-api_document_requeststorageaccess"&gt;https://caniuse.com/mdn-api_document_requeststorageaccess&lt;/a&gt;&amp;gt;,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; but the proposed API shape would not change existing behavior without new
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; arguments added.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Interoperability
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Gecko: &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/898"&gt;https://github.com/mozilla/standards-positions/issues/898&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; WebKit: &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/262"&gt;https://github.com/WebKit/standards-positions/issues/262&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Web developers: Positive
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/GoogleChromeLabs/privacy-sandbox-dev-support/issues/124"&gt;https://github.com/GoogleChromeLabs/privacy-sandbox-dev-support/issues/124&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Debuggability
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Storage written can be examined in devtools.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Tests will be added.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Tracking bug
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://crbug.com/1484966"&gt;https://crbug.com/1484966&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5175585823522816"&gt;https://chromestatus.com/feature/5175585823522816&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5DLOowybXAEK_PHrMs-1M_nmC9b_k9eu3e4-nG2rKOEemg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5DLOowybXAEK_PHrMs-1M_nmC9b_k9eu3e4-nG2rKOEemg%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08502.html</id>
+        <title>[blink-dev] Re: pylint 2.17 available in depot_tools</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08502.html"/>
+        <updated>2023-11-28T21:58:38.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08502.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+pylint+2.17+available+in+depot_tools%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Re: pylint 2.17 available in depot_tools&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Josip+Sokcevic%27+via+infra%5C-announce%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Josip Sokcevic' via infra-announce&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231128" rel="nofollow"&gt;Tue, 28 Nov 2023 13:58:38 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Hi all,
+
+We identified pylint 2.13 incompatibilities with py3.11 (
+&lt;a  rel="nofollow" href="https://crbug.com/1504663"&gt;https://crbug.com/1504663&lt;/a&gt; has more details). So, pylint 2.13 was removed
+and pylint 2.17 was added.&lt;/pre&gt;&lt;pre&gt;
+
+To use pylint 2.17 in presubmit, pass version='2.17' to
+input_api.canned_checks.RunPylint or input_api.canned_checks.GetPylint.
+
+Apologies for any inconvenience this may have caused.
+
+Best,
+
+On Mon, Nov 20, 2023 at 4:24 PM Josip Sokcevic &amp;lt;sokce...@google.com&amp;gt; wrote:
+
+&amp;gt; Hi all,
+&amp;gt;
+&amp;gt; *TL;DR* pylint 2.13 is available for use in PRESUBMITs and is required
+&amp;gt; only if you use py3.11 features. Using pylint 2.13 is optional.
+&amp;gt;
+&amp;gt; depot_tools now provides pylint 2.13 &amp;lt;&lt;a  rel="nofollow" href="https://crrev.com/c/5030756"&gt;https://crrev.com/c/5030756&lt;/a&gt;&amp;gt; which
+&amp;gt; runs on Python 3.11. This is the only supported version of pylint
+&amp;gt; for python 3.9+ language features. depot_tools pylint 2.7 supports python
+&amp;gt; &amp;lt;=3.8.
+&amp;gt;
+&amp;gt; To use pylint 2.13 in presubmit, pass version='2.13'
+&amp;gt; to input_api.canned_checks.RunPylint or input_api.canned_checks.GetPylint.
+&amp;gt;
+&amp;gt; Best,
+&amp;gt;
+&amp;gt; --
+&amp;gt; Josip Sokcevic
+&amp;gt;
+
+
+-- 
+Josip Sokcevic
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;infra-announce&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to infra-announce+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/infra-announce/CAJiyOiiUwMQoWPVEDk16MCzFcYX3U0HuB%3Do_DwJLGB-PyK2Lhg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/infra-announce/CAJiyOiiUwMQoWPVEDk16MCzFcYX3U0HuB%3Do_DwJLGB-PyK2Lhg%40mail.gmail.com&lt;/a&gt;.
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAJiyOiiUwMQoWPVEDk16MCzFcYX3U0HuB%3Do_DwJLGB-PyK2Lhg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAJiyOiiUwMQoWPVEDk16MCzFcYX3U0HuB%3Do_DwJLGB-PyK2Lhg%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08501.html</id>
+        <title>[blink-dev] Re: Intent to Prototype: Extending Storage Access API (SAA) to non-cookie storage</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08501.html"/>
+        <updated>2023-11-28T21:44:52.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08501.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Prototype%5C%3A+Extending+Storage+Access+API+%5C%28SAA%5C%29+to+non%5C-cookie+storage%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Re: Intent to Prototype: Extending Storage Access API (SAA) to non-cookie storage&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Ari+Chivukula%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Ari Chivukula&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231128" rel="nofollow"&gt;Tue, 28 Nov 2023 13:44:52 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Thanks for letting us know about your use case. Yes, Chrome has decided not
+to pursue Shared Worker access via the handle returned by
+requestStorageAccess given it would allow access to SameSite=Strict cookies
+to a third-party iframe via that shared worker. We are examining an
+alternate option where requestStorageAccess will be available in workers:
+&lt;a  rel="nofollow" href="https://github.com/privacycg/storage-access/issues/157"&gt;https://github.com/privacycg/storage-access/issues/157&lt;/a&gt;&lt;/pre&gt;&lt;pre&gt;
+
+Either way, this change will probably require switching from using a
+(shared) Shared Worker for tab discovery to something like Broadcast
+Channel
+&amp;lt;&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/API/Broadcast_Channel_API"&gt;https://developer.mozilla.org/en-US/docs/Web/API/Broadcast_Channel_API&lt;/a&gt;&amp;gt;which
+would allow for cross-tab messaging without the need to be online.
+
+~ Ari Chivukula (Their/There/They're)
+
+
+On Tue, Nov 28, 2023 at 4:35 PM Jesper van den Ende &amp;lt;jesperthe...@gmail.com&amp;gt;
+wrote:
+
+&amp;gt; Hi all,
+&amp;gt;
+&amp;gt; I noticed the TODOs for shared workers were removed.
+&amp;gt; My application relies on cross origin shared workers and to be honest this
+&amp;gt; was the main part of the proposal I was looking forward to haha.
+&amp;gt; I'm currently relying on the origin trial for disabling third party
+&amp;gt; storage partitioning.
+&amp;gt; Are there any plans for the shared worker use case? I'm not sure what to
+&amp;gt; do once the origin trial expires. And as far as I can tell there is no good
+&amp;gt; alternative for what I'm trying to achieve.
+&amp;gt; Specifically, I'd like to be able to discover other tabs (that are also
+&amp;gt; broadcasting their existence using the same shared worker) and then
+&amp;gt; initiate a connection to them.
+&amp;gt; One alternative I could think of was using WebRTC for this, but ideally
+&amp;gt; I'd like this to work while the user is offline, which is not possible with
+&amp;gt; WebRTC.
+&amp;gt;
+&amp;gt; Is there any discussion about the plan to remove shared workers from the
+&amp;gt; proposal? I couldn't find anything about SameSite=Strict cookies anywhere
+&amp;gt; other than the commit that removed the TODOs.
+&amp;gt;
+&amp;gt; Cheers,
+&amp;gt; Jesper
+&amp;gt; On Monday, October 2, 2023 at 3:44:05 PM UTC+2 Ari Chivukula wrote:
+&amp;gt;
+&amp;gt;&amp;gt; Contact emails
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; ari...@chromium.org, wande...@chromium.org, joha...@chromium.org,
+&amp;gt;&amp;gt; hel...@google.com
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Specification
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://arichiv.github.io/saa-non-cookie-storage/"&gt;https://arichiv.github.io/saa-non-cookie-storage/&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Summary
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; We propose an extension of the Storage Access API
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://webkit.org/blog/8124/introducing-storage-access-api/"&gt;https://webkit.org/blog/8124/introducing-storage-access-api/&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt; (backwards compatible) to allow access to unpartitioned (cookie and
+&amp;gt;&amp;gt; non-cookie) storage in a third-party context, and imagine the API mechanics
+&amp;gt;&amp;gt; to be roughly like this (JS running in an embedded iframe):
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; // Request a new storage handle via rSA (this should prompt the user)
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; let handle = await document.requestStorageAccess({all: true});
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; // Write some cross-site localstorage
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; handle.localStorage.setItem(&amp;quot;userid&amp;quot;, &amp;quot;1234&amp;quot;);
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; // Open or create an indexedDB that is shared with the 1P context
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; let messageDB = handle.defaultBucket.indexedDB.open(&amp;quot;messages&amp;quot;);
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; The same flow would be used by iframes to get a storage handle when their
+&amp;gt;&amp;gt; top-level ancestor successfully called rSAFor
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/privacycg/requestStorageAccessFor"&gt;https://github.com/privacycg/requestStorageAccessFor&lt;/a&gt;&amp;gt;, just that in
+&amp;gt;&amp;gt; this case the storage-access permission was already granted and thus the
+&amp;gt;&amp;gt; rSA call would not require a user gesture or show a prompt, allowing for
+&amp;gt;&amp;gt; “hidden” iframes accessing storage.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Browsers currently shipping the Storage Access API apply varying methods
+&amp;gt;&amp;gt; of when or how to ask the user for permission to grant 3p cookie access to
+&amp;gt;&amp;gt; a site. Given that this proposal involves extending the existing Storage
+&amp;gt;&amp;gt; Access API, while maintaining largely the same implications (from a
+&amp;gt;&amp;gt; privacy/security perspective) to the user, a consistent prompt for cookie
+&amp;gt;&amp;gt; and non-cookie access is preferred. No prompt is needed when the origins
+&amp;gt;&amp;gt; are RWS (Related Website Sets, the new name for First Party Sets).
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Blink component
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Blink&amp;gt;Storage
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EStorage"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EStorage&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Motivation
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; There has been increasing developer
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/GoogleChromeLabs/privacy-sandbox-dev-support/issues/124"&gt;https://github.com/GoogleChromeLabs/privacy-sandbox-dev-support/issues/124&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt; and implementer &amp;lt;&lt;a  rel="nofollow" href="https://github.com/privacycg/storage-access/issues/102"&gt;https://github.com/privacycg/storage-access/issues/102&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt; interest in first-party DOM Storage
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API"&gt;https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API&lt;/a&gt;&amp;gt; and Quota
+&amp;gt;&amp;gt; Managed Storage
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API"&gt;https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API&lt;/a&gt;&amp;gt; being
+&amp;gt;&amp;gt; available in third-party contexts the same way that Cookies already can
+&amp;gt;&amp;gt; be &amp;lt;&lt;a  rel="nofollow" href="https://github.com/privacycg/storage-access"&gt;https://github.com/privacycg/storage-access&lt;/a&gt;&amp;gt;. In the absence of such
+&amp;gt;&amp;gt; a solution, we would in effect be pushing developers to migrate to Cookies
+&amp;gt;&amp;gt; from other storage mechanisms. There are significant tradeoffs between
+&amp;gt;&amp;gt; Cookie and non-Cookie storage (size, flexibility, server exposure, network
+&amp;gt;&amp;gt; request size, etc.) that could cause a detriment in user experience from a
+&amp;gt;&amp;gt; privacy, security and performance perspective. To prevent sub-optimal use
+&amp;gt;&amp;gt; of cookies and to preserve context, we propose a solution for developers to
+&amp;gt;&amp;gt; regain 3p access to unpartitioned storage in select instances to avoid
+&amp;gt;&amp;gt; user-facing breakage in browsers shipping storage partitioning.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; TAG review
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/906"&gt;https://github.com/w3ctag/design-reviews/issues/906&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Compatibility
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; The Storage Access API is already implemented in Safari, Firefox, and
+&amp;gt;&amp;gt; Chrome &amp;lt;&lt;a  rel="nofollow" href="https://caniuse.com/mdn-api_document_requeststorageaccess"&gt;https://caniuse.com/mdn-api_document_requeststorageaccess&lt;/a&gt;&amp;gt;, but
+&amp;gt;&amp;gt; the proposed API shape would not change existing behavior without new
+&amp;gt;&amp;gt; arguments added.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Interoperability
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Gecko: &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/898"&gt;https://github.com/mozilla/standards-positions/issues/898&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; WebKit: &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/262"&gt;https://github.com/WebKit/standards-positions/issues/262&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Web developers: Positive
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/GoogleChromeLabs/privacy-sandbox-dev-support/issues/124"&gt;https://github.com/GoogleChromeLabs/privacy-sandbox-dev-support/issues/124&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Debuggability
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Storage written can be examined in devtools.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests?
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Tests will be added.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Tracking bug
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://crbug.com/1484966"&gt;https://crbug.com/1484966&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5175585823522816"&gt;https://chromestatus.com/feature/5175585823522816&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5DJXkYGFDUOv6F_KBCGzwE3HzCwprcsWUspkgAca%2B36KOQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5DJXkYGFDUOv6F_KBCGzwE3HzCwprcsWUspkgAca%2B36KOQ%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08500.html</id>
+        <title>Re: [blink-dev] Intent to Prototype and Ship: MessagePort.onclose</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08500.html"/>
+        <updated>2023-11-28T20:34:11.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08500.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Prototype+and+Ship%5C%3A+MessagePort.onclose%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Prototype and Ship: MessagePort.onclose&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Torne+%5C%28Richard+Coles%5C%29%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Torne (Richard Coles)&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231128" rel="nofollow"&gt;Tue, 28 Nov 2023 12:34:11 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Android WebView exposes the ability to create and use MessagePorts to the
+host app through a Java API, and currently one of the limitations of this
+API is the lack of a signal about the channel being closed, which in some
+cases can lead to apps holding on to Java objects longer than intended.&lt;/pre&gt;&lt;pre&gt;
+
+So, I'm very happy to see this proposed for the web API side, as this
+should hopefully also enable us to support the same thing in WebView's Java
+API. +Peter Birk Pakkenberg &amp;lt;pb...@google.com&amp;gt; has been tackling some
+issues here recently.
+
+On Tue, 28 Nov 2023 at 12:31, Nonoka Muraki &amp;lt;murakinon...@chromium.org&amp;gt;
+wrote:
+
+&amp;gt; Contact emails
+&amp;gt;
+&amp;gt; murakinon...@chromium.org, m...@chromium.org, rak...@chromium.org
+&amp;gt;
+&amp;gt; Explainer
+&amp;gt;
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/fergald/explainer-messageport-close"&gt;https://github.com/fergald/explainer-messageport-close&lt;/a&gt;
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/fergald/explainer-messageport-close#exposing-that-cross-origin-navigation-has-occurred"&gt;https://github.com/fergald/explainer-messageport-close#exposing-that-cross-origin-navigation-has-occurred&lt;/a&gt;&amp;gt;
+&amp;gt;
+&amp;gt; Specification
+&amp;gt;
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/whatwg/html/pull/9933"&gt;https://github.com/whatwg/html/pull/9933&lt;/a&gt;
+&amp;gt;
+&amp;gt; Design docs
+&amp;gt;
+&amp;gt;
+&amp;gt; &lt;a  rel="nofollow" href="https://docs.google.com/document/d/1lXZU2Pk2ycitqj8aL9kxT2aauwXqpA0vJDUalkXA29Y"&gt;https://docs.google.com/document/d/1lXZU2Pk2ycitqj8aL9kxT2aauwXqpA0vJDUalkXA29Y&lt;/a&gt;
+&amp;gt;
+&amp;gt; Summary
+&amp;gt;
+&amp;gt; Notifies one of the MessagePorts that the other port has been disentangled
+&amp;gt; (i.e., close() is called, an owning document is destroyed, or the port is
+&amp;gt; garbage collected).
+&amp;gt;
+&amp;gt; Blink component
+&amp;gt;
+&amp;gt; Blink &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink&lt;/a&gt;&amp;gt;
+&amp;gt;
+&amp;gt; Motivation
+&amp;gt;
+&amp;gt; Channel Messaging API enables two separate scripts running in different
+&amp;gt; browsing contexts to communicate directly. Once MessageChannel is created,
+&amp;gt; we can access two entangled  MessagePorts (MessageChannel.port1 and
+&amp;gt; MessageChannel.port2), transfer port2 to the other browsing context,
+&amp;gt; allowing these two scripts to post and receive messages.
+&amp;gt;
+&amp;gt; The problem with this API is that there is currently no timely and
+&amp;gt; reliable way to detect when a MessagePort becomes disentangled. This makes
+&amp;gt; it difficult to release resources associated with ports. Some users have
+&amp;gt; used the unload event to detect disconnection, but it is unreliable
+&amp;gt; especially on mobile. Therefore, the approach available now is to hold a
+&amp;gt; MessagePort in WeakRef and periodically check if this port has been garbage
+&amp;gt; collected by using deref() or to make use of the pagehide event. However,
+&amp;gt; this event is also not an effective solution. The reasons are as follows:
+&amp;gt;
+&amp;gt; 1) It doesn't work when the document crashes.
+&amp;gt;
+&amp;gt; 2) The port must cooperate in signaling the port is going to be
+&amp;gt; disentangled.(i.e., the port must post the message which is &amp;quot;it is going to
+&amp;gt; be closed&amp;quot; to the entangled port.)
+&amp;gt;
+&amp;gt; 3) It fires even if the page is not being destroyed and just enters
+&amp;gt; BFCache.
+&amp;gt;
+&amp;gt; Adding a close event helps to detect timely and reliably that MessagePort
+&amp;gt; is disentangled and make it easier to release resources associated with
+&amp;gt; ports.
+&amp;gt;
+&amp;gt; Initial public proposal
+&amp;gt;
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/1766#issuecomment-1708027883"&gt;https://github.com/whatwg/html/issues/1766#issuecomment-1708027883&lt;/a&gt;
+&amp;gt;
+&amp;gt; Search tags
+&amp;gt;
+&amp;gt; close &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:close"&gt;https://chromestatus.com/features#tags:close&lt;/a&gt;&amp;gt;, onclose
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:onclose"&gt;https://chromestatus.com/features#tags:onclose&lt;/a&gt;&amp;gt;
+&amp;gt;
+&amp;gt; TAG review
+&amp;gt;
+&amp;gt; Not needed because This is a small feature where we just dispatch a new
+&amp;gt; event.
+&amp;gt;
+&amp;gt; Risks
+&amp;gt;
+&amp;gt; Interoperability and Compatibility
+&amp;gt;
+&amp;gt; None
+&amp;gt;
+&amp;gt;
+&amp;gt; Gecko:  Positive (
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/914"&gt;https://github.com/mozilla/standards-positions/issues/914&lt;/a&gt;)
+&amp;gt;
+&amp;gt; Mozilla people are already involved in the initial Github issue
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/1766"&gt;https://github.com/whatwg/html/issues/1766&lt;/a&gt;&amp;gt;.
+&amp;gt;
+&amp;gt; WebKit: No response (
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/271"&gt;https://github.com/WebKit/standards-positions/issues/271&lt;/a&gt;)
+&amp;gt;
+&amp;gt; WebKit people are already involved in the initial Github issue
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/1766"&gt;https://github.com/whatwg/html/issues/1766&lt;/a&gt;&amp;gt;.
+&amp;gt;
+&amp;gt; Web developers: Positive (&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/1766"&gt;https://github.com/whatwg/html/issues/1766&lt;/a&gt;)
+&amp;gt;
+&amp;gt; Other signals:
+&amp;gt;
+&amp;gt; WebView application risks
+&amp;gt;
+&amp;gt; Does this intent deprecate or change behavior of existing APIs, such that
+&amp;gt; it has potentially high risk for Android WebView-based applications?
+&amp;gt;
+&amp;gt; None
+&amp;gt;
+&amp;gt;
+&amp;gt; Debuggability
+&amp;gt;
+&amp;gt; None
+&amp;gt;
+&amp;gt;
+&amp;gt; Is this feature fully tested by web-platform-tests
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+&amp;gt; ?
+&amp;gt;
+&amp;gt; Yes.
+&amp;gt;
+&amp;gt;  &lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/5003089"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/5003089&lt;/a&gt;
+&amp;gt;
+&amp;gt; Flag name on chrome://flags
+&amp;gt;
+&amp;gt; None
+&amp;gt;
+&amp;gt; Finch feature name
+&amp;gt;
+&amp;gt; None
+&amp;gt;
+&amp;gt; Non-finch justification
+&amp;gt;
+&amp;gt; This is a small feature (just dispatching a new event) that doesn’t need
+&amp;gt; experimentation.
+&amp;gt;
+&amp;gt; Requires code in //chrome?
+&amp;gt;
+&amp;gt; False
+&amp;gt;
+&amp;gt; Tracking bug
+&amp;gt;
+&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1495616"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1495616&lt;/a&gt;
+&amp;gt;
+&amp;gt; Estimated milestones
+&amp;gt;
+&amp;gt; No milestones specified
+&amp;gt;
+&amp;gt;
+&amp;gt; Link to entry on the Chrome Platform Status
+&amp;gt;
+&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5086799659794432"&gt;https://chromestatus.com/feature/5086799659794432&lt;/a&gt;
+&amp;gt;
+&amp;gt; This intent message was generated by Chrome Platform Status
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+&amp;gt;
+&amp;gt; --
+&amp;gt; You received this message because you are subscribed to the Google Groups
+&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt; To view this discussion on the web visit
+&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAA66OT2mWU9WJnkVzD2gm_%2Bk%2Bewag5Lhq_K39Vo9WGdtGW79cQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAA66OT2mWU9WJnkVzD2gm_%2Bk%2Bewag5Lhq_K39Vo9WGdtGW79cQ%40mail.gmail.com&lt;/a&gt;
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAA66OT2mWU9WJnkVzD2gm_%2Bk%2Bewag5Lhq_K39Vo9WGdtGW79cQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAA66OT2mWU9WJnkVzD2gm_%2Bk%2Bewag5Lhq_K39Vo9WGdtGW79cQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt; .
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAEV-rjcZL5YnizhWf0xA%3DBaSt4EmY32p1tjhYG%3DfEOP1B-Kk%2BQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAEV-rjcZL5YnizhWf0xA%3DBaSt4EmY32p1tjhYG%3DfEOP1B-Kk%2BQ%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08499.html</id>
+        <title>[blink-dev] Re: Intent to Ship: Storage Buckets API</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08499.html"/>
+        <updated>2023-11-28T19:36:24.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08499.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Ship%5C%3A+Storage+Buckets+API%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Re: Intent to Ship: Storage Buckets API&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Evan+Stade%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Evan Stade&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231128" rel="nofollow"&gt;Tue, 28 Nov 2023 11:36:24 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;It depends on the use case. Sometimes developers may be OK with missing
+functionality. For example, if some data such as downloaded media should be
+persisted whereas other data such as logs should be evictable, then not
+having buckets available probably just means that the site does not play as
+nicely during storage pressure related eviction rounds, which is a
+reasonable fallback. In other use cases put forth in the explainer, such as
+when a bucket holds all the data for a single user and is deleted on
+logout, a site might be able to reasonably degrade by only offering &amp;quot;sign
+out all accounts&amp;quot; for browsers that don't yet have buckets.&lt;/pre&gt;&lt;pre&gt;
+
+In cases where buckets functionality is mission critical, such as holding
+data that must not be accessible after a certain expiration date, a site
+may would need to do more work to support situations where Buckets aren't
+available. In these cases we would advise at least designing a schema that
+makes the eventual transition to buckets easier, e.g. by keeping all logs
+data that might eventually move to a logs bucket co-located in a single
+Bucket File System (aka OPFS) directory.
+
+On Mon, Nov 27, 2023 at 10:16 PM Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt; wrote:
+
+&amp;gt; Thanks!
+&amp;gt;
+&amp;gt; As you mention that this feature won't be polyfillable, what would we
+&amp;gt; advise web developers of new apps up until the point where the feature is
+&amp;gt; ubiquitous? Would they have different quota systems on different browsers?
+&amp;gt;
+&amp;gt; On Tue, Nov 28, 2023 at 2:52 AM Evan Stade &amp;lt;est...@chromium.org&amp;gt; wrote:
+&amp;gt;
+&amp;gt;&amp;gt; Hi Yoav,
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; The reasoning about adoption also applies to the feature after launch,
+&amp;gt;&amp;gt; although less so than the OT. The farther the feature progresses (from OT,
+&amp;gt;&amp;gt; to launch, to support in other browsers), the less risk a site is taking in
+&amp;gt;&amp;gt; adopting. In the meantime, since a good polyfill is not really possible,
+&amp;gt;&amp;gt; the intermediate phase is painful/costly.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; For *existing* apps, taking full advantage of the API requires schema
+&amp;gt;&amp;gt; redesign/migration, which we anticipate to be pretty involved for the kind
+&amp;gt;&amp;gt; of sophisticated apps this API appeals to. Less sophisticated apps that
+&amp;gt;&amp;gt; don't need to manage lots of data will not use the API at all as they don't
+&amp;gt;&amp;gt; worry about minimizing the impact of storage eviction (which is, for now,
+&amp;gt;&amp;gt; its primary appeal). New apps that are written at a time when Buckets are
+&amp;gt;&amp;gt; broadly available will not face these hurdles.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; We hope that both sides of the risk/reward equation improve: adoption
+&amp;gt;&amp;gt; risks come down as other vendors implement, and we're able to keep adding
+&amp;gt;&amp;gt; useful functionality that justifies the investment to migrate.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; -- Evan Stade
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; On Tue, Nov 21, 2023 at 9:56 PM Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt;
+&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; On Tuesday, November 14, 2023 at 9:38:55 PM UTC+1 Evan Stade wrote:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Contact emails
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; est...@chromium.org, a...@chromium.org, ajayrahate...@chromium.org
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Explainer
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/storage-buckets/blob/main/explainer.md"&gt;https://github.com/WICG/storage-buckets/blob/main/explainer.md&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Specification
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://wicg.github.io/storage-buckets"&gt;https://wicg.github.io/storage-buckets&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Summary
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Storage Buckets gives sites the ability to organize on-device data into
+&amp;gt;&amp;gt;&amp;gt; separate &amp;quot;buckets&amp;quot;, allowing user agents to evict the grouped data
+&amp;gt;&amp;gt;&amp;gt; independently of that which is in other buckets, and enabling sites to
+&amp;gt;&amp;gt;&amp;gt; ergonomically manage semantically related data. Each storage bucket can
+&amp;gt;&amp;gt;&amp;gt; contain data associated with established storage APIs such as IndexedDB and
+&amp;gt;&amp;gt;&amp;gt; CacheStorage.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Blink component
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Blink&amp;gt;Storage&amp;gt;Buckets
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EStorage%3EBuckets"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EStorage%3EBuckets&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; TAG review
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/562"&gt;https://github.com/w3ctag/design-reviews/issues/562&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; TAG review status
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Issues addressed
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Chromium Trial Name
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; StorageBuckets
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Link to origin trial feedback summary
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://docs.google.com/document/d/1C8LiQfjYj9wIt94Q4PeCVwiA57-"&gt;https://docs.google.com/document/d/1C8LiQfjYj9wIt94Q4PeCVwiA57-&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt; uf37jSLLoBHYhUCM
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Can you expand on the OT results? Are the &amp;quot;slow to adoption&amp;quot; comments
+&amp;gt;&amp;gt;&amp;gt; relevant only to the OT itself or to the feature at large?
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Origin Trial documentation link
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://developer.chrome.com/blog/storage-buckets/"&gt;https://developer.chrome.com/blog/storage-buckets/&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Risks
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Interoperability and Compatibility
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; If no other browsers end up implementing this API, websites will only be
+&amp;gt;&amp;gt;&amp;gt; able to use the default bucket that is supported today.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Gecko: Positive (&lt;a  rel="nofollow" href="https://mozilla.github.io/standards-positions/#storage-"&gt;https://mozilla.github.io/standards-positions/#storage-&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt; buckets)
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; WebKit: No signal (&lt;a  rel="nofollow" href="https://github.com/WebKit/"&gt;https://github.com/WebKit/&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt; standards-positions/issues/181)
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Web developers: Positive
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Other signals:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; WebView application risks
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Does this intent deprecate or change behavior of existing APIs, such
+&amp;gt;&amp;gt;&amp;gt; that it has potentially high risk for Android WebView-based applications?
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Doesn't change existing APIs.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Debuggability
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Devtools
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows, Mac,
+&amp;gt;&amp;gt;&amp;gt; Linux, Chrome OS, Android, and Android WebView)?
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; No
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; ?
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; No
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Flag name on chrome://flags
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; storage-buckets
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Finch feature name
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; StorageBuckets
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Requires code in //chrome?
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; False
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Tracking bug
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1099413"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1099413&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Launch bug
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://launch.corp.google.com/launch/4227670"&gt;https://launch.corp.google.com/launch/4227670&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Measurement
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/metrics/feature/timeline/popularity/4378"&gt;https://chromestatus.com/metrics/feature/timeline/popularity/4378&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Availability expectation
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Feature is expected to be available on Firefox, but timeline unknown.
+&amp;gt;&amp;gt;&amp;gt; Implementation in Safari would likely first require widespread use.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Adoption expectation
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Expected to be applied **in new projects** soon after launch. Full
+&amp;gt;&amp;gt;&amp;gt; utilization of the API would require data migration, which is not easy and
+&amp;gt;&amp;gt;&amp;gt; may slow adoption in existing projects. Abstractions may be among the first
+&amp;gt;&amp;gt;&amp;gt; adopters as the API is, itself, an abstraction layer that simplifies
+&amp;gt;&amp;gt;&amp;gt; functionality such as namespacing and managing chunks of data.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Adoption plan
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; We intend to use the Buckets API to expose additional storage-related
+&amp;gt;&amp;gt;&amp;gt; functionality to the web, for example, session-scoped data, performance
+&amp;gt;&amp;gt;&amp;gt; controls, etc. This new functionality will help drive adoption.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Non-OSS dependencies
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Does the feature depend on any code or APIs outside the Chromium open
+&amp;gt;&amp;gt;&amp;gt; source repository and its open-source dependencies to function?
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; No
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Estimated milestones
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Shipping on desktop
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; 121
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; OriginTrial desktop last
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; 118
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; OriginTrial desktop first
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; 115
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; DevTrial on desktop
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; 110
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Shipping on Android
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; 121
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; OriginTrial Android last
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; 118
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; OriginTrial Android first
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; 115
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; DevTrial on Android
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; 110
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Shipping on WebView
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; 121
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; OriginTrial webView last
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; 118
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; OriginTrial webView first
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; 115
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Anticipated spec changes
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Open questions about a feature may be a source of future web compat or
+&amp;gt;&amp;gt;&amp;gt; interop issues. Please list open issues (e.g. links to known github issues
+&amp;gt;&amp;gt;&amp;gt; in the project for the feature specification) whose resolution may
+&amp;gt;&amp;gt;&amp;gt; introduce web compat/interop risk (e.g., changing to naming or structure of
+&amp;gt;&amp;gt;&amp;gt; the API in a non-backward-compatible way).
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Open issues/questions are add-only enhancements.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5739224579964928"&gt;https://chromestatus.com/feature/5739224579964928&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Links to previous Intent discussions
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Intent to prototype: &lt;a  rel="nofollow" href="https://groups.google.com/u/2/"&gt;https://groups.google.com/u/2/&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt; a/chromium.org/g/blink-dev/c/LZsMi8heTu0/m/bh0my7vpBwAJ Intent to
+&amp;gt;&amp;gt;&amp;gt; Experiment: &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt; LGfcc48qBHY/m/cXjQrqRIAAAJ?utm_medium=email&amp;utm_source=footer
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAO4XGS9iQ%2BuLRLTPszOJRjhQ54Vw45DFR84z7bNumutmZn2%2BQw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAO4XGS9iQ%2BuLRLTPszOJRjhQ54Vw45DFR84z7bNumutmZn2%2BQw%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08498.html</id>
         <title>[blink-dev] Intent to Prototype and Ship: MessagePort.onclose</title>
         <author>
@@ -8627,1194 +10007,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/13305766-65c8-427c-85a4-fc457c855bf0n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/13305766-65c8-427c-85a4-fc457c855bf0n%40chromium.org&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08455.html</id>
-        <title>[blink-dev] Re: Intent to Ship: Document picture-in-picture: require user gesture for resize APIs</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08455.html"/>
-        <updated>2023-11-22T05:43:16.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08455.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Ship%5C%3A+Document+picture%5C-in%5C-picture%5C%3A+require+user+gesture+for+resize+APIs%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Re: Intent to Ship: Document picture-in-picture: require user gesture for resize APIs&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Yoav+Weiss%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Yoav Weiss&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231121" rel="nofollow"&gt;Tue, 21 Nov 2023 21:43:16 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;
-
-On Friday, November 17, 2023 at 8:47:34 PM UTC+1 Tommy Steimel wrote:&lt;/pre&gt;&lt;pre&gt;
-
-Contact emailsstei...@chromium.org, liber...@chromium.org
-
-ExplainerNone
-
-Specification&lt;a  rel="nofollow" href="https://github.com/WICG/document-picture-in-picture/pull/104"&gt;https://github.com/WICG/document-picture-in-picture/pull/104&lt;/a&gt;
-
-Summary
-
-This adds a user gesture requirement for the resizeBy() and resizeTo() 
-Window APIs for document picture-in-picture windows. This allows websites 
-to make use of those APIs while mitigating much of the abuse potential of 
-those APIs on an always-on-top window.
-
-
-Blink componentBlink&amp;gt;Media&amp;gt;PictureInPicture 
-&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EMedia%3EPictureInPicture"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EMedia%3EPictureInPicture&lt;/a&gt;&amp;gt;
-
-TAG reviewN/A as this is a minor change to the behavior of an existing API
-
-TAG review statusNot applicable
-
-Risks
-
-
-Interoperability and Compatibility
-
-None
-
-
-This added requirement would mean that calls to these API can now fail. Is 
-that new? Or are developers already expected to handle failures?
-Do we expect developers to start checking the UserActivation API 
-&amp;lt;&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/API/UserActivation"&gt;https://developer.mozilla.org/en-US/docs/Web/API/UserActivation&lt;/a&gt;&amp;gt; before 
-calling these methods?
-
-
-
-*Gecko*: No signal (&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/"&gt;https://github.com/mozilla/standards-positions/issues/&lt;/a&gt;
-670#issuecomment-1786354361) Added comment to existing standards position 
-issue for document picture-in-picture. No response yet
-
-*WebKit*: No signal (&lt;a  rel="nofollow" href="https://github.com/WebKit/"&gt;https://github.com/WebKit/&lt;/a&gt;
-standards-positions/issues/41#issuecomment-1786354016) Added comment to 
-existing standards position issue for document picture-in-picture. No 
-response yet
-
-*Web developers*: Positive The ability to programmatically resize the 
-document picture-in-picture window is one of the most-requested features 
-for document picture-in-picture
-
-*Other signals*:
-
-Ergonomics
-
-N/A
-
-
-Activation
-
-N/A
-
-
-Security
-
-While being able to resize an always-on-top window at will is a 
-security/annoyance risk, by making the API consume a user gesture, the 
-website can only resize once per click, which limits the possible abuse 
-vectors
-
-
-WebView application risks
-
-Does this intent deprecate or change behavior of existing APIs, such that 
-it has potentially high risk for Android WebView-based applications?
-
-N/A
-
-
-Debuggability
-
-N/A
-
-
-Will this feature be supported on all six Blink platforms (Windows, Mac, 
-Linux, Chrome OS, Android, and Android WebView)?No
-
-The document picture-in-picture API is not supported on Android
-
-
-Is this feature fully tested by web-platform-tests 
-&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-?Yes
-
-document-picture-in-picture/resize-requires-user-gesture.https.html
-
-
-Flag name on chrome://flagsNone
-
-Finch feature nameNone
-
-Non-finch justification
-
-Small, low-risk change to existing API
-
-
-Requires code in //chrome?False
-
-Tracking bug&lt;a  rel="nofollow" href="https://crbug.com/1354325"&gt;https://crbug.com/1354325&lt;/a&gt;
-
-Sample links
-&lt;a  rel="nofollow" href="https://steimelchrome.github.io/document-pip/click_to_resize.html"&gt;https://steimelchrome.github.io/document-pip/click_to_resize.html&lt;/a&gt;
-
-Estimated milestonesShipping on desktop121
-
-Anticipated spec changes
-
-Open questions about a feature may be a source of future web compat or 
-interop issues. Please list open issues (e.g. links to known github issues 
-in the project for the feature specification) whose resolution may 
-introduce web compat/interop risk (e.g., changing to naming or structure of 
-the API in a non-backward-compatible way).
-N/A
-
-Link to entry on the Chrome Platform Status&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;
-feature/5398995019235328
-
-This intent message was generated by Chrome Platform Status 
-&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/d2de84d9-a13d-4ed4-8a77-a19ac26b7c34n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/d2de84d9-a13d-4ed4-8a77-a19ac26b7c34n%40chromium.org&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08454.html</id>
-        <title>Re: [blink-dev] Intent to Ship: Lazy load scroll margin</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08454.html"/>
-        <updated>2023-11-22T05:37:35.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08454.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Lazy+load+scroll+margin%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Lazy load scroll margin&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Yoav+Weiss%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Yoav Weiss&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231121" rel="nofollow"&gt;Tue, 21 Nov 2023 21:37:35 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Thanks, that sounds like a strict improvement.
-
-On Wed, Nov 22, 2023 at 6:25 AM Traian Captan &amp;lt;tcap...@chromium.org&amp;gt; wrote:&lt;/pre&gt;&lt;pre&gt;
-
-&amp;gt; Yes, that's correct.
-&amp;gt;
-&amp;gt;
-&amp;gt; On Tue, Nov 21, 2023 at 9:18 PM Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; Do I understand correctly that currently lazy-loaded images in CSS
-&amp;gt;&amp;gt; scrollers have suboptimal behavior and this would improve that without
-&amp;gt;&amp;gt; potentially harming other cases?
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Wed, Nov 22, 2023 at 1:55 AM Traian Captan &amp;lt;tcap...@chromium.org&amp;gt;
-&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Contact emailstcap...@chromium.org
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; ExplainerNone
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-A short (inline) explainer would help reviewers to understand e.g. if this
-involves changes to the API surface that developers need to care about.
-Can you write a few words on the impact on developers?
-
-
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Specification&lt;a  rel="nofollow" href="https://html.spec.whatwg.org/#lazy-load-root-margin"&gt;https://html.spec.whatwg.org/#lazy-load-root-margin&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-The spec doesn't mention anything specific around root margins or scroll
-margins (other than the algorithm name).
-Are these concepts interoperable?
-
-
-&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Summary
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Changes the lazy load intersection observer's init dictionary to use a
-&amp;gt;&amp;gt;&amp;gt; scrollMargin instead of a rootMargin. This allows lazy loading images
-&amp;gt;&amp;gt;&amp;gt; contained inside CSS scrollers, like carousels, to load as expected when
-&amp;gt;&amp;gt;&amp;gt; near the viewport instead of the current behavior where these images load
-&amp;gt;&amp;gt;&amp;gt; when at least one pixel is intersecting the viewport.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Blink componentBlink&amp;gt;Image
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EImage"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EImage&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Search tagslazyload &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:lazyload"&gt;https://chromestatus.com/features#tags:lazyload&lt;/a&gt;&amp;gt;,
-&amp;gt;&amp;gt;&amp;gt; scrollmargin &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:scrollmargin"&gt;https://chromestatus.com/features#tags:scrollmargin&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; TAG reviewNone
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; TAG review statusNot applicable
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Risks
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Interoperability and Compatibility
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Overall low as scroll margin also applies to the root element thus not
-&amp;gt;&amp;gt;&amp;gt; affecting lazy loading images that are currently loading with just a root
-&amp;gt;&amp;gt;&amp;gt; margin.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; *Gecko*: Positive (
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/IntersectionObserver/issues/431"&gt;https://github.com/w3c/IntersectionObserver/issues/431&lt;/a&gt;)
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1864794"&gt;https://bugzilla.mozilla.org/show_bug.cgi?id=1864794&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; *WebKit*: Positive (
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/IntersectionObserver/issues/431#issuecomment-930602435"&gt;https://github.com/w3c/IntersectionObserver/issues/431#issuecomment-930602435&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt; ) &lt;a  rel="nofollow" href="https://bugs.webkit.org/show_bug.cgi?id=264864"&gt;https://bugs.webkit.org/show_bug.cgi?id=264864&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; *Web developers*: Positive (
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1391989"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1391989&lt;/a&gt;)
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; *Other signals*:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; WebView application risks
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Does this intent deprecate or change behavior of existing APIs, such
-&amp;gt;&amp;gt;&amp;gt; that it has potentially high risk for Android WebView-based applications?
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Debuggability
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows, Mac,
-&amp;gt;&amp;gt;&amp;gt; Linux, Chrome OS, Android, and Android WebView)?Yes
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; ?Yes
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/html/semantics/embedded-content/the-img-element?label=master&amp;label=experimental&amp;aligned&amp;q=image-loading-lazy-in-"&gt;https://wpt.fyi/results/html/semantics/embedded-content/the-img-element?label=master&amp;label=experimental&amp;aligned&amp;q=image-loading-lazy-in-&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Flag name on chrome://flagsLazyLoadScrollMargin
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Finch feature nameNone
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Non-finch justification
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; This feature is behind an enabled-by-default flag that can be disabled
-&amp;gt;&amp;gt;&amp;gt; if needed.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Requires code in //chrome?False
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Tracking bug
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1391989"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1391989&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Estimated milestones
-&amp;gt;&amp;gt;&amp;gt; Shipping on desktop 121
-&amp;gt;&amp;gt;&amp;gt; DevTrial on desktop 121
-&amp;gt;&amp;gt;&amp;gt; Shipping on Android 121
-&amp;gt;&amp;gt;&amp;gt; DevTrial on Android 121
-&amp;gt;&amp;gt;&amp;gt; Shipping on WebView 121
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Anticipated spec changes
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Open questions about a feature may be a source of future web compat or
-&amp;gt;&amp;gt;&amp;gt; interop issues. Please list open issues (e.g. links to known github issues
-&amp;gt;&amp;gt;&amp;gt; in the project for the feature specification) whose resolution may
-&amp;gt;&amp;gt;&amp;gt; introduce web compat/interop risk (e.g., changing to naming or structure of
-&amp;gt;&amp;gt;&amp;gt; the API in a non-backward-compatible way).
-&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5106926245642240"&gt;https://chromestatus.com/feature/5106926245642240&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Links to previous Intent discussionsIntent to prototype:
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvtrmHkoOpTuD2eZYVOyFuAhP8ZFVoTuNBS8zYTVY%3DTaaQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvtrmHkoOpTuD2eZYVOyFuAhP8ZFVoTuNBS8zYTVY%3DTaaQ%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
-&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send
-&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+unsubscr...@chromium.org.
-&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvsUb0GEG9WNWRN7Akkowjm03gLj%2Biiq5rG8%2BzdAWMBTNA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvsUb0GEG9WNWRN7Akkowjm03gLj%2Biiq5rG8%2BzdAWMBTNA%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvsUb0GEG9WNWRN7Akkowjm03gLj%2Biiq5rG8%2BzdAWMBTNA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvsUb0GEG9WNWRN7Akkowjm03gLj%2Biiq5rG8%2BzdAWMBTNA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfVhH_QxckxRLbR05jrN0CY48aQ-Ag3BypusnsyKoDTc0A%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfVhH_QxckxRLbR05jrN0CY48aQ-Ag3BypusnsyKoDTc0A%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08453.html</id>
-        <title>Re: [blink-dev] Intent to Ship: Lazy load scroll margin</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08453.html"/>
-        <updated>2023-11-22T05:25:46.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08453.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Lazy+load+scroll+margin%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Lazy load scroll margin&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Traian+Captan%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Traian Captan&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231121" rel="nofollow"&gt;Tue, 21 Nov 2023 21:25:46 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Yes, that's correct.
-&lt;/pre&gt;&lt;pre&gt;
-
-On Tue, Nov 21, 2023 at 9:18 PM Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt; wrote:
-
-&amp;gt; Do I understand correctly that currently lazy-loaded images in CSS
-&amp;gt; scrollers have suboptimal behavior and this would improve that without
-&amp;gt; potentially harming other cases?
-&amp;gt;
-&amp;gt; On Wed, Nov 22, 2023 at 1:55 AM Traian Captan &amp;lt;tcap...@chromium.org&amp;gt;
-&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; Contact emailstcap...@chromium.org
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; ExplainerNone
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Specification&lt;a  rel="nofollow" href="https://html.spec.whatwg.org/#lazy-load-root-margin"&gt;https://html.spec.whatwg.org/#lazy-load-root-margin&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Summary
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Changes the lazy load intersection observer's init dictionary to use a
-&amp;gt;&amp;gt; scrollMargin instead of a rootMargin. This allows lazy loading images
-&amp;gt;&amp;gt; contained inside CSS scrollers, like carousels, to load as expected when
-&amp;gt;&amp;gt; near the viewport instead of the current behavior where these images load
-&amp;gt;&amp;gt; when at least one pixel is intersecting the viewport.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Blink componentBlink&amp;gt;Image
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EImage"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EImage&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Search tagslazyload &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:lazyload"&gt;https://chromestatus.com/features#tags:lazyload&lt;/a&gt;&amp;gt;,
-&amp;gt;&amp;gt; scrollmargin &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:scrollmargin"&gt;https://chromestatus.com/features#tags:scrollmargin&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; TAG reviewNone
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; TAG review statusNot applicable
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Risks
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Interoperability and Compatibility
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Overall low as scroll margin also applies to the root element thus not
-&amp;gt;&amp;gt; affecting lazy loading images that are currently loading with just a root
-&amp;gt;&amp;gt; margin.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Gecko*: Positive (&lt;a  rel="nofollow" href="https://github.com/w3c/IntersectionObserver/issues/431"&gt;https://github.com/w3c/IntersectionObserver/issues/431&lt;/a&gt;
-&amp;gt;&amp;gt; ) &lt;a  rel="nofollow" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1864794"&gt;https://bugzilla.mozilla.org/show_bug.cgi?id=1864794&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *WebKit*: Positive (
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/IntersectionObserver/issues/431#issuecomment-930602435"&gt;https://github.com/w3c/IntersectionObserver/issues/431#issuecomment-930602435&lt;/a&gt;
-&amp;gt;&amp;gt; ) &lt;a  rel="nofollow" href="https://bugs.webkit.org/show_bug.cgi?id=264864"&gt;https://bugs.webkit.org/show_bug.cgi?id=264864&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Web developers*: Positive (
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1391989"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1391989&lt;/a&gt;)
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Other signals*:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; WebView application risks
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Does this intent deprecate or change behavior of existing APIs, such that
-&amp;gt;&amp;gt; it has potentially high risk for Android WebView-based applications?
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Debuggability
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows, Mac,
-&amp;gt;&amp;gt; Linux, Chrome OS, Android, and Android WebView)?Yes
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; ?Yes
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/html/semantics/embedded-content/the-img-element?label=master&amp;label=experimental&amp;aligned&amp;q=image-loading-lazy-in-"&gt;https://wpt.fyi/results/html/semantics/embedded-content/the-img-element?label=master&amp;label=experimental&amp;aligned&amp;q=image-loading-lazy-in-&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Flag name on chrome://flagsLazyLoadScrollMargin
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Finch feature nameNone
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Non-finch justification
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; This feature is behind an enabled-by-default flag that can be disabled if
-&amp;gt;&amp;gt; needed.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Requires code in //chrome?False
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Tracking bug&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1391989"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1391989&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Estimated milestones
-&amp;gt;&amp;gt; Shipping on desktop 121
-&amp;gt;&amp;gt; DevTrial on desktop 121
-&amp;gt;&amp;gt; Shipping on Android 121
-&amp;gt;&amp;gt; DevTrial on Android 121
-&amp;gt;&amp;gt; Shipping on WebView 121
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Anticipated spec changes
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Open questions about a feature may be a source of future web compat or
-&amp;gt;&amp;gt; interop issues. Please list open issues (e.g. links to known github issues
-&amp;gt;&amp;gt; in the project for the feature specification) whose resolution may
-&amp;gt;&amp;gt; introduce web compat/interop risk (e.g., changing to naming or structure of
-&amp;gt;&amp;gt; the API in a non-backward-compatible way).
-&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5106926245642240"&gt;https://chromestatus.com/feature/5106926245642240&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Links to previous Intent discussionsIntent to prototype:
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvtrmHkoOpTuD2eZYVOyFuAhP8ZFVoTuNBS8zYTVY%3DTaaQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvtrmHkoOpTuD2eZYVOyFuAhP8ZFVoTuNBS8zYTVY%3DTaaQ%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt;&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt;&amp;gt; To view this discussion on the web visit
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvsUb0GEG9WNWRN7Akkowjm03gLj%2Biiq5rG8%2BzdAWMBTNA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvsUb0GEG9WNWRN7Akkowjm03gLj%2Biiq5rG8%2BzdAWMBTNA%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvsUb0GEG9WNWRN7Akkowjm03gLj%2Biiq5rG8%2BzdAWMBTNA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvsUb0GEG9WNWRN7Akkowjm03gLj%2Biiq5rG8%2BzdAWMBTNA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvtwYuj4dukn%3DW5m%3D0f2CGipMw7JAugFt56kouPjfFp0Sw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvtwYuj4dukn%3DW5m%3D0f2CGipMw7JAugFt56kouPjfFp0Sw%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08452.html</id>
-        <title>Re: [blink-dev] Intent to Ship: Lazy load scroll margin</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08452.html"/>
-        <updated>2023-11-22T05:18:52.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08452.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Lazy+load+scroll+margin%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Lazy load scroll margin&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Yoav+Weiss%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Yoav Weiss&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231121" rel="nofollow"&gt;Tue, 21 Nov 2023 21:18:52 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Do I understand correctly that currently lazy-loaded images in CSS
-scrollers have suboptimal behavior and this would improve that without
-potentially harming other cases?&lt;/pre&gt;&lt;pre&gt;
-
-On Wed, Nov 22, 2023 at 1:55 AM Traian Captan &amp;lt;tcap...@chromium.org&amp;gt; wrote:
-
-&amp;gt; Contact emailstcap...@chromium.org
-&amp;gt;
-&amp;gt; ExplainerNone
-&amp;gt;
-&amp;gt; Specification&lt;a  rel="nofollow" href="https://html.spec.whatwg.org/#lazy-load-root-margin"&gt;https://html.spec.whatwg.org/#lazy-load-root-margin&lt;/a&gt;
-&amp;gt;
-&amp;gt; Summary
-&amp;gt;
-&amp;gt; Changes the lazy load intersection observer's init dictionary to use a
-&amp;gt; scrollMargin instead of a rootMargin. This allows lazy loading images
-&amp;gt; contained inside CSS scrollers, like carousels, to load as expected when
-&amp;gt; near the viewport instead of the current behavior where these images load
-&amp;gt; when at least one pixel is intersecting the viewport.
-&amp;gt;
-&amp;gt;
-&amp;gt; Blink componentBlink&amp;gt;Image
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EImage"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EImage&lt;/a&gt;&amp;gt;
-&amp;gt;
-&amp;gt; Search tagslazyload &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:lazyload"&gt;https://chromestatus.com/features#tags:lazyload&lt;/a&gt;&amp;gt;,
-&amp;gt; scrollmargin &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:scrollmargin"&gt;https://chromestatus.com/features#tags:scrollmargin&lt;/a&gt;&amp;gt;
-&amp;gt;
-&amp;gt; TAG reviewNone
-&amp;gt;
-&amp;gt; TAG review statusNot applicable
-&amp;gt;
-&amp;gt; Risks
-&amp;gt;
-&amp;gt;
-&amp;gt; Interoperability and Compatibility
-&amp;gt;
-&amp;gt; Overall low as scroll margin also applies to the root element thus not
-&amp;gt; affecting lazy loading images that are currently loading with just a root
-&amp;gt; margin.
-&amp;gt;
-&amp;gt;
-&amp;gt; *Gecko*: Positive (&lt;a  rel="nofollow" href="https://github.com/w3c/IntersectionObserver/issues/431"&gt;https://github.com/w3c/IntersectionObserver/issues/431&lt;/a&gt;
-&amp;gt; ) &lt;a  rel="nofollow" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1864794"&gt;https://bugzilla.mozilla.org/show_bug.cgi?id=1864794&lt;/a&gt;
-&amp;gt;
-&amp;gt; *WebKit*: Positive (
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/IntersectionObserver/issues/431#issuecomment-930602435"&gt;https://github.com/w3c/IntersectionObserver/issues/431#issuecomment-930602435&lt;/a&gt;
-&amp;gt; ) &lt;a  rel="nofollow" href="https://bugs.webkit.org/show_bug.cgi?id=264864"&gt;https://bugs.webkit.org/show_bug.cgi?id=264864&lt;/a&gt;
-&amp;gt;
-&amp;gt; *Web developers*: Positive (
-&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1391989"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1391989&lt;/a&gt;)
-&amp;gt;
-&amp;gt; *Other signals*:
-&amp;gt;
-&amp;gt; WebView application risks
-&amp;gt;
-&amp;gt; Does this intent deprecate or change behavior of existing APIs, such that
-&amp;gt; it has potentially high risk for Android WebView-based applications?
-&amp;gt;
-&amp;gt; None
-&amp;gt;
-&amp;gt;
-&amp;gt; Debuggability
-&amp;gt;
-&amp;gt; None
-&amp;gt;
-&amp;gt;
-&amp;gt; Will this feature be supported on all six Blink platforms (Windows, Mac,
-&amp;gt; Linux, Chrome OS, Android, and Android WebView)?Yes
-&amp;gt;
-&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt; ?Yes
-&amp;gt;
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/html/semantics/embedded-content/the-img-element?label=master&amp;label=experimental&amp;aligned&amp;q=image-loading-lazy-in-"&gt;https://wpt.fyi/results/html/semantics/embedded-content/the-img-element?label=master&amp;label=experimental&amp;aligned&amp;q=image-loading-lazy-in-&lt;/a&gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; Flag name on chrome://flagsLazyLoadScrollMargin
-&amp;gt;
-&amp;gt; Finch feature nameNone
-&amp;gt;
-&amp;gt; Non-finch justification
-&amp;gt;
-&amp;gt; This feature is behind an enabled-by-default flag that can be disabled if
-&amp;gt; needed.
-&amp;gt;
-&amp;gt;
-&amp;gt; Requires code in //chrome?False
-&amp;gt;
-&amp;gt; Tracking bug&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1391989"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1391989&lt;/a&gt;
-&amp;gt;
-&amp;gt; Estimated milestones
-&amp;gt; Shipping on desktop 121
-&amp;gt; DevTrial on desktop 121
-&amp;gt; Shipping on Android 121
-&amp;gt; DevTrial on Android 121
-&amp;gt; Shipping on WebView 121
-&amp;gt;
-&amp;gt; Anticipated spec changes
-&amp;gt;
-&amp;gt; Open questions about a feature may be a source of future web compat or
-&amp;gt; interop issues. Please list open issues (e.g. links to known github issues
-&amp;gt; in the project for the feature specification) whose resolution may
-&amp;gt; introduce web compat/interop risk (e.g., changing to naming or structure of
-&amp;gt; the API in a non-backward-compatible way).
-&amp;gt; None
-&amp;gt;
-&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5106926245642240"&gt;https://chromestatus.com/feature/5106926245642240&lt;/a&gt;
-&amp;gt;
-&amp;gt; Links to previous Intent discussionsIntent to prototype:
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvtrmHkoOpTuD2eZYVOyFuAhP8ZFVoTuNBS8zYTVY%3DTaaQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvtrmHkoOpTuD2eZYVOyFuAhP8ZFVoTuNBS8zYTVY%3DTaaQ%40mail.gmail.com&lt;/a&gt;
-&amp;gt;
-&amp;gt; This intent message was generated by Chrome Platform Status
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-&amp;gt;
-&amp;gt; --
-&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt; To view this discussion on the web visit
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvsUb0GEG9WNWRN7Akkowjm03gLj%2Biiq5rG8%2BzdAWMBTNA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvsUb0GEG9WNWRN7Akkowjm03gLj%2Biiq5rG8%2BzdAWMBTNA%40mail.gmail.com&lt;/a&gt;
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvsUb0GEG9WNWRN7Akkowjm03gLj%2Biiq5rG8%2BzdAWMBTNA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvsUb0GEG9WNWRN7Akkowjm03gLj%2Biiq5rG8%2BzdAWMBTNA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt; .
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfUgBoRPaP9FxPceugOq7i4%3D8EYYy5GtrvRicsy3Ntzhhw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfUgBoRPaP9FxPceugOq7i4%3D8EYYy5GtrvRicsy3Ntzhhw%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08451.html</id>
-        <title>[blink-dev] Intent to Ship: Lazy load scroll margin</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08451.html"/>
-        <updated>2023-11-22T00:55:52.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08451.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Lazy+load+scroll+margin%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Ship: Lazy load scroll margin&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Traian+Captan%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Traian Captan&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231121" rel="nofollow"&gt;Tue, 21 Nov 2023 16:55:52 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Contact emailstcap...@chromium.org
-
-ExplainerNone&lt;/pre&gt;&lt;pre&gt;
-
-Specification&lt;a  rel="nofollow" href="https://html.spec.whatwg.org/#lazy-load-root-margin"&gt;https://html.spec.whatwg.org/#lazy-load-root-margin&lt;/a&gt;
-
-Summary
-
-Changes the lazy load intersection observer's init dictionary to use a
-scrollMargin instead of a rootMargin. This allows lazy loading images
-contained inside CSS scrollers, like carousels, to load as expected when
-near the viewport instead of the current behavior where these images load
-when at least one pixel is intersecting the viewport.
-
-
-Blink componentBlink&amp;gt;Image
-&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EImage"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EImage&lt;/a&gt;&amp;gt;
-
-Search tagslazyload &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:lazyload"&gt;https://chromestatus.com/features#tags:lazyload&lt;/a&gt;&amp;gt;,
-scrollmargin &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:scrollmargin"&gt;https://chromestatus.com/features#tags:scrollmargin&lt;/a&gt;&amp;gt;
-
-TAG reviewNone
-
-TAG review statusNot applicable
-
-Risks
-
-
-Interoperability and Compatibility
-
-Overall low as scroll margin also applies to the root element thus not
-affecting lazy loading images that are currently loading with just a root
-margin.
-
-
-*Gecko*: Positive (&lt;a  rel="nofollow" href="https://github.com/w3c/IntersectionObserver/issues/431"&gt;https://github.com/w3c/IntersectionObserver/issues/431&lt;/a&gt;)
-&lt;a  rel="nofollow" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1864794"&gt;https://bugzilla.mozilla.org/show_bug.cgi?id=1864794&lt;/a&gt;
-
-*WebKit*: Positive (
-&lt;a  rel="nofollow" href="https://github.com/w3c/IntersectionObserver/issues/431#issuecomment-930602435"&gt;https://github.com/w3c/IntersectionObserver/issues/431#issuecomment-930602435&lt;/a&gt;
-) &lt;a  rel="nofollow" href="https://bugs.webkit.org/show_bug.cgi?id=264864"&gt;https://bugs.webkit.org/show_bug.cgi?id=264864&lt;/a&gt;
-
-*Web developers*: Positive (
-&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1391989"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1391989&lt;/a&gt;)
-
-*Other signals*:
-
-WebView application risks
-
-Does this intent deprecate or change behavior of existing APIs, such that
-it has potentially high risk for Android WebView-based applications?
-
-None
-
-
-Debuggability
-
-None
-
-
-Will this feature be supported on all six Blink platforms (Windows, Mac,
-Linux, Chrome OS, Android, and Android WebView)?Yes
-
-Is this feature fully tested by web-platform-tests
-&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-?Yes
-
-&lt;a  rel="nofollow" href="https://wpt.fyi/results/html/semantics/embedded-content/the-img-element?label=master&amp;label=experimental&amp;aligned&amp;q=image-loading-lazy-in-"&gt;https://wpt.fyi/results/html/semantics/embedded-content/the-img-element?label=master&amp;label=experimental&amp;aligned&amp;q=image-loading-lazy-in-&lt;/a&gt;
-
-
-Flag name on chrome://flagsLazyLoadScrollMargin
-
-Finch feature nameNone
-
-Non-finch justification
-
-This feature is behind an enabled-by-default flag that can be disabled if
-needed.
-
-
-Requires code in //chrome?False
-
-Tracking bug&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1391989"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1391989&lt;/a&gt;
-
-Estimated milestones
-Shipping on desktop 121
-DevTrial on desktop 121
-Shipping on Android 121
-DevTrial on Android 121
-Shipping on WebView 121
-
-Anticipated spec changes
-
-Open questions about a feature may be a source of future web compat or
-interop issues. Please list open issues (e.g. links to known github issues
-in the project for the feature specification) whose resolution may
-introduce web compat/interop risk (e.g., changing to naming or structure of
-the API in a non-backward-compatible way).
-None
-
-Link to entry on the Chrome Platform Status
-&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5106926245642240"&gt;https://chromestatus.com/feature/5106926245642240&lt;/a&gt;
-
-Links to previous Intent discussionsIntent to prototype:
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvtrmHkoOpTuD2eZYVOyFuAhP8ZFVoTuNBS8zYTVY%3DTaaQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvtrmHkoOpTuD2eZYVOyFuAhP8ZFVoTuNBS8zYTVY%3DTaaQ%40mail.gmail.com&lt;/a&gt;
-
-This intent message was generated by Chrome Platform Status
-&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvsUb0GEG9WNWRN7Akkowjm03gLj%2Biiq5rG8%2BzdAWMBTNA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvsUb0GEG9WNWRN7Akkowjm03gLj%2Biiq5rG8%2BzdAWMBTNA%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08450.html</id>
-        <title>Re: [blink-dev] PSA: New baseline format for test-harness tests</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08450.html"/>
-        <updated>2023-11-21T23:10:38.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08450.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+PSA%5C%3A+New+baseline+format+for+test%5C-harness+tests%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] PSA: New baseline format for test-harness tests&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Weizhong+Xia%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Weizhong Xia' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231121" rel="nofollow"&gt;Tue, 21 Nov 2023 15:10:38 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Folks, FYI we were finally able to make changes to remove the PASS lines in
-baselines, which many of you have desired. With that the work to transit to
-the new baseline format is all done.&lt;/pre&gt;&lt;pre&gt;
-
-&lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/5046574"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/5046574&lt;/a&gt;
-&lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/5047251"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/5047251&lt;/a&gt;
-
-thanks, Weizhong
-
-On Tue, Oct 17, 2023 at 11:49 AM Christian Biesinger &amp;lt;
-cbiesin...@chromium.org&amp;gt; wrote:
-
-&amp;gt; Thanks, this looks great. I particularly like the omission of PASS lines.
-&amp;gt;
-&amp;gt; Christian
-&amp;gt;
-&amp;gt; On Tue, Oct 17, 2023 at 2:33 PM Weizhong Xia &amp;lt;weizh...@google.com&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; Yes, here is the design document:
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://docs.google.com/document/d/1FsbRm2gXwFnhyJYaE-wz2fagRABkuHCK4KCYb6JEhMQ/edit?resourcekey=0-47lxaiexsP8wfuzOtQhkXw#heading=h.103wg95souql"&gt;https://docs.google.com/document/d/1FsbRm2gXwFnhyJYaE-wz2fagRABkuHCK4KCYb6JEhMQ/edit?resourcekey=0-47lxaiexsP8wfuzOtQhkXw#heading=h.103wg95souql&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; thanks, Weizhong
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Tue, Oct 17, 2023 at 10:54 AM Christian Biesinger &amp;lt;
-&amp;gt;&amp;gt; cbiesin...@chromium.org&amp;gt; wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Interesting! When you say &amp;quot;machine parsable&amp;quot;, I assume you mean you want
-&amp;gt;&amp;gt;&amp;gt; to detect which subtests passed/failed? Could you share an example of
-&amp;gt;&amp;gt;&amp;gt; the new format? Thanks!
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; On Mon, Oct 16, 2023 at 9:07 PM 'Weizhong Xia' via blink-dev &amp;lt;
-&amp;gt;&amp;gt;&amp;gt; blink-dev@chromium.org&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Hi Blink Developers
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; We want to let you know that we are in the process of converting
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; baselines for test-harness tests into a new format. The reason is that we
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; want to make baselines machine-parsable so that we can regenerate Wpt
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Metadata from Test Expectations and Baselines.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; We are doing this directory by directory. Until now we have done this
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; for all legacy web tests, wpt_internal and external/wpt/html, and we are
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; expecting to complete this work by the end of this week.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; This should mostly have no impact on your work, but a rebaseline might
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; be needed if we happened to work on the same directory at the same time.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; thanks, Weizhong
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+unsubscr...@chromium.org.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADXrSiobktBNXd1WD%2BK9gnaqAgW-oAq5Fn_3xGG1H9fUZ8Ezig%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADXrSiobktBNXd1WD%2BK9gnaqAgW-oAq5Fn_3xGG1H9fUZ8Ezig%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADXrSiobktBNXd1WD%2BK9gnaqAgW-oAq5Fn_3xGG1H9fUZ8Ezig%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADXrSiobktBNXd1WD%2BK9gnaqAgW-oAq5Fn_3xGG1H9fUZ8Ezig%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADXrSipM0Dz1OzX3YT89JN96BAYMbPfZyvaV-x7fbVqdn-YXSw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADXrSipM0Dz1OzX3YT89JN96BAYMbPfZyvaV-x7fbVqdn-YXSw%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08449.html</id>
-        <title>Re: [blink-dev] Request for Deprecation Trial: Deprecate Third-Party Cookies</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08449.html"/>
-        <updated>2023-11-21T19:53:33.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08449.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Request+for+Deprecation+Trial%5C%3A+Deprecate+Third%5C-Party+Cookies%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Request for Deprecation Trial: Deprecate Third-Party Cookies&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Ben+Kelly%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Ben Kelly&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231121" rel="nofollow"&gt;Tue, 21 Nov 2023 11:53:33 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;FYI, please see this blog post for more information on this deprecation
-trial:&lt;/pre&gt;&lt;pre&gt;
-
-&lt;a  rel="nofollow" href="https://developer.chrome.com/blog/third-party-cookie-deprecation-trial/"&gt;https://developer.chrome.com/blog/third-party-cookie-deprecation-trial/&lt;/a&gt;
-
-On Fri, Nov 17, 2023 at 7:52 PM Mike Taylor &amp;lt;miketa...@chromium.org&amp;gt; wrote:
-
-&amp;gt; LGTM for a deprecation trial from M120 to M132. For those of you who have
-&amp;gt; followed my career (all 2 of you), it shouldn't come as a surprise that I
-&amp;gt; appreciate the desire and efforts to minimize the compat implications for
-&amp;gt; sites that are earnestly moving towards this brave new post-3rd-party
-&amp;gt; cookies world.
-&amp;gt;
-&amp;gt; (Note: I don't work on third-party cookie deprecation but I would have
-&amp;gt; landed on a similarly recommended timeline for migration/deprecation.
-&amp;gt; Thanks for being accommodating and realistic to the complicated demands of
-&amp;gt; web development and deployment of different use-cases.)
-&amp;gt;
-&amp;gt; On 11/17/23 1:21 PM, Ben Kelly wrote:
-&amp;gt;
-&amp;gt; Contact emails
-&amp;gt;
-&amp;gt; johann...@chromium.org, wanderv...@chromium.org
-&amp;gt;
-&amp;gt; Explainer
-&amp;gt;
-&amp;gt; None
-&amp;gt;
-&amp;gt; Specification
-&amp;gt;
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-12#name-the-cookie-header-field"&gt;https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-12#name-the-cookie-header-field&lt;/a&gt;
-&amp;gt;
-&amp;gt; Summary
-&amp;gt;
-&amp;gt; We intend to deprecate and remove default access to third-party (aka
-&amp;gt; cross-site) cookies as part of the Privacy Sandbox Timeline for the Web,
-&amp;gt; starting with an initial 1% testing period in Q1 2024, followed by a
-&amp;gt; gradual phaseout planned to begin in Q3 2024 after consultation with the
-&amp;gt; CMA. (The gradual phaseout is subject to addressing any remaining
-&amp;gt; competition concerns of the UK’s Competition and Markets Authority.)
-&amp;gt;
-&amp;gt; Phasing out third-party cookies (3PCs) is a central effort to the Privacy
-&amp;gt; Sandbox initiative, which aims to responsibly reduce cross-site tracking on
-&amp;gt; the web (and beyond) while supporting key use cases through new
-&amp;gt; technologies. Our phaseout plan was developed with the UK's Competition and
-&amp;gt; Markets Authority, in line with the commitments we offered for Privacy
-&amp;gt; Sandbox for the web.
-&amp;gt;
-&amp;gt; To support this effort we would like to run a deprecation trial for
-&amp;gt; third-party embedded content.  Qualified third-parties participating in the
-&amp;gt; trial can supply a token via an iframe or third-party script in order to
-&amp;gt; continue receiving third-party cookies on requests to that origin.
-&amp;gt;
-&amp;gt; Goals for experimentation
-&amp;gt;
-&amp;gt; The primary goal of the deprecation trial is to reduce the amount of
-&amp;gt; broken user-visible experiences as third-party cookies are phased out.
-&amp;gt; Third-party embedded content or services with these kinds of experiences
-&amp;gt; can use the trial to continue to receive third-party cookies while they
-&amp;gt; work on long term solutions for their users based on CHIPS, Storage Access
-&amp;gt; API, Related Website Sets, FedCM, etc.
-&amp;gt;
-&amp;gt; To meet this goal, requests to register for the deprecation trial will be
-&amp;gt; reviewed to confirm eligibility. Specifically, third-party providers will
-&amp;gt; need to demonstrate functional breakage in user journeys to be eligible.
-&amp;gt; Because the deprecation trial is not intended to support cross-site
-&amp;gt; tracking for advertising purposes, third-party embeds and services used for
-&amp;gt; advertising will not be eligible. The ineligibility of advertising use
-&amp;gt; cases will also help to ensure the deprecation trial does not interfere
-&amp;gt; with the industry testing planned for the start of 2024 as described by
-&amp;gt; the CMA
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://www.gov.uk/cma-cases/investigation-into-googles-privacy-sandbox-browser-changes#industry-testing"&gt;https://www.gov.uk/cma-cases/investigation-into-googles-privacy-sandbox-browser-changes#industry-testing&lt;/a&gt;&amp;gt;
-&amp;gt; .
-&amp;gt;
-&amp;gt; Experiment timeline
-&amp;gt;
-&amp;gt; Registration opens the week of November 27, 2023.
-&amp;gt;
-&amp;gt; The trial will end on December 27, 2024.
-&amp;gt;
-&amp;gt; Effective in Chrome versions M120 through M132
-&amp;gt;
-&amp;gt; Blink component
-&amp;gt;
-&amp;gt; Internals&amp;gt;Network&amp;gt;Cookies
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Internals%3ENetwork%3ECookies"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Internals%3ENetwork%3ECookies&lt;/a&gt;&amp;gt;
-&amp;gt;
-&amp;gt; Search tags
-&amp;gt;
-&amp;gt; 3pcd &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:3pcd"&gt;https://chromestatus.com/features#tags:3pcd&lt;/a&gt;&amp;gt;
-&amp;gt;
-&amp;gt; TAG review
-&amp;gt;
-&amp;gt; None
-&amp;gt;
-&amp;gt; TAG review status
-&amp;gt;
-&amp;gt; Not applicable
-&amp;gt;
-&amp;gt; Risks
-&amp;gt; Interoperability and Compatibility
-&amp;gt;
-&amp;gt; Web Compatibility:
-&amp;gt;
-&amp;gt; Despite 3PCs already being blocked in Firefox and Safari and developer
-&amp;gt; outreach efforts to raise awareness and encourage developers to prepare for
-&amp;gt; the deprecation, we currently estimate that a non-trivial number of sites
-&amp;gt; are still relying on third-party cookies for some user-facing
-&amp;gt; functionality. See Intent to Deprecate and Remove for more information:
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/RG0oLYQ0f2I/m/xMSdsEAzBwAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/RG0oLYQ0f2I/m/xMSdsEAzBwAJ&lt;/a&gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; Interoperability:
-&amp;gt;
-&amp;gt; Both Firefox and Safari have removed default access to third-party cookies
-&amp;gt; already, though there are small differences in how browsers treat
-&amp;gt; SameSite=None cookies in so called “ABA” scenarios (site A embeds site B,
-&amp;gt; which embeds site A again). Chrome ships the more secure and more
-&amp;gt; restrictive variant, and from initial conversations we are optimistic that
-&amp;gt; other browsers will adopt it as well. There are also subtle differences in
-&amp;gt; how browsers restore access to third-party cookies through mechanisms such
-&amp;gt; as heuristics or custom quirks. Where Chrome implements similar measures
-&amp;gt; (such as the heuristics), we try to follow the launch and standards
-&amp;gt; processes to achieve as much interop as we can, given other requirements
-&amp;gt; such as privacy and security.
-&amp;gt;
-&amp;gt;
-&amp;gt; Gecko: Shipped/Shipping
-&amp;gt;
-&amp;gt; WebKit: Shipped/Shipping
-&amp;gt;
-&amp;gt; Web developers: Mixed signals (
-&amp;gt; &lt;a  rel="nofollow" href="https://privacysandbox.com/news/privacy-sandbox-for-the-web-reaches-general-availability/#:~:text=The%20Benefits%20of%20Collaboration"&gt;https://privacysandbox.com/news/privacy-sandbox-for-the-web-reaches-general-availability/#:~:text=The%20Benefits%20of%20Collaboration&lt;/a&gt;)
-&amp;gt; As one of the most impactful changes to the web platform in a long time,
-&amp;gt; the deprecation of 3rd party cookies and the introduction of alternative
-&amp;gt; APIs have received a lot of helpful feedback from web developers to an
-&amp;gt; extent impossible to summarize in a few sentences. As described in the
-&amp;gt; summary, the Privacy Sandbox wants to ensure that a vibrant, freely
-&amp;gt; accessible web can exist even as we roll out strong user protections and we
-&amp;gt; will continue to work with web developers to understand their use cases and
-&amp;gt; ship the right (privacy-enhancing) APIs. And we’ve received feedback that
-&amp;gt; gives us confidence that we’re on the right track.
-&amp;gt;
-&amp;gt; Other signals:
-&amp;gt;
-&amp;gt; Activation
-&amp;gt;
-&amp;gt; Impact on the Ads ecosystem:
-&amp;gt;
-&amp;gt; A suite of APIs for delivering relevant ads, measuring ad performance, and
-&amp;gt; preventing fraud and abuse are now generally available in Chrome to
-&amp;gt; continue to facilitate ad-supported content on the web. We continue to work
-&amp;gt; closely with the UK Competition and Markets Authority (CMA) on evaluating
-&amp;gt; the impact of this change on the ads ecosystem.
-&amp;gt;
-&amp;gt;
-&amp;gt; WebView application risks
-&amp;gt;
-&amp;gt; Does this intent deprecate or change behavior of existing APIs, such that
-&amp;gt; it has potentially high risk for Android WebView-based applications?
-&amp;gt;
-&amp;gt; None
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; Ongoing technical constraints
-&amp;gt;
-&amp;gt; None
-&amp;gt;
-&amp;gt;
-&amp;gt; Debuggability
-&amp;gt;
-&amp;gt; Developers may use the command-line testing switch
-&amp;gt; --test-third-party-cookie-phaseout (available starting Chrome 115) or
-&amp;gt; enable chrome://flags#test-third-party-cookie-phaseout (available
-&amp;gt; starting Chrome 117), to simulate browser behavior with default access to
-&amp;gt; third-party cookies removed. We also started reporting DevTools issues for
-&amp;gt; cookies impacted by the deprecation starting in Chrome 117 to help identify
-&amp;gt; potentially impacted workflows. We are continuing to improve our developer
-&amp;gt; documentation on debugging third-party cookies usage, and guidance on
-&amp;gt; migration to new APIs.
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://developer.chrome.com/blog/cookie-countdown-2023oct/"&gt;https://developer.chrome.com/blog/cookie-countdown-2023oct/&lt;/a&gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; Will this feature be supported on all six Blink platforms (Windows, Mac,
-&amp;gt; Linux, Chrome OS, Android, and Android WebView)?
-&amp;gt;
-&amp;gt; No
-&amp;gt;
-&amp;gt; Third-Party Cookies will be deprecated on Windows, Mac, Linux, Chrome OS,
-&amp;gt; Android. The deprecation will not affect Android WebView for the time
-&amp;gt; being, where 3PCs are already blocked by default, but can be re-enabled by
-&amp;gt; the embedding application.
-&amp;gt;
-&amp;gt;
-&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt; ?
-&amp;gt;
-&amp;gt; Yes
-&amp;gt;
-&amp;gt; Yes. We have put together a set of WPTs which cover third-party cookie
-&amp;gt; blocking for subresource requests. It is not yet comprehensive, we are
-&amp;gt; working on adding additional tests to support our standardization efforts.
-&amp;gt;
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/cookies/third-party-cookies/third-party-cookies.tentative.https.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/cookies/third-party-cookies/third-party-cookies.tentative.https.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; Flag name on chrome://flags
-&amp;gt;
-&amp;gt; test-third-party-cookie-phaseout
-&amp;gt;
-&amp;gt; Finch feature name
-&amp;gt;
-&amp;gt; None
-&amp;gt;
-&amp;gt; Non-finch justification
-&amp;gt;
-&amp;gt; None
-&amp;gt;
-&amp;gt; Requires code in //chrome?
-&amp;gt;
-&amp;gt; False
-&amp;gt;
-&amp;gt; Launch bug
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://launch.corp.google.com/4276016"&gt;https://launch.corp.google.com/4276016&lt;/a&gt;
-&amp;gt;
-&amp;gt; Estimated milestones
-&amp;gt;
-&amp;gt; DevTrial on desktop
-&amp;gt;
-&amp;gt; 117
-&amp;gt;
-&amp;gt; DevTrial on Android
-&amp;gt;
-&amp;gt; 117
-&amp;gt;
-&amp;gt;
-&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5133113939722240"&gt;https://chromestatus.com/feature/5133113939722240&lt;/a&gt;
-&amp;gt;
-&amp;gt; Links to previous Intent discussions
-&amp;gt; --
-&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt; To view this discussion on the web visit
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAK7rkMgacVy4YDA4T6z72mEPfwGst3O1_GbB8jF_W5kBwPyAXA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAK7rkMgacVy4YDA4T6z72mEPfwGst3O1_GbB8jF_W5kBwPyAXA%40mail.gmail.com&lt;/a&gt;
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAK7rkMgacVy4YDA4T6z72mEPfwGst3O1_GbB8jF_W5kBwPyAXA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAK7rkMgacVy4YDA4T6z72mEPfwGst3O1_GbB8jF_W5kBwPyAXA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt; .
-&amp;gt;
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAK7rkMhn08xdB-7ONkGe_oWWrTJx1HBN0SP0dwanowWtg9BFiA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAK7rkMhn08xdB-7ONkGe_oWWrTJx1HBN0SP0dwanowWtg9BFiA%40mail.gmail.com&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
