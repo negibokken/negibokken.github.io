@@ -5,6 +5,1387 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08551.html</id>
+        <title>[blink-dev] Intent to Ship: Attribution Reporting Features (Reduced Aggregate Delays, Event-Level Report Epsilon Field, Reserved Keys)</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08551.html"/>
+        <updated>2023-11-30T20:38:06.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08551.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Attribution+Reporting+Features+%5C%28Reduced+Aggregate+Delays%2C+Event%5C-Level+Report+Epsilon+Field%2C+Reserved+Keys%5C%29%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Ship: Attribution Reporting Features (Reduced Aggregate Delays, Event-Level Report Epsilon Field, Reserved Keys)&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Akash+Nadan%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Akash Nadan' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231130" rel="nofollow"&gt;Thu, 30 Nov 2023 12:38:06 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Contact emails
+
+akashna...@google.com, lin...@chromium.org, johni...@chromium.org&lt;/pre&gt;&lt;pre&gt;
+
+Explainer
+
+Attribution Reporting with event-level reports 
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/attribution-reporting-api/blob/main/EVENT.md"&gt;https://github.com/WICG/attribution-reporting-api/blob/main/EVENT.md&lt;/a&gt;&amp;gt;
+
+Attribution Reporting API with Aggregatable Reports 
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/attribution-reporting-api/blob/main/AGGREGATE.md"&gt;https://github.com/WICG/attribution-reporting-api/blob/main/AGGREGATE.md&lt;/a&gt;&amp;gt;
+
+Aggregation Service for the Attribution Reporting API 
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/attribution-reporting-api/blob/main/AGGREGATION_SERVICE_TEE.md"&gt;https://github.com/WICG/attribution-reporting-api/blob/main/AGGREGATION_SERVICE_TEE.md&lt;/a&gt;&amp;gt;
+
+Specification
+
+&lt;a  rel="nofollow" href="https://wicg.github.io/attribution-reporting-api/"&gt;https://wicg.github.io/attribution-reporting-api/&lt;/a&gt;
+
+Blink component
+
+Internals &amp;gt; AttributionReporting 
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Internals%3EAttributionReporting"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Internals%3EAttributionReporting&lt;/a&gt;&amp;gt;
+
+Summary
+
+We plan on landing the following changes to the Attribution Reporting API 
+focused on:
+
+   - 
+   
+   reducing transmission loss by supporting reduced aggregatable report 
+   delays with trigger context ID
+   - 
+   
+   additional API configurability by supporting an event-level reporting 
+   epsilon field
+   - 
+   
+   improve extensibility of the API by failing registrations when 
+   encountering reserved keys
+   
+Explainer/Spec changes
+   
+   - Reduce aggregate delays and support trigger context ID 
+   &amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/attribution-reporting-api/pull/1114"&gt;https://github.com/WICG/attribution-reporting-api/pull/1114&lt;/a&gt;&amp;gt; 
+   - 
+   
+   Event-level reporting epsilon field 
+   &amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/attribution-reporting-api/pull/1097"&gt;https://github.com/WICG/attribution-reporting-api/pull/1097&lt;/a&gt;&amp;gt; 
+   - 
+   
+   Reserve keys starting with an underscore 
+   &amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/attribution-reporting-api/pull/967"&gt;https://github.com/WICG/attribution-reporting-api/pull/967&lt;/a&gt;&amp;gt; 
+   
+
+Risks
+Interoperability and Compatibility
+
+The first two changes (1. supporting reduced aggregatable report delays and 
+2. supporting event-level reporting epsilon field) are fully backwards 
+compatible changes. Both of these features are optional features.
+
+The third change (3. failing registrations when encountering reserved keys) 
+is backwards incompatible. Any keys starting with an underscore will cause 
+the registration to fail. We have checked the usage of such keys, and the 
+data shows that keys that start with an underscore are not currently used. 
+Therefore this change will most likely not break any current registrations 
+or have minimal impact.
+
+              
+Will this feature be supported on all six Blink platforms (Windows, Mac, 
+Linux, Chrome OS, Android, and Android WebView)?
+
+All except Android WebView
+
+Is this feature fully tested by web-platform-tests 
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+?
+
+Yes
+
+Estimated milestones
+
+Chrome 121
+
+Link to entry on the Chrome Platform Status
+
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5181611197071360"&gt;https://chromestatus.com/feature/5181611197071360&lt;/a&gt;
+
+Links to previous Intent discussions
+
+Previous I2S: 
+
+Intent to Ship: Attribution Reporting API 
+&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/2Rmj5V6FSaY"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/2Rmj5V6FSaY&lt;/a&gt;&amp;gt;
+
+Intent to Ship: Attribution Reporting features M117 
+&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/nWF61c8xu-M/m/uMmH1ewcAQAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/nWF61c8xu-M/m/uMmH1ewcAQAJ&lt;/a&gt;&amp;gt;
+
+Intent to Ship: Attribution Reporting features M118 
+&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/Mh-mJiyJZFk/m/HlgzpphYBQAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/Mh-mJiyJZFk/m/HlgzpphYBQAJ&lt;/a&gt;&amp;gt;
+
+Intent to Ship: Attribution Reporting features M119 
+&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/6e44SBtEtcQ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/6e44SBtEtcQ&lt;/a&gt;&amp;gt;
+
+Intent to Ship: Attribution Reporting features M120 
+&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/jSk3xpNPzGQ/m/VZPsdYgGCAAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/jSk3xpNPzGQ/m/VZPsdYgGCAAJ&lt;/a&gt;&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/e20140d1-74ea-4535-b20a-9bfd89e27954n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/e20140d1-74ea-4535-b20a-9bfd89e27954n%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08550.html</id>
+        <title>[blink-dev] Intent to Ship: Fenced Frames - Enable Leaving IGs, and Ads Report at Top Level Navigation Start (Chrome - 120)</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08550.html"/>
+        <updated>2023-11-30T19:55:24.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08550.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Fenced+Frames+%5C-+Enable+Leaving+IGs%2C+and+Ads+Report+at+Top+Level+Navigation+Start+%5C%28Chrome+%5C-+120%5C%29%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Ship: Fenced Frames - Enable Leaving IGs, and Ads Report at Top Level Navigation Start (Chrome - 120)&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Liam+Brady%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Liam Brady' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231130" rel="nofollow"&gt;Thu, 30 Nov 2023 11:55:24 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;
+
+Contact emails&lt;/pre&gt;&lt;pre&gt;
+
+shivani...@chromium.org, jkar...@chromium.org, lbr...@google.com, 
+xiaoche...@google.com  
+
+Explainer(s)
+
+Enable Leaving Ad Interest Groups from Urn iFrames and Ad Component Frames
+
+&lt;a  rel="nofollow" href="https://github.com/WICG/turtledove/pull/879"&gt;https://github.com/WICG/turtledove/pull/879&lt;/a&gt; 
+
+&lt;a  rel="nofollow" href="https://github.com/WICG/turtledove/blob/11d500c87bb39540d49c8e369a87d6ca84ee5824/FLEDGE.md#11-joining-interest-groups"&gt;https://github.com/WICG/turtledove/blob/11d500c87bb39540d49c8e369a87d6ca84ee5824/FLEDGE.md#11-joining-interest-groups&lt;/a&gt;
+ 
+
+Introduce reserved.top_navigation_start/commit
+
+&lt;a  rel="nofollow" href="https://github.com/WICG/turtledove/pull/885"&gt;https://github.com/WICG/turtledove/pull/885&lt;/a&gt;
+
+
+Spec(s)
+
+Enable Leaving Ad Interest Groups from URN iframes and Ad Component Frames
+
+&lt;a  rel="nofollow" href="https://wicg.github.io/turtledove/#leaveadinterestgroup"&gt;https://wicg.github.io/turtledove/#leaveadinterestgroup&lt;/a&gt;
+
+Introduce reserved.top_navigation_start/commit
+
+&lt;a  rel="nofollow" href="https://github.com/WICG/fenced-frame/pull/130"&gt;https://github.com/WICG/fenced-frame/pull/130&lt;/a&gt; 
+
+Summary
+
+We launched Fenced Frames as a part of Chrome 115. We would like to make 
+the following two changes to Fenced Frames to help improve experimentation. 
+Note that changes to Fenced Frames Ads Reporting applies to both fenced 
+frames and URN iframes.
+
+1. Enable Leaving Ad Interest Groups from URN iframes and Ad Component 
+Frames
+
+Currently calling navigator.leaveAdInterestGroup() without any argument 
+only works in fenced frames. This change enables this API for supporting 
+navigator.leaveAdInterestGroup() without any argument in URN iframes and in 
+ad component frames. 
+
+This change is being made to provide consistency of behavior across the 
+various frame types.
+
+
+2. Introduce reserved.top_navigation_start/commit
+
+Fenced frames or URN iframes, when loaded through an API like Protected 
+Audience or Shared Storage, can send out reporting beacons automatically 
+when a top-level navigation initiated by the frame commits. With this 
+change, we are additionally adding automatic beacon support for top-level 
+navigation start events through the &amp;quot;reserved.top_navigation_start&amp;quot; event 
+type. The top-level navigation commit event is renamed from 
+&amp;quot;reserved.top_navigation&amp;quot; to &amp;quot;reserved.top_navigation_commit&amp;quot; to have a 
+more clear naming convention (for now, both the new and old name will 
+continue to work). This change also adds console warnings on the usage of 
+&amp;quot;reserved.top_navigation&amp;quot; to help with its eventual deprecation, which will 
+involve gathering metrics on its usage and deprecating when those metrics 
+reduce considerably.
+
+This change allows adtech to receive more complete reporting as discussed 
+in the related issue &amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/turtledove/issues/822"&gt;https://github.com/WICG/turtledove/issues/822&lt;/a&gt;&amp;gt;. 
+
+
+
+Blink component
+
+Blink&amp;gt;FencedFrames 
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EFencedFrames"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EFencedFrames&lt;/a&gt;&amp;gt;
+
+TAG reviews and status
+
+Fenced frames existing TAG review appended with these spec changes 
+&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/838#issuecomment-1792881253"&gt;https://github.com/w3ctag/design-reviews/issues/838#issuecomment-1792881253&lt;/a&gt;
+
+Link to Origin Trial feedback summary
+
+No Origin Trial performed
+
+Is this feature supported on all six Blink platforms (Windows, Mac, Linux, 
+Chrome OS, Android, and Android WebView)?
+
+Supported on all the above platforms except Android WebView.
+
+Debuggability
+
+Additional debugging capabilities are not necessary for these feature 
+changes.
+
+Risks
+
+Compatibility
+
+There are no compatibility risks, as described below:
+
+1. Enable Leaving Ad Interest Groups from Urn iFrames and Ad Component 
+Frames:
+
+This is added functionality and backward compatible.
+
+2. Introduce reserved.top_navigation_start/commit:
+
+This is added functionality and backward compatible.
+
+Interoperability
+
+There are no interoperability risks as no other browsers have decided to 
+implement these features yet.
+
+Is this feature fully tested by web-platform-tests 
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;?
+ 
+Link to test suite results from wpt.fyi.
+
+ 
+
+1. Enable Leaving Ad Interest Groups from Urn iFrames and Ad Component 
+Frames:
+
+Yes.
+
+&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/master/fledge/tentative/join-leave-ad-interest-group.https.window.js"&gt;https://github.com/web-platform-tests/wpt/blob/master/fledge/tentative/join-leave-ad-interest-group.https.window.js&lt;/a&gt;
+
+&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/master/fledge/tentative/join-leave-ad-interest-group-in-fenced-frame.https.window.js"&gt;https://github.com/web-platform-tests/wpt/blob/master/fledge/tentative/join-leave-ad-interest-group-in-fenced-frame.https.window.js&lt;/a&gt;
+
+2. Introduce reserved.top_navigation_start/commit: 
+
+Yes. The existing automatic beacon tests have been updated 
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/commit/da07db4e03aacb060c82996f4ed7b8f0dd4e4b24"&gt;https://github.com/web-platform-tests/wpt/commit/da07db4e03aacb060c82996f4ed7b8f0dd4e4b24&lt;/a&gt;&amp;gt;
+ 
+to test the new automatic beacon types.
+
+example of top_navigation_start and top_navigation_commit test:
+
+automatic-beacon-click-handler.https.html (test 
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-click-handler.https.html"&gt;https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-click-handler.https.html&lt;/a&gt;&amp;gt;)
+ 
+(results 
+&amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/fenced-frame/automatic-beacon-click-handler.https.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/fenced-frame/automatic-beacon-click-handler.https.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;&amp;gt;
+)
+
+automatic-beacon-shared-storage.https.html (test 
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-shared-storage.https.html"&gt;https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-shared-storage.https.html&lt;/a&gt;&amp;gt;)
+ 
+(results 
+&amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/fenced-frame/automatic-beacon-shared-storage.https.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/fenced-frame/automatic-beacon-shared-storage.https.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;&amp;gt;
+)
+
+WPT for Fenced Frames: 
+&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/tree/master/fenced-frame"&gt;https://github.com/web-platform-tests/wpt/tree/master/fenced-frame&lt;/a&gt;
+
+Anticipated spec changes
+
+None
+
+Link to entry on the Chrome Platform Status
+
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5149287986233344"&gt;https://chromestatus.com/feature/5149287986233344&lt;/a&gt; 
+
+Links to previous Intent discussions
+
+Intent to prototype: 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/Ko9UXQYPgUE/m/URRsB-qvAAAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/Ko9UXQYPgUE/m/URRsB-qvAAAJ&lt;/a&gt;
+ 
+
+Intent to experiment: 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/y6G3cvKXjlg/m/Lcpmpi_LAgAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/y6G3cvKXjlg/m/Lcpmpi_LAgAJ&lt;/a&gt;
+ 
+
+Intent to ship:
+
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/tpw8wW0VenQ/m/mePLTiHlDQAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/tpw8wW0VenQ/m/mePLTiHlDQAJ&lt;/a&gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/38a73d81-a439-46e8-9573-d5c66789fdc6n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/38a73d81-a439-46e8-9573-d5c66789fdc6n%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08549.html</id>
+        <title>Re: [blink-dev] Re: Intent to Ship: Multiple Readers and Writers in File System Access API</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08549.html"/>
+        <updated>2023-11-30T19:06:14.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08549.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Ship%5C%3A+Multiple+Readers+and+Writers+in+File+System+Access+API%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Re: Intent to Ship: Multiple Readers and Writers in File System Access API&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Mike+Taylor%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Mike Taylor&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231130" rel="nofollow"&gt;Thu, 30 Nov 2023 11:06:14 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre style="margin: 0em;"&gt;
+Seems like a useful addition to the API. LGTM1
+
+On 11/29/23 11:17 AM, 'Ajay Rahatekar' via blink-dev wrote:
+&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;
++ajayrahate...@google.com&lt;/pre&gt;&lt;pre&gt;&lt;/pre&gt;&lt;tt&gt;On Wednesday, November 29, 2023 at 8:18:04 AM UTC-8 
+&lt;/tt&gt;&lt;tt&gt;yoav...@chromium.org wrote:
+&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
+
+    Can you please tick all the review boxes in the Chrome status entry?
+
+    On Monday, November 27, 2023 at 8:19:42 PM UTC+1 mem...@google.com
+    wrote:
+
+
+                Contact emails
+
+        ds...@google.com, mem...@google.com
+
+
+                Explainer
+
+        
+&lt;a  rel="nofollow" href="https://github.com/whatwg/fs/blob/main/proposals/MultipleReadersWriters.md"&gt;https://github.com/whatwg/fs/blob/main/proposals/MultipleReadersWriters.md&lt;/a&gt;
+        
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/fs/blob/main/proposals/MultipleReadersWriters.md"&gt;https://github.com/whatwg/fs/blob/main/proposals/MultipleReadersWriters.md&lt;/a&gt;&amp;gt;
+
+
+                Specification
+
+        &lt;a  rel="nofollow" href="https://github.com/whatwg/fs/pull/151"&gt;https://github.com/whatwg/fs/pull/151&lt;/a&gt;
+        &amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/fs/pull/151"&gt;https://github.com/whatwg/fs/pull/151&lt;/a&gt;&amp;gt;
+
+
+                Summary
+
+        Currently, only one FileSystemSyncAccessHandle may be open at
+        a time per file, preventing an origin from reading and writing
+        to the same file from multiple tabs easily. Conversely,
+        multiple FileSystemWritableFileStreams can be simultaneously
+        open, letting multiple writers clobber each other.
+
+
+        Introducing new locking modes for FileSystemSyncAccessHandle
+        and FileSystemWritableFileStream allows opening either
+        multiple readers/writers or an exclusive writer to a file
+        entry, depending on the application's use case.
+
+
+        ```
+
+        handle.createSyncAccessHandle({ mode: 'read-only' });
+
+        handle.createSyncAccessHandle({ mode: 'readwrite-unsafe' });
+
+
+        handle.createWritable({ mode: 'exclusive' });
+
+        ```
+
+
+
+                Blink component
+
+        Blink&amp;gt;Storage&amp;gt;FileSystem
+        
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EStorage%3EFileSystem"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EStorage%3EFileSystem&lt;/a&gt;&amp;gt;
+
+
+                TAG review
+
+        &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/845"&gt;https://github.com/w3ctag/design-reviews/issues/845&lt;/a&gt;
+        &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/845"&gt;https://github.com/w3ctag/design-reviews/issues/845&lt;/a&gt;&amp;gt;
+
+
+                TAG review status
+
+        Issues addressed
+
+
+        Origin Trial documentation link
+
+        
+&lt;a  rel="nofollow" href="https://developer.chrome.com/blog/new-dev-trial-for-multiple-readers-and-writers/"&gt;https://developer.chrome.com/blog/new-dev-trial-for-multiple-readers-and-writers/&lt;/a&gt;
+        
+&amp;lt;&lt;a  rel="nofollow" href="https://developer.chrome.com/blog/new-dev-trial-for-multiple-readers-and-writers/"&gt;https://developer.chrome.com/blog/new-dev-trial-for-multiple-readers-and-writers/&lt;/a&gt;&amp;gt;
+
+
+                Risks
+
+
+
+                Interoperability and Compatibility
+
+
+
+        Gecko: Positive
+        (&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/861"&gt;https://github.com/mozilla/standards-positions/issues/861&lt;/a&gt;
+        &amp;lt;&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/861"&gt;https://github.com/mozilla/standards-positions/issues/861&lt;/a&gt;&amp;gt;)
+
+
+        WebKit: No Signal
+        (&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/238"&gt;https://github.com/WebKit/standards-positions/issues/238&lt;/a&gt;
+        &amp;lt;&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/238"&gt;https://github.com/WebKit/standards-positions/issues/238&lt;/a&gt;&amp;gt;)
+
+
+        Web developers: Positive
+        (&lt;a  rel="nofollow" href="https://github.com/whatwg/fs/issues/34"&gt;https://github.com/whatwg/fs/issues/34&lt;/a&gt;
+        &amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/fs/issues/34"&gt;https://github.com/whatwg/fs/issues/34&lt;/a&gt;&amp;gt;)
+
+
+        Other signals: Emscripten plans to utilize multiple readers
+        and writers for performance improvement, and sites using
+        Emscripten will be able to take advantage of this integration.
+
+
+                WebView application risks
+
+        Does this intent deprecate or change behavior of existing
+        APIs, such that it has potentially high risk for Android
+        WebView-based applications?
+
+        None
+
+
+
+                Debuggability
+
+        Feature is web exposed through WebIDL changes. No additional
+        implementation effort is required.
+
+
+
+                Will this feature be supported on all six Blink
+                platforms (Windows, Mac, Linux, Chrome OS, Android,
+                and Android WebView)?
+
+        Yes
+
+
+                Is this feature fully tested by web-platform-tests
+                
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;?
+
+        WPTs have been added that fully test the behavior of the new
+        locking modes. They additionally test the interactions between
+        combinations of primitives, their different modes, and file
+        handle operations.
+
+        
+&lt;a  rel="nofollow" href="https://wpt.fyi/results/fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
+        
+&amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;&amp;gt;
+
+        
+&lt;a  rel="nofollow" href="https://wpt.fyi/results/fs/FileSystemFileHandle-sync-access-handle-lock-modes.https.tentative.worker.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/fs/FileSystemFileHandle-sync-access-handle-lock-modes.https.tentative.worker.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
+        
+&amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/fs/FileSystemFileHandle-sync-access-handle-lock-modes.https.tentative.worker.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/fs/FileSystemFileHandle-sync-access-handle-lock-modes.https.tentative.worker.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;&amp;gt;
+
+        
+&lt;a  rel="nofollow" href="https://wpt.fyi/results/fs/FileSystemFileHandle-writable-file-stream-lock-modes.https.tentative.worker.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/fs/FileSystemFileHandle-writable-file-stream-lock-modes.https.tentative.worker.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
+        
+&amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/fs/FileSystemFileHandle-writable-file-stream-lock-modes.https.tentative.worker.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/fs/FileSystemFileHandle-writable-file-stream-lock-modes.https.tentative.worker.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;&amp;gt;
+
+
+
+                Flag name on chrome://flags
+
+        file-system-access-locking-scheme
+
+
+                Finch feature name
+
+        FileSystemAccessLockingScheme
+
+
+                Requires code in //chrome?
+
+        False
+
+
+                Tracking bug
+
+        &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1382215"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1382215&lt;/a&gt;
+        &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1382215"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1382215&lt;/a&gt;&amp;gt;
+
+
+                Launch bug
+
+        &lt;a  rel="nofollow" href="https://launch.corp.google.com/launch/4261043"&gt;https://launch.corp.google.com/launch/4261043&lt;/a&gt;
+        &amp;lt;&lt;a  rel="nofollow" href="https://launch.corp.google.com/launch/4261043"&gt;https://launch.corp.google.com/launch/4261043&lt;/a&gt;&amp;gt;
+
+
+                Estimated milestones
+
+        Shipping on desktop
+
+                
+
+        121
+
+
+
+
+
+
+                Anticipated spec changes
+
+        Discussion: &lt;a  rel="nofollow" href="https://github.com/whatwg/fs/issues/34"&gt;https://github.com/whatwg/fs/issues/34&lt;/a&gt;
+        &amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/fs/issues/34"&gt;https://github.com/whatwg/fs/issues/34&lt;/a&gt;&amp;gt;
+
+        No open issues that introduce web compat/interop risk.
+
+
+
+                Link to entry on the Chrome Platform Status
+
+        &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5172892632875008"&gt;https://chromestatus.com/feature/5172892632875008&lt;/a&gt;
+        &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5172892632875008"&gt;https://chromestatus.com/feature/5172892632875008&lt;/a&gt;&amp;gt;
+
+
+                Links to previous Intent discussions
+
+        Intent to prototype:
+        
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPscNz5Oi-z6-%2BvTVyf9BNgvVnLZeQo5nfzyRhEZ_F400tTP3w%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPscNz5Oi-z6-%2BvTVyf9BNgvVnLZeQo5nfzyRhEZ_F400tTP3w%40mail.gmail.com&lt;/a&gt;
+        
+&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPscNz5Oi-z6-%2BvTVyf9BNgvVnLZeQo5nfzyRhEZ_F400tTP3w%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPscNz5Oi-z6-%2BvTVyf9BNgvVnLZeQo5nfzyRhEZ_F400tTP3w%40mail.gmail.com&lt;/a&gt;&amp;gt;
+
+
+--
+&lt;/pre&gt;&lt;tt&gt;You received this message because you are subscribed to the Google 
+&lt;/tt&gt;&lt;tt&gt;Groups &amp;quot;blink-dev&amp;quot; group.
+&lt;/tt&gt;&lt;tt&gt;To unsubscribe from this group and stop receiving emails from it, send 
+&lt;/tt&gt;&lt;tt&gt;an email to blink-dev+unsubscr...@chromium.org.
+&lt;/tt&gt;&lt;tt&gt;To view this discussion on the web visit 
+&lt;/tt&gt;&lt;tt&gt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/bd470b7d-4fa3-4874-a421-a2376910bc9bn%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/bd470b7d-4fa3-4874-a421-a2376910bc9bn%40chromium.org&lt;/a&gt; 
+&lt;/tt&gt;&lt;tt&gt;&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/bd470b7d-4fa3-4874-a421-a2376910bc9bn%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/bd470b7d-4fa3-4874-a421-a2376910bc9bn%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
+&lt;/tt&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;
+
+--
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/f7bb1aa0-2858-49eb-a361-f74560c65efa%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/f7bb1aa0-2858-49eb-a361-f74560c65efa%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08548.html</id>
+        <title>Re: [blink-dev] Intent to Ship: Lazy load scroll margin</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08548.html"/>
+        <updated>2023-11-30T18:57:11.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08548.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Lazy+load+scroll+margin%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Lazy load scroll margin&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Chris+Harrelson%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Chris Harrelson&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231130" rel="nofollow"&gt;Thu, 30 Nov 2023 10:57:11 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;LGTM3
+
+On Thu, Nov 30, 2023 at 10:54 AM Mike Taylor &amp;lt;miketa...@chromium.org&amp;gt; wrote:&lt;/pre&gt;&lt;pre&gt;
+
+&amp;gt; LGTM2
+&amp;gt; On 11/30/23 9:33 AM, Traian Captan wrote:
+&amp;gt;
+&amp;gt; You're welcome Rick!
+&amp;gt;
+&amp;gt;
+&amp;gt; On Thu, Nov 30, 2023 at 5:33 AM Rick Byers &amp;lt;rby...@chromium.org&amp;gt; wrote:
+&amp;gt;
+&amp;gt;&amp;gt; Thank you Traian!
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; On Thu, Nov 30, 2023 at 7:27 PM Traian Captan &amp;lt;tcap...@chromium.org&amp;gt;
+&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Hi Rick,
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Yes. I uploaded a CL that increases the spacer size by 30px:
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/5075126"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/5075126&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; The tests are now failing as expected on Safari:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/html/semantics/embedded-content/the-img-element?label=pr_head&amp;max-count=1&amp;pr=43446"&gt;https://wpt.fyi/results/html/semantics/embedded-content/the-img-element?label=pr_head&amp;max-count=1&amp;pr=43446&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; On Thu, Nov 30, 2023 at 12:14 AM Rick Byers &amp;lt;rby...@chromium.org&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Interesting. Could you try to improve the tests to capture the interop
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; difference and ensure passing reflects full conformance to the spec? We
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; rely on WPTs as our quantifiable measure of interoperability...
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Rick
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Thu, Nov 30, 2023 at 5:07 PM Traian Captan &amp;lt;tcap...@chromium.org&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Thank you Rick!
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I did some investigating into why WebKit is passing some of the new
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; WPTs for lazy loaded images.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I think it might be because WebKit is considering the edge as
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; inclusive, while Blink and Gecko do not.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; In the following example if the spacer height is 100px Safari will
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; report intersecting as true while Chrome and FireFox would report it as
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; false.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; If the height is increased to 101px, all 3 browsers will report the
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; intersection as false.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;!DOCTYPE html&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;style&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; #scroller { width: 100px; height: 100px; overflow: scroll;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; background-color: gray; }
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; #spacer { width: 50px; height: 100px; }
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; #target { width: 50px; height: 50px; background-color: green; }
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;/style&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;div id=scroller&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;div id=spacer&amp;gt;&amp;lt;/div&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;div id=target&amp;gt;&amp;lt;/div&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;/div&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;script&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; let entries = [];
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; window.onload = function() {
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; const observer = new IntersectionObserver(
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; callback,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; {
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; rootMargin: &amp;quot;0px&amp;quot;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; }
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; );
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; observer.observe(target);
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; };
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; function callback(entries) {
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; console.log(`isIntersecting = ${entries[0].isIntersecting}`);
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; }
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;/script&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Mon, Nov 27, 2023 at 11:40 PM Rick Byers &amp;lt;rby...@chromium.org&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Wed, Nov 22, 2023 at 2:37 PM Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Thanks, that sounds like a strict improvement.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Wed, Nov 22, 2023 at 6:25 AM Traian Captan &amp;lt;tcap...@chromium.org&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Yes, that's correct.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Tue, Nov 21, 2023 at 9:18 PM Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Do I understand correctly that currently lazy-loaded images in CSS
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; scrollers have suboptimal behavior and this would improve that without
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; potentially harming other cases?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Wed, Nov 22, 2023 at 1:55 AM Traian Captan &amp;lt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; tcap...@chromium.org&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Contact emails tcap...@chromium.org
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Explainer None
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; A short (inline) explainer would help reviewers to understand e.g.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; if this involves changes to the API surface that developers need to care
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; about.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Can you write a few words on the impact on developers?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Specification &lt;a  rel="nofollow" href="https://html.spec.whatwg.org/#lazy-load-root-margin"&gt;https://html.spec.whatwg.org/#lazy-load-root-margin&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; The spec doesn't mention anything specific around root margins or
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; scroll margins (other than the algorithm name).
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Are these concepts interoperable?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I dug around a little to try to better understand this. The HTML spec
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; does mention
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://html.spec.whatwg.org/#start-intersection-observing-a-lazy-loading-element"&gt;https://html.spec.whatwg.org/#start-intersection-observing-a-lazy-loading-element&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  setting
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the &amp;quot;scrollMargin&amp;quot; on the IntersectionObserver, a new property we 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; recently
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; shipped (I2S
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/Ax8rTBusZ4s/m/nogj-s-eGQAJ?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/Ax8rTBusZ4s/m/nogj-s-eGQAJ?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ).
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; While WebKit and Gecko aren't yet passing the WPT tests
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/intersection-observer?label=master&amp;label=experimental&amp;aligned&amp;q=scroll-margin"&gt;https://wpt.fyi/results/intersection-observer?label=master&amp;label=experimental&amp;aligned&amp;q=scroll-margin&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; for this yet, interestingly WebKit is already passing
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/html/semantics/embedded-content/the-img-element?label=master&amp;label=experimental&amp;aligned&amp;q=image-loading-lazy-in-"&gt;https://wpt.fyi/results/html/semantics/embedded-content/the-img-element?label=master&amp;label=experimental&amp;aligned&amp;q=image-loading-lazy-in-&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; most of the newly added
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/5023396"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/5023396&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; WPTs for lazy loaded images in particular. So perhaps their 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; implementation
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; already handled this?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Seems reasonable to me - LGTM1
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Summary
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Changes the lazy load intersection observer's init dictionary to
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; use a scrollMargin instead of a rootMargin. This allows lazy loading 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; images
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; contained inside CSS scrollers, like carousels, to load as expected 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; when
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; near the viewport instead of the current behavior where these images 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; load
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; when at least one pixel is intersecting the viewport.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink component Blink&amp;gt;Image
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EImage"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EImage&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Search tags lazyload
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:lazyload"&gt;https://chromestatus.com/features#tags:lazyload&lt;/a&gt;&amp;gt;, scrollmargin
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:scrollmargin"&gt;https://chromestatus.com/features#tags:scrollmargin&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review None
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review status Not applicable
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Risks
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Interoperability and Compatibility
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Overall low as scroll margin also applies to the root element
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; thus not affecting lazy loading images that are currently loading 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; with just
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; a root margin.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Gecko*: Positive (
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/IntersectionObserver/issues/431"&gt;https://github.com/w3c/IntersectionObserver/issues/431&lt;/a&gt;)
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1864794"&gt;https://bugzilla.mozilla.org/show_bug.cgi?id=1864794&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *WebKit*: Positive (
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/IntersectionObserver/issues/431#issuecomment-930602435"&gt;https://github.com/w3c/IntersectionObserver/issues/431#issuecomment-930602435&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ) &lt;a  rel="nofollow" href="https://bugs.webkit.org/show_bug.cgi?id=264864"&gt;https://bugs.webkit.org/show_bug.cgi?id=264864&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Web developers*: Positive (
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1391989"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1391989&lt;/a&gt;)
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Other signals*:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; WebView application risks
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Does this intent deprecate or change behavior of existing APIs,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; such that it has potentially high risk for Android WebView-based
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; applications?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Debuggability
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (Windows, Mac, Linux, Chrome OS, Android, and Android WebView)?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Yes
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ? Yes
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/html/semantics/embedded-content/the-img-element?label=master&amp;label=experimental&amp;aligned&amp;q=image-loading-lazy-in-"&gt;https://wpt.fyi/results/html/semantics/embedded-content/the-img-element?label=master&amp;label=experimental&amp;aligned&amp;q=image-loading-lazy-in-&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Flag name on chrome://flags LazyLoadScrollMargin
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Finch feature name None
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Non-finch justification
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; This feature is behind an enabled-by-default flag that can be
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; disabled if needed.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Requires code in //chrome? False
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Tracking bug
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1391989"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1391989&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Estimated milestones
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Shipping on desktop 121
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; DevTrial on desktop 121
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Shipping on Android 121
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; DevTrial on Android 121
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Shipping on WebView 121
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Anticipated spec changes
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Open questions about a feature may be a source of future web
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; compat or interop issues. Please list open issues (e.g. links to 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; known
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; github issues in the project for the feature specification) whose
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; resolution may introduce web compat/interop risk (e.g., changing to 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; naming
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; or structure of the API in a non-backward-compatible way).
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5106926245642240"&gt;https://chromestatus.com/feature/5106926245642240&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Links to previous Intent discussions Intent to prototype:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvtrmHkoOpTuD2eZYVOyFuAhP8ZFVoTuNBS8zYTVY%3DTaaQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvtrmHkoOpTuD2eZYVOyFuAhP8ZFVoTuNBS8zYTVY%3DTaaQ%40mail.gmail.com&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Google Groups &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; send an email to blink-dev+unsubscr...@chromium.org.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvsUb0GEG9WNWRN7Akkowjm03gLj%2Biiq5rG8%2BzdAWMBTNA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvsUb0GEG9WNWRN7Akkowjm03gLj%2Biiq5rG8%2BzdAWMBTNA%40mail.gmail.com&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvsUb0GEG9WNWRN7Akkowjm03gLj%2Biiq5rG8%2BzdAWMBTNA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvsUb0GEG9WNWRN7Akkowjm03gLj%2Biiq5rG8%2BzdAWMBTNA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; send an email to blink-dev+unsubscr...@chromium.org.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfVhH_QxckxRLbR05jrN0CY48aQ-Ag3BypusnsyKoDTc0A%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfVhH_QxckxRLbR05jrN0CY48aQ-Ag3BypusnsyKoDTc0A%40mail.gmail.com&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfVhH_QxckxRLbR05jrN0CY48aQ-Ag3BypusnsyKoDTc0A%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfVhH_QxckxRLbR05jrN0CY48aQ-Ag3BypusnsyKoDTc0A%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
+&amp;gt; You received this message because you are subscribed to the Google Groups
+&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt; To view this discussion on the web visit
+&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvuw19j2DwRAV4kGecr_V%2BZ2D89nW5PdSUJ1z43HG7JW8g%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvuw19j2DwRAV4kGecr_V%2BZ2D89nW5PdSUJ1z43HG7JW8g%40mail.gmail.com&lt;/a&gt;
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvuw19j2DwRAV4kGecr_V%2BZ2D89nW5PdSUJ1z43HG7JW8g%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvuw19j2DwRAV4kGecr_V%2BZ2D89nW5PdSUJ1z43HG7JW8g%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt; .
+&amp;gt;
+&amp;gt; --
+&amp;gt; You received this message because you are subscribed to the Google Groups
+&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt; To view this discussion on the web visit
+&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/e34334bd-1d26-4f38-8e77-4540f2658fc5%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/e34334bd-1d26-4f38-8e77-4540f2658fc5%40chromium.org&lt;/a&gt;
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/e34334bd-1d26-4f38-8e77-4540f2658fc5%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/e34334bd-1d26-4f38-8e77-4540f2658fc5%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt; .
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw_1p%2Bd2_QYVyhjXwGsrAop_ASY6xh9797eoQnxj2oaPkQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw_1p%2Bd2_QYVyhjXwGsrAop_ASY6xh9797eoQnxj2oaPkQ%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08547.html</id>
+        <title>Re: [blink-dev] Intent to Ship: Lazy load scroll margin</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08547.html"/>
+        <updated>2023-11-30T18:54:17.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08547.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Lazy+load+scroll+margin%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Lazy load scroll margin&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Mike+Taylor%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Mike Taylor&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231130" rel="nofollow"&gt;Thu, 30 Nov 2023 10:54:17 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre style="margin: 0em;"&gt;
+LGTM2
+
+On 11/30/23 9:33 AM, Traian Captan wrote:
+&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;
+You're welcome Rick!&lt;/pre&gt;&lt;pre&gt;
+
+
+On Thu, Nov 30, 2023 at 5:33 AM Rick Byers &amp;lt;rby...@chromium.org&amp;gt; wrote:
+
+    Thank you Traian!
+
+    On Thu, Nov 30, 2023 at 7:27 PM Traian Captan
+    &amp;lt;tcap...@chromium.org&amp;gt; wrote:
+
+        Hi Rick,
+
+        Yes. I uploaded a CL that increases the spacer size by 30px:
+        &lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/5075126"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/5075126&lt;/a&gt;
+
+        The tests are now failing as expected on Safari:
+        
+&lt;a  rel="nofollow" href="https://wpt.fyi/results/html/semantics/embedded-content/the-img-element?label=pr_head&amp;max-count=1&amp;pr=43446"&gt;https://wpt.fyi/results/html/semantics/embedded-content/the-img-element?label=pr_head&amp;max-count=1&amp;pr=43446&lt;/a&gt;
+        
+&amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/html/semantics/embedded-content/the-img-element?label=pr_head&amp;max-count=1&amp;pr=43446"&gt;https://wpt.fyi/results/html/semantics/embedded-content/the-img-element?label=pr_head&amp;max-count=1&amp;pr=43446&lt;/a&gt;&amp;gt;
+
+
+        On Thu, Nov 30, 2023 at 12:14 AM Rick Byers
+        &amp;lt;rby...@chromium.org&amp;gt; wrote:
+
+            Interesting. Could you try to improve the tests to
+            capture the interop difference and ensure passing reflects
+            full conformance to the spec? We rely on WPTs as our
+            quantifiable measure of interoperability...
+
+            Rick
+
+            On Thu, Nov 30, 2023 at 5:07 PM Traian Captan
+            &amp;lt;tcap...@chromium.org&amp;gt; wrote:
+
+                Thank you Rick!
+
+                I did some investigating into why WebKit is passing
+                some of the new WPTs for lazy loaded images.
+                I think it might be because WebKit is considering the
+                edge as inclusive, while Blink and Gecko do not.
+                In the following example if the spacer height is 100px
+                Safari will report intersecting as true while Chrome
+                and FireFox would report it as false.
+                If the height is increased to 101px, all 3 browsers
+                will report the intersection as false.
+                &amp;lt;!DOCTYPE html&amp;gt;
+                &amp;lt;style&amp;gt;
+                #scroller { width: 100px; height: 100px; overflow:
+                scroll; background-color: gray; }
+                #spacer { width: 50px; height: 100px; }
+                #target { width: 50px; height: 50px; background-color:
+                green; }
+                &amp;lt;/style&amp;gt;
+                &amp;lt;div id=scroller&amp;gt;
+                &amp;lt;div id=spacer&amp;gt;&amp;lt;/div&amp;gt;
+                &amp;lt;div id=target&amp;gt;&amp;lt;/div&amp;gt;
+                &amp;lt;/div&amp;gt;
+                &amp;lt;script&amp;gt;
+                let entries = [];
+                window.onload = function() {
+                const observer = new IntersectionObserver(
+                callback,
+                {
+                rootMargin: &amp;quot;0px&amp;quot;
+                }
+                );
+                observer.observe(target);
+                };
+                function callback(entries) {
+                console.log(`isIntersecting =
+                ${entries[0].isIntersecting}`);
+                }
+                &amp;lt;/script&amp;gt;
+
+
+
+                On Mon, Nov 27, 2023 at 11:40 PM Rick Byers
+                &amp;lt;rby...@chromium.org&amp;gt; wrote:
+
+                    On Wed, Nov 22, 2023 at 2:37 PM Yoav Weiss
+                    &amp;lt;yoavwe...@chromium.org&amp;gt; wrote:
+
+                        Thanks, that sounds like a strict improvement.
+
+                        On Wed, Nov 22, 2023 at 6:25 AM Traian Captan
+                        &amp;lt;tcap...@chromium.org&amp;gt; wrote:
+
+                            Yes, that's correct.
+
+
+                            On Tue, Nov 21, 2023 at 9:18 PM Yoav Weiss
+                            &amp;lt;yoavwe...@chromium.org&amp;gt; wrote:
+
+                                Do I understand correctly that
+                                currently lazy-loaded images in CSS
+                                scrollers have suboptimal behavior and
+                                this would improve that without
+                                potentially harming other cases?
+
+                                On Wed, Nov 22, 2023 at 1:55 AM Traian
+                                Captan &amp;lt;tcap...@chromium.org&amp;gt; wrote:
+
+
+                                            Contact emails
+
+                                    tcap...@chromium.org
+
+
+                                            Explainer
+
+                                    None
+
+
+                        A short (inline) explainer would help
+                        reviewers to understand e.g. if this involves
+                        changes to the API surface that developers
+                        need to care about.
+                        Can you write a few words on the impact on
+                        developers?
+
+
+
+                                            Specification
+
+                                    
+&lt;a  rel="nofollow" href="https://html.spec.whatwg.org/#lazy-load-root-margin"&gt;https://html.spec.whatwg.org/#lazy-load-root-margin&lt;/a&gt;
+
+
+                        The spec doesn't mention anything specific
+                        around root margins or scroll margins (other
+                        than the algorithm name).
+                        Are these concepts interoperable?
+
+
+                    I dug around a little to try to better understand
+                    this. The HTML spec does mention
+                    
+&amp;lt;&lt;a  rel="nofollow" href="https://html.spec.whatwg.org/#start-intersection-observing-a-lazy-loading-element"&gt;https://html.spec.whatwg.org/#start-intersection-observing-a-lazy-loading-element&lt;/a&gt;&amp;gt;
+ setting
+                    the &amp;quot;scrollMargin&amp;quot; on the IntersectionObserver, a
+                    new property we recently shipped (I2S
+                    
+&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/Ax8rTBusZ4s/m/nogj-s-eGQAJ?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/Ax8rTBusZ4s/m/nogj-s-eGQAJ?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;).
+
+                    While WebKit and Gecko aren't yet passing the WPT
+                    tests
+                    
+&amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/intersection-observer?label=master&amp;label=experimental&amp;aligned&amp;q=scroll-margin"&gt;https://wpt.fyi/results/intersection-observer?label=master&amp;label=experimental&amp;aligned&amp;q=scroll-margin&lt;/a&gt;&amp;gt;
+                    for this yet, interestingly WebKit is already
+                    passing
+                    
+&amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/html/semantics/embedded-content/the-img-element?label=master&amp;label=experimental&amp;aligned&amp;q=image-loading-lazy-in-"&gt;https://wpt.fyi/results/html/semantics/embedded-content/the-img-element?label=master&amp;label=experimental&amp;aligned&amp;q=image-loading-lazy-in-&lt;/a&gt;&amp;gt;
+                    most of the newly added
+                    
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/5023396"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/5023396&lt;/a&gt;&amp;gt;
+                    WPTs for lazy loaded images in particular. So
+                    perhaps their implementation already handled this?
+
+                    Seems reasonable to me - LGTM1
+
+
+
+                                            Summary
+
+                                    Changes the lazy load intersection
+                                    observer's init dictionary to use
+                                    a scrollMargin instead of a
+                                    rootMargin. This allows lazy
+                                    loading images contained inside
+                                    CSS scrollers, like carousels, to
+                                    load as expected when near the
+                                    viewport instead of the current
+                                    behavior where these images load
+                                    when at least one pixel is
+                                    intersecting the viewport.
+
+
+
+                                            Blink component
+
+                                    Blink&amp;gt;Image
+                                    
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EImage"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EImage&lt;/a&gt;&amp;gt;
+
+
+                                            Search tags
+
+                                    lazyload
+                                    
+&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:lazyload"&gt;https://chromestatus.com/features#tags:lazyload&lt;/a&gt;&amp;gt;,
+                                    scrollmargin
+                                    
+&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:scrollmargin"&gt;https://chromestatus.com/features#tags:scrollmargin&lt;/a&gt;&amp;gt;
+
+
+                                            TAG review
+
+                                    None
+
+
+                                            TAG review status
+
+                                    Not applicable
+
+
+                                            Risks
+
+
+
+                                            Interoperability and
+                                            Compatibility
+
+                                    Overall low as scroll margin also
+                                    applies to the root element thus
+                                    not affecting lazy loading images
+                                    that are currently loading with
+                                    just a root margin.
+
+
+
+                                    /Gecko/: Positive
+                                    
+(&lt;a  rel="nofollow" href="https://github.com/w3c/IntersectionObserver/issues/431"&gt;https://github.com/w3c/IntersectionObserver/issues/431&lt;/a&gt;)
+                                    
+&lt;a  rel="nofollow" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1864794"&gt;https://bugzilla.mozilla.org/show_bug.cgi?id=1864794&lt;/a&gt;
+
+                                    /WebKit/: Positive
+                                    
+(&lt;a  rel="nofollow" href="https://github.com/w3c/IntersectionObserver/issues/431#issuecomment-930602435"&gt;https://github.com/w3c/IntersectionObserver/issues/431#issuecomment-930602435&lt;/a&gt;)
+                                    
+&lt;a  rel="nofollow" href="https://bugs.webkit.org/show_bug.cgi?id=264864"&gt;https://bugs.webkit.org/show_bug.cgi?id=264864&lt;/a&gt;
+
+                                    /Web developers/: Positive
+                                    
+(&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1391989"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1391989&lt;/a&gt;)
+
+                                    /Other signals/:
+
+
+                                            WebView application risks
+
+                                    Does this intent deprecate or
+                                    change behavior of existing APIs,
+                                    such that it has potentially high
+                                    risk for Android WebView-based
+                                    applications?
+
+                                    None
+
+
+
+                                            Debuggability
+
+                                    None
+
+
+
+                                            Will this feature be
+                                            supported on all six Blink
+                                            platforms (Windows, Mac,
+                                            Linux, Chrome OS, Android,
+                                            and Android WebView)?
+
+                                    Yes
+
+
+                                            Is this feature fully
+                                            tested by
+                                            web-platform-tests
+                                            
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;?
+
+                                    Yes
+
+                                    
+&lt;a  rel="nofollow" href="https://wpt.fyi/results/html/semantics/embedded-content/the-img-element?label=master&amp;label=experimental&amp;aligned&amp;q=image-loading-lazy-in-"&gt;https://wpt.fyi/results/html/semantics/embedded-content/the-img-element?label=master&amp;label=experimental&amp;aligned&amp;q=image-loading-lazy-in-&lt;/a&gt;
+                                    
+&amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/html/semantics/embedded-content/the-img-element?label=master&amp;label=experimental&amp;aligned&amp;q=image-loading-lazy-in-"&gt;https://wpt.fyi/results/html/semantics/embedded-content/the-img-element?label=master&amp;label=experimental&amp;aligned&amp;q=image-loading-lazy-in-&lt;/a&gt;&amp;gt;
+
+
+
+
+                                            Flag name on chrome://flags
+
+                                    LazyLoadScrollMargin
+
+
+                                            Finch feature name
+
+                                    None
+
+
+                                            Non-finch justification
+
+                                    This feature is behind an
+                                    enabled-by-default flag that can
+                                    be disabled if needed.
+
+
+
+                                            Requires code in //chrome?
+
+                                    False
+
+
+                                            Tracking bug
+
+                                    
+&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1391989"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1391989&lt;/a&gt;
+
+
+                                            Estimated milestones
+
+                                    Shipping on desktop         121
+                                    DevTrial on desktop         121
+
+                                    Shipping on Android         121
+                                    DevTrial on Android         121
+
+                                    Shipping on WebView         121
+
+
+
+                                            Anticipated spec changes
+
+                                    Open questions about a feature may
+                                    be a source of future web compat
+                                    or interop issues. Please list
+                                    open issues (e.g. links to known
+                                    github issues in the project for
+                                    the feature specification) whose
+                                    resolution may introduce web
+                                    compat/interop risk (e.g.,
+                                    changing to naming or structure of
+                                    the API in a
+                                    non-backward-compatible way).
+
+                                    None
+
+
+                                            Link to entry on the
+                                            Chrome Platform Status
+
+                                    
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5106926245642240"&gt;https://chromestatus.com/feature/5106926245642240&lt;/a&gt;
+
+
+                                            Links to previous Intent
+                                            discussions
+
+                                    Intent to prototype:
+                                    
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvtrmHkoOpTuD2eZYVOyFuAhP8ZFVoTuNBS8zYTVY%3DTaaQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvtrmHkoOpTuD2eZYVOyFuAhP8ZFVoTuNBS8zYTVY%3DTaaQ%40mail.gmail.com&lt;/a&gt;
+
+                                    This intent message was generated
+                                    by Chrome Platform Status
+                                    &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+
+&lt;/pre&gt;&lt;tt&gt;                                    -- 
+&lt;/tt&gt;&lt;tt&gt;                                    You received this message because
+&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
+                                    you are subscribed to the Google
+                                    Groups &amp;quot;blink-dev&amp;quot; group.
+                                    To unsubscribe from this group and
+                                    stop receiving emails from it,
+                                    send an email to
+                                    blink-dev+unsubscr...@chromium.org.
+                                    To view this discussion on the web
+                                    visit
+                                    
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvsUb0GEG9WNWRN7Akkowjm03gLj%2Biiq5rG8%2BzdAWMBTNA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvsUb0GEG9WNWRN7Akkowjm03gLj%2Biiq5rG8%2BzdAWMBTNA%40mail.gmail.com&lt;/a&gt;
+                                    
+&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvsUb0GEG9WNWRN7Akkowjm03gLj%2Biiq5rG8%2BzdAWMBTNA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvsUb0GEG9WNWRN7Akkowjm03gLj%2Biiq5rG8%2BzdAWMBTNA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
+
+&lt;/pre&gt;&lt;tt&gt;                        -- 
+&lt;/tt&gt;&lt;tt&gt;                        You received this message because you are
+&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
+                        subscribed to the Google Groups &amp;quot;blink-dev&amp;quot; group.
+                        To unsubscribe from this group and stop
+                        receiving emails from it, send an email to
+                        blink-dev+unsubscr...@chromium.org.
+                        To view this discussion on the web visit
+                        
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfVhH_QxckxRLbR05jrN0CY48aQ-Ag3BypusnsyKoDTc0A%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfVhH_QxckxRLbR05jrN0CY48aQ-Ag3BypusnsyKoDTc0A%40mail.gmail.com&lt;/a&gt;
+                        
+&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfVhH_QxckxRLbR05jrN0CY48aQ-Ag3BypusnsyKoDTc0A%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfVhH_QxckxRLbR05jrN0CY48aQ-Ag3BypusnsyKoDTc0A%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
+
+--
+&lt;/pre&gt;&lt;tt&gt;You received this message because you are subscribed to the Google 
+&lt;/tt&gt;&lt;tt&gt;Groups &amp;quot;blink-dev&amp;quot; group.
+&lt;/tt&gt;&lt;tt&gt;To unsubscribe from this group and stop receiving emails from it, send 
+&lt;/tt&gt;&lt;tt&gt;an email to blink-dev+unsubscr...@chromium.org.
+&lt;/tt&gt;&lt;tt&gt;To view this discussion on the web visit 
+&lt;/tt&gt;&lt;tt&gt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvuw19j2DwRAV4kGecr_V%2BZ2D89nW5PdSUJ1z43HG7JW8g%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvuw19j2DwRAV4kGecr_V%2BZ2D89nW5PdSUJ1z43HG7JW8g%40mail.gmail.com&lt;/a&gt; 
+&lt;/tt&gt;&lt;tt&gt;&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvuw19j2DwRAV4kGecr_V%2BZ2D89nW5PdSUJ1z43HG7JW8g%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFxahvuw19j2DwRAV4kGecr_V%2BZ2D89nW5PdSUJ1z43HG7JW8g%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
+&lt;/tt&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;
+
+--
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/e34334bd-1d26-4f38-8e77-4540f2658fc5%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/e34334bd-1d26-4f38-8e77-4540f2658fc5%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08546.html</id>
         <title>Re: [blink-dev] Intent to Ship: Lazy load scroll margin</title>
         <author>
@@ -10002,1174 +11383,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAJiyOiiUwMQoWPVEDk16MCzFcYX3U0HuB%3Do_DwJLGB-PyK2Lhg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAJiyOiiUwMQoWPVEDk16MCzFcYX3U0HuB%3Do_DwJLGB-PyK2Lhg%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08501.html</id>
-        <title>[blink-dev] Re: Intent to Prototype: Extending Storage Access API (SAA) to non-cookie storage</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08501.html"/>
-        <updated>2023-11-28T21:44:52.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08501.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Prototype%5C%3A+Extending+Storage+Access+API+%5C%28SAA%5C%29+to+non%5C-cookie+storage%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Re: Intent to Prototype: Extending Storage Access API (SAA) to non-cookie storage&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Ari+Chivukula%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Ari Chivukula&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231128" rel="nofollow"&gt;Tue, 28 Nov 2023 13:44:52 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Thanks for letting us know about your use case. Yes, Chrome has decided not
-to pursue Shared Worker access via the handle returned by
-requestStorageAccess given it would allow access to SameSite=Strict cookies
-to a third-party iframe via that shared worker. We are examining an
-alternate option where requestStorageAccess will be available in workers:
-&lt;a  rel="nofollow" href="https://github.com/privacycg/storage-access/issues/157"&gt;https://github.com/privacycg/storage-access/issues/157&lt;/a&gt;&lt;/pre&gt;&lt;pre&gt;
-
-Either way, this change will probably require switching from using a
-(shared) Shared Worker for tab discovery to something like Broadcast
-Channel
-&amp;lt;&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/API/Broadcast_Channel_API"&gt;https://developer.mozilla.org/en-US/docs/Web/API/Broadcast_Channel_API&lt;/a&gt;&amp;gt;which
-would allow for cross-tab messaging without the need to be online.
-
-~ Ari Chivukula (Their/There/They're)
-
-
-On Tue, Nov 28, 2023 at 4:35 PM Jesper van den Ende &amp;lt;jesperthe...@gmail.com&amp;gt;
-wrote:
-
-&amp;gt; Hi all,
-&amp;gt;
-&amp;gt; I noticed the TODOs for shared workers were removed.
-&amp;gt; My application relies on cross origin shared workers and to be honest this
-&amp;gt; was the main part of the proposal I was looking forward to haha.
-&amp;gt; I'm currently relying on the origin trial for disabling third party
-&amp;gt; storage partitioning.
-&amp;gt; Are there any plans for the shared worker use case? I'm not sure what to
-&amp;gt; do once the origin trial expires. And as far as I can tell there is no good
-&amp;gt; alternative for what I'm trying to achieve.
-&amp;gt; Specifically, I'd like to be able to discover other tabs (that are also
-&amp;gt; broadcasting their existence using the same shared worker) and then
-&amp;gt; initiate a connection to them.
-&amp;gt; One alternative I could think of was using WebRTC for this, but ideally
-&amp;gt; I'd like this to work while the user is offline, which is not possible with
-&amp;gt; WebRTC.
-&amp;gt;
-&amp;gt; Is there any discussion about the plan to remove shared workers from the
-&amp;gt; proposal? I couldn't find anything about SameSite=Strict cookies anywhere
-&amp;gt; other than the commit that removed the TODOs.
-&amp;gt;
-&amp;gt; Cheers,
-&amp;gt; Jesper
-&amp;gt; On Monday, October 2, 2023 at 3:44:05 PM UTC+2 Ari Chivukula wrote:
-&amp;gt;
-&amp;gt;&amp;gt; Contact emails
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; ari...@chromium.org, wande...@chromium.org, joha...@chromium.org,
-&amp;gt;&amp;gt; hel...@google.com
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Specification
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://arichiv.github.io/saa-non-cookie-storage/"&gt;https://arichiv.github.io/saa-non-cookie-storage/&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Summary
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; We propose an extension of the Storage Access API
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://webkit.org/blog/8124/introducing-storage-access-api/"&gt;https://webkit.org/blog/8124/introducing-storage-access-api/&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; (backwards compatible) to allow access to unpartitioned (cookie and
-&amp;gt;&amp;gt; non-cookie) storage in a third-party context, and imagine the API mechanics
-&amp;gt;&amp;gt; to be roughly like this (JS running in an embedded iframe):
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; // Request a new storage handle via rSA (this should prompt the user)
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; let handle = await document.requestStorageAccess({all: true});
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; // Write some cross-site localstorage
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; handle.localStorage.setItem(&amp;quot;userid&amp;quot;, &amp;quot;1234&amp;quot;);
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; // Open or create an indexedDB that is shared with the 1P context
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; let messageDB = handle.defaultBucket.indexedDB.open(&amp;quot;messages&amp;quot;);
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; The same flow would be used by iframes to get a storage handle when their
-&amp;gt;&amp;gt; top-level ancestor successfully called rSAFor
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/privacycg/requestStorageAccessFor"&gt;https://github.com/privacycg/requestStorageAccessFor&lt;/a&gt;&amp;gt;, just that in
-&amp;gt;&amp;gt; this case the storage-access permission was already granted and thus the
-&amp;gt;&amp;gt; rSA call would not require a user gesture or show a prompt, allowing for
-&amp;gt;&amp;gt; “hidden” iframes accessing storage.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Browsers currently shipping the Storage Access API apply varying methods
-&amp;gt;&amp;gt; of when or how to ask the user for permission to grant 3p cookie access to
-&amp;gt;&amp;gt; a site. Given that this proposal involves extending the existing Storage
-&amp;gt;&amp;gt; Access API, while maintaining largely the same implications (from a
-&amp;gt;&amp;gt; privacy/security perspective) to the user, a consistent prompt for cookie
-&amp;gt;&amp;gt; and non-cookie access is preferred. No prompt is needed when the origins
-&amp;gt;&amp;gt; are RWS (Related Website Sets, the new name for First Party Sets).
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Blink component
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Blink&amp;gt;Storage
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EStorage"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EStorage&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Motivation
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; There has been increasing developer
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/GoogleChromeLabs/privacy-sandbox-dev-support/issues/124"&gt;https://github.com/GoogleChromeLabs/privacy-sandbox-dev-support/issues/124&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; and implementer &amp;lt;&lt;a  rel="nofollow" href="https://github.com/privacycg/storage-access/issues/102"&gt;https://github.com/privacycg/storage-access/issues/102&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; interest in first-party DOM Storage
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API"&gt;https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API&lt;/a&gt;&amp;gt; and Quota
-&amp;gt;&amp;gt; Managed Storage
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API"&gt;https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API&lt;/a&gt;&amp;gt; being
-&amp;gt;&amp;gt; available in third-party contexts the same way that Cookies already can
-&amp;gt;&amp;gt; be &amp;lt;&lt;a  rel="nofollow" href="https://github.com/privacycg/storage-access"&gt;https://github.com/privacycg/storage-access&lt;/a&gt;&amp;gt;. In the absence of such
-&amp;gt;&amp;gt; a solution, we would in effect be pushing developers to migrate to Cookies
-&amp;gt;&amp;gt; from other storage mechanisms. There are significant tradeoffs between
-&amp;gt;&amp;gt; Cookie and non-Cookie storage (size, flexibility, server exposure, network
-&amp;gt;&amp;gt; request size, etc.) that could cause a detriment in user experience from a
-&amp;gt;&amp;gt; privacy, security and performance perspective. To prevent sub-optimal use
-&amp;gt;&amp;gt; of cookies and to preserve context, we propose a solution for developers to
-&amp;gt;&amp;gt; regain 3p access to unpartitioned storage in select instances to avoid
-&amp;gt;&amp;gt; user-facing breakage in browsers shipping storage partitioning.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; TAG review
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/906"&gt;https://github.com/w3ctag/design-reviews/issues/906&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Compatibility
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; The Storage Access API is already implemented in Safari, Firefox, and
-&amp;gt;&amp;gt; Chrome &amp;lt;&lt;a  rel="nofollow" href="https://caniuse.com/mdn-api_document_requeststorageaccess"&gt;https://caniuse.com/mdn-api_document_requeststorageaccess&lt;/a&gt;&amp;gt;, but
-&amp;gt;&amp;gt; the proposed API shape would not change existing behavior without new
-&amp;gt;&amp;gt; arguments added.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Interoperability
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Gecko: &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/898"&gt;https://github.com/mozilla/standards-positions/issues/898&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; WebKit: &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/262"&gt;https://github.com/WebKit/standards-positions/issues/262&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Web developers: Positive
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/GoogleChromeLabs/privacy-sandbox-dev-support/issues/124"&gt;https://github.com/GoogleChromeLabs/privacy-sandbox-dev-support/issues/124&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Debuggability
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Storage written can be examined in devtools.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests?
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Tests will be added.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Tracking bug
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://crbug.com/1484966"&gt;https://crbug.com/1484966&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5175585823522816"&gt;https://chromestatus.com/feature/5175585823522816&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5DJXkYGFDUOv6F_KBCGzwE3HzCwprcsWUspkgAca%2B36KOQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5DJXkYGFDUOv6F_KBCGzwE3HzCwprcsWUspkgAca%2B36KOQ%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08500.html</id>
-        <title>Re: [blink-dev] Intent to Prototype and Ship: MessagePort.onclose</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08500.html"/>
-        <updated>2023-11-28T20:34:11.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08500.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Prototype+and+Ship%5C%3A+MessagePort.onclose%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Prototype and Ship: MessagePort.onclose&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Torne+%5C%28Richard+Coles%5C%29%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Torne (Richard Coles)&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231128" rel="nofollow"&gt;Tue, 28 Nov 2023 12:34:11 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Android WebView exposes the ability to create and use MessagePorts to the
-host app through a Java API, and currently one of the limitations of this
-API is the lack of a signal about the channel being closed, which in some
-cases can lead to apps holding on to Java objects longer than intended.&lt;/pre&gt;&lt;pre&gt;
-
-So, I'm very happy to see this proposed for the web API side, as this
-should hopefully also enable us to support the same thing in WebView's Java
-API. +Peter Birk Pakkenberg &amp;lt;pb...@google.com&amp;gt; has been tackling some
-issues here recently.
-
-On Tue, 28 Nov 2023 at 12:31, Nonoka Muraki &amp;lt;murakinon...@chromium.org&amp;gt;
-wrote:
-
-&amp;gt; Contact emails
-&amp;gt;
-&amp;gt; murakinon...@chromium.org, m...@chromium.org, rak...@chromium.org
-&amp;gt;
-&amp;gt; Explainer
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/fergald/explainer-messageport-close"&gt;https://github.com/fergald/explainer-messageport-close&lt;/a&gt;
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/fergald/explainer-messageport-close#exposing-that-cross-origin-navigation-has-occurred"&gt;https://github.com/fergald/explainer-messageport-close#exposing-that-cross-origin-navigation-has-occurred&lt;/a&gt;&amp;gt;
-&amp;gt;
-&amp;gt; Specification
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/whatwg/html/pull/9933"&gt;https://github.com/whatwg/html/pull/9933&lt;/a&gt;
-&amp;gt;
-&amp;gt; Design docs
-&amp;gt;
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://docs.google.com/document/d/1lXZU2Pk2ycitqj8aL9kxT2aauwXqpA0vJDUalkXA29Y"&gt;https://docs.google.com/document/d/1lXZU2Pk2ycitqj8aL9kxT2aauwXqpA0vJDUalkXA29Y&lt;/a&gt;
-&amp;gt;
-&amp;gt; Summary
-&amp;gt;
-&amp;gt; Notifies one of the MessagePorts that the other port has been disentangled
-&amp;gt; (i.e., close() is called, an owning document is destroyed, or the port is
-&amp;gt; garbage collected).
-&amp;gt;
-&amp;gt; Blink component
-&amp;gt;
-&amp;gt; Blink &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink&lt;/a&gt;&amp;gt;
-&amp;gt;
-&amp;gt; Motivation
-&amp;gt;
-&amp;gt; Channel Messaging API enables two separate scripts running in different
-&amp;gt; browsing contexts to communicate directly. Once MessageChannel is created,
-&amp;gt; we can access two entangled  MessagePorts (MessageChannel.port1 and
-&amp;gt; MessageChannel.port2), transfer port2 to the other browsing context,
-&amp;gt; allowing these two scripts to post and receive messages.
-&amp;gt;
-&amp;gt; The problem with this API is that there is currently no timely and
-&amp;gt; reliable way to detect when a MessagePort becomes disentangled. This makes
-&amp;gt; it difficult to release resources associated with ports. Some users have
-&amp;gt; used the unload event to detect disconnection, but it is unreliable
-&amp;gt; especially on mobile. Therefore, the approach available now is to hold a
-&amp;gt; MessagePort in WeakRef and periodically check if this port has been garbage
-&amp;gt; collected by using deref() or to make use of the pagehide event. However,
-&amp;gt; this event is also not an effective solution. The reasons are as follows:
-&amp;gt;
-&amp;gt; 1) It doesn't work when the document crashes.
-&amp;gt;
-&amp;gt; 2) The port must cooperate in signaling the port is going to be
-&amp;gt; disentangled.(i.e., the port must post the message which is &amp;quot;it is going to
-&amp;gt; be closed&amp;quot; to the entangled port.)
-&amp;gt;
-&amp;gt; 3) It fires even if the page is not being destroyed and just enters
-&amp;gt; BFCache.
-&amp;gt;
-&amp;gt; Adding a close event helps to detect timely and reliably that MessagePort
-&amp;gt; is disentangled and make it easier to release resources associated with
-&amp;gt; ports.
-&amp;gt;
-&amp;gt; Initial public proposal
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/1766#issuecomment-1708027883"&gt;https://github.com/whatwg/html/issues/1766#issuecomment-1708027883&lt;/a&gt;
-&amp;gt;
-&amp;gt; Search tags
-&amp;gt;
-&amp;gt; close &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:close"&gt;https://chromestatus.com/features#tags:close&lt;/a&gt;&amp;gt;, onclose
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:onclose"&gt;https://chromestatus.com/features#tags:onclose&lt;/a&gt;&amp;gt;
-&amp;gt;
-&amp;gt; TAG review
-&amp;gt;
-&amp;gt; Not needed because This is a small feature where we just dispatch a new
-&amp;gt; event.
-&amp;gt;
-&amp;gt; Risks
-&amp;gt;
-&amp;gt; Interoperability and Compatibility
-&amp;gt;
-&amp;gt; None
-&amp;gt;
-&amp;gt;
-&amp;gt; Gecko:  Positive (
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/914"&gt;https://github.com/mozilla/standards-positions/issues/914&lt;/a&gt;)
-&amp;gt;
-&amp;gt; Mozilla people are already involved in the initial Github issue
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/1766"&gt;https://github.com/whatwg/html/issues/1766&lt;/a&gt;&amp;gt;.
-&amp;gt;
-&amp;gt; WebKit: No response (
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/271"&gt;https://github.com/WebKit/standards-positions/issues/271&lt;/a&gt;)
-&amp;gt;
-&amp;gt; WebKit people are already involved in the initial Github issue
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/1766"&gt;https://github.com/whatwg/html/issues/1766&lt;/a&gt;&amp;gt;.
-&amp;gt;
-&amp;gt; Web developers: Positive (&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/1766"&gt;https://github.com/whatwg/html/issues/1766&lt;/a&gt;)
-&amp;gt;
-&amp;gt; Other signals:
-&amp;gt;
-&amp;gt; WebView application risks
-&amp;gt;
-&amp;gt; Does this intent deprecate or change behavior of existing APIs, such that
-&amp;gt; it has potentially high risk for Android WebView-based applications?
-&amp;gt;
-&amp;gt; None
-&amp;gt;
-&amp;gt;
-&amp;gt; Debuggability
-&amp;gt;
-&amp;gt; None
-&amp;gt;
-&amp;gt;
-&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt; ?
-&amp;gt;
-&amp;gt; Yes.
-&amp;gt;
-&amp;gt;  &lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/5003089"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/5003089&lt;/a&gt;
-&amp;gt;
-&amp;gt; Flag name on chrome://flags
-&amp;gt;
-&amp;gt; None
-&amp;gt;
-&amp;gt; Finch feature name
-&amp;gt;
-&amp;gt; None
-&amp;gt;
-&amp;gt; Non-finch justification
-&amp;gt;
-&amp;gt; This is a small feature (just dispatching a new event) that doesn’t need
-&amp;gt; experimentation.
-&amp;gt;
-&amp;gt; Requires code in //chrome?
-&amp;gt;
-&amp;gt; False
-&amp;gt;
-&amp;gt; Tracking bug
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1495616"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1495616&lt;/a&gt;
-&amp;gt;
-&amp;gt; Estimated milestones
-&amp;gt;
-&amp;gt; No milestones specified
-&amp;gt;
-&amp;gt;
-&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5086799659794432"&gt;https://chromestatus.com/feature/5086799659794432&lt;/a&gt;
-&amp;gt;
-&amp;gt; This intent message was generated by Chrome Platform Status
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-&amp;gt;
-&amp;gt; --
-&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt; To view this discussion on the web visit
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAA66OT2mWU9WJnkVzD2gm_%2Bk%2Bewag5Lhq_K39Vo9WGdtGW79cQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAA66OT2mWU9WJnkVzD2gm_%2Bk%2Bewag5Lhq_K39Vo9WGdtGW79cQ%40mail.gmail.com&lt;/a&gt;
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAA66OT2mWU9WJnkVzD2gm_%2Bk%2Bewag5Lhq_K39Vo9WGdtGW79cQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAA66OT2mWU9WJnkVzD2gm_%2Bk%2Bewag5Lhq_K39Vo9WGdtGW79cQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt; .
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAEV-rjcZL5YnizhWf0xA%3DBaSt4EmY32p1tjhYG%3DfEOP1B-Kk%2BQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAEV-rjcZL5YnizhWf0xA%3DBaSt4EmY32p1tjhYG%3DfEOP1B-Kk%2BQ%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08499.html</id>
-        <title>[blink-dev] Re: Intent to Ship: Storage Buckets API</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08499.html"/>
-        <updated>2023-11-28T19:36:24.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08499.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Ship%5C%3A+Storage+Buckets+API%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Re: Intent to Ship: Storage Buckets API&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Evan+Stade%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Evan Stade&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231128" rel="nofollow"&gt;Tue, 28 Nov 2023 11:36:24 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;It depends on the use case. Sometimes developers may be OK with missing
-functionality. For example, if some data such as downloaded media should be
-persisted whereas other data such as logs should be evictable, then not
-having buckets available probably just means that the site does not play as
-nicely during storage pressure related eviction rounds, which is a
-reasonable fallback. In other use cases put forth in the explainer, such as
-when a bucket holds all the data for a single user and is deleted on
-logout, a site might be able to reasonably degrade by only offering &amp;quot;sign
-out all accounts&amp;quot; for browsers that don't yet have buckets.&lt;/pre&gt;&lt;pre&gt;
-
-In cases where buckets functionality is mission critical, such as holding
-data that must not be accessible after a certain expiration date, a site
-may would need to do more work to support situations where Buckets aren't
-available. In these cases we would advise at least designing a schema that
-makes the eventual transition to buckets easier, e.g. by keeping all logs
-data that might eventually move to a logs bucket co-located in a single
-Bucket File System (aka OPFS) directory.
-
-On Mon, Nov 27, 2023 at 10:16 PM Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt; wrote:
-
-&amp;gt; Thanks!
-&amp;gt;
-&amp;gt; As you mention that this feature won't be polyfillable, what would we
-&amp;gt; advise web developers of new apps up until the point where the feature is
-&amp;gt; ubiquitous? Would they have different quota systems on different browsers?
-&amp;gt;
-&amp;gt; On Tue, Nov 28, 2023 at 2:52 AM Evan Stade &amp;lt;est...@chromium.org&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; Hi Yoav,
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; The reasoning about adoption also applies to the feature after launch,
-&amp;gt;&amp;gt; although less so than the OT. The farther the feature progresses (from OT,
-&amp;gt;&amp;gt; to launch, to support in other browsers), the less risk a site is taking in
-&amp;gt;&amp;gt; adopting. In the meantime, since a good polyfill is not really possible,
-&amp;gt;&amp;gt; the intermediate phase is painful/costly.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; For *existing* apps, taking full advantage of the API requires schema
-&amp;gt;&amp;gt; redesign/migration, which we anticipate to be pretty involved for the kind
-&amp;gt;&amp;gt; of sophisticated apps this API appeals to. Less sophisticated apps that
-&amp;gt;&amp;gt; don't need to manage lots of data will not use the API at all as they don't
-&amp;gt;&amp;gt; worry about minimizing the impact of storage eviction (which is, for now,
-&amp;gt;&amp;gt; its primary appeal). New apps that are written at a time when Buckets are
-&amp;gt;&amp;gt; broadly available will not face these hurdles.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; We hope that both sides of the risk/reward equation improve: adoption
-&amp;gt;&amp;gt; risks come down as other vendors implement, and we're able to keep adding
-&amp;gt;&amp;gt; useful functionality that justifies the investment to migrate.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; -- Evan Stade
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Tue, Nov 21, 2023 at 9:56 PM Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt;
-&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; On Tuesday, November 14, 2023 at 9:38:55 PM UTC+1 Evan Stade wrote:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Contact emails
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; est...@chromium.org, a...@chromium.org, ajayrahate...@chromium.org
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Explainer
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/storage-buckets/blob/main/explainer.md"&gt;https://github.com/WICG/storage-buckets/blob/main/explainer.md&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Specification
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://wicg.github.io/storage-buckets"&gt;https://wicg.github.io/storage-buckets&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Summary
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Storage Buckets gives sites the ability to organize on-device data into
-&amp;gt;&amp;gt;&amp;gt; separate &amp;quot;buckets&amp;quot;, allowing user agents to evict the grouped data
-&amp;gt;&amp;gt;&amp;gt; independently of that which is in other buckets, and enabling sites to
-&amp;gt;&amp;gt;&amp;gt; ergonomically manage semantically related data. Each storage bucket can
-&amp;gt;&amp;gt;&amp;gt; contain data associated with established storage APIs such as IndexedDB and
-&amp;gt;&amp;gt;&amp;gt; CacheStorage.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Blink component
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Blink&amp;gt;Storage&amp;gt;Buckets
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EStorage%3EBuckets"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EStorage%3EBuckets&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; TAG review
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/562"&gt;https://github.com/w3ctag/design-reviews/issues/562&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; TAG review status
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Issues addressed
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Chromium Trial Name
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; StorageBuckets
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Link to origin trial feedback summary
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://docs.google.com/document/d/1C8LiQfjYj9wIt94Q4PeCVwiA57-"&gt;https://docs.google.com/document/d/1C8LiQfjYj9wIt94Q4PeCVwiA57-&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt; uf37jSLLoBHYhUCM
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Can you expand on the OT results? Are the &amp;quot;slow to adoption&amp;quot; comments
-&amp;gt;&amp;gt;&amp;gt; relevant only to the OT itself or to the feature at large?
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Origin Trial documentation link
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://developer.chrome.com/blog/storage-buckets/"&gt;https://developer.chrome.com/blog/storage-buckets/&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Risks
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Interoperability and Compatibility
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; If no other browsers end up implementing this API, websites will only be
-&amp;gt;&amp;gt;&amp;gt; able to use the default bucket that is supported today.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Gecko: Positive (&lt;a  rel="nofollow" href="https://mozilla.github.io/standards-positions/#storage-"&gt;https://mozilla.github.io/standards-positions/#storage-&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt; buckets)
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; WebKit: No signal (&lt;a  rel="nofollow" href="https://github.com/WebKit/"&gt;https://github.com/WebKit/&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt; standards-positions/issues/181)
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Web developers: Positive
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Other signals:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; WebView application risks
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Does this intent deprecate or change behavior of existing APIs, such
-&amp;gt;&amp;gt;&amp;gt; that it has potentially high risk for Android WebView-based applications?
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Doesn't change existing APIs.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Debuggability
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Devtools
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows, Mac,
-&amp;gt;&amp;gt;&amp;gt; Linux, Chrome OS, Android, and Android WebView)?
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; No
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; ?
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; No
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Flag name on chrome://flags
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; storage-buckets
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Finch feature name
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; StorageBuckets
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Requires code in //chrome?
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; False
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Tracking bug
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1099413"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1099413&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Launch bug
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://launch.corp.google.com/launch/4227670"&gt;https://launch.corp.google.com/launch/4227670&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Measurement
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/metrics/feature/timeline/popularity/4378"&gt;https://chromestatus.com/metrics/feature/timeline/popularity/4378&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Availability expectation
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Feature is expected to be available on Firefox, but timeline unknown.
-&amp;gt;&amp;gt;&amp;gt; Implementation in Safari would likely first require widespread use.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Adoption expectation
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Expected to be applied **in new projects** soon after launch. Full
-&amp;gt;&amp;gt;&amp;gt; utilization of the API would require data migration, which is not easy and
-&amp;gt;&amp;gt;&amp;gt; may slow adoption in existing projects. Abstractions may be among the first
-&amp;gt;&amp;gt;&amp;gt; adopters as the API is, itself, an abstraction layer that simplifies
-&amp;gt;&amp;gt;&amp;gt; functionality such as namespacing and managing chunks of data.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Adoption plan
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; We intend to use the Buckets API to expose additional storage-related
-&amp;gt;&amp;gt;&amp;gt; functionality to the web, for example, session-scoped data, performance
-&amp;gt;&amp;gt;&amp;gt; controls, etc. This new functionality will help drive adoption.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Non-OSS dependencies
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Does the feature depend on any code or APIs outside the Chromium open
-&amp;gt;&amp;gt;&amp;gt; source repository and its open-source dependencies to function?
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; No
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Estimated milestones
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Shipping on desktop
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; 121
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; OriginTrial desktop last
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; 118
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; OriginTrial desktop first
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; 115
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; DevTrial on desktop
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; 110
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Shipping on Android
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; 121
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; OriginTrial Android last
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; 118
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; OriginTrial Android first
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; 115
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; DevTrial on Android
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; 110
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Shipping on WebView
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; 121
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; OriginTrial webView last
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; 118
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; OriginTrial webView first
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; 115
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Anticipated spec changes
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Open questions about a feature may be a source of future web compat or
-&amp;gt;&amp;gt;&amp;gt; interop issues. Please list open issues (e.g. links to known github issues
-&amp;gt;&amp;gt;&amp;gt; in the project for the feature specification) whose resolution may
-&amp;gt;&amp;gt;&amp;gt; introduce web compat/interop risk (e.g., changing to naming or structure of
-&amp;gt;&amp;gt;&amp;gt; the API in a non-backward-compatible way).
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Open issues/questions are add-only enhancements.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5739224579964928"&gt;https://chromestatus.com/feature/5739224579964928&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Links to previous Intent discussions
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Intent to prototype: &lt;a  rel="nofollow" href="https://groups.google.com/u/2/"&gt;https://groups.google.com/u/2/&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt; a/chromium.org/g/blink-dev/c/LZsMi8heTu0/m/bh0my7vpBwAJ Intent to
-&amp;gt;&amp;gt;&amp;gt; Experiment: &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt; LGfcc48qBHY/m/cXjQrqRIAAAJ?utm_medium=email&amp;utm_source=footer
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAO4XGS9iQ%2BuLRLTPszOJRjhQ54Vw45DFR84z7bNumutmZn2%2BQw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAO4XGS9iQ%2BuLRLTPszOJRjhQ54Vw45DFR84z7bNumutmZn2%2BQw%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08498.html</id>
-        <title>[blink-dev] Intent to Prototype and Ship: MessagePort.onclose</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08498.html"/>
-        <updated>2023-11-28T17:31:25.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08498.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Prototype+and+Ship%5C%3A+MessagePort.onclose%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Prototype and Ship: MessagePort.onclose&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Nonoka+Muraki%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Nonoka Muraki&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231128" rel="nofollow"&gt;Tue, 28 Nov 2023 09:31:25 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Contact emails
-
-murakinon...@chromium.org, m...@chromium.org, rak...@chromium.org&lt;/pre&gt;&lt;pre&gt;
-
-Explainer
-
-&lt;a  rel="nofollow" href="https://github.com/fergald/explainer-messageport-close"&gt;https://github.com/fergald/explainer-messageport-close&lt;/a&gt;
-&amp;lt;&lt;a  rel="nofollow" href="https://github.com/fergald/explainer-messageport-close#exposing-that-cross-origin-navigation-has-occurred"&gt;https://github.com/fergald/explainer-messageport-close#exposing-that-cross-origin-navigation-has-occurred&lt;/a&gt;&amp;gt;
-
-Specification
-
-&lt;a  rel="nofollow" href="https://github.com/whatwg/html/pull/9933"&gt;https://github.com/whatwg/html/pull/9933&lt;/a&gt;
-
-Design docs
-
-&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1lXZU2Pk2ycitqj8aL9kxT2aauwXqpA0vJDUalkXA29Y"&gt;https://docs.google.com/document/d/1lXZU2Pk2ycitqj8aL9kxT2aauwXqpA0vJDUalkXA29Y&lt;/a&gt;
-
-Summary
-
-Notifies one of the MessagePorts that the other port has been disentangled
-(i.e., close() is called, an owning document is destroyed, or the port is
-garbage collected).
-
-Blink component
-
-Blink &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink&lt;/a&gt;&amp;gt;
-
-Motivation
-
-Channel Messaging API enables two separate scripts running in different
-browsing contexts to communicate directly. Once MessageChannel is created,
-we can access two entangled  MessagePorts (MessageChannel.port1 and
-MessageChannel.port2), transfer port2 to the other browsing context,
-allowing these two scripts to post and receive messages.
-
-The problem with this API is that there is currently no timely and reliable
-way to detect when a MessagePort becomes disentangled. This makes it
-difficult to release resources associated with ports. Some users have used
-the unload event to detect disconnection, but it is unreliable especially
-on mobile. Therefore, the approach available now is to hold a MessagePort
-in WeakRef and periodically check if this port has been garbage collected
-by using deref() or to make use of the pagehide event. However, this event
-is also not an effective solution. The reasons are as follows:
-
-1) It doesn't work when the document crashes.
-
-2) The port must cooperate in signaling the port is going to be
-disentangled.(i.e., the port must post the message which is &amp;quot;it is going to
-be closed&amp;quot; to the entangled port.)
-
-3) It fires even if the page is not being destroyed and just enters BFCache.
-
-Adding a close event helps to detect timely and reliably that MessagePort
-is disentangled and make it easier to release resources associated with
-ports.
-
-Initial public proposal
-
-&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/1766#issuecomment-1708027883"&gt;https://github.com/whatwg/html/issues/1766#issuecomment-1708027883&lt;/a&gt;
-
-Search tags
-
-close &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:close"&gt;https://chromestatus.com/features#tags:close&lt;/a&gt;&amp;gt;, onclose
-&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:onclose"&gt;https://chromestatus.com/features#tags:onclose&lt;/a&gt;&amp;gt;
-
-TAG review
-
-Not needed because This is a small feature where we just dispatch a new
-event.
-
-Risks
-
-Interoperability and Compatibility
-
-None
-
-
-Gecko:  Positive (&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/914"&gt;https://github.com/mozilla/standards-positions/issues/914&lt;/a&gt;
-)
-
-Mozilla people are already involved in the initial Github issue
-&amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/1766"&gt;https://github.com/whatwg/html/issues/1766&lt;/a&gt;&amp;gt;.
-
-WebKit: No response (
-&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/271"&gt;https://github.com/WebKit/standards-positions/issues/271&lt;/a&gt;)
-
-WebKit people are already involved in the initial Github issue
-&amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/1766"&gt;https://github.com/whatwg/html/issues/1766&lt;/a&gt;&amp;gt;.
-
-Web developers: Positive (&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/1766"&gt;https://github.com/whatwg/html/issues/1766&lt;/a&gt;)
-
-Other signals:
-
-WebView application risks
-
-Does this intent deprecate or change behavior of existing APIs, such that
-it has potentially high risk for Android WebView-based applications?
-
-None
-
-
-Debuggability
-
-None
-
-
-Is this feature fully tested by web-platform-tests
-&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-?
-
-Yes.
-
- &lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/5003089"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/5003089&lt;/a&gt;
-
-Flag name on chrome://flags
-
-None
-
-Finch feature name
-
-None
-
-Non-finch justification
-
-This is a small feature (just dispatching a new event) that doesn’t need
-experimentation.
-
-Requires code in //chrome?
-
-False
-
-Tracking bug
-
-&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1495616"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1495616&lt;/a&gt;
-
-Estimated milestones
-
-No milestones specified
-
-
-Link to entry on the Chrome Platform Status
-
-&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5086799659794432"&gt;https://chromestatus.com/feature/5086799659794432&lt;/a&gt;
-
-This intent message was generated by Chrome Platform Status
-&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAA66OT2mWU9WJnkVzD2gm_%2Bk%2Bewag5Lhq_K39Vo9WGdtGW79cQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAA66OT2mWU9WJnkVzD2gm_%2Bk%2Bewag5Lhq_K39Vo9WGdtGW79cQ%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08497.html</id>
-        <title>Re: [blink-dev] Intent to Ship: CSS font-palette property animation</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08497.html"/>
-        <updated>2023-11-28T16:29:44.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08497.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+CSS+font%5C-palette+property+animation%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: CSS font-palette property animation&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Munira+Tursunova%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Munira Tursunova' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231128" rel="nofollow"&gt;Tue, 28 Nov 2023 08:29:44 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Thank you for LGTMs.
-
-FYI, TAG review was positive 
-&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/915#issuecomment-1828305940"&gt;https://github.com/w3ctag/design-reviews/issues/915#issuecomment-1828305940&lt;/a&gt; 
-&amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/915"&gt;https://github.com/w3ctag/design-reviews/issues/915&lt;/a&gt;&amp;gt;.
-On Tuesday, November 28, 2023 at 7:53:33 AM UTC+1 rby...@chromium.org wrote:&lt;/pre&gt;&lt;pre&gt;
-
-&amp;gt; LGTM3
-&amp;gt;
-&amp;gt; On Sun, Nov 26, 2023 at 3:09 AM Mike Taylor &amp;lt;mike...@chromium.org&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; LGTM2
-&amp;gt;&amp;gt; On 11/23/23 8:39 AM, Yoav Weiss wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; LGTM1 assuming there aren't any surprises on that front. Thanks!!
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Thu, Nov 23, 2023 at 2:33 PM Dominik Röttsches &amp;lt;dr...@google.com&amp;gt; 
-&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Hi Yoav,
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; On Wed, Nov 22, 2023 at 6:46 PM Yoav Weiss &amp;lt;yoav...@chromium.org&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/8922#issuecomment-1720930646"&gt;https://github.com/w3c/csswg-drafts/issues/8922#issuecomment-1720930646&lt;/a&gt; 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; indicates that some parts of this were resolved and other parts are still 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; to be bikeshedded. 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Can you expand on that? What's the issue around color space 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; interpolation?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; In my response further down in the thread I untangled that 
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/8922#issuecomment-1792237695"&gt;https://github.com/w3c/csswg-drafts/issues/8922#issuecomment-1792237695&lt;/a&gt;&amp;gt;. 
-&amp;gt;&amp;gt;&amp;gt; There are two situations in which we need an explicit color space 
-&amp;gt;&amp;gt;&amp;gt; representation:
-&amp;gt;&amp;gt;&amp;gt; 1) In mixing two palettes, to describe it as a static state, when an 
-&amp;gt;&amp;gt;&amp;gt; animation or transition has completed or when we're describing an interim 
-&amp;gt;&amp;gt;&amp;gt; state of an animation or transition. For this, we need an explicit 
-&amp;gt;&amp;gt;&amp;gt; interpolation method in the grammar of palette-mix() - to be consistent 
-&amp;gt;&amp;gt;&amp;gt; with color-mix() and to prepare to capture a static interpolation value 
-&amp;gt;&amp;gt;&amp;gt; when animations will have color space control, see below.
-&amp;gt;&amp;gt;&amp;gt; The &amp;quot;remaining bike shedding to be done&amp;quot; that's captured in the notes 
-&amp;gt;&amp;gt;&amp;gt; solely originated from a question from emilio@ on whether that color 
-&amp;gt;&amp;gt;&amp;gt; interpolation tag is needed. Munira and I discussed that with him in the 
-&amp;gt;&amp;gt;&amp;gt; directly follow break at resolution at TPAC - but that was offline and not 
-&amp;gt;&amp;gt;&amp;gt; minuted. I am expecting emilio@ to comment on this - otherwise there was 
-&amp;gt;&amp;gt;&amp;gt; nothing open. 
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; 2) What needs to be discussed as a wider issue in CSS is controlling the 
-&amp;gt;&amp;gt;&amp;gt; interpolation method during animation or transitions, but that's outside 
-&amp;gt;&amp;gt;&amp;gt; the scope of the issue we resolved on. Interpolation color space control 
-&amp;gt;&amp;gt;&amp;gt; during animations and transitions are discussed in #7741 
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/7741"&gt;https://github.com/w3c/csswg-drafts/issues/7741&lt;/a&gt;&amp;gt; and #7063 
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/7063"&gt;https://github.com/w3c/csswg-drafts/issues/7063&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; I'll ping Emilio again to comment on the issue. Assuming that happens, I 
-&amp;gt;&amp;gt;&amp;gt; really see no blockers at all, and Chris Lilley seems to agree with us on 
-&amp;gt;&amp;gt;&amp;gt; that.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Dominik
-&amp;gt;&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Thursday, November 9, 2023 at 4:02:34 PM UTC+1 moo...@google.com 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Submitted:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    - TAG review: &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/915"&gt;https://github.com/w3ctag/design-reviews/issues/915&lt;/a&gt; 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    - Requested signals from the other vendors:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    - Gecko: &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/925"&gt;https://github.com/mozilla/standards-positions/issues/925&lt;/a&gt;  
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       - Webkit: 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;       &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/276"&gt;https://github.com/WebKit/standards-positions/issues/276&lt;/a&gt; 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Thank you, Daniel!
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Wed, Nov 8, 2023 at 4:52 PM Daniel Bratell &amp;lt;brat...@gmail.com&amp;gt; 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Hi, could you please request signals from the other vendors? 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bit.ly/blink-signals"&gt;https://bit.ly/blink-signals&lt;/a&gt; will tell you how they work.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Also, you may want to file a TAG review, or give them a FYI or let us 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; know why that is not necessary.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; /Daniel
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On 2023-11-08 13:56, 'Munira Tursunova' via blink-dev wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Contact emails moo...@google.com, dr...@google.com
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Explainer 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://docs.google.com/document/d/1XMTrKH003KBOes6hxzI-3E7LTwp5YwFC-rnzoFpFrfw/edit?usp=sharing"&gt;https://docs.google.com/document/d/1XMTrKH003KBOes6hxzI-3E7LTwp5YwFC-rnzoFpFrfw/edit?usp=sharing&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Specification &lt;a  rel="nofollow" href="https://drafts.csswg.org/css-fonts-4/#font-palette-prop"&gt;https://drafts.csswg.org/css-fonts-4/#font-palette-prop&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Summary 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; The CSS font-palette property allows selection of a specific palette 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; used to render a font. The CSS Fonts 4 spec defines the animation 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; behavior 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; of this property as discrete, which is insufficient to achieve a smooth 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; transition between two selected palettes. Instead, animating the 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; font-palette property should happen by interpolating each of the colour 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; record values from the defined palette, i.e. if the start or the end of 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; animation has a different colour value for some record in the palette, 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; such 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; colour value should be interpolated.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink component Blink&amp;gt;Fonts 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EFonts"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EFonts&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Search tags font-palette 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:font-palette"&gt;https://chromestatus.com/features#tags:font-palette&lt;/a&gt;&amp;gt;, animation 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:animation"&gt;https://chromestatus.com/features#tags:animation&lt;/a&gt;&amp;gt;, transition 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:transition"&gt;https://chromestatus.com/features#tags:transition&lt;/a&gt;&amp;gt;, 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; font-palette-values 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:font-palette-values"&gt;https://chromestatus.com/features#tags:font-palette-values&lt;/a&gt;&amp;gt;, color 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; fonts &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:color%20fonts"&gt;https://chromestatus.com/features#tags:color%20fonts&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review status Not applicable
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Risks 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Interoperability and Compatibility 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Low, new feature, was resolved by W3C working group 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/8922#issuecomment-1720930646"&gt;https://github.com/w3c/csswg-drafts/issues/8922#issuecomment-1720930646&lt;/a&gt;, 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; but not yet implemented in other browsers.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Gecko*: No signal Not implemented.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *WebKit*: No signal Not implemented.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Web developers*: Positive (
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://css-tricks.com/colrv1-and-css-font-palette-web-typography/#:~:text=Another%20limitation%3A%20animations%20and%20transitions%20from%20one%20font%2Dpalette%20to%20another%20don%E2%80%99t%20interpolate%20%E2%80%94%20meaning%20you%20can%20switch%20instantly%20from%20one%20palette%20to%20another%2C%20but%20can%E2%80%99t%20gradually%20animate%20between%20them.%20My%20dream%20of%20a%20luridly%20animated%20emoji%20font%20is%20sadly%20unrealized"&gt;https://css-tricks.com/colrv1-and-css-font-palette-web-typography/#:~:text=Another%20limitation%3A%20animations%20and%20transitions%20from%20one%20font%2Dpalette%20to%20another%20don%E2%80%99t%20interpolate%20%E2%80%94%20meaning%20you%20can%20switch%20instantly%20from%20one%20palette%20to%20another%2C%20but%20can%E2%80%99t%20gradually%20animate%20between%20them.%20My%20dream%20of%20a%20luridly%20animated%20emoji%20font%20is%20sadly%20unrealized&lt;/a&gt;)
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Ollie Williams expressed his interest in the feature in his article on 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; CSS 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Tricks. Scott Kellum (of typetura.com) has also been suggesting it 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; as a useful feature for the web (origin: a Twitter thread and email 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; conversation, Scott in the meantime deleted their Twitter account).
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Other signals*:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; WebView application risks 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Does this intent deprecate or change behavior of existing APIs, such 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; that it has potentially high risk for Android WebView-based applications?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Debuggability 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Same as any other CSS property, font-palette property is inspectable 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; in DevTools.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows, 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Mac, Linux, Chrome OS, Android, and Android WebView)? Yes
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ? Yes 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/css/css-fonts/palette-mix-computed.html"&gt;https://wpt.fyi/results/css/css-fonts/palette-mix-computed.html&lt;/a&gt; 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/css/css-fonts/animations/font-palette-interpolation.html"&gt;https://wpt.fyi/results/css/css-fonts/animations/font-palette-interpolation.html&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Flag name on chrome://flags FontPaletteAnimation
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Finch feature name None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Non-finch justification None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Requires code in //chrome? False
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Tracking bug 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1400620"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1400620&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Sample links 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://drafts.csswg.org/css-fonts-4/images/nabla-animated.webp"&gt;https://drafts.csswg.org/css-fonts-4/images/nabla-animated.webp&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Estimated milestones 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Shipping on desktop 121 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; DevTrial on desktop 119 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Shipping on Android 121 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; DevTrial on Android 119 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Shipping on WebView 121 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Anticipated spec changes 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Open questions about a feature may be a source of future web compat 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; or interop issues. Please list open issues (e.g. links to known github 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; issues in the project for the feature specification) whose resolution 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; may 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; introduce web compat/interop risk (e.g., changing to naming or structure 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; of 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the API in a non-backward-compatible way).
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5177171439517696"&gt;https://chromestatus.com/feature/5177171439517696&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Links to previous Intent discussions Intent to prototype: 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAO7W_DFvgY9yqz_Tr%2B2sHMwsydbWMQ66yZWwF7ZoxDZ2yE1QA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAO7W_DFvgY9yqz_Tr%2B2sHMwsydbWMQ66yZWwF7ZoxDZ2yE1QA%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; -- 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; send an email to blink-dev+...@chromium.org.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAO7W_Bao93XoyHRT6NKG6p4pP87pQ0bvTedXOiGc_2hX3E7Jw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAO7W_Bao93XoyHRT6NKG6p4pP87pQ0bvTedXOiGc_2hX3E7Jw%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAO7W_Bao93XoyHRT6NKG6p4pP87pQ0bvTedXOiGc_2hX3E7Jw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAO7W_Bao93XoyHRT6NKG6p4pP87pQ0bvTedXOiGc_2hX3E7Jw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; -- 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+...@chromium.org.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/85a8ff9f-03e2-4434-bc29-f7d02130e8e3n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/85a8ff9f-03e2-4434-bc29-f7d02130e8e3n%40chromium.org&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/85a8ff9f-03e2-4434-bc29-f7d02130e8e3n%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/85a8ff9f-03e2-4434-bc29-f7d02130e8e3n%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; -- 
-&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups 
-&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an 
-&amp;gt;&amp;gt; email to blink-dev+...@chromium.org.
-&amp;gt;&amp;gt; To view this discussion on the web visit 
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfU%3DKmysPKGBfykEE7Kv1g%3D9tO8bEq87Tfaw9knb9-uAZg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfU%3DKmysPKGBfykEE7Kv1g%3D9tO8bEq87Tfaw9knb9-uAZg%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfU%3DKmysPKGBfykEE7Kv1g%3D9tO8bEq87Tfaw9knb9-uAZg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAL5BFfU%3DKmysPKGBfykEE7Kv1g%3D9tO8bEq87Tfaw9knb9-uAZg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; -- 
-&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups 
-&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an 
-&amp;gt;&amp;gt; email to blink-dev+...@chromium.org.
-&amp;gt;&amp;gt;
-&amp;gt; To view this discussion on the web visit 
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/ce826ae3-ed8a-44c9-a62f-64d7ad1bb36e%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/ce826ae3-ed8a-44c9-a62f-64d7ad1bb36e%40chromium.org&lt;/a&gt;
-&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/ce826ae3-ed8a-44c9-a62f-64d7ad1bb36e%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/ce826ae3-ed8a-44c9-a62f-64d7ad1bb36e%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/94a843fb-8e98-4b16-9300-e3258b7f86fen%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/94a843fb-8e98-4b16-9300-e3258b7f86fen%40chromium.org&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
