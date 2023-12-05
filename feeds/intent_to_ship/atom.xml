@@ -5,6 +5,1254 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08579.html</id>
+        <title>[blink-dev] Intent to Ship: Third-party cookie deprecation exemption heuristics</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08579.html"/>
+        <updated>2023-12-04T22:55:23.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08579.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Third%5C-party+cookie+deprecation+exemption+heuristics%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Ship: Third-party cookie deprecation exemption heuristics&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Anton+Maliev%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Anton Maliev' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231204" rel="nofollow"&gt;Mon, 04 Dec 2023 14:55:23 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Contact emails
+
+amal...@chromium.org&lt;/pre&gt;&lt;pre&gt;
+
+johann...@chromium.org
+
+rtarp...@chromium.org
+
+wanderv...@chromium.org
+
+Explainer
+
+&lt;a  rel="nofollow" href="https://github.com/amaliev/3pcd-exemption-heuristics/blob/main/explainer.md"&gt;https://github.com/amaliev/3pcd-exemption-heuristics/blob/main/explainer.md&lt;/a&gt;
+
+Specification
+
+Pull request: &lt;a  rel="nofollow" href="https://github.com/whatwg/compat/pull/253"&gt;https://github.com/whatwg/compat/pull/253&lt;/a&gt;
+
+Summary
+
+This proposal examines a heuristics-based pattern of allowing temporary
+third-party cookie access in limited scenarios, which would mitigate site
+breakages after third-party cookies are blocked by default in Chrome. These
+scenarios are tightly scoped and build on similar work from other browsers
+such as Firefox (docs
+&amp;lt;&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/Privacy/Storage_Access_Policy#automatic_storage_access_upon_interaction"&gt;https://developer.mozilla.org/en-US/docs/Web/Privacy/Storage_Access_Policy#automatic_storage_access_upon_interaction&lt;/a&gt;&amp;gt;)
+and Safari (docs
+&amp;lt;&lt;a  rel="nofollow" href="https://webkit.org/blog/8311/intelligent-tracking-prevention-2-0/#:~:text=Temporary%20Compatibility%20Fix%3A%20Automatic%20Storage%20Access%20for%20Popups"&gt;https://webkit.org/blog/8311/intelligent-tracking-prevention-2-0/#:~:text=Temporary%20Compatibility%20Fix%3A%20Automatic%20Storage%20Access%20for%20Popups&lt;/a&gt;&amp;gt;
+).
+
+These heuristics will include:
+
+   1.
+
+   When a third party is loaded in a popup, after possible redirects, and
+   the third party receives user interaction, the third party receives storage
+   access on the opener site.
+   1.
+
+      Use cases: identity provider login, payments processing, etc.
+      2.
+
+      Example: nintendo.de (bug &amp;lt;&lt;a  rel="nofollow" href="https://issuetracker.google.com/268390722"&gt;https://issuetracker.google.com/268390722&lt;/a&gt;&amp;gt;)
+      2.
+
+   When a first party redirects to a third party, the third party receives
+   a user interaction, and navigates back to the first party, the third party
+   receives short-term storage access on the opener site.
+   1.
+
+      Use cases: identity provider login, etc.
+      2.
+
+      Example: pixnet.net (bug &amp;lt;&lt;a  rel="nofollow" href="https://issuetracker.google.com/281701307"&gt;https://issuetracker.google.com/281701307&lt;/a&gt;&amp;gt;)
+
+
+See the explainer
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/amaliev/3pcd-exemption-heuristics/blob/main/explainer.md"&gt;https://github.com/amaliev/3pcd-exemption-heuristics/blob/main/explainer.md&lt;/a&gt;&amp;gt;
+for details on background, additional considerations and our approach to
+prototyping. Aligned with what other browsers have indicated, we intend to
+eventually retire these heuristics as alternative solutions become widely
+used, subject to further feasibility analysis.
+
+Blink component
+
+Privacy&amp;gt;Heuristics
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Privacy%3EHeuristics"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Privacy%3EHeuristics&lt;/a&gt;&amp;gt;
+
+TAG review
+
+&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/919"&gt;https://github.com/w3ctag/design-reviews/issues/919&lt;/a&gt;
+
+TAG review status
+
+Pending
+
+Risks
+
+There is a risk of shipping overly lenient heuristics, which may introduce
+unintended privacy and security risks. There are also risks of bad actors
+abusing these heuristics to leak user history data, or to exploit
+credentialed access requests. The explainer explores these privacy and
+security considerations
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/amaliev/3pcd-exemption-heuristics/blob/main/explainer.md#privacy-and-security-considerations"&gt;https://github.com/amaliev/3pcd-exemption-heuristics/blob/main/explainer.md#privacy-and-security-considerations&lt;/a&gt;&amp;gt;;
+here is a summary of how our implementation is designed to mitigate these
+risks:
+
+   -
+
+   The heuristics are limited to requiring a concurrent interaction in both
+   the popup and redirect case. (As opposed to accepting a prior user
+   interaction on the same site.) This provides a stronger signal of user
+   intent and reduces the privacy risk of leaking user interaction history via
+   cookie behavior.
+   -
+
+   The storage access grant durations are gated by flags, which can be
+   changed and rolled out within 24-48 hours.
+
+
+In Chrome, users will also have the ability to turn off heuristics in
+Settings.
+
+We look forward to working with other browsers in the community to perform
+additional analysis and possibly narrow the heuristics further.
+
+Interoperability and Compatibility
+
+Our goal is to align closely where possible with Other browsers that have
+already shipped similar heuristics that give storage access grants in
+limited scenarios, e.g., Safari has implemented a similar popup heuristic (
+docs
+&amp;lt;&lt;a  rel="nofollow" href="https://webkit.org/blog/8311/intelligent-tracking-prevention-2-0/#:~:text=Temporary%20Compatibility%20Fix%3A%20Automatic%20Storage%20Access%20for%20Popups"&gt;https://webkit.org/blog/8311/intelligent-tracking-prevention-2-0/#:~:text=Temporary%20Compatibility%20Fix%3A%20Automatic%20Storage%20Access%20for%20Popups&lt;/a&gt;&amp;gt;)
+and Firefox has implemented similar popup and redirect heuristics (docs
+&amp;lt;&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/Privacy/Storage_Access_Policy#automatic_storage_access_upon_interaction"&gt;https://developer.mozilla.org/en-US/docs/Web/Privacy/Storage_Access_Policy#automatic_storage_access_upon_interaction&lt;/a&gt;&amp;gt;).
+In this manner, developers can  have consistent expectations around
+cross-platform compatibility.
+
+WebView application risks
+
+Does this intent deprecate or change behavior of existing APIs, such that
+it has potentially high risk for Android WebView-based applications?
+
+No
+
+Debuggability
+
+N/A
+
+Will this feature be supported on all six Blink platforms (Windows, Mac,
+Linux, Chrome OS, Android, and Android WebView)?
+
+All except WebView. (Third-party cookie deprecation launches don’t include
+WebView.)
+
+Is this feature fully tested by web-platform-tests
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+?
+
+Web Platform Tests are in progress, and will be checked in by the week of
+12/11.
+
+Flag name on chrome://flags
+
+Third-party Cookie Grants Heuristics Testing
+
+chrome://flags/#tpcd-heuristics-grants
+
+Finch feature name
+
+TpcdHeuristicsGrants
+
+Non-finch justification
+
+N/A
+
+Requires code in //chrome?
+
+True
+
+The code for awarding and reading grants is in //components. Some code is
+necessary in //chrome due to dependencies on e.g. the DIPS database.
+
+Estimated milestones
+
+Shipping to Stable M120 on 12/14
+
+Anticipated spec changes
+
+There are a few open questions around the details of the scenarios for
+which grants should be awarded. For instance:
+
+   -
+
+   Should grants only be created when there is a concurrent interaction on
+   the popup/redirect domain? Or would a past interaction also allow storage
+   access?
+   -
+
+   Does the popup heuristic behave differently depending on the source of
+   the iframe that initiates the popup?
+   -
+
+   Does the redirect heuristic behave differently depending on the user's
+   navigation flow?
+
+
+Link to entry on the Chrome Platform Status
+
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5181771549507584"&gt;https://chromestatus.com/feature/5181771549507584&lt;/a&gt;
+
+Links to previous Intent discussionsIntent to prototype:
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/Blink-dev/c/Eeh2pE0DRaE"&gt;https://groups.google.com/a/chromium.org/g/Blink-dev/c/Eeh2pE0DRaE&lt;/a&gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAKGZiuJmtK9N9fQs0EUbYbasG_c04TSoQ%3DmMwK9Zu-ixnKr7LA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAKGZiuJmtK9N9fQs0EUbYbasG_c04TSoQ%3DmMwK9Zu-ixnKr7LA%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08578.html</id>
+        <title>[blink-dev] FYI that Top Topics Selection with Prioritization is starting to roll out to Stable soon</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08578.html"/>
+        <updated>2023-12-04T22:47:26.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08578.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+FYI+that+Top+Topics+Selection+with+Prioritization+is+starting+to+roll+out+to+Stable+soon%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] FYI that Top Topics Selection with Prioritization is starting to roll out to Stable soon&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Yao+Xiao%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Yao Xiao&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231204" rel="nofollow"&gt;Mon, 04 Dec 2023 14:47:26 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;This is an FYI that the Topics API is changing its prioritization for top 
+topics selection (see the explainer update 
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/patcg-individual-drafts/topics/pull/281/files?short_path=b335630#diff-b335630551682c19a781afebcf4d07bf978fb1f8ac04c6bf87428ed5106870f5"&gt;https://github.com/patcg-individual-drafts/topics/pull/281/files?short_path=b335630#diff-b335630551682c19a781afebcf4d07bf978fb1f8ac04c6bf87428ed5106870f5&lt;/a&gt;&amp;gt;
+).&lt;/pre&gt;&lt;pre&gt;
+
+The new approach has been running in Canary/Dev at 50% for four weeks, and 
+in Beta at 50% for one week, and we are rolling out to 1% Stable next. 
+
+Best,
+Yao
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/e78964d8-ed13-4216-b6de-83f0ad32ddc2n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/e78964d8-ed13-4216-b6de-83f0ad32ddc2n%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08577.html</id>
+        <title>Re: [blink-dev] Intent to Ship: Fenced Frames - Enable Leaving IGs, and Ads Report at Top Level Navigation Start (Chrome - 120)</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08577.html"/>
+        <updated>2023-12-04T19:49:24.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08577.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Fenced+Frames+%5C-+Enable+Leaving+IGs%2C+and+Ads+Report+at+Top+Level+Navigation+Start+%5C%28Chrome+%5C-+120%5C%29%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Fenced Frames - Enable Leaving IGs, and Ads Report at Top Level Navigation Start (Chrome - 120)&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Chris+Harrelson%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Chris Harrelson&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231204" rel="nofollow"&gt;Mon, 04 Dec 2023 11:49:24 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;LGTM3
+
+On Mon, Dec 4, 2023 at 10:26 AM 'Sathish Manickam' via blink-dev &amp;lt;
+blink-dev@chromium.org&amp;gt; wrote:&lt;/pre&gt;&lt;pre&gt;
+
+&amp;gt; Hey Arthur,
+&amp;gt;
+&amp;gt; The changes will be included in the respin planned for today ( +Srinivas
+&amp;gt; Sista &amp;lt;srinivassi...@google.com&amp;gt; who is working on that) - and will be
+&amp;gt; behind finch flags. On the approvals side, we are waiting for the final
+&amp;gt; LGTM on the I2S. Once done we will launch it to 1% stable. We are
+&amp;gt; expecting this to happen in the next couple of days.
+&amp;gt;
+&amp;gt; Thanks,
+&amp;gt; Sathish
+&amp;gt;
+&amp;gt;
+&amp;gt;
+&amp;gt; On Mon, Dec 4, 2023 at 9:51 AM Arthur Sonzogni &amp;lt;
+&amp;gt; arthursonzo...@chromium.org&amp;gt; wrote:
+&amp;gt;
+&amp;gt;&amp;gt; When is this shipping? M120 is the current *stable* version. I am
+&amp;gt;&amp;gt; assuming this hasn't shipped yet, isn't it?
+&amp;gt;&amp;gt; From the M120 source code
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/refs/tags/120.0.6099.43:third_party/blink/common/features.cc;l=763-789"&gt;https://source.chromium.org/chromium/chromium/src/+/refs/tags/120.0.6099.43:third_party/blink/common/features.cc;l=763-789&lt;/a&gt;&amp;gt;,
+&amp;gt;&amp;gt; I checked that it depended on the `kFencedFramesM120FeaturesPart2`
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/refs/tags/120.0.6099.43:third_party/blink/common/features.cc;l=763-789"&gt;https://source.chromium.org/chromium/chromium/src/+/refs/tags/120.0.6099.43:third_party/blink/common/features.cc;l=763-789&lt;/a&gt;&amp;gt;feature,
+&amp;gt;&amp;gt; which is DISABLED_BY_DEFAULT.
+&amp;gt;&amp;gt; M121 branch cut is today &amp;lt;&lt;a  rel="nofollow" href="https://chromiumdash.appspot.com/schedule"&gt;https://chromiumdash.appspot.com/schedule&lt;/a&gt;&amp;gt;.
+&amp;gt;&amp;gt; Tomorrow, we will be working on M122.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Could you please update the ChromeStatus entry
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5149287986233344"&gt;https://chromestatus.com/feature/5149287986233344&lt;/a&gt;&amp;gt; accordingly?
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; On Friday, December 1, 2023 at 11:21:55 PM UTC+1 Mike Taylor wrote:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; LGTM2
+&amp;gt;&amp;gt;&amp;gt; On 11/30/23 6:10 PM, Rick Byers wrote:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; LGTM1
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; On Fri, Dec 1, 2023 at 4:55 AM 'Liam Brady' via blink-dev &amp;lt;
+&amp;gt;&amp;gt;&amp;gt; blink-dev@chromium.org&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Contact emails
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; shivani...@chromium.org, jkar...@chromium.org, lbr...@google.com,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; xiaoche...@google.com
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Explainer(s)
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Enable Leaving Ad Interest Groups from Urn iFrames and Ad Component
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Frames
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/turtledove/pull/879"&gt;https://github.com/WICG/turtledove/pull/879&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/turtledove/blob/11d500c87bb39540d49c8e369a87d6ca84ee5824/FLEDGE.md#11-joining-interest-groups"&gt;https://github.com/WICG/turtledove/blob/11d500c87bb39540d49c8e369a87d6ca84ee5824/FLEDGE.md#11-joining-interest-groups&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Introduce reserved.top_navigation_start/commit
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/turtledove/pull/885"&gt;https://github.com/WICG/turtledove/pull/885&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Spec(s)
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Enable Leaving Ad Interest Groups from URN iframes and Ad Component
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Frames
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://wicg.github.io/turtledove/#leaveadinterestgroup"&gt;https://wicg.github.io/turtledove/#leaveadinterestgroup&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Introduce reserved.top_navigation_start/commit
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/fenced-frame/pull/130"&gt;https://github.com/WICG/fenced-frame/pull/130&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Summary
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; We launched Fenced Frames as a part of Chrome 115. We would like to
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; make the following two changes to Fenced Frames to help improve
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; experimentation. Note that changes to Fenced Frames Ads Reporting applies
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; to both fenced frames and URN iframes.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; 1. Enable Leaving Ad Interest Groups from URN iframes and Ad Component
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Frames
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Currently calling navigator.leaveAdInterestGroup() without any argument
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; only works in fenced frames. This change enables this API for supporting
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; navigator.leaveAdInterestGroup() without any argument in URN iframes and in
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; ad component frames.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; This change is being made to provide consistency of behavior across the
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; various frame types.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; 2. Introduce reserved.top_navigation_start/commit
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Fenced frames or URN iframes, when loaded through an API like Protected
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Audience or Shared Storage, can send out reporting beacons automatically
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; when a top-level navigation initiated by the frame commits. With this
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; change, we are additionally adding automatic beacon support for top-level
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; navigation start events through the &amp;quot;reserved.top_navigation_start&amp;quot; event
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; type. The top-level navigation commit event is renamed from
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;quot;reserved.top_navigation&amp;quot; to &amp;quot;reserved.top_navigation_commit&amp;quot; to have a
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; more clear naming convention (for now, both the new and old name will
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; continue to work). This change also adds console warnings on the usage of
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;quot;reserved.top_navigation&amp;quot; to help with its eventual deprecation, which will
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; involve gathering metrics on its usage and deprecating when those metrics
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; reduce considerably.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; This change allows adtech to receive more complete reporting as
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; discussed in the related issue
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/turtledove/issues/822"&gt;https://github.com/WICG/turtledove/issues/822&lt;/a&gt;&amp;gt;.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink component
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink&amp;gt;FencedFrames
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EFencedFrames"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EFencedFrames&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG reviews and status
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Fenced frames existing TAG review appended with these spec changes
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/838#issuecomment-1792881253"&gt;https://github.com/w3ctag/design-reviews/issues/838#issuecomment-1792881253&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Link to Origin Trial feedback summary
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; No Origin Trial performed
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is this feature supported on all six Blink platforms (Windows, Mac,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Linux, Chrome OS, Android, and Android WebView)?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Supported on all the above platforms except Android WebView.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Debuggability
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Additional debugging capabilities are not necessary for these feature
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; changes.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Risks
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Compatibility
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; There are no compatibility risks, as described below:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; 1. Enable Leaving Ad Interest Groups from Urn iFrames and Ad Component
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Frames:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; This is added functionality and backward compatible.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; 2. Introduce reserved.top_navigation_start/commit:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; This is added functionality and backward compatible.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Interoperability
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; There are no interoperability risks as no other browsers have decided
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; to implement these features yet.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Link to test suite results from wpt.fyi.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; 1. Enable Leaving Ad Interest Groups from Urn iFrames and Ad Component
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Frames:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Yes.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/master/fledge/tentative/join-leave-ad-interest-group.https.window.js"&gt;https://github.com/web-platform-tests/wpt/blob/master/fledge/tentative/join-leave-ad-interest-group.https.window.js&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/master/fledge/tentative/join-leave-ad-interest-group-in-fenced-frame.https.window.js"&gt;https://github.com/web-platform-tests/wpt/blob/master/fledge/tentative/join-leave-ad-interest-group-in-fenced-frame.https.window.js&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; 2. Introduce reserved.top_navigation_start/commit:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Yes. The existing automatic beacon tests have been updated
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/commit/da07db4e03aacb060c82996f4ed7b8f0dd4e4b24"&gt;https://github.com/web-platform-tests/wpt/commit/da07db4e03aacb060c82996f4ed7b8f0dd4e4b24&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; to test the new automatic beacon types.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; example of top_navigation_start and top_navigation_commit test:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; automatic-beacon-click-handler.https.html (test
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-click-handler.https.html"&gt;https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-click-handler.https.html&lt;/a&gt;&amp;gt;)
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; (results
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/fenced-frame/automatic-beacon-click-handler.https.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/fenced-frame/automatic-beacon-click-handler.https.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; )
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; automatic-beacon-shared-storage.https.html (test
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-shared-storage.https.html"&gt;https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-shared-storage.https.html&lt;/a&gt;&amp;gt;)
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; (results
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/fenced-frame/automatic-beacon-shared-storage.https.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/fenced-frame/automatic-beacon-shared-storage.https.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; )
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; WPT for Fenced Frames:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/tree/master/fenced-frame"&gt;https://github.com/web-platform-tests/wpt/tree/master/fenced-frame&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Anticipated spec changes
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5149287986233344"&gt;https://chromestatus.com/feature/5149287986233344&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Links to previous Intent discussions
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Intent to prototype:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/Ko9UXQYPgUE/m/URRsB-qvAAAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/Ko9UXQYPgUE/m/URRsB-qvAAAJ&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Intent to experiment:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/y6G3cvKXjlg/m/Lcpmpi_LAgAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/y6G3cvKXjlg/m/Lcpmpi_LAgAJ&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Intent to ship:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/tpw8wW0VenQ/m/mePLTiHlDQAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/tpw8wW0VenQ/m/mePLTiHlDQAJ&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+unsubscr...@chromium.org.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/38a73d81-a439-46e8-9573-d5c66789fdc6n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/38a73d81-a439-46e8-9573-d5c66789fdc6n%40chromium.org&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/38a73d81-a439-46e8-9573-d5c66789fdc6n%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/38a73d81-a439-46e8-9573-d5c66789fdc6n%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; --
+&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
+&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send
+&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+unsubscr...@chromium.org.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY_wKQU%2B8TZ%2B-LsacF%2B4%3DcLkg2CVZ5Ff_V9J%2BU4aUDHy0g%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY_wKQU%2B8TZ%2B-LsacF%2B4%3DcLkg2CVZ5Ff_V9J%2BU4aUDHy0g%40mail.gmail.com&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY_wKQU%2B8TZ%2B-LsacF%2B4%3DcLkg2CVZ5Ff_V9J%2BU4aUDHy0g%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY_wKQU%2B8TZ%2B-LsacF%2B4%3DcLkg2CVZ5Ff_V9J%2BU4aUDHy0g%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; --
+&amp;gt; You received this message because you are subscribed to the Google Groups
+&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt; To view this discussion on the web visit
+&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPWEw3s4ZBJQi7EY2upBz%2BMzJ2NOsQNu3dsxW%3DYBWdVt1zshFw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPWEw3s4ZBJQi7EY2upBz%2BMzJ2NOsQNu3dsxW%3DYBWdVt1zshFw%40mail.gmail.com&lt;/a&gt;
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPWEw3s4ZBJQi7EY2upBz%2BMzJ2NOsQNu3dsxW%3DYBWdVt1zshFw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPWEw3s4ZBJQi7EY2upBz%2BMzJ2NOsQNu3dsxW%3DYBWdVt1zshFw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt; .
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw8DME4VePj0hDJrQbschhySRFktuy2S3O0F0i%3D5d32gRQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw8DME4VePj0hDJrQbschhySRFktuy2S3O0F0i%3D5d32gRQ%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08576.html</id>
+        <title>[blink-dev] Intent to Ship: Interoperable mousemove default action</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08576.html"/>
+        <updated>2023-12-04T19:35:23.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08576.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Interoperable+mousemove+default+action%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Ship: Interoperable mousemove default action&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Mustaq+Ahmed%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Mustaq Ahmed&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231204" rel="nofollow"&gt;Mon, 04 Dec 2023 11:35:23 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Contact emailsmus...@chromium.org, fla...@chromium.org
+
+ExplainerNone&lt;/pre&gt;&lt;pre&gt;
+
+Specification&lt;a  rel="nofollow" href="https://w3c.github.io/uievents/#event-type-mousemove"&gt;https://w3c.github.io/uievents/#event-type-mousemove&lt;/a&gt;
+
+Summary
+
+Canceling mousemove will not prevent text selection or drag-and-drop.
+Chrome allowed cancelling mousemove events to prevent other APIs like text
+selection (and even drag-and-drop in the past). This does not match other
+major browsers; nor does it conform to the UI Event spec:
+&lt;a  rel="nofollow" href="https://w3c.github.io/uievents/#event-type-mousemove"&gt;https://w3c.github.io/uievents/#event-type-mousemove&lt;/a&gt; Through this feature,
+the default-action of mousemove becomes none. Text selection and
+drag-and-drop can still be prevented through cancelling selectstart and
+dragstart events respectively, which are spec compliant and fully
+interoperable.
+
+
+Blink componentBlink&amp;gt;Input
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EInput"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EInput&lt;/a&gt;&amp;gt;
+
+TAG reviewNone
+
+TAG review statusNot applicable
+
+Risks
+
+
+Interoperability and Compatibility
+
+This feature will make Chrome fully interoperable. Chrome is currently
+failing the corresponding WPT (a part of Interop 2023) while both Mozilla
+and WebKit have started passing the WPT recently. There is a bit of compat
+risk. We attempted it twice in the past but had to revert for two different
+reasons: in 2014 we faced a text-selection regression
+&lt;a  rel="nofollow" href="https://crbug.com/485892"&gt;https://crbug.com/485892&lt;/a&gt; on an app that no longer shows the problem
+(because app event handling changed), then in 2018 we faced a drag-and-drop
+regression &lt;a  rel="nofollow" href="https://crbug.com/878392"&gt;https://crbug.com/878392&lt;/a&gt; that is irrelevant now (because Chrome
+drag-and-drop changed). For our current attempt the risk from
+text-selection remains, and we need to expose the feature to be able to
+assess the risk. We have added a use-counter and turned on the feature as
+&amp;quot;experimental&amp;quot; on M121 to observe field data before shipping it.
+
+
+*Gecko*: Shipped/Shipping (
+&lt;a  rel="nofollow" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1823663"&gt;https://bugzilla.mozilla.org/show_bug.cgi?id=1823663&lt;/a&gt;)
+
+*WebKit*: Shipped/Shipping (&lt;a  rel="nofollow" href="https://bugs.webkit.org/show_bug.cgi?id=262878"&gt;https://bugs.webkit.org/show_bug.cgi?id=262878&lt;/a&gt;)
+
+*Web developers*: Positive (&lt;a  rel="nofollow" href="https://crbug.com/346473#c6"&gt;https://crbug.com/346473#c6&lt;/a&gt;)
+
+*Other signals*:
+
+WebView application risks
+
+Does this intent deprecate or change behavior of existing APIs, such that
+it has potentially high risk for Android WebView-based applications?
+
+None
+
+
+Debuggability
+
+None
+
+
+Will this feature be supported on all six Blink platforms (Windows, Mac,
+Linux, ChromeOS, Android, and Android WebView)?No
+
+Is this feature fully tested by web-platform-tests
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+?Yes
+
+&lt;a  rel="nofollow" href="https://wpt.fyi/results/uievents/mouse/mousemove_prevent_default_action.tentative.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/uievents/mouse/mousemove_prevent_default_action.tentative.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
+
+
+Flag name on chrome://flagsNone
+
+Finch feature nameMouseDragOnCancelledMouseMove
+
+Requires code in //chrome?False
+
+Tracking bug&lt;a  rel="nofollow" href="https://crbug.com/346473"&gt;https://crbug.com/346473&lt;/a&gt;
+
+MeasurementWe have added the use-counter kMouseDragOnCancelledMouseMove to
+track possible regressions in the wild.
+
+Sample links
+&lt;a  rel="nofollow" href="https://codepen.io/mustaqahmed/full/wvNYGEP"&gt;https://codepen.io/mustaqahmed/full/wvNYGEP&lt;/a&gt;
+
+Estimated milestones
+Shipping on desktop 122
+Shipping on Android 122
+Shipping on WebView 122
+
+Anticipated spec changes
+
+Open questions about a feature may be a source of future web compat or
+interop issues. Please list open issues (e.g. links to known github issues
+in the project for the feature specification) whose resolution may
+introduce web compat/interop risk (e.g., changing to naming or structure of
+the API in a non-backward-compatible way).
+None.
+
+Link to entry on the Chrome Platform Status
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5145305056280576"&gt;https://chromestatus.com/feature/5145305056280576&lt;/a&gt;
+
+This intent message was generated by Chrome Platform Status
+&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAB0cuO7reN%2B6Wb_N99jNm_aJY7fhhQ1ncCrh_J_%2BFCLdASm0eg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAB0cuO7reN%2B6Wb_N99jNm_aJY7fhhQ1ncCrh_J_%2BFCLdASm0eg%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08575.html</id>
+        <title>[blink-dev] Intent to Extend Experiment: Compute Pressure API</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08575.html"/>
+        <updated>2023-12-04T18:59:22.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08575.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Extend+Experiment%5C%3A+Compute+Pressure+API%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Extend Experiment: Compute Pressure API&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Mandy%2C+Arnaud%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Mandy, Arnaud&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231204" rel="nofollow"&gt;Mon, 04 Dec 2023 10:59:22 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Contact emails
+kenneth.r.christian...@intel.com&amp;lt;&lt;a  rel="nofollow" href="mailto:kenneth.r.christian...@intel.com"&gt;mailto:kenneth.r.christian...@intel.com&lt;/a&gt;&amp;gt;, 
+arnaud.ma...@intel.com&amp;lt;&lt;a  rel="nofollow" href="mailto:arnaud.ma...@intel.com"&gt;mailto:arnaud.ma...@intel.com&lt;/a&gt;&amp;gt;, 
+wei4.w...@intel.com&amp;lt;&lt;a  rel="nofollow" href="mailto:wei4.w...@intel.com"&gt;mailto:wei4.w...@intel.com&lt;/a&gt;&amp;gt;, 
+raphael.kubo.da.co...@intel.com&amp;lt;&lt;a  rel="nofollow" href="mailto:raphael.kubo.da.co...@intel.com"&gt;mailto:raphael.kubo.da.co...@intel.com&lt;/a&gt;&amp;gt;&lt;/pre&gt;&lt;pre&gt;
+
+
+Original I2E
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/QfJ4pngu3gc/"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/QfJ4pngu3gc/&lt;/a&gt;&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/QfJ4pngu3gc/m/CPQnKtqoAgAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/QfJ4pngu3gc/m/CPQnKtqoAgAJ&lt;/a&gt;&amp;gt;
+
+Explainer
+
+&lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/blob/main/README.md"&gt;https://github.com/w3c/compute-pressure/blob/main/README.md&lt;/a&gt;
+
+
+Specification
+
+&lt;a  rel="nofollow" href="https://www.w3.org/TR/compute-pressure"&gt;https://www.w3.org/TR/compute-pressure&lt;/a&gt;
+
+
+Origin Trial
+
+&lt;a  rel="nofollow" href="https://developer.chrome.com/origintrials/#/view_trial/1196831600973709313"&gt;https://developer.chrome.com/origintrials/#/view_trial/1196831600973709313&lt;/a&gt;
+
+
+Summary
+
+The Compute Pressure API offers high-level states that represent the pressure 
+on the system. It allows the implementation to use the right underlying 
+hardware metrics to ensure that users can take advantage of all the processing 
+power available to them as long as the system is not under unmanageable stress. 
+“Pressure” is a generic term by design – at the moment it is calculated based 
+on CPU load, but future plans include using signals from temperature and 
+battery status, for example.
+
+We would like to extend the current Origin Trial from M120 to M123 (inclusive).
+
+Blink component
+
+Blink&amp;gt;PerformanceAPIs&amp;gt;ComputePressure&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EPerformanceAPIs%3EComputePressure"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EPerformanceAPIs%3EComputePressure&lt;/a&gt;&amp;gt;
+
+
+Search tags
+
+compute pressure&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:compute%20pressure"&gt;https://chromestatus.com/features#tags:compute%20pressure&lt;/a&gt;&amp;gt;
+
+TAG review
+
+spec review: &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/795"&gt;https://github.com/w3ctag/design-reviews/issues/795&lt;/a&gt; wide review 
+tracker: &lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/issues/177"&gt;https://github.com/w3c/compute-pressure/issues/177&lt;/a&gt;
+
+
+TAG review status
+
+Issues addressed
+
+
+Chromium Trial Name
+
+ComputePressure_v2
+
+
+Origin Trial documentation link
+
+&lt;a  rel="nofollow" href="https://developer.chrome.com/docs/web-platform/compute-pressure/"&gt;https://developer.chrome.com/docs/web-platform/compute-pressure/&lt;/a&gt;
+
+
+Chromium Trial Name
+
+ComputePressure
+
+
+Origin Trial documentation link
+
+&lt;a  rel="nofollow" href="https://github.com/oyiptong/compute-pressure/blob/main/README.md"&gt;https://github.com/oyiptong/compute-pressure/blob/main/README.md&lt;/a&gt;
+
+
+Risks
+
+
+
+Interoperability and Compatibility
+
+
+
+Gecko: No signal (&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/521"&gt;https://github.com/mozilla/standards-positions/issues/521&lt;/a&gt;)
+
+
+WebKit: Negative 
+(&lt;a  rel="nofollow" href="https://lists.webkit.org/pipermail/webkit-dev/2021-May/031845.html"&gt;https://lists.webkit.org/pipermail/webkit-dev/2021-May/031845.html&lt;/a&gt;) This issue 
+has been taken into account: &lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/issues/24"&gt;https://github.com/w3c/compute-pressure/issues/24&lt;/a&gt;
+
+
+Web developers: Positive (&lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/issues/14"&gt;https://github.com/w3c/compute-pressure/issues/14&lt;/a&gt;)
+
+
+Other signals:
+
+
+Security
+
+&lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/issues/79"&gt;https://github.com/w3c/compute-pressure/issues/79&lt;/a&gt;
+
+
+
+WebView application risks
+
+Does this intent deprecate or change behavior of existing APIs, such that it 
+has potentially high risk for Android WebView-based applications?
+
+
+
+Motivation For Requesting Extension.
+
+We propose extending the “Compute Pressure API” Origin Trial. We decided to 
+extend the experiment based on feedback from users and a need for wider testing 
+with 3rd-party Origin Trial tokens.
+
+
+One of the features of this API is that it can provide data to iframe's, even 
+cross-origin ones, under certain 
+circumstances&amp;lt;&lt;a  rel="nofollow" href="https://w3c.github.io/compute-pressure/#dfn-document-has-implicit-focus"&gt;https://w3c.github.io/compute-pressure/#dfn-document-has-implicit-focus&lt;/a&gt;&amp;gt;.
+ That is due to the fact that many video conferencing services provide an SDK 
+to their users based on embedding the 3rd party code via an iframe. It was 
+reported that this didn't work with the current origin trial, unless both the 
+SDK and the embedder ask for individual tokens, which is not scalable across a 
+number of sites, limiting the usefulness of the origin trial.
+
+
+It is now possible to use a third-party origin 
+trial&amp;lt;&lt;a  rel="nofollow" href="https://web.dev/articles/third-party-origin-trials"&gt;https://web.dev/articles/third-party-origin-trials&lt;/a&gt;&amp;gt; instead which makes 
+it possible for providers of embedded content to try out a new feature across 
+multiple sites. For this reason we are requesting an extension.
+
+
+Furthermore, the specification has been 
+modified&amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/pull/238"&gt;https://github.com/w3c/compute-pressure/pull/238&lt;/a&gt;&amp;gt; to support workers 
+in the privacy algorithms. The implementation will be merged to chromium for 
+M122 and should also be evaluated by the API users.
+
+
+Ongoing technical constraints
+
+
+Will this feature be supported on all six Blink platforms (Windows, Mac, Linux, 
+ChromeOS, Android, and Android WebView)?
+
+Supported to Windows, Mac, Linux, ChromeOS.
+
+
+Support on Android (incl. Android WebView) has been deprioritized as there is 
+no current way to access the telemetry needed after Android 11, and the current 
+partners we are engaging with have no need as they are using native solutions 
+on Android at this point.
+
+
+Is this feature fully tested by 
+web-platform-tests&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;?
+
+Yes
+
+&lt;a  rel="nofollow" href="https://wpt.fyi/results/compute-pressure?label=master&amp;label=experimental&amp;aligned&amp;view=subtest&amp;q=compute-pressure"&gt;https://wpt.fyi/results/compute-pressure?label=master&amp;label=experimental&amp;aligned&amp;view=subtest&amp;q=compute-pressure&lt;/a&gt;
+
+
+DevTrial instructions
+
+&lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/blob/main/HOWTO.md"&gt;https://github.com/w3c/compute-pressure/blob/main/HOWTO.md&lt;/a&gt;
+
+
+Flag name on chrome://flags
+
+see &lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/blob/main/HOWTO.md"&gt;https://github.com/w3c/compute-pressure/blob/main/HOWTO.md&lt;/a&gt;
+
+
+Finch feature name
+
+None
+
+
+Non-finch justification
+
+None
+
+
+Requires code in //chrome?
+
+False
+
+
+Tracking bug
+
+&lt;a  rel="nofollow" href="https://crbug.com/1067627"&gt;https://crbug.com/1067627&lt;/a&gt;
+
+
+Launch bug
+
+&lt;a  rel="nofollow" href="https://crbug.com/1173266"&gt;https://crbug.com/1173266&lt;/a&gt;
+
+
+Estimated milestones
+
+ OriginTrial desktop last  (new request)
+
+
+123
+
+OriginTrial desktop last
+
+
+118
+
+OriginTrial desktop first
+
+
+115
+
+OriginTrial desktop last
+
+
+94
+
+OriginTrial desktop first
+
+
+92
+
+DevTrial on desktop
+
+
+109
+
+
+
+Link to entry on the Chrome Platform Status
+
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5597608644968448"&gt;https://chromestatus.com/feature/5597608644968448&lt;/a&gt;
+
+
+Links to previous Intent discussions
+
+Intent to prototype: 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/LTIRZ24C5Os/m/BPSeJ8y0BwAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/LTIRZ24C5Os/m/BPSeJ8y0BwAJ&lt;/a&gt;
+ Ready for Trial: 
+&lt;a  rel="nofollow" href="https://groups.google.com/u/1/a/chromium.org/g/blink-dev/c/-1ciwdn23J4"&gt;https://groups.google.com/u/1/a/chromium.org/g/blink-dev/c/-1ciwdn23J4&lt;/a&gt;
+
+Intent to Experiment: 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/QfJ4pngu3gc"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/QfJ4pngu3gc&lt;/a&gt;
+
+Intent to Experiment: 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/HzVV-sM97T0"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/HzVV-sM97T0&lt;/a&gt;
+
+Intent to Experiment: 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/QfJ4pngu3gc/"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/QfJ4pngu3gc/&lt;/a&gt;&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/QfJ4pngu3gc/m/CPQnKtqoAgAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/QfJ4pngu3gc/m/CPQnKtqoAgAJ&lt;/a&gt;&amp;gt;
+
+
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/BY5PR11MB40694670568F3D61825DD8929386A%40BY5PR11MB4069.namprd11.prod.outlook.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/BY5PR11MB40694670568F3D61825DD8929386A%40BY5PR11MB4069.namprd11.prod.outlook.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08574.html</id>
+        <title>Re: [blink-dev] Intent to Ship: Fenced Frames - Enable Leaving IGs, and Ads Report at Top Level Navigation Start (Chrome - 120)</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08574.html"/>
+        <updated>2023-12-04T18:26:47.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08574.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Fenced+Frames+%5C-+Enable+Leaving+IGs%2C+and+Ads+Report+at+Top+Level+Navigation+Start+%5C%28Chrome+%5C-+120%5C%29%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Fenced Frames - Enable Leaving IGs, and Ads Report at Top Level Navigation Start (Chrome - 120)&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Sathish+Manickam%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Sathish Manickam' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231204" rel="nofollow"&gt;Mon, 04 Dec 2023 10:26:47 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Hey Arthur,
+
+The changes will be included in the respin planned for today ( +Srinivas
+Sista &amp;lt;srinivassi...@google.com&amp;gt; who is working on that) - and will be
+behind finch flags. On the approvals side, we are waiting for the final
+LGTM on the I2S. Once done we will launch it to 1% stable. We are
+expecting this to happen in the next couple of days.&lt;/pre&gt;&lt;pre&gt;
+
+Thanks,
+Sathish
+
+
+
+On Mon, Dec 4, 2023 at 9:51 AM Arthur Sonzogni &amp;lt;arthursonzo...@chromium.org&amp;gt;
+wrote:
+
+&amp;gt; When is this shipping? M120 is the current *stable* version. I am
+&amp;gt; assuming this hasn't shipped yet, isn't it?
+&amp;gt; From the M120 source code
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/refs/tags/120.0.6099.43:third_party/blink/common/features.cc;l=763-789"&gt;https://source.chromium.org/chromium/chromium/src/+/refs/tags/120.0.6099.43:third_party/blink/common/features.cc;l=763-789&lt;/a&gt;&amp;gt;,
+&amp;gt; I checked that it depended on the `kFencedFramesM120FeaturesPart2`
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/refs/tags/120.0.6099.43:third_party/blink/common/features.cc;l=763-789"&gt;https://source.chromium.org/chromium/chromium/src/+/refs/tags/120.0.6099.43:third_party/blink/common/features.cc;l=763-789&lt;/a&gt;&amp;gt;feature,
+&amp;gt; which is DISABLED_BY_DEFAULT.
+&amp;gt; M121 branch cut is today &amp;lt;&lt;a  rel="nofollow" href="https://chromiumdash.appspot.com/schedule"&gt;https://chromiumdash.appspot.com/schedule&lt;/a&gt;&amp;gt;.
+&amp;gt; Tomorrow, we will be working on M122.
+&amp;gt;
+&amp;gt; Could you please update the ChromeStatus entry
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5149287986233344"&gt;https://chromestatus.com/feature/5149287986233344&lt;/a&gt;&amp;gt; accordingly?
+&amp;gt;
+&amp;gt; On Friday, December 1, 2023 at 11:21:55 PM UTC+1 Mike Taylor wrote:
+&amp;gt;
+&amp;gt;&amp;gt; LGTM2
+&amp;gt;&amp;gt; On 11/30/23 6:10 PM, Rick Byers wrote:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; LGTM1
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; On Fri, Dec 1, 2023 at 4:55 AM 'Liam Brady' via blink-dev &amp;lt;
+&amp;gt;&amp;gt; blink-dev@chromium.org&amp;gt; wrote:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Contact emails
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; shivani...@chromium.org, jkar...@chromium.org, lbr...@google.com,
+&amp;gt;&amp;gt;&amp;gt; xiaoche...@google.com
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Explainer(s)
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Enable Leaving Ad Interest Groups from Urn iFrames and Ad Component
+&amp;gt;&amp;gt;&amp;gt; Frames
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/turtledove/pull/879"&gt;https://github.com/WICG/turtledove/pull/879&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/turtledove/blob/11d500c87bb39540d49c8e369a87d6ca84ee5824/FLEDGE.md#11-joining-interest-groups"&gt;https://github.com/WICG/turtledove/blob/11d500c87bb39540d49c8e369a87d6ca84ee5824/FLEDGE.md#11-joining-interest-groups&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Introduce reserved.top_navigation_start/commit
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/turtledove/pull/885"&gt;https://github.com/WICG/turtledove/pull/885&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Spec(s)
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Enable Leaving Ad Interest Groups from URN iframes and Ad Component
+&amp;gt;&amp;gt;&amp;gt; Frames
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://wicg.github.io/turtledove/#leaveadinterestgroup"&gt;https://wicg.github.io/turtledove/#leaveadinterestgroup&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Introduce reserved.top_navigation_start/commit
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/fenced-frame/pull/130"&gt;https://github.com/WICG/fenced-frame/pull/130&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Summary
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; We launched Fenced Frames as a part of Chrome 115. We would like to make
+&amp;gt;&amp;gt;&amp;gt; the following two changes to Fenced Frames to help improve experimentation.
+&amp;gt;&amp;gt;&amp;gt; Note that changes to Fenced Frames Ads Reporting applies to both fenced
+&amp;gt;&amp;gt;&amp;gt; frames and URN iframes.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; 1. Enable Leaving Ad Interest Groups from URN iframes and Ad Component
+&amp;gt;&amp;gt;&amp;gt; Frames
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Currently calling navigator.leaveAdInterestGroup() without any argument
+&amp;gt;&amp;gt;&amp;gt; only works in fenced frames. This change enables this API for supporting
+&amp;gt;&amp;gt;&amp;gt; navigator.leaveAdInterestGroup() without any argument in URN iframes and in
+&amp;gt;&amp;gt;&amp;gt; ad component frames.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; This change is being made to provide consistency of behavior across the
+&amp;gt;&amp;gt;&amp;gt; various frame types.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; 2. Introduce reserved.top_navigation_start/commit
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Fenced frames or URN iframes, when loaded through an API like Protected
+&amp;gt;&amp;gt;&amp;gt; Audience or Shared Storage, can send out reporting beacons automatically
+&amp;gt;&amp;gt;&amp;gt; when a top-level navigation initiated by the frame commits. With this
+&amp;gt;&amp;gt;&amp;gt; change, we are additionally adding automatic beacon support for top-level
+&amp;gt;&amp;gt;&amp;gt; navigation start events through the &amp;quot;reserved.top_navigation_start&amp;quot; event
+&amp;gt;&amp;gt;&amp;gt; type. The top-level navigation commit event is renamed from
+&amp;gt;&amp;gt;&amp;gt; &amp;quot;reserved.top_navigation&amp;quot; to &amp;quot;reserved.top_navigation_commit&amp;quot; to have a
+&amp;gt;&amp;gt;&amp;gt; more clear naming convention (for now, both the new and old name will
+&amp;gt;&amp;gt;&amp;gt; continue to work). This change also adds console warnings on the usage of
+&amp;gt;&amp;gt;&amp;gt; &amp;quot;reserved.top_navigation&amp;quot; to help with its eventual deprecation, which will
+&amp;gt;&amp;gt;&amp;gt; involve gathering metrics on its usage and deprecating when those metrics
+&amp;gt;&amp;gt;&amp;gt; reduce considerably.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; This change allows adtech to receive more complete reporting as
+&amp;gt;&amp;gt;&amp;gt; discussed in the related issue
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/turtledove/issues/822"&gt;https://github.com/WICG/turtledove/issues/822&lt;/a&gt;&amp;gt;.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Blink component
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Blink&amp;gt;FencedFrames
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EFencedFrames"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EFencedFrames&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; TAG reviews and status
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Fenced frames existing TAG review appended with these spec changes
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/838#issuecomment-1792881253"&gt;https://github.com/w3ctag/design-reviews/issues/838#issuecomment-1792881253&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Link to Origin Trial feedback summary
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; No Origin Trial performed
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Is this feature supported on all six Blink platforms (Windows, Mac,
+&amp;gt;&amp;gt;&amp;gt; Linux, Chrome OS, Android, and Android WebView)?
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Supported on all the above platforms except Android WebView.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Debuggability
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Additional debugging capabilities are not necessary for these feature
+&amp;gt;&amp;gt;&amp;gt; changes.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Risks
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Compatibility
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; There are no compatibility risks, as described below:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; 1. Enable Leaving Ad Interest Groups from Urn iFrames and Ad Component
+&amp;gt;&amp;gt;&amp;gt; Frames:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; This is added functionality and backward compatible.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; 2. Introduce reserved.top_navigation_start/commit:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; This is added functionality and backward compatible.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Interoperability
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; There are no interoperability risks as no other browsers have decided to
+&amp;gt;&amp;gt;&amp;gt; implement these features yet.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;?
+&amp;gt;&amp;gt;&amp;gt; Link to test suite results from wpt.fyi.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; 1. Enable Leaving Ad Interest Groups from Urn iFrames and Ad Component
+&amp;gt;&amp;gt;&amp;gt; Frames:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Yes.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/master/fledge/tentative/join-leave-ad-interest-group.https.window.js"&gt;https://github.com/web-platform-tests/wpt/blob/master/fledge/tentative/join-leave-ad-interest-group.https.window.js&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/master/fledge/tentative/join-leave-ad-interest-group-in-fenced-frame.https.window.js"&gt;https://github.com/web-platform-tests/wpt/blob/master/fledge/tentative/join-leave-ad-interest-group-in-fenced-frame.https.window.js&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; 2. Introduce reserved.top_navigation_start/commit:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Yes. The existing automatic beacon tests have been updated
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/commit/da07db4e03aacb060c82996f4ed7b8f0dd4e4b24"&gt;https://github.com/web-platform-tests/wpt/commit/da07db4e03aacb060c82996f4ed7b8f0dd4e4b24&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; to test the new automatic beacon types.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; example of top_navigation_start and top_navigation_commit test:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; automatic-beacon-click-handler.https.html (test
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-click-handler.https.html"&gt;https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-click-handler.https.html&lt;/a&gt;&amp;gt;)
+&amp;gt;&amp;gt;&amp;gt; (results
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/fenced-frame/automatic-beacon-click-handler.https.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/fenced-frame/automatic-beacon-click-handler.https.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; )
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; automatic-beacon-shared-storage.https.html (test
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-shared-storage.https.html"&gt;https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-shared-storage.https.html&lt;/a&gt;&amp;gt;)
+&amp;gt;&amp;gt;&amp;gt; (results
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/fenced-frame/automatic-beacon-shared-storage.https.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/fenced-frame/automatic-beacon-shared-storage.https.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; )
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; WPT for Fenced Frames:
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/tree/master/fenced-frame"&gt;https://github.com/web-platform-tests/wpt/tree/master/fenced-frame&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Anticipated spec changes
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5149287986233344"&gt;https://chromestatus.com/feature/5149287986233344&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Links to previous Intent discussions
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Intent to prototype:
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/Ko9UXQYPgUE/m/URRsB-qvAAAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/Ko9UXQYPgUE/m/URRsB-qvAAAJ&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Intent to experiment:
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/y6G3cvKXjlg/m/Lcpmpi_LAgAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/y6G3cvKXjlg/m/Lcpmpi_LAgAJ&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Intent to ship:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/tpw8wW0VenQ/m/mePLTiHlDQAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/tpw8wW0VenQ/m/mePLTiHlDQAJ&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; --
+&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
+&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send
+&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+unsubscr...@chromium.org.
+&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/38a73d81-a439-46e8-9573-d5c66789fdc6n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/38a73d81-a439-46e8-9573-d5c66789fdc6n%40chromium.org&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/38a73d81-a439-46e8-9573-d5c66789fdc6n%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/38a73d81-a439-46e8-9573-d5c66789fdc6n%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; --
+&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups
+&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&amp;gt;&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; To view this discussion on the web visit
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY_wKQU%2B8TZ%2B-LsacF%2B4%3DcLkg2CVZ5Ff_V9J%2BU4aUDHy0g%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY_wKQU%2B8TZ%2B-LsacF%2B4%3DcLkg2CVZ5Ff_V9J%2BU4aUDHy0g%40mail.gmail.com&lt;/a&gt;
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY_wKQU%2B8TZ%2B-LsacF%2B4%3DcLkg2CVZ5Ff_V9J%2BU4aUDHy0g%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY_wKQU%2B8TZ%2B-LsacF%2B4%3DcLkg2CVZ5Ff_V9J%2BU4aUDHy0g%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPWEw3s4ZBJQi7EY2upBz%2BMzJ2NOsQNu3dsxW%3DYBWdVt1zshFw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPWEw3s4ZBJQi7EY2upBz%2BMzJ2NOsQNu3dsxW%3DYBWdVt1zshFw%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08573.html</id>
         <title>Re: [blink-dev] Intent to Ship: Fenced Frames - Enable Leaving IGs, and Ads Report at Top Level Navigation Start (Chrome - 120)</title>
         <author>
@@ -10194,1167 +11442,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/9eebd568-28c7-4e17-a20e-dd9a69b1090fn%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/9eebd568-28c7-4e17-a20e-dd9a69b1090fn%40chromium.org&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08529.html</id>
-        <title>[blink-dev] Re: Intent to Ship: Multiple Readers and Writers in File System Access API</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08529.html"/>
-        <updated>2023-11-29T19:17:33.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08529.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Ship%5C%3A+Multiple+Readers+and+Writers+in+File+System+Access+API%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Re: Intent to Ship: Multiple Readers and Writers in File System Access API&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Ajay+Rahatekar%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Ajay Rahatekar' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231129" rel="nofollow"&gt;Wed, 29 Nov 2023 11:17:33 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;+ajayrahate...@google.com
-
-On Wednesday, November 29, 2023 at 8:18:04 AM UTC-8 yoav...@chromium.org 
-wrote:&lt;/pre&gt;&lt;pre&gt;
-
-&amp;gt; Can you please tick all the review boxes in the Chrome status entry?
-&amp;gt;
-&amp;gt; On Monday, November 27, 2023 at 8:19:42 PM UTC+1 mem...@google.com wrote:
-&amp;gt;
-&amp;gt;&amp;gt; Contact emails
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; ds...@google.com, mem...@google.com
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Explainer
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/whatwg/fs/blob/main/proposals/MultipleReadersWriters.md"&gt;https://github.com/whatwg/fs/blob/main/proposals/MultipleReadersWriters.md&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Specification
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/whatwg/fs/pull/151"&gt;https://github.com/whatwg/fs/pull/151&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Summary
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Currently, only one FileSystemSyncAccessHandle may be open at a time per 
-&amp;gt;&amp;gt; file, preventing an origin from reading and writing to the same file from 
-&amp;gt;&amp;gt; multiple tabs easily. Conversely, multiple FileSystemWritableFileStreams 
-&amp;gt;&amp;gt; can be simultaneously open, letting multiple writers clobber each other.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Introducing new locking modes for FileSystemSyncAccessHandle and 
-&amp;gt;&amp;gt; FileSystemWritableFileStream allows opening either multiple readers/writers 
-&amp;gt;&amp;gt; or an exclusive writer to a file entry, depending on the application's use 
-&amp;gt;&amp;gt; case.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; ```
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; handle.createSyncAccessHandle({ mode: 'read-only' });
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; handle.createSyncAccessHandle({ mode: 'readwrite-unsafe' });
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; handle.createWritable({ mode: 'exclusive' });
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; ```
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Blink component
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Blink&amp;gt;Storage&amp;gt;FileSystem 
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EStorage%3EFileSystem"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EStorage%3EFileSystem&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; TAG review
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/845"&gt;https://github.com/w3ctag/design-reviews/issues/845&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; TAG review status
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Issues addressed
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Origin Trial documentation link
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://developer.chrome.com/blog/new-dev-trial-for-multiple-readers-and-writers/"&gt;https://developer.chrome.com/blog/new-dev-trial-for-multiple-readers-and-writers/&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Risks
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Interoperability and Compatibility
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Gecko: Positive (
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/861"&gt;https://github.com/mozilla/standards-positions/issues/861&lt;/a&gt;)
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; WebKit: No Signal (
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/238"&gt;https://github.com/WebKit/standards-positions/issues/238&lt;/a&gt;)
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Web developers: Positive (&lt;a  rel="nofollow" href="https://github.com/whatwg/fs/issues/34"&gt;https://github.com/whatwg/fs/issues/34&lt;/a&gt;)
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Other signals: Emscripten plans to utilize multiple readers and writers 
-&amp;gt;&amp;gt; for performance improvement, and sites using Emscripten will be able to 
-&amp;gt;&amp;gt; take advantage of this integration.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; WebView application risks
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Does this intent deprecate or change behavior of existing APIs, such that 
-&amp;gt;&amp;gt; it has potentially high risk for Android WebView-based applications?
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Debuggability
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Feature is web exposed through WebIDL changes. No additional 
-&amp;gt;&amp;gt; implementation effort is required.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows, Mac, 
-&amp;gt;&amp;gt; Linux, Chrome OS, Android, and Android WebView)?
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Yes
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests 
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; ?
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; WPTs have been added that fully test the behavior of the new locking 
-&amp;gt;&amp;gt; modes. They additionally test the interactions between combinations of 
-&amp;gt;&amp;gt; primitives, their different modes, and file handle operations.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/fs/FileSystemFileHandle-sync-access-handle-lock-modes.https.tentative.worker.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/fs/FileSystemFileHandle-sync-access-handle-lock-modes.https.tentative.worker.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/fs/FileSystemFileHandle-writable-file-stream-lock-modes.https.tentative.worker.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/fs/FileSystemFileHandle-writable-file-stream-lock-modes.https.tentative.worker.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Flag name on chrome://flags
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; file-system-access-locking-scheme
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Finch feature name
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; FileSystemAccessLockingScheme
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Requires code in //chrome?
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; False
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Tracking bug
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1382215"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1382215&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Launch bug
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://launch.corp.google.com/launch/4261043"&gt;https://launch.corp.google.com/launch/4261043&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Estimated milestones
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Shipping on desktop
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; 121
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Anticipated spec changes
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Discussion: &lt;a  rel="nofollow" href="https://github.com/whatwg/fs/issues/34"&gt;https://github.com/whatwg/fs/issues/34&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; No open issues that introduce web compat/interop risk.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5172892632875008"&gt;https://chromestatus.com/feature/5172892632875008&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Links to previous Intent discussions
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Intent to prototype: 
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPscNz5Oi-z6-%2BvTVyf9BNgvVnLZeQo5nfzyRhEZ_F400tTP3w%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPscNz5Oi-z6-%2BvTVyf9BNgvVnLZeQo5nfzyRhEZ_F400tTP3w%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/bd470b7d-4fa3-4874-a421-a2376910bc9bn%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/bd470b7d-4fa3-4874-a421-a2376910bc9bn%40chromium.org&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08528.html</id>
-        <title>Re: [blink-dev] Intent to Ship: Storage Buckets API</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08528.html"/>
-        <updated>2023-11-29T17:32:59.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08528.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Storage+Buckets+API%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Storage Buckets API&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Evan+Stade%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Evan Stade&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231129" rel="nofollow"&gt;Wed, 29 Nov 2023 09:32:59 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Hi Philip,
-
-Here is a comprehensive list of web tests that verify storageBuckets
-behavior. We do feel the size of this list aligns well with the spec,
-which is fairly concise. As you can see, some are spread out in directories
-for the other storage APIs that storageBuckets brokers.&lt;/pre&gt;&lt;pre&gt;
-
-That said, not all behavior is verifiable from the web. For example, it's
-not possible to reliably trigger an automatic eviction event from the web,
-so we can't really know if `persisted` is *actually* respected. Browser
-tests provide that kind of coverage.
-
-Some of the WPT are internal but they can/should be moved
-&amp;lt;&lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/5072535"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/5072535&lt;/a&gt;&amp;gt; to the
-external WPT directory. Thanks for the prompt.
-
-external/wpt/IndexedDB/storage-buckets.https.any.js:
-external/wpt/fs/script-tests/FileSystemBaseHandle-buckets.js:
-external/wpt/service-workers/cache-storage/cache-storage-buckets.https.any.js:
-external/wpt/storage/buckets/bucket-quota-indexeddb.tentative.https.any.js:
-external/wpt/storage/buckets/bucket-storage-policy.tentative.https.any.js:
-external/wpt/web-locks/storage-buckets.tentative.https.any.js:
-http/tests/inspector-protocol/storage/cache-storage-request-cache-names.js:
-http/tests/inspector-protocol/storage/cache-storage-storage-key-request-cache-names.js:
-http/tests/inspector-protocol/storage/indexed-db-storage-key-clear.js:
-http/tests/inspector-protocol/storage/indexed-db-storage-key-delete-db.js:
-http/tests/inspector-protocol/storage/indexed-db-storage-key-delete-object-store-entries.js:
-http/tests/inspector-protocol/storage/indexed-db-storage-key-get-metadata.js:
-http/tests/inspector-protocol/storage/indexed-db-storage-key-request-data.js:
-http/tests/inspector-protocol/storage/indexed-db-storage-key-request-database-names.js:
-http/tests/inspector-protocol/storage/indexed-db-storage-key-request-database.js:
-http/tests/inspector-protocol/storage/storage-bucket-storage-key-track-untrack.js:
-http/tests/inspector-protocol/storage/storage-buckets-delete-storage-bucket.js:
-wpt_internal/storage/buckets/bucket_names.tentative.https.any.js:
-wpt_internal/storage/buckets/buckets_basic.tentative.https.any.js:
-wpt_internal/storage/buckets/buckets_storage_policy.tentative.https.any.js:
-wpt_internal/storage/buckets/detached-iframe.https.html:
-wpt_internal/storage/buckets/idlharness-worker.https.any.js:
-wpt_internal/storage/buckets/opaque-origin.https.window.js:
-wpt_internal/storage/buckets/resources/opaque-origin-sandbox.html:
-wpt_internal/storage/buckets/storage_bucket_object.tentative.https.any.js:
-
--- Evan Stade
-
-
-On Wed, Nov 29, 2023 at 9:02 AM Philip Jägenstedt &amp;lt;foo...@chromium.org&amp;gt;
-wrote:
-
-&amp;gt; Hi Evan,
-&amp;gt;
-&amp;gt; Is
-&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/storage/buckets?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/storage/buckets?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
-&amp;gt; the full set of tests? Given the size of the spec, does that cover the
-&amp;gt; whole feature well?
-&amp;gt;
-&amp;gt; Best regards,
-&amp;gt; Philip
-&amp;gt;
-&amp;gt; On Wed, Nov 29, 2023 at 5:58 PM Evan Stade &amp;lt;est...@chromium.org&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; [reply-all this time]
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Hi Philip,
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; thanks for pointing out those two oversights. I have fixed the checkboxes
-&amp;gt;&amp;gt; on the chromestatus entry. It is in fact tested by WPT and supported on all
-&amp;gt;&amp;gt; Blink platforms.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Wed, Nov 29, 2023 at 8:43 AM Philip Jägenstedt &amp;lt;foo...@chromium.org&amp;gt;
-&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Hi Evan,
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; A few questions inline.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; On Tue, Nov 14, 2023 at 9:38 PM Evan Stade &amp;lt;est...@chromium.org&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Mac, Linux, Chrome OS, Android, and Android WebView)?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; No
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Which platform will this not be supported on?
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; ?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; No
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Can this be fully tested in WPT? If it's not tested in WPT, how is it
-&amp;gt;&amp;gt;&amp;gt; currently tested?
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Best regards,
-&amp;gt;&amp;gt;&amp;gt; Philip
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAO4XGS9eLOkG5WAhH33XWBYW-gNEwzaF5q_p0R8Y6Br9yb8ntg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAO4XGS9eLOkG5WAhH33XWBYW-gNEwzaF5q_p0R8Y6Br9yb8ntg%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08527.html</id>
-        <title>Re: [blink-dev] Re: Intent to Implement and Ship: Async Clipboard API: Allow empty ClipboardItem during read</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08527.html"/>
-        <updated>2023-11-29T17:03:32.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08527.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Implement+and+Ship%5C%3A+Async+Clipboard+API%5C%3A+Allow+empty+ClipboardItem+during+read%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Re: Intent to Implement and Ship: Async Clipboard API: Allow empty ClipboardItem during read&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Daniel+Bratell%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Daniel Bratell&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231129" rel="nofollow"&gt;Wed, 29 Nov 2023 09:03:32 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre style="margin: 0em;"&gt;
-LGTM3
-
-/Daniel&lt;/pre&gt;&lt;pre&gt;
-
-On 2023-11-29 18:01, Chris Harrelson wrote:
-&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;
-LGTM2
-
-On Wed, Nov 29, 2023 at 8:27 AM Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt; wrote:
-
-    LGTM1
-
-    This seems to reduce interop risk. Thanks!
-
-    On Tuesday, November 21, 2023 at 6:45:00 PM UTC+1 snianu wrote:
-
-
-                Contact emails
-
-        sni...@microsoft.com, est...@chromium.org,
-        sa...@microsoft.com, jsb...@google.com
-
-
-                Explainer
-
-        
-&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1OLVOESy3zecxY_6jMKdKVxeIGS2Q6mDmzc85rUNrRIE/edit?usp=sharing"&gt;https://docs.google.com/document/d/1OLVOESy3zecxY_6jMKdKVxeIGS2Q6mDmzc85rUNrRIE/edit?usp=sharing&lt;/a&gt;
-
-
-                Specification
-
-        &lt;a  rel="nofollow" href="https://w3c.github.io/clipboard-apis/#dom-clipboard-read"&gt;https://w3c.github.io/clipboard-apis/#dom-clipboard-read&lt;/a&gt;
-
-
-                Design docs
-
-        &lt;a  rel="nofollow" href="https://github.com/w3c/clipboard-apis/issues/179"&gt;https://github.com/w3c/clipboard-apis/issues/179&lt;/a&gt;
-        
-&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1OLVOESy3zecxY_6jMKdKVxeIGS2Q6mDmzc85rUNrRIE/edit?usp=sharing"&gt;https://docs.google.com/document/d/1OLVOESy3zecxY_6jMKdKVxeIGS2Q6mDmzc85rUNrRIE/edit?usp=sharing&lt;/a&gt;
-
-
-                Summary
-
-        When the system clipboard is either empty or has unsupported
-        formats, paste event returns an empty DataTransfer object, but
-        the promise for `navigator.clipboard.read()`API is rejected.
-        This creates interop differences and confusion among web
-        developers as they aren’t sure why read failed.
-
-
-        Currently in Chrome, we throw a DataError. The proposal here
-        is to return an empty ClipboardItem when the system clipboard
-        is either empty or there aren’t any supported formats.
-
-
-                Blink component
-
-        Blink&amp;gt;DataTransfer
-        
-&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EDataTransfer"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EDataTransfer&lt;/a&gt;&amp;gt;
-
-
-                Search tags
-
-        AsyncClipboardAPI
-        &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:AsyncClipboardAPI"&gt;https://chromestatus.com/features#tags:AsyncClipboardAPI&lt;/a&gt;&amp;gt;,
-        ClipboardItem
-        &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:ClipboardItem"&gt;https://chromestatus.com/features#tags:ClipboardItem&lt;/a&gt;&amp;gt;
-
-
-                TAG review
-
-        None
-
-
-                TAG review status
-
-        Not applicable
-
-        It satisfies one of the criterias for exception
-        
-&amp;lt;&lt;a  rel="nofollow" href="https://www.chromium.org/blink/guidelines/api-owners/process-exceptions/"&gt;https://www.chromium.org/blink/guidelines/api-owners/process-exceptions/&lt;/a&gt;&amp;gt;.
-        This change has already been shipped in Safari
-        
-&amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/clipboard-apis/issues/179#issuecomment-1804303784"&gt;https://github.com/w3c/clipboard-apis/issues/179#issuecomment-1804303784&lt;/a&gt;&amp;gt; and
-        Firefox has also implemented it
-        
-&amp;lt;http://(&lt;a  rel="nofollow" href="https://github.com/w3c/clipboard-apis/issues/179#issuecomment-1211995581"&gt;https://github.com/w3c/clipboard-apis/issues/179#issuecomment-1211995581&lt;/a&gt;&amp;gt;.
-        The spec already allows empty ClipboardItem during read so it
-        doesn’t need any update.
-
-
-
-                Risks
-
-
-
-                Interoperability and Compatibility
-
-        None. Safari has shipped this feature and Firefox has already
-        implemented it.
-
-
-        /Gecko/: Positive
-        
-(&lt;a  rel="nofollow" href="https://github.com/w3c/clipboard-apis/issues/179#issuecomment-1211995581"&gt;https://github.com/w3c/clipboard-apis/issues/179#issuecomment-1211995581&lt;/a&gt;)
-
-
-        /WebKit/: Shipped/Shipping
-        
-(&lt;a  rel="nofollow" href="https://github.com/w3c/clipboard-apis/issues/179#issuecomment-1804303784"&gt;https://github.com/w3c/clipboard-apis/issues/179#issuecomment-1804303784&lt;/a&gt;)
-
-
-        /Web developers/: Positive This was a feedback from our
-        partners at Office who are migrating from DataTransfer API to
-        Async Clipboard API.
-
-
-        /Other signals/:
-
-
-                Ergonomics
-
-        N/A
-
-
-                Activation
-
-        N/A
-
-
-                Security
-
-        None. The proposal only returns an empty ClipboardItem instead
-        of rejecting the promise returned from the read() method when
-        the clipboard is empty, so there isn’t any impact on the async
-        clipboard API.
-
-
-                WebView application risks
-
-        /Does this intent deprecate or change behavior of existing
-        APIs, such that it has potentially high risk for Android
-        WebView-based applications?/
-
-        None
-
-
-
-                Debuggability
-
-        Existing devtools support should suffice.
-
-
-                Will this feature be supported on all six Blink
-                platforms (Windows, Mac, Linux, Chrome OS, Android,
-                and Android WebView)?
-
-        Yes
-
-
-                Is this feature fully tested by web-platform-tests
-                
-&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;?
-
-        No
-
-        Currently emptying the clipboard is not exposed to the web, so
-        it's not possible to add a WPT test for it.
-
-
-                Flag name on chrome://flags
-
-        None
-
-
-                Finch feature name
-
-        None
-
-
-                Non-finch justification
-
-        None
-
-
-                Requires code in //chrome?
-
-        False
-
-
-                Tracking bug
-
-        &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1500440"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1500440&lt;/a&gt;
-
-
-                Sample links
-
-
-        &lt;a  rel="nofollow" href="https://flash-lateral-nylon.glitch.me"&gt;https://flash-lateral-nylon.glitch.me&lt;/a&gt;
-
-
-                Estimated milestones
-
-        Shipping on desktop
-
-                
-
-        121
-
-
-        Shipping on Android
-
-                
-
-        121
-
-
-
-                Link to entry on the Chrome Platform Status
-
-        &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5192271976988672"&gt;https://chromestatus.com/feature/5192271976988672&lt;/a&gt;
-
-
-        This intent message was generated by Chrome Platform Status
-        &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-
-
-
-
-        Thanks,
-        Anupam
-
-        Sent from Outlook &amp;lt;&lt;a  rel="nofollow" href="http://aka.ms/weboutlook"&gt;http://aka.ms/weboutlook&lt;/a&gt;&amp;gt;
-
-&lt;/pre&gt;&lt;tt&gt;    -- 
-&lt;/tt&gt;&lt;tt&gt;    You received this message because you are subscribed to the Google
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-    Groups &amp;quot;blink-dev&amp;quot; group.
-    To unsubscribe from this group and stop receiving emails from it,
-    send an email to blink-dev+unsubscr...@chromium.org.
-    To view this discussion on the web visit
-    
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/2adf2536-daac-401a-8292-c65317d82fd3n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/2adf2536-daac-401a-8292-c65317d82fd3n%40chromium.org&lt;/a&gt;
-    
-&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/2adf2536-daac-401a-8292-c65317d82fd3n%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/2adf2536-daac-401a-8292-c65317d82fd3n%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-
---
-&lt;/pre&gt;&lt;tt&gt;You received this message because you are subscribed to the Google 
-&lt;/tt&gt;&lt;tt&gt;Groups &amp;quot;blink-dev&amp;quot; group.
-&lt;/tt&gt;&lt;tt&gt;To unsubscribe from this group and stop receiving emails from it, send 
-&lt;/tt&gt;&lt;tt&gt;an email to blink-dev+unsubscr...@chromium.org.
-&lt;/tt&gt;&lt;tt&gt;To view this discussion on the web visit 
-&lt;/tt&gt;&lt;tt&gt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw-k492DnKhWZMSSgM0E8fF-9CE1%2BoF_%3Dyhei4dC0uD9-g%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw-k492DnKhWZMSSgM0E8fF-9CE1%2BoF_%3Dyhei4dC0uD9-g%40mail.gmail.com&lt;/a&gt; 
-&lt;/tt&gt;&lt;tt&gt;&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw-k492DnKhWZMSSgM0E8fF-9CE1%2BoF_%3Dyhei4dC0uD9-g%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw-k492DnKhWZMSSgM0E8fF-9CE1%2BoF_%3Dyhei4dC0uD9-g%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-&lt;/tt&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;
-
---
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/dff56d5e-9df7-41b8-8c72-f4e78b7891b8%40gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/dff56d5e-9df7-41b8-8c72-f4e78b7891b8%40gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08526.html</id>
-        <title>Re: [blink-dev] Intent to Ship: Storage Buckets API</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08526.html"/>
-        <updated>2023-11-29T17:02:30.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08526.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Storage+Buckets+API%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Storage Buckets API&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Philip+J%C3%A4genstedt%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Philip Jägenstedt&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231129" rel="nofollow"&gt;Wed, 29 Nov 2023 09:02:30 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Hi Evan,
-
-Is
-&lt;a  rel="nofollow" href="https://wpt.fyi/results/storage/buckets?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/storage/buckets?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
-the full set of tests? Given the size of the spec, does that cover the
-whole feature well?&lt;/pre&gt;&lt;pre&gt;
-
-Best regards,
-Philip
-
-On Wed, Nov 29, 2023 at 5:58 PM Evan Stade &amp;lt;est...@chromium.org&amp;gt; wrote:
-
-&amp;gt; [reply-all this time]
-&amp;gt;
-&amp;gt; Hi Philip,
-&amp;gt;
-&amp;gt; thanks for pointing out those two oversights. I have fixed the checkboxes
-&amp;gt; on the chromestatus entry. It is in fact tested by WPT and supported on all
-&amp;gt; Blink platforms.
-&amp;gt;
-&amp;gt; On Wed, Nov 29, 2023 at 8:43 AM Philip Jägenstedt &amp;lt;foo...@chromium.org&amp;gt;
-&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; Hi Evan,
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; A few questions inline.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Tue, Nov 14, 2023 at 9:38 PM Evan Stade &amp;lt;est...@chromium.org&amp;gt; wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows, Mac,
-&amp;gt;&amp;gt;&amp;gt; Linux, Chrome OS, Android, and Android WebView)?
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; No
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Which platform will this not be supported on?
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; ?
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; No
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Can this be fully tested in WPT? If it's not tested in WPT, how is it
-&amp;gt;&amp;gt; currently tested?
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Best regards,
-&amp;gt;&amp;gt; Philip
-&amp;gt;&amp;gt;
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAARdPYc1qjLWsu9KWtzaQbJF-JKpNttgLYwdcfwi46mmC65sqA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAARdPYc1qjLWsu9KWtzaQbJF-JKpNttgLYwdcfwi46mmC65sqA%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08525.html</id>
-        <title>Re: [blink-dev] Re: Intent to Implement and Ship: Async Clipboard API: Allow empty ClipboardItem during read</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08525.html"/>
-        <updated>2023-11-29T17:02:22.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08525.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Implement+and+Ship%5C%3A+Async+Clipboard+API%5C%3A+Allow+empty+ClipboardItem+during+read%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Re: Intent to Implement and Ship: Async Clipboard API: Allow empty ClipboardItem during read&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Chris+Harrelson%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Chris Harrelson&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231129" rel="nofollow"&gt;Wed, 29 Nov 2023 09:02:22 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;LGTM2
-
-On Wed, Nov 29, 2023 at 8:27 AM Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt; wrote:&lt;/pre&gt;&lt;pre&gt;
-
-&amp;gt; LGTM1
-&amp;gt;
-&amp;gt; This seems to reduce interop risk. Thanks!
-&amp;gt;
-&amp;gt; On Tuesday, November 21, 2023 at 6:45:00 PM UTC+1 snianu wrote:
-&amp;gt;
-&amp;gt;&amp;gt; Contact emails
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; sni...@microsoft.com, est...@chromium.org, sa...@microsoft.com,
-&amp;gt;&amp;gt; jsb...@google.com
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Explainer
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://docs.google.com/document/d/1OLVOESy3zecxY_6jMKdKVxeIGS2Q6mDmzc85rUNrRIE/edit?usp=sharing"&gt;https://docs.google.com/document/d/1OLVOESy3zecxY_6jMKdKVxeIGS2Q6mDmzc85rUNrRIE/edit?usp=sharing&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Specification
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://w3c.github.io/clipboard-apis/#dom-clipboard-read"&gt;https://w3c.github.io/clipboard-apis/#dom-clipboard-read&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Design docs
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/clipboard-apis/issues/179"&gt;https://github.com/w3c/clipboard-apis/issues/179&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://docs.google.com/document/d/1OLVOESy3zecxY_6jMKdKVxeIGS2Q6mDmzc85rUNrRIE/edit?usp=sharing"&gt;https://docs.google.com/document/d/1OLVOESy3zecxY_6jMKdKVxeIGS2Q6mDmzc85rUNrRIE/edit?usp=sharing&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Summary
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; When the system clipboard is either empty or has unsupported formats,
-&amp;gt;&amp;gt; paste event returns an empty DataTransfer object, but the promise for
-&amp;gt;&amp;gt; `navigator.clipboard.read()`API is rejected. This creates interop
-&amp;gt;&amp;gt; differences and confusion among web developers as they aren’t sure why read
-&amp;gt;&amp;gt; failed.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Currently in Chrome, we throw a DataError. The proposal here is to return
-&amp;gt;&amp;gt; an empty ClipboardItem when the system clipboard is either empty or there
-&amp;gt;&amp;gt; aren’t any supported formats.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Blink component
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Blink&amp;gt;DataTransfer
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EDataTransfer"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EDataTransfer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Search tags
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; AsyncClipboardAPI
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:AsyncClipboardAPI"&gt;https://chromestatus.com/features#tags:AsyncClipboardAPI&lt;/a&gt;&amp;gt;, ClipboardItem
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:ClipboardItem"&gt;https://chromestatus.com/features#tags:ClipboardItem&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; TAG review
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; TAG review status
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Not applicable
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; It satisfies one of the criterias for exception
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://www.chromium.org/blink/guidelines/api-owners/process-exceptions/"&gt;https://www.chromium.org/blink/guidelines/api-owners/process-exceptions/&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt; This change has already been shipped in Safari
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/clipboard-apis/issues/179#issuecomment-1804303784"&gt;https://github.com/w3c/clipboard-apis/issues/179#issuecomment-1804303784&lt;/a&gt;&amp;gt; 
-&amp;gt;&amp;gt; and
-&amp;gt;&amp;gt; Firefox has also implemented it
-&amp;gt;&amp;gt; &amp;lt;http://(&lt;a  rel="nofollow" href="https://github.com/w3c/clipboard-apis/issues/179#issuecomment-1211995581"&gt;https://github.com/w3c/clipboard-apis/issues/179#issuecomment-1211995581&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt; The spec already allows empty ClipboardItem during read so it doesn’t need
-&amp;gt;&amp;gt; any update.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Risks
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Interoperability and Compatibility
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; None. Safari has shipped this feature and Firefox has already implemented
-&amp;gt;&amp;gt; it.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Gecko*: Positive (
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/clipboard-apis/issues/179#issuecomment-1211995581"&gt;https://github.com/w3c/clipboard-apis/issues/179#issuecomment-1211995581&lt;/a&gt;)
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *WebKit*: Shipped/Shipping (
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/clipboard-apis/issues/179#issuecomment-1804303784"&gt;https://github.com/w3c/clipboard-apis/issues/179#issuecomment-1804303784&lt;/a&gt;)
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Web developers*: Positive This was a feedback from our partners at
-&amp;gt;&amp;gt; Office who are migrating from DataTransfer API to Async Clipboard API.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Other signals*:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Ergonomics
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; N/A
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Activation
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; N/A
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Security
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; None. The proposal only returns an empty ClipboardItem instead of
-&amp;gt;&amp;gt; rejecting the promise returned from the read() method when the clipboard is
-&amp;gt;&amp;gt; empty, so there isn’t any impact on the async clipboard API.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; WebView application risks
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Does this intent deprecate or change behavior of existing APIs, such
-&amp;gt;&amp;gt; that it has potentially high risk for Android WebView-based applications?*
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Debuggability
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Existing devtools support should suffice.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows, Mac,
-&amp;gt;&amp;gt; Linux, Chrome OS, Android, and Android WebView)?
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Yes
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; ?
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; No
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Currently emptying the clipboard is not exposed to the web, so it's not
-&amp;gt;&amp;gt; possible to add a WPT test for it.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Flag name on chrome://flags
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Finch feature name
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Non-finch justification
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Requires code in //chrome?
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; False
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Tracking bug
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1500440"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1500440&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Sample links
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://flash-lateral-nylon.glitch.me"&gt;https://flash-lateral-nylon.glitch.me&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Estimated milestones
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Shipping on desktop
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; 121
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Shipping on Android
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; 121
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5192271976988672"&gt;https://chromestatus.com/feature/5192271976988672&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Thanks,
-&amp;gt;&amp;gt; Anupam
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Sent from Outlook &amp;lt;&lt;a  rel="nofollow" href="http://aka.ms/weboutlook"&gt;http://aka.ms/weboutlook&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt; --
-&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt; To view this discussion on the web visit
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/2adf2536-daac-401a-8292-c65317d82fd3n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/2adf2536-daac-401a-8292-c65317d82fd3n%40chromium.org&lt;/a&gt;
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/2adf2536-daac-401a-8292-c65317d82fd3n%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/2adf2536-daac-401a-8292-c65317d82fd3n%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt; .
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw-k492DnKhWZMSSgM0E8fF-9CE1%2BoF_%3Dyhei4dC0uD9-g%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw-k492DnKhWZMSSgM0E8fF-9CE1%2BoF_%3Dyhei4dC0uD9-g%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08524.html</id>
-        <title>Re: [blink-dev] Re: Intent to Ship: Document picture-in-picture: require user gesture for resize APIs</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08524.html"/>
-        <updated>2023-11-29T16:58:44.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08524.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Ship%5C%3A+Document+picture%5C-in%5C-picture%5C%3A+require+user+gesture+for+resize+APIs%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Re: Intent to Ship: Document picture-in-picture: require user gesture for resize APIs&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Chris+Harrelson%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Chris Harrelson&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231129" rel="nofollow"&gt;Wed, 29 Nov 2023 08:58:44 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;LGTM3
-
-On Wed, Nov 29, 2023 at 8:36 AM Philip Jägenstedt &amp;lt;foo...@chromium.org&amp;gt;
-wrote:&lt;/pre&gt;&lt;pre&gt;
-
-&amp;gt; LGTM2
-&amp;gt;
-&amp;gt; On Wed, Nov 29, 2023 at 4:12 PM Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; LGTM1
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Wednesday, November 29, 2023 at 4:04:49 PM UTC+1 Tommy Steimel wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Okay the security reviewer has now re-reviewed it given the updated
-&amp;gt;&amp;gt;&amp;gt; information. Thanks!
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; On Mon, Nov 27, 2023 at 11:55 PM Rick Byers &amp;lt;rby...@chromium.org&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Wed, Nov 22, 2023 at 11:49 PM 'Tommy Steimel' via blink-dev &amp;lt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; blink-dev@chromium.org&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Tue, Nov 21, 2023 at 9:43 PM Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Friday, November 17, 2023 at 8:47:34 PM UTC+1 Tommy Steimel wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Contact emailsstei...@chromium.org, liber...@chromium.org
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ExplainerNone
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Specification&lt;a  rel="nofollow" href="https://github.com/WICG/document-picture-in-picture/"&gt;https://github.com/WICG/document-picture-in-picture/&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; pull/104
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Summary
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; This adds a user gesture requirement for the resizeBy() and
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; resizeTo() Window APIs for document picture-in-picture windows. This 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; allows
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; websites to make use of those APIs while mitigating much of the abuse
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; potential of those APIs on an always-on-top window.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink componentBlink&amp;gt;Media&amp;gt;PictureInPicture
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EMedia%3EPictureInPicture"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EMedia%3EPictureInPicture&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG reviewN/A as this is a minor change to the behavior of an
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; existing API
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review statusNot applicable
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Risks
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Interoperability and Compatibility
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; This added requirement would mean that calls to these API can now
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; fail. Is that new? Or are developers already expected to handle failures?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Do we expect developers to start checking the UserActivation API
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/API/UserActivation"&gt;https://developer.mozilla.org/en-US/docs/Web/API/UserActivation&lt;/a&gt;&amp;gt; before
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; calling these methods?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Currently these APIs always fail on document picture-in-picture
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; windows regardless of user activation (to prevent really spammy
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; always-on-top windows). We don't expect developers to check the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; UserActivation API at all, just to only call resizeTo()/resizeBy() in
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; response to a user gesture.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; From the subject and summary I also originally assumed this intent was
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; about adding a user gesture restriction, and it looks like your security
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; approval was also based on that incorrect understanding. Can you please
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; re-request a security review with the clarification of the scope of this
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; feature? Please also update the summary of the feature in ChromeStatus, eg:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;quot;This enables the resizeBy() and resizeTo() Windows methods on document
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; picture-in-picture windows, but with the added restriction of a user
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; gesture requirement to mitigate the abuse potential&amp;quot;.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Otherwise it looks fine to me.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Gecko*: No signal (&lt;a  rel="nofollow" href="https://github.com/mozilla/"&gt;https://github.com/mozilla/&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; standards-positions/issues/670#issuecomment-1786354361) Added
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; comment to existing standards position issue for document
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; picture-in-picture. No response yet
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *WebKit*: No signal (&lt;a  rel="nofollow" href="https://github.com/WebKit/"&gt;https://github.com/WebKit/&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; standards-positions/issues/41#issuecomment-1786354016) Added comment
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to existing standards position issue for document picture-in-picture. No
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; response yet
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Web developers*: Positive The ability to programmatically resize
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the document picture-in-picture window is one of the most-requested
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; features for document picture-in-picture
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Other signals*:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Ergonomics
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; N/A
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Activation
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; N/A
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Security
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; While being able to resize an always-on-top window at will is a
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; security/annoyance risk, by making the API consume a user gesture, the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; website can only resize once per click, which limits the possible abuse
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; vectors
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; WebView application risks
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Does this intent deprecate or change behavior of existing APIs, such
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; that it has potentially high risk for Android WebView-based applications?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; N/A
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Debuggability
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; N/A
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Mac, Linux, Chrome OS, Android, and Android WebView)?No
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; The document picture-in-picture API is not supported on Android
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ?Yes
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; document-picture-in-picture/resize-requires-user-gesture.https.html
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Flag name on chrome://flagsNone
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Finch feature nameNone
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Non-finch justification
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Small, low-risk change to existing API
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Requires code in //chrome?False
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Tracking bug&lt;a  rel="nofollow" href="https://crbug.com/1354325"&gt;https://crbug.com/1354325&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Sample links
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://steimelchrome.github.io/document-pip/click_to_resize.html"&gt;https://steimelchrome.github.io/document-pip/click_to_resize.html&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Estimated milestonesShipping on desktop121
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Anticipated spec changes
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Open questions about a feature may be a source of future web compat
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; or interop issues. Please list open issues (e.g. links to known github
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; issues in the project for the feature specification) whose resolution may
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; introduce web compat/interop risk (e.g., changing to naming or structure 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; of
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the API in a non-backward-compatible way).
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; N/A
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; feature/5398995019235328
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+unsubscr...@chromium.org.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAE-AwAqS29Q2%2BbV89rc8x%2B3BCVQVuLw5QEPnkbrJpy-2mq2bZA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAE-AwAqS29Q2%2BbV89rc8x%2B3BCVQVuLw5QEPnkbrJpy-2mq2bZA%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAE-AwAqS29Q2%2BbV89rc8x%2B3BCVQVuLw5QEPnkbrJpy-2mq2bZA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAE-AwAqS29Q2%2BbV89rc8x%2B3BCVQVuLw5QEPnkbrJpy-2mq2bZA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt;&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt;&amp;gt; To view this discussion on the web visit
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/740e5180-d4d9-4156-9489-21185b9bc1e6n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/740e5180-d4d9-4156-9489-21185b9bc1e6n%40chromium.org&lt;/a&gt;
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/740e5180-d4d9-4156-9489-21185b9bc1e6n%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/740e5180-d4d9-4156-9489-21185b9bc1e6n%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;
-&amp;gt; --
-&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt; To view this discussion on the web visit
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAARdPYdioCrFHatD-3FV0yuzGmUxDmAoQuupJxF79kDG3nxdUA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAARdPYdioCrFHatD-3FV0yuzGmUxDmAoQuupJxF79kDG3nxdUA%40mail.gmail.com&lt;/a&gt;
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAARdPYdioCrFHatD-3FV0yuzGmUxDmAoQuupJxF79kDG3nxdUA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAARdPYdioCrFHatD-3FV0yuzGmUxDmAoQuupJxF79kDG3nxdUA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt; .
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw_5P0Vx7s3LM0jSwq4XxjHAqwQfrt%3D%2B1qGoB9R741mgow%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw_5P0Vx7s3LM0jSwq4XxjHAqwQfrt%3D%2B1qGoB9R741mgow%40mail.gmail.com&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
