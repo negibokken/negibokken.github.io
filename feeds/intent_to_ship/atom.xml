@@ -5,6 +5,137 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08635.html</id>
+        <title>[blink-dev] Intent to Ship: MediaStreamTrack Stats (Audio)</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08635.html"/>
+        <updated>2023-12-08T16:53:01.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08635.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+MediaStreamTrack+Stats+%5C%28Audio%5C%29%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Ship: MediaStreamTrack Stats (Audio)&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Henrik+Bostr%C3%B6m%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Henrik Boström&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231208" rel="nofollow"&gt;Fri, 08 Dec 2023 08:53:01 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Contact emails
+h...@chromium.org, o...@chromium.org, h...@chromium.org
+
+Specification
+&lt;a  rel="nofollow" href="https://w3c.github.io/mediacapture-extensions/#the-mediastreamtrackaudiostats-interface"&gt;https://w3c.github.io/mediacapture-extensions/#the-mediastreamtrackaudiostats-interface&lt;/a&gt;&lt;/pre&gt;&lt;pre&gt;
+
+Summary
+
+The MediaStreamTrack Statistics API, or `track.stats`, has already shipped 
+for video tracks: see previous I2S here 
+&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/ttzYv-30gY4/m/2FvJpxqMGQAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/ttzYv-30gY4/m/2FvJpxqMGQAJ&lt;/a&gt;&amp;gt;
+.
+
+
+This is the same API but for audio tracks, also motivated by the app's 
+desire to measure capture quality. This is very important for conferencing 
+websites such as Google Meet, Microsoft Teams, Zoom, Goto Meetings, etc. 
+All of which has expressed an interest in the audio portion of this API.
+
+
+The API is only available for getUserMedia() sourced audio tracks, i.e. 
+microphone, so the API is behind a user prompt and only available during 
+capture.
+
+
+The new interface we want to ship is MediaStreamTrackAudioStats 
+&amp;lt;&lt;a  rel="nofollow" href="https://w3c.github.io/mediacapture-extensions/#the-mediastreamtrackaudiostats-interface"&gt;https://w3c.github.io/mediacapture-extensions/#the-mediastreamtrackaudiostats-interface&lt;/a&gt;&amp;gt;
+ 
+which allow measuring two things from the audio capture pipeline:
+
+1. The number of audio frames, including if any audio frames are dropped by 
+the device, OS or User Agent. This allows measuring glitches in captured 
+audio.
+
+2. The input latency, such as due to buffering or other delays in 
+delivering the audio frames to the track's sinks.
+
+Blink component
+Blink&amp;gt;GetUserMedia 
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EGetUserMedia"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EGetUserMedia&lt;/a&gt;&amp;gt;
+
+Risks
+Interoperability and Compatibility
+
+Because the API provides *statistics* about capture quality, rather than 
+providing capture *functionality, *the interop/compatibility risk is small.
+
+*Gecko*: Standards position issue 
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/935"&gt;https://github.com/mozilla/standards-positions/issues/935&lt;/a&gt;&amp;gt;
+*WebKit*: Standards position issue 
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/260"&gt;https://github.com/WebKit/standards-positions/issues/260&lt;/a&gt;&amp;gt;
+
+Standardization
+While the audio stats API is written by the W3C WebRTC Working Group and 
+track statistics overall is not controversial, there is an ongoing 
+disagreement with Mozilla about whether or not dropped frames (= 
+totalFrames - deliveredFrames) should be exposed to the web in the audio 
+case. The disagreement is tracked by this issue 
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/mediacapture-extensions/issues/129"&gt;https://github.com/w3c/mediacapture-extensions/issues/129&lt;/a&gt;&amp;gt;. Our need for 
+this metric has been discussed at Virtual Interims, see recording with 
+10:39 timestamp &amp;lt;&lt;a  rel="nofollow" href="https://www.youtube.com/watch?v=xJMXnf3Qwh8&amp;t=639s"&gt;https://www.youtube.com/watch?v=xJMXnf3Qwh8&amp;t=639s&lt;/a&gt;&amp;gt; but no 
+consensus could be reached (rough consensus was reached between everyone 
+except Mozilla). Youenn (Apple) has shown that frames can be dropped due to 
+Bluetooth connection 
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/mediacapture-extensions/issues/129#issuecomment-1822624904"&gt;https://github.com/w3c/mediacapture-extensions/issues/129#issuecomment-1822624904&lt;/a&gt;&amp;gt;
+ and 
+is not just &amp;quot;measuring browser bugs&amp;quot;.
+
+*Web developers*: Positive
+- The I2P 
+&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/vUbD_psbPL8/m/wqq3kmZFBwAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/vUbD_psbPL8/m/wqq3kmZFBwAJ&lt;/a&gt;&amp;gt;
+ shows 
+support from Teams, Zoom and GoTo meetings.
+- In the spec issue 
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/mediacapture-extensions/issues/129"&gt;https://github.com/w3c/mediacapture-extensions/issues/129&lt;/a&gt;&amp;gt; regarding the 
+disagreement, more developer support is expressed (e.g. alfredh from Nvidia 
+and steely-glint).
+
+WebView application risks
+
+None
+
+Will this feature be supported on all six Blink platforms (Windows, Mac, 
+Linux, ChromeOS, Android, and Android WebView)?
+Yes
+
+Is this feature fully tested by web-platform-tests 
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+?
+Yes and WPTs will be written as part of implementing this, however unit 
+tests will also be needed to verify accuracy of metrics on a lower level. 
+WPTs will be more general like &amp;quot;frame counters increase over time during 
+capture&amp;quot; and that run-to-completion semantics are preserved.
+
+Link to entry on the Chrome Platform Status
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5141112910249984"&gt;https://chromestatus.com/feature/5141112910249984&lt;/a&gt;
+
+Links to previous Intent discussions
+Intent to prototype:
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/bb6c1af3-9eb3-4c6f-a136-dee709b7f906n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/bb6c1af3-9eb3-4c6f-a136-dee709b7f906n%40chromium.org&lt;/a&gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/a594fc55-8030-4848-9fe6-549eccfdd8a8n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/a594fc55-8030-4848-9fe6-549eccfdd8a8n%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08634.html</id>
         <title>Re: [blink-dev] Intent to Extend Experiment: Compute Pressure API</title>
         <author>
@@ -14332,757 +14463,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAK7rkMjJ1zinGxsGdmbbds3ymCw%3DedsMvAZn4ps%3DoU99fzR81w%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAK7rkMjJ1zinGxsGdmbbds3ymCw%3DedsMvAZn4ps%3DoU99fzR81w%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08585.html</id>
-        <title>Re: [blink-dev] Intent to Deprecate &amp; Remove: Third-Party Cookies</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08585.html"/>
-        <updated>2023-12-05T16:37:41.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08585.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Deprecate+%5C%26+Remove%5C%3A+Third%5C-Party+Cookies%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Deprecate &amp; Remove: Third-Party Cookies&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Adam+Gertenbach%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Adam Gertenbach&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231205" rel="nofollow"&gt;Tue, 05 Dec 2023 08:37:41 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Good morning all,
-
-Our organization is currently re-reviewing the impacts of the third party 
-cookie deprecation now that registration for deprecation trials have been 
-made available. Among our offerings, we provide consulting, hosting, 
-architecture, and development services for customers in the business 
-intelligence and enterprise analytics space, including Microsoft Power BI, 
-Qlik Sense, ThoughtSpot, and Tableau. The ability to provide embedding of 
-analytics capabilities, such as visualizations and dashboards, is common 
-across the industry and is supported by each of the major vendors; as such, 
-we've facilitated these capabilities in architecting and building solutions 
-for our customers, often using these embedding capabilities to create 
-custom solutions or enhance enterprise portals that have seen very large 
-adoption.&lt;/pre&gt;&lt;pre&gt;
-
-&lt;a  rel="nofollow" href="https://help.qlik.com/en-US/sense-developer/November2023/Content/Sense_Helpsites/embed-qlik-sense.htm"&gt;https://help.qlik.com/en-US/sense-developer/November2023/Content/Sense_Helpsites/embed-qlik-sense.htm&lt;/a&gt;
-&lt;a  rel="nofollow" href="https://learn.microsoft.com/en-us/power-bi/collaborate-share/service-embed-secure"&gt;https://learn.microsoft.com/en-us/power-bi/collaborate-share/service-embed-secure&lt;/a&gt;
-&lt;a  rel="nofollow" href="https://docs.thoughtspot.com/cloud/latest/intro-embed"&gt;https://docs.thoughtspot.com/cloud/latest/intro-embed&lt;/a&gt;
-&lt;a  rel="nofollow" href="https://help.tableau.com/current/pro/desktop/en-us/embed.htm"&gt;https://help.tableau.com/current/pro/desktop/en-us/embed.htm&lt;/a&gt;
-
-As one might expect, these embedded solutions are often reliant on a 
-combination of iframes and cross domain third-party cookies to supply 
-authentication and authorization and cannot be made to operate under a 
-single domain. While we intend to actively engage with these vendors to 
-notify them of expected breakage due to the pending deprecation and would 
-hope that options for partitioning/CHIPS will make its way into these 
-products in a timely fashion, there is a significant risk that existing 
-solutions will be impacted in the interim period; furthermore, the customer 
-perception around this breakage is likely to impact our reputation based on 
-our role in delivery, despite the fact that we do not and cannot directly 
-resolve the underlying cause without third-party participation and product 
-updates.
-
-Historically, resolution of these types of issues have not always been 
-proactive. Qlik Sense had to update their interfaces as the SameSite None 
-rollout was occurring due to customer breakage ( 
-&lt;a  rel="nofollow" href="https://community.qlik.com/t5/Official-Support-Articles/Missing-SameSite-attribute-blocks-requests-in-Chrome-80-and/ta-p/1712551"&gt;https://community.qlik.com/t5/Official-Support-Articles/Missing-SameSite-attribute-blocks-requests-in-Chrome-80-and/ta-p/1712551&lt;/a&gt;
- 
-). More recently, Microsoft's Power BI login process for embedded reports 
-broke in September when the third-party storage partitioning policies were 
-enabled due to their use of cross-window localStorage usage for signaling 
-during authentication. Not knowing that this was in use by their product, 
-mitigation of this issue involved an all-nighter investigation on our part 
-to understand what was happening and the enrollment of a first-party 
-deprecation trial by us to re-enable services for our customers.
-
-While I recognize the motivations behind the strategies outlined, the lack 
-of a first-party deprecation trial to provide wide-spread temporary 
-mitigation is likely to significantly impair our service offerings and 
-existing customer solutions while these issues are ironed out and 
-implemented by these vendors. We're hoping to prepare our customers through 
-proactive messaging where possible (enterprise policy, anticipated per-user 
-UI overrides, etc.) but I'd like to call out this scenario and see if 
-there's anything I'm missing in terms of short-term solutions available to 
-us, and to ask if a first-party deprecation trial offering is expected for 
-cases like these where influence on the owners of third-party embeds is 
-limited.
-
-On Tuesday, November 21, 2023 at 7:56:58 PM UTC-5 Rick Byers wrote:
-
-&amp;gt; LGTM2 - It's time.
-&amp;gt;
-&amp;gt; Given that this is our biggest breaking change ever and I've gotten some 
-&amp;gt; feedback saying at least a couple people appreciate it when I expand on my 
-&amp;gt; thought process in compat analysis, I figured I should take the time to try 
-&amp;gt; to systematically evaluate this against our blink compat principles 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1RC-pBBvsazYfCNNUSkPqAVpSpNJ96U8trhNkfV0v9fk/edit#heading=h.83o2xr8ayal6"&gt;https://docs.google.com/document/d/1RC-pBBvsazYfCNNUSkPqAVpSpNJ96U8trhNkfV0v9fk/edit#heading=h.83o2xr8ayal6&lt;/a&gt;&amp;gt;.
-&amp;gt;  
-&amp;gt; Hopefully we'll learn some things from how this deprecation goes in 
-&amp;gt; practice to help us further improve our framework for evaluating and 
-&amp;gt; mitigating future compat risk.
-&amp;gt;
-&amp;gt;    - *Minimizing end-user impact*
-&amp;gt;       - *Page views impacted: High risk*
-&amp;gt;          - The UseCounter 
-&amp;gt;          &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/metrics/feature/timeline/popularity/3408"&gt;https://chromestatus.com/metrics/feature/timeline/popularity/3408&lt;/a&gt;&amp;gt; 
-&amp;gt;          has been steady at around 46% for years. Clearly a huge risk from 
-&amp;gt; our first 
-&amp;gt;          line of reasoning. 
-&amp;gt;       - *Unique sites impacted: High risk*
-&amp;gt;          - I don't have a pointer to data handy, but I assume it's also 
-&amp;gt;          very large (eg. due to 3p embeds like ads).
-&amp;gt;       - *Severity of breakage: Moderate risk*
-&amp;gt;          - One argument is that most sites already need to work for all 
-&amp;gt;          the Safari and Firefox users and the X% of Chrome users with 3P 
-&amp;gt; cookies 
-&amp;gt;          disabled, and so have adapted.
-&amp;gt;          - But on the other hand we have plenty of examples of sites 
-&amp;gt;          which just tell users they must enable 3PCs to make the site 
-&amp;gt; function at 
-&amp;gt;          all. 
-&amp;gt;          - So I think we have to say that there are a non-trivial number 
-&amp;gt;          sites where the severity is total site breakage - necessitating all 
-&amp;gt; the 
-&amp;gt;          mitigations, even if most impacted sites have non-visible breakage.
-&amp;gt;       - *Chrome's release process: Moderate mitigation*
-&amp;gt;          - This change is under very careful finch control with tons of 
-&amp;gt;          monitoring. 
-&amp;gt;          - We also have a variety of feedback channels including the 
-&amp;gt;          manual breakage reporting Johann mentioned, as well as monitoring of 
-&amp;gt; user 
-&amp;gt;          behavior to infer breakage, and a pretty big team motivated to react 
-&amp;gt;          quickly to keep user impact to a minimum. 
-&amp;gt;          - One thing to be mindful of here is that the CMA-mandated 1% 
-&amp;gt;          experiment will place some limits on the team's options to respond 
-&amp;gt; to 
-&amp;gt;          reports of breakage (eg. the deprecation trial says it can't be used 
-&amp;gt; by 
-&amp;gt;          sites on the disconnect.me advertising list). 
-&amp;gt;       - *User opt-out: Very strong mitigation*
-&amp;gt;          - I've been playing with the cookie control UI (eg. see 
-&amp;gt;          screenshot below) on my personal account and I'm quite happy with 
-&amp;gt; it. I've 
-&amp;gt;          seen the user education directing me to this UI including in 
-&amp;gt; scenarios like 
-&amp;gt;          when I reload a page. Some of that may be experiments or things 
-&amp;gt; undergoing 
-&amp;gt;          design change (I don't actually know the specific plans, just 
-&amp;gt; commenting on 
-&amp;gt;          what I've experienced personally), but it gives me confidence that 
-&amp;gt; the team 
-&amp;gt;          is seriously working to educate users on how to opt-out in the case 
-&amp;gt; of 
-&amp;gt;          breakage.
-&amp;gt;          [image: image.png]
-&amp;gt;       - *Maximizing user experience*
-&amp;gt;       - *Security &amp; Privacy: Strong mitigation*
-&amp;gt;          - Personally it seems clear to me (and eg. the W3C TAG 
-&amp;gt;          &amp;lt;&lt;a  rel="nofollow" href="https://www.w3.org/2001/tag/doc/web-without-3p-cookies"&gt;https://www.w3.org/2001/tag/doc/web-without-3p-cookies&lt;/a&gt;&amp;gt;) that 
-&amp;gt;          3PCs being off is the right long-term default for the web in the 
-&amp;gt; name of 
-&amp;gt;          privacy.
-&amp;gt;          - In addition I believe there's some security benefit - eg. 
-&amp;gt;          making side-channel attacks for sharing data between frames less 
-&amp;gt; useful to 
-&amp;gt;          attackers
-&amp;gt;       - *Performance: Weak mitigation*
-&amp;gt;          - You could argue that sites will be faster without 3PCs, but I 
-&amp;gt;          suspect that's temporary.
-&amp;gt;          - Perhaps more importantly, the deprecation of 3PCs creates 
-&amp;gt;          pressure to raise the level of abstraction of the web and I think 
-&amp;gt; history 
-&amp;gt;          has shown that we can make the web faster the more sites operate at 
-&amp;gt; a 
-&amp;gt;          higher level of abstraction (eg. consider scrolling/animation being 
-&amp;gt;          JS-driven vs. browser-driven and the rise of threaded compositing 
-&amp;gt; with 
-&amp;gt;          mobile browsers and how web advertising might look 5-10 years from 
-&amp;gt; now).
-&amp;gt;       - *User annoyance: Weak mitigation*
-&amp;gt;          - Maybe a risk of some increase in annoyance - eg. need popups 
-&amp;gt;          for some things that used to work in-page via iframes. 
-&amp;gt;          - Certainly having to turn 3PCs back on for a site that doesn't 
-&amp;gt;          work otherwise will be annoying
-&amp;gt;          - I'd also argue that, like for performance, raising the level 
-&amp;gt;          of abstraction will give us more opportunity to reduce annoyance. 
-&amp;gt; Eg. users 
-&amp;gt;          will have more centralized and consistent control over their 
-&amp;gt; advertising 
-&amp;gt;          preferences.
-&amp;gt;       - *Minimizing web-developer impact*
-&amp;gt;       - *Ease of adaptation: Moderate mitigation*
-&amp;gt;          - Key functional scenarios like identity have well known and 
-&amp;gt;          long-used alternatives like pop-ups and redirects. Chrome adopting 
-&amp;gt; the 
-&amp;gt;          temporary heuristics already used successfully by other browsers 
-&amp;gt; seems like 
-&amp;gt;          a significant mitigation for these flows to me.
-&amp;gt;          - The requestStorageAccess API is a drop-in option in many 
-&amp;gt;          scenarios (again, already deployed for other browsers)
-&amp;gt;          - Advertising use cases require a lot more work to adapt to, but 
-&amp;gt;          massive effort has gone into (and will presumably keep going into) 
-&amp;gt; building 
-&amp;gt;          and validating these alternatives.
-&amp;gt;       - *Developer opt-in / opt-out: Strong mitigation*
-&amp;gt;          - The deprecation trial seems like a big mitigation to me - 
-&amp;gt;          pretty easily giving non-ads origins an extra year.  
-&amp;gt;          - The prior move to require SameSite=None also seems like a 
-&amp;gt;          significant mitigation, developers have effectively been opting into 
-&amp;gt; 3PCs 
-&amp;gt;          in chromium for three years! 
-&amp;gt;          - There's also been an effort to variety of mechanisms and tools 
-&amp;gt;          for developers to opt-in to 3PCD and validate their site works
-&amp;gt;       - *Enterprise policy opt-out: Moderate mitigation*
-&amp;gt;          - Policy control exists. Given the scope of potential impact in 
-&amp;gt;          enterprises, this still seems like an area of some risk to me (eg. 
-&amp;gt; BYOD 
-&amp;gt;          scenarios with Chromium-only custom apps). But again the user 
-&amp;gt; opt-out is a 
-&amp;gt;          huge mitigation for this risk.
-&amp;gt;       - *Debuggability: Moderate mitigation*
-&amp;gt;          - Purpose-built tools A variety of tools have been built to help 
-&amp;gt;          developers understand and adapt their cookie usage. Still cookies 
-&amp;gt; can be 
-&amp;gt;          complicated, there's no silver bullet.
-&amp;gt;       - *Outreach: Moderate mitigation*
-&amp;gt;          - Almost certainly more outreach than we've ever done for a 
-&amp;gt;          deprecation (even Flash!), yet still not so much as to avoid the 
-&amp;gt;          likelihood of some developers being surprised. This is a place one 
-&amp;gt; could 
-&amp;gt;          always argue for more work, but it's hard to know where the point of 
-&amp;gt;          diminishing returns is, especially prior to the slow roll-out even 
-&amp;gt;          starting. I expect this is something we'll learn more about during 
-&amp;gt; the 1% 
-&amp;gt;          experiment period to guide the ramp-up process after that.
-&amp;gt;       - *Maximizing web ecosystem benefit*
-&amp;gt;       - *Interoperability: Strong mitigation*
-&amp;gt;          - The other two major engines have disabled 3PCs by default for 
-&amp;gt;          some time. I'm personally uncomfortable with 3PC-related breakage 
-&amp;gt; being a 
-&amp;gt;          reason why developers might encourage users to use chromium-based 
-&amp;gt; browsers. 
-&amp;gt;          Restoring interoperability across browsers seems like strong 
-&amp;gt; motivation for 
-&amp;gt;          accepting some risk here.
-&amp;gt;          - The team has gone the extra mile to advance specs, write WPTs 
-&amp;gt;          and generally work to move the web away from UA-specific heuristics 
-&amp;gt; to a 
-&amp;gt;          new likely interoperable and standardized state wrt. cookie behavior
-&amp;gt;       - *Standards conformance: Weak mitigation*
-&amp;gt;          - No standard requires 3PCD, but it seems likely that future web 
-&amp;gt;          standards will be built under the assumption of 3PCs being 
-&amp;gt; unavailable 
-&amp;gt;          (lots of such specs in development on a standards track)
-&amp;gt;       - *IP rights: Not relevant*
-&amp;gt;       - *Accepted interop risk: Not relevant*
-&amp;gt;    
-&amp;gt; Overall it seems to me like the high risks are appropriately balanced by 
-&amp;gt; significant mitigations and justifications for accepting the cost of the 
-&amp;gt; risk. More importantly, every technical tool in our web compat toolbox has 
-&amp;gt; been brought to bear on mitigating the risks, and significant resources are 
-&amp;gt; devoted to monitoring and responding to any issues. I both trust the team 
-&amp;gt; to effectively manage the risk during roll-out and expect that there will 
-&amp;gt; be some bumps and mistakes that we will want to learn from. 
-&amp;gt;
-&amp;gt; Best of luck!
-&amp;gt;    Rick
-&amp;gt;
-&amp;gt; On Wed, Nov 15, 2023 at 5:43 PM Johann Hofmann &amp;lt;joha...@chromium.org&amp;gt; 
-&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; Hi Daniel,
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Wed, Nov 15, 2023 at 6:09 PM Daniel Bratell &amp;lt;brat...@gmail.com&amp;gt; wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; You say Q1 2024, but do you know a more exact date? I ask because we are 
-&amp;gt;&amp;gt;&amp;gt; entering the holiday freeze period when companies do no changes whatsoever 
-&amp;gt;&amp;gt;&amp;gt; and even if this makes a site want to fix something, they might not be able 
-&amp;gt;&amp;gt;&amp;gt; to until some time into the quarter.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; we're currently planning for early Jan, i.e. M120 would be the first 
-&amp;gt;&amp;gt; release that contains the technical capabilities to ramp to 1% (breakage 
-&amp;gt;&amp;gt; mitigations, quantitative testing). The holiday freeze is definitely a risk 
-&amp;gt;&amp;gt; to call out here. However, as mentioned in the intent, we're already 
-&amp;gt;&amp;gt; operating under the assumption that some sites, despite our outreach 
-&amp;gt;&amp;gt; efforts, will only find out about this once the deprecation begins. To help 
-&amp;gt;&amp;gt; with that, we have a number of temporary mitigations available that work 
-&amp;gt;&amp;gt; quickly and effectively and can be initiated by various stakeholders in 
-&amp;gt;&amp;gt; this process (site, user, browser). While not directly relevant to the web 
-&amp;gt;&amp;gt; platform pieces, we plan to have user interface controls to give temporary 
-&amp;gt;&amp;gt; exceptions per top-level site in Chrome.
-&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; I also think it might be good to split it into the 1% part, and a 100% 
-&amp;gt;&amp;gt;&amp;gt; part since it is hard to judge the web compatibility level already and that 
-&amp;gt;&amp;gt;&amp;gt; is part of what the 1% run will do.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; The 1% is a long-running testing period that we're doing as part of the 
-&amp;gt;&amp;gt; commitments we entered with the CMA. However, from a readiness / web 
-&amp;gt;&amp;gt; platform perspective, we'd really like to treat it with the same 
-&amp;gt;&amp;gt; seriousness and care that we would treat a full rollout, as 1% of users 
-&amp;gt;&amp;gt; (over a significant amount of time) should not have a greatly degraded user 
-&amp;gt;&amp;gt; experience. We're trying to ship the full array of breakage mitigations we 
-&amp;gt;&amp;gt; will have available for potential future rollouts in this phase as well.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; So, if possible, I'd prefer to discuss any concerns you might have about 
-&amp;gt;&amp;gt; web compatibility, mitigations and ecosystem readiness in this thread, 
-&amp;gt;&amp;gt; rather than pushing it further out. :)
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Thanks,
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Johann
-&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; /Daniel
-&amp;gt;&amp;gt;&amp;gt; On 2023-11-13 17:52, David Dabbs wrote:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Thanks for the explanation.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; David
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; On Monday, November 13, 2023 at 9:30:55 AM UTC-6 Johann Hofmann wrote:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Hey David, yeah, that was me trying to fix the entry not showing up on 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; API Owner dashboards. I don't think that was what fixed it though, so I 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; can 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; change it back to &amp;quot;In Developer Trial&amp;quot; (which feels like the most accurate 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; right now?) 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Thanks!
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Johann 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Mon, Nov 13, 2023, 16:10 David Dabbs &amp;lt;david...@epsilon.com&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; This morning's Implementation status change to *Deprecated*  results 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; in 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Deprecate Third-Party Cookies 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5133113939722240"&gt;https://chromestatus.com/feature/5133113939722240&lt;/a&gt;&amp;gt; (Deprecated) 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Did you intend to also rename the feature to &amp;quot;Third-Party Cookies?&amp;quot;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Thanks
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Monday, November 13, 2023 at 4:20:47 AM UTC-6 yoav...@chromium.org 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; LGTM1 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I cannot imagine a more thorough and thoughtful approach than the one 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the Privacy Sandbox team has taken to tackle this significant change to 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; web's privacy model while minimizing breakage and providing replacement 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; APIs. Thanks for pushing this important work through!!
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Mon, Nov 13, 2023 at 10:31 AM Johann Hofmann &amp;lt;joha...@chromium.org&amp;gt; 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Contact emails 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; joha...@chromium.org, wande...@chromium.org, dylan...@chromium.org, 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; kaust...@chromium.org, jka...@chromium.org, john...@chromium.org
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Explainer 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; For general information on Privacy Sandbox for the Web and Google’s 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; plans to phase out third-party cookies, see 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://privacysandbox.com/open-web/"&gt;https://privacysandbox.com/open-web/&lt;/a&gt;.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; For additional information on the planned semantics of third-party 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; cookie blocking and its interaction with the SameSite cookie attribute, 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; see 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/DCtheTall/standardizing-cross-site-cookie-semantics"&gt;https://github.com/DCtheTall/standardizing-cross-site-cookie-semantics&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Specification 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; The Cookies RFC contains some language 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-12#name-the-cookie-header-field"&gt;https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-12#name-the-cookie-header-field&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; that, in theory, allows user agents to block third-party cookies, 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; leaving a 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; lot of details unspecified. We are not happy with this status quo and 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; are 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; collaborating with other browsers on a significant spec refactoring 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; effort 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; called cookie layering 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/httpwg/http-extensions/issues/2084"&gt;https://github.com/httpwg/http-extensions/issues/2084&lt;/a&gt;&amp;gt; to give 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Fetch/HTML more responsibility over specifying how and when cookies are 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; stored and attached, as well as a WebAppSec Note based on our existing 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; explainer 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/DCtheTall/standardizing-cross-site-cookie-semantics"&gt;https://github.com/DCtheTall/standardizing-cross-site-cookie-semantics&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; that describes how cookie blocking interacts with SameSite cookies.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Summary 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; We intend to deprecate and remove default access to third-party (aka 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; cross-site) cookies as part of the Privacy Sandbox Timeline for the 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Web 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://privacysandbox.com/open-web/#the-privacy-sandbox-timeline"&gt;https://privacysandbox.com/open-web/#the-privacy-sandbox-timeline&lt;/a&gt;&amp;gt;, 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; starting with an initial 1% testing period in Q1 2024 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.chrome.com/docs/privacy-sandbox/chrome-testing/"&gt;https://developer.chrome.com/docs/privacy-sandbox/chrome-testing/&lt;/a&gt;&amp;gt;, 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; followed by a gradual phaseout planned to begin in Q3 2024 after 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; consultation 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; with the CMA 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://www.gov.uk/cma-cases/investigation-into-googles-privacy-sandbox-browser-changes"&gt;https://www.gov.uk/cma-cases/investigation-into-googles-privacy-sandbox-browser-changes&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (The gradual phaseout is subject to addressing any remaining 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; competition 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; concerns of the UK’s Competition and Markets Authority.)
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Phasing out third-party cookies (3PCs) is a central effort to the 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Privacy Sandbox initiative, which aims to responsibly reduce cross-site 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; tracking on the web (and beyond) while supporting key use cases through 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; new 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; technologies. Our phaseout plan was developed with the UK's Competition 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; and 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Markets Authority, in line with the commitments 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://blog.google/around-the-globe/google-europe/path-forward-privacy-sandbox/"&gt;https://blog.google/around-the-globe/google-europe/path-forward-privacy-sandbox/&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; we offered for Privacy Sandbox for the web.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink component 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Internals&amp;gt;Network&amp;gt;Cookies 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Internals%3ENetwork%3ECookies"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Internals%3ENetwork%3ECookies&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Motivation 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Our goal on the Privacy Sandbox is to reduce cross-site tracking 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; while still enabling the functionality that keeps online content and 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; services freely accessible by everyone. Deprecating and removing 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; third-party cookies encapsulates the challenge, as they enable critical 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; functionality across sign-in, fraud protection, advertising, and 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; generally 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the ability to embed rich, third-party content in websites—but at the 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; same 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; time they're also a key enabler of cross-site tracking.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Initial public proposal 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; N/A
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; The TAG has explicitly endorsed 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://w3ctag.github.io/web-without-3p-cookies/#why-restrict-third-party-cookies"&gt;https://w3ctag.github.io/web-without-3p-cookies/#why-restrict-third-party-cookies&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (n.b. as a draft document) the deprecation of third-party cookies in 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; past. Additionally, we requested feedback on our proposal to define 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the 3PC security semantics 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/904"&gt;https://github.com/w3ctag/design-reviews/issues/904&lt;/a&gt;&amp;gt; and received 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; generally positive feedback.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review status 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Tentatively Positive, see above
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Risks 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Compatibility 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Impact on the Ads ecosystem:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; A suite of APIs for delivering relevant ads, measuring ad 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; performance, and preventing fraud and abuse are now generally available 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; in 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Chrome to continue to facilitate ad-supported content on the web. We 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; continue to work closely with the UK Competition and Markets Authority 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (CMA) on evaluating the impact of this change on the ads ecosystem. 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Web Compatibility:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Despite 3PCs already being blocked in Firefox and Safari and 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; developer outreach efforts to raise awareness and encourage developers 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; prepare for the deprecation, we currently estimate that a non-trivial 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; number of sites are still relying on third-party cookies for some 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; user-facing functionality. To address this breakage, we have developed 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; a 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; two-pronged strategy:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    1. 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    Breakage Discovery &amp; Outreach
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Through various efforts, such as UKM-based signal analysis, scaled 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; manual testing and dogfooding, we are collecting a list of impacted use 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; cases. These individual breakage cases inform our mitigation strategy 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (see 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; next step) and future API improvements, as well as our ongoing 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; developer 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; outreach efforts.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; We also offer developers the ability to report 3PC breakage to the 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Chrome team via goo.gle/report-3pc-broken or ask general questions 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; at 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/GoogleChromeLabs/privacy-sandbox-dev-support/issues"&gt;https://github.com/GoogleChromeLabs/privacy-sandbox-dev-support/issues&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    1. 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    Temporary Breakage Mitigation
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; It will take time for developers to replace their usage of 3PCs with 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; new APIs or different approaches, and some developers may not be aware 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; of 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; this deprecation until they discover breakage. In order to reduce the 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; impact of such breakage on the web, we have implemented a series of 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; temporary mitigations:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    - 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    Exemption Heuristics 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/amaliev/3pcd-exemption-heuristics/blob/main/explainer.md"&gt;https://github.com/amaliev/3pcd-exemption-heuristics/blob/main/explainer.md&lt;/a&gt;&amp;gt;:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    We are planning to ship heuristics mirroring those that already ship 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; in 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    Firefox and Safari, and are also working with both browsers on a 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    coordinated removal process. Additional details can be found &amp; 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; should be 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    discussed in the I2P 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/Eeh2pE0DRaE/m/1BJyBlCUAAAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/Eeh2pE0DRaE/m/1BJyBlCUAAAJ&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    &amp; upcoming I2S.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    - 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    Deprecation Trial: 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.chrome.com/blog/cookie-countdown-2023oct/#request-additional-time-with-the-third-party-deprecation-trial-for-non-advertising-use-cases"&gt;https://developer.chrome.com/blog/cookie-countdown-2023oct/#request-additional-time-with-the-third-party-deprecation-trial-for-non-advertising-use-cases&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    This will be outlined in more detail in the upcoming Request for 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    Deprecation Trial, but it’s important to note that a review step 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; including 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    evidence of user-facing breakage will be required for participation. 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    Further, we do not intend to approve trials for ads-related use 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; cases, to 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    avoid interference with the quantitative testing.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    - 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    As with other launches, we will also have a set of server-side 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    controls to manage the rollout as a whole and minimize issues 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; specific 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    sites are causing for users.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;    
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Despite all these efforts, we want to be clear that we are 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; intentionally taking some risk here in the interest of user privacy.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Enterprise Compatibility:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To help with the transition, we intend to allow enterprise 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; organizations to opt their applications out of third-party cookie 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; blocking 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; using the existing BlockThirdPartyCookies 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromeenterprise.google/policies/#BlockThirdPartyCookies"&gt;https://chromeenterprise.google/policies/#BlockThirdPartyCookies&lt;/a&gt;&amp;gt; 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; or CookiesAllowedForUrls 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromeenterprise.google/policies/#CookiesAllowedForUrls"&gt;https://chromeenterprise.google/policies/#CookiesAllowedForUrls&lt;/a&gt;&amp;gt; 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; policies. Given that enterprise systems are often gated and are 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; therefore 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; hard to analyze from an external perspective, these policies will 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; provide 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; additional time for the enterprise ecosystem to adapt. We intend to 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; publish 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; additional guidance for enterprises on 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://goo.gle/3pcd-enterprise"&gt;https://goo.gle/3pcd-enterprise&lt;/a&gt; for the period beyond the 1% 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; testing period.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Interoperability 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Both Firefox and Safari have removed default access to third-party 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; cookies already, though there are small differences 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/DCtheTall/standardizing-cross-site-cookie-semantics"&gt;https://github.com/DCtheTall/standardizing-cross-site-cookie-semantics&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; in how browsers treat SameSite=None cookies in so called “ABA” 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; scenarios 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (site A embeds site B, which embeds site A again). Chrome ships the 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; more 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; secure and more restrictive variant, and from initial conversations we 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; are 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; optimistic that other browsers will adopt it as well. There are also 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; subtle 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; differences in how browsers restore access to third-party cookies 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; through 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; mechanisms such as heuristics or custom quirks. Where Chrome implements 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; similar measures (such as the heuristics 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/amaliev/3pcd-exemption-heuristics/blob/main/explainer.md"&gt;https://github.com/amaliev/3pcd-exemption-heuristics/blob/main/explainer.md&lt;/a&gt;&amp;gt;),
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; we try to follow the launch and standards processes to achieve as much 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; interop as we can, given other requirements such as privacy and 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; security.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Gecko: Shipping
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; WebKit: Shipping
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Web developers: Mixed Signals
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; As one of the most impactful changes to the web platform in a long 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; time, the deprecation of 3rd party cookies and the introduction of 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; alternative APIs have received a lot of helpful feedback from web 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; developers to an extent impossible to summarize in a few sentences. As 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; described in the summary, the Privacy Sandbox wants to ensure that a 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; vibrant, freely accessible web can exist even as we roll out strong 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; user 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; protections and we will continue to work with web developers to 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; understand 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; their use cases and ship the right (privacy-preserving) APIs. And we’ve 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; received feedback 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://privacysandbox.com/news/privacy-sandbox-for-the-web-reaches-general-availability/#:~:text=The%20Benefits%20of%20Collaboration"&gt;https://privacysandbox.com/news/privacy-sandbox-for-the-web-reaches-general-availability/#:~:text=The%20Benefits%20of%20Collaboration&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; that gives us confidence that we’re on the right track.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; WebView application risks 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; This deprecation will not affect WebView for now.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Debuggability 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Developers may use the command-line testing switch 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; --test-third-party-cookie-phaseout 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (available starting Chrome 115) or enable 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; chrome://flags#test-third-party-cookie-phaseout (available starting 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Chrome 117), to simulate browser behavior with default access to 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; third-party cookies removed. We also started reporting DevTools issues 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; for 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; cookies impacted by the deprecation starting in Chrome 117 to help 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; identify 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; potentially impacted workflows. We are continuing to improve our 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; developer 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; documentation 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.chrome.com/blog/cookie-countdown-2023oct/"&gt;https://developer.chrome.com/blog/cookie-countdown-2023oct/&lt;/a&gt;&amp;gt; on 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; debugging third-party cookies usage, and guidance on migration to new 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; APIs.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ? 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Yes. We have put together a set of WPTs 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/cookies/third-party-cookies/third-party-cookies.tentative.https.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/cookies/third-party-cookies/third-party-cookies.tentative.https.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; which cover third-party cookie blocking for subresource requests. It is 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; not 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; yet comprehensive, we are working on adding additional tests to support 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; our 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; standardization efforts.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Flag name on chrome://flags 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TestThirdPartyCookiePhaseout
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Finch feature name 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Due to the nature of the Chrome-facilitated testing period 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.chrome.com/docs/privacy-sandbox/chrome-testing/"&gt;https://developer.chrome.com/docs/privacy-sandbox/chrome-testing/&lt;/a&gt;&amp;gt;, 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; as well as the general complexity of managing breakage related to 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; removing 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; third-party cookies, there won’t be a single Finch feature that takes 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; us 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; from 0% to 100% deprecated. Instead, a collection of features, 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; supporting 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; different phases and components, will be used.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Non-finch justification 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; N/A
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Requires code in //chrome? 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; No, the base third-party cookie blocking functionality does not 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; require Chrome code. Some custom Chrome functionality (such as the 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; aforementioned facilitated testing, mitigations and user experience 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; improvements) does require it.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Estimated milestones 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Initial phase of Deprecation (1%) is planned as part of the “Chrome 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; facilitated testing period” beginning in Q1 2024, as described on 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://privacysandbox.com/open-web/#the-privacy-sandbox-timeline"&gt;https://privacysandbox.com/open-web/#the-privacy-sandbox-timeline&lt;/a&gt;, 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; further phaseout is planned to begin in Q3 2024. (The gradual phaseout 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; of 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; third-party cookies is subject to addressing any remaining competition 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; concerns of the CMA.)
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5133113939722240"&gt;https://chromestatus.com/feature/5133113939722240&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; -- 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; send an email to blink-dev+...@chromium.org.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAD_OO4ikogMJZce42o-QcGUMDNiM2Lr_6BGAfP8Gzktakc5_fw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAD_OO4ikogMJZce42o-QcGUMDNiM2Lr_6BGAfP8Gzktakc5_fw%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAD_OO4ikogMJZce42o-QcGUMDNiM2Lr_6BGAfP8Gzktakc5_fw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAD_OO4ikogMJZce42o-QcGUMDNiM2Lr_6BGAfP8Gzktakc5_fw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; -- 
-&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google 
-&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send 
-&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+...@chromium.org.
-&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit 
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/1d705388-c7ff-46ad-9d4e-db6276b8035an%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/1d705388-c7ff-46ad-9d4e-db6276b8035an%40chromium.org&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/1d705388-c7ff-46ad-9d4e-db6276b8035an%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/1d705388-c7ff-46ad-9d4e-db6276b8035an%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; -- 
-&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups 
-&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an 
-&amp;gt;&amp;gt; email to blink-dev+...@chromium.org.
-&amp;gt;&amp;gt;
-&amp;gt; To view this discussion on the web visit 
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAD_OO4ispE4%2Bj-YsxyyxHU%2BGAJ8honiS0feV4zgf_4R_ZJq9MA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAD_OO4ispE4%2Bj-YsxyyxHU%2BGAJ8honiS0feV4zgf_4R_ZJq9MA%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAD_OO4ispE4%2Bj-YsxyyxHU%2BGAJ8honiS0feV4zgf_4R_ZJq9MA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAD_OO4ispE4%2Bj-YsxyyxHU%2BGAJ8honiS0feV4zgf_4R_ZJq9MA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/1710ec26-bd1a-4167-b492-e58748248b5bn%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/1710ec26-bd1a-4167-b492-e58748248b5bn%40chromium.org&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
