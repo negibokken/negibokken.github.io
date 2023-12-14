@@ -5,6 +5,278 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08683.html</id>
+        <title>Re: [blink-dev] Intent to Ship: MediaStreamTrack Stats (Audio)</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08683.html"/>
+        <updated>2023-12-14T16:00:42.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08683.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+MediaStreamTrack+Stats+%5C%28Audio%5C%29%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: MediaStreamTrack Stats (Audio)&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Rick+Byers%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Rick Byers&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231214" rel="nofollow"&gt;Thu, 14 Dec 2023 08:00:42 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Sounds good Henrik! Yes, from our brief discussion in the API owners
+meeting I believe you have support from at least 3 API owners to proceed in
+this direction. It's important to us that we engage constructively in the
+standards process even in areas of differing opinion, but it's also crucial
+to our process that we not let such differences in opinion and priority be
+an effective veto power over what we choose to ship in Chromium. I'd
+encourage you and the WebRTC group to formalize processes for amicably
+agreeing to disagree on the importance of different use cases, while still
+being open to technical feedback and doing what we reasonably can to
+maximize the chance that the APIs we ship can eventually be interoperable
+if priorities of the other engines someday change [*]. API owners would
+also be interested to hear any other arguments for why Chromium shipping
+these APIs would be bad for the web (on this list, or anywhere else). I
+know there's a messy history with WebRTC in particular and services coming
+to depend on Chromium-only APIs when suitable standards-track alternatives
+are available in other engines. That's IMHO definitely not a pattern we
+want to risk repeating.&lt;/pre&gt;&lt;pre&gt;
+
+Of course you also need Chrome privacy and security reviews, since it's
+important that features like this don't create a hole in our careful
+balance of side channel attack mitigations. But I see you already have
+privacy approval so hopefully security isn't too far off. You might want to
+wait for a signal there before starting implementation.
+
+Personally I'm also less concerned about interoperability risks when it
+comes to metrics API. It's already the case that our top
+performance metrics (Core Web Vitals) have APIs exposed only in Chromium.
+There's certainly some interop risk there, eg. of sites optimizing in
+engine-specific ways. But in practice we've seen developers use these APIs
+mostly to make their sites faster in ways that generally apply to all
+engines. So in that case, Safari and Firefox are getting most of the
+benefit of these APIs existing without having to incur most of the cost,
+which seems like a fine outcome to me. Also, I'm confident that if we
+eventually agree with other engines on some better way to expose the same
+information, then we can deprecate and remove any API shape we ship today
+and customers can migrate over without causing user-visible breakage
+(worst-case we just return dummy values on the deprecated APIs).
+
+Rick
+
+[*] My favorite example of this is Pointer Events where Apple was opposed
+to the use case, but also had good technical critiques of the API. We
+eventually (after a lot of research, open debate, and some flip-flopping by
+me) shipped a version of the API that addressed the legitimate technical
+concerns without addressing Apple's objections around the use case. Years
+later when a use case materialized for Apple (the Apple Pen), they just
+shipped the API in a fully interoperable fashion. That (as well as cases of
+the inverse where we realize we were wrong and unship) is what we mean by
+the blink process being designed for &amp;quot;eventual interoperability&amp;quot;.
+
+
+On Thu, Dec 14, 2023 at 4:34 AM Henrik Boström &amp;lt;h...@chromium.org&amp;gt; wrote:
+
+&amp;gt; Thanks, Rick. Responses inline.
+&amp;gt;
+&amp;gt; On Wednesday, December 13, 2023 at 6:39:48 PM UTC+1 Rick Byers wrote:
+&amp;gt;
+&amp;gt; I looked into the details of the standards debate on this issue. It sounds
+&amp;gt; like it's still unclear whether the spec for this has WG support or not,
+&amp;gt; right? I certainly wouldn't want to mislead anyone as to API maturity /
+&amp;gt; likely interoperability by shipping based on a WebRTC WG specification if
+&amp;gt; there is an unresolved process concern.
+&amp;gt;
+&amp;gt;
+&amp;gt; I think it's safe to say we don't have consensus on the frame counters
+&amp;gt; (exposing dropped/glitches), while capture latency hopefully be less
+&amp;gt; contentious.
+&amp;gt;
+&amp;gt;
+&amp;gt; That said, I think Chromium's position on the technical debate here is
+&amp;gt; pretty clear - we do believe there's value in such stats APIs, even IF they
+&amp;gt; can only represent browser bugs (it's why we ship a crash reporting API
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wicg.github.io/crash-reporting/"&gt;https://wicg.github.io/crash-reporting/&lt;/a&gt;&amp;gt;, which has been similarly
+&amp;gt; controversial with Mozilla and Apple). We disagree that &amp;quot;there's nothing
+&amp;gt; web developers can do about it&amp;quot;. Maybe that's true for Apple and Mozilla,
+&amp;gt; but for Google we rely critically on developer feedback through both open (
+&amp;gt; crbug.com) and private (Google partnerships) channels and we want to make
+&amp;gt; it as easy as possible for developers to report an issue they're seeing to
+&amp;gt; us in a way that's actionable. Our privacy policy limits Chrome's
+&amp;gt; visibility into what's going on in the wild. So usually we find this
+&amp;gt; requires a mix of both site-acquired telemetry and browser-required
+&amp;gt; telemetry, and find the two can often complement each other nicely.
+&amp;gt;
+&amp;gt; Henrik, my advice if the WG doesn't have consensus for this API is to move
+&amp;gt; it to some incubation venue (like a WICG group). You clearly have a
+&amp;gt; community of web developers who want it, so it's probably more productive
+&amp;gt; to focus standards energy among allies who share an interest for the use
+&amp;gt; case, right? If you're willing to promptly move this to a WICG spec in the
+&amp;gt; event the WG asks to remove it from their spec, then I don't think this
+&amp;gt; debate changes anything from a blink API owner's perspective so I'm OK
+&amp;gt; treating it as non-blocking. A subset of API owners met today (Daniel, Mike
+&amp;gt; Taylor, Philip and I), and agreed with this stance. WDYT?
+&amp;gt;
+&amp;gt;
+&amp;gt; Me moving this to a WICG spec in the event that the WG asks to remove them
+&amp;gt; from mediacapture-extensions sounds good to me.
+&amp;gt; If me and/or the WebRTC Audio Team has access to a WICG spec for these
+&amp;gt; things, that may also give us a venue for, in the future, exploring
+&amp;gt; *playout* glitch metrics in a more enthusiastic setting, which is in the
+&amp;gt; early stages of discussions internally.
+&amp;gt;
+&amp;gt;
+&amp;gt; In terms of testing, normally we ask to see the tests land before
+&amp;gt; approving an I2S. Any reason we shouldn't wait for that here?
+&amp;gt;
+&amp;gt;
+&amp;gt; Given the &amp;quot;controversy&amp;quot; around the glitch metrics, the WebRTC Audio Team
+&amp;gt; wanted to get some Blink owners signals before they spend the engineering
+&amp;gt; efforts to implement this (including WPTs).
+&amp;gt; But if Blink owners also see the value in these metrics and we have a plan
+&amp;gt; (= move to WICG in the event that they are removed) I see no reason not to
+&amp;gt; ask them to start implementation today.
+&amp;gt;
+&amp;gt; For reference, see the WPTs we added for the video track stats here
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/web_tests/external/wpt/mediacapture-extensions/MediaStreamTrack-video-stats.https.html"&gt;https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/web_tests/external/wpt/mediacapture-extensions/MediaStreamTrack-video-stats.https.html&lt;/a&gt;&amp;gt;.
+&amp;gt; The audio track stats WPTs should be similar and also complemented by C++
+&amp;gt; unit tests in lower layers.
+&amp;gt;
+&amp;gt;
+&amp;gt; Thanks,
+&amp;gt;    Rick
+&amp;gt;
+&amp;gt;
+&amp;gt;
+&amp;gt; On Fri, Dec 8, 2023 at 11:53 AM Henrik Boström &amp;lt;h...@chromium.org&amp;gt; wrote:
+&amp;gt;
+&amp;gt; Contact emails
+&amp;gt; h...@chromium.org, o...@chromium.org, h...@chromium.org
+&amp;gt;
+&amp;gt; Specification
+&amp;gt; &lt;a  rel="nofollow" href="https://w3c.github.io/mediacapture-extensions/#the-"&gt;https://w3c.github.io/mediacapture-extensions/#the-&lt;/a&gt;
+&amp;gt; mediastreamtrackaudiostats-interface
+&amp;gt;
+&amp;gt; Summary
+&amp;gt;
+&amp;gt; The MediaStreamTrack Statistics API, or `track.stats`, has already shipped
+&amp;gt; for video tracks: see previous I2S here
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/ttzYv-30gY4/m/2FvJpxqMGQAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/ttzYv-30gY4/m/2FvJpxqMGQAJ&lt;/a&gt;&amp;gt;
+&amp;gt; .
+&amp;gt;
+&amp;gt;
+&amp;gt; This is the same API but for audio tracks, also motivated by the app's
+&amp;gt; desire to measure capture quality. This is very important for conferencing
+&amp;gt; websites such as Google Meet, Microsoft Teams, Zoom, Goto Meetings, etc.
+&amp;gt; All of which has expressed an interest in the audio portion of this API.
+&amp;gt;
+&amp;gt;
+&amp;gt; The API is only available for getUserMedia() sourced audio tracks, i.e.
+&amp;gt; microphone, so the API is behind a user prompt and only available during
+&amp;gt; capture.
+&amp;gt;
+&amp;gt;
+&amp;gt; The new interface we want to ship is MediaStreamTrackAudioStats
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://w3c.github.io/mediacapture-extensions/#the-mediastreamtrackaudiostats-interface"&gt;https://w3c.github.io/mediacapture-extensions/#the-mediastreamtrackaudiostats-interface&lt;/a&gt;&amp;gt;
+&amp;gt; which allow measuring two things from the audio capture pipeline:
+&amp;gt;
+&amp;gt; 1. The number of audio frames, including if any audio frames are dropped
+&amp;gt; by the device, OS or User Agent. This allows measuring glitches in captured
+&amp;gt; audio.
+&amp;gt;
+&amp;gt; 2. The input latency, such as due to buffering or other delays in
+&amp;gt; delivering the audio frames to the track's sinks.
+&amp;gt;
+&amp;gt; Blink component
+&amp;gt; Blink&amp;gt;GetUserMedia
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EGetUserMedia"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EGetUserMedia&lt;/a&gt;&amp;gt;
+&amp;gt;
+&amp;gt; Risks
+&amp;gt; Interoperability and Compatibility
+&amp;gt;
+&amp;gt; Because the API provides *statistics* about capture quality, rather than
+&amp;gt; providing capture *functionality, *the interop/compatibility risk is
+&amp;gt; small.
+&amp;gt;
+&amp;gt; *Gecko*: Standards position issue
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/935"&gt;https://github.com/mozilla/standards-positions/issues/935&lt;/a&gt;&amp;gt;
+&amp;gt; *WebKit*: Standards position issue
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/260"&gt;https://github.com/WebKit/standards-positions/issues/260&lt;/a&gt;&amp;gt;
+&amp;gt;
+&amp;gt; Standardization
+&amp;gt; While the audio stats API is written by the W3C WebRTC Working Group and
+&amp;gt; track statistics overall is not controversial, there is an ongoing
+&amp;gt; disagreement with Mozilla about whether or not dropped frames (=
+&amp;gt; totalFrames - deliveredFrames) should be exposed to the web in the audio
+&amp;gt; case. The disagreement is tracked by this issue
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/mediacapture-extensions/issues/129"&gt;https://github.com/w3c/mediacapture-extensions/issues/129&lt;/a&gt;&amp;gt;. Our need for
+&amp;gt; this metric has been discussed at Virtual Interims, see recording with
+&amp;gt; 10:39 timestamp &amp;lt;&lt;a  rel="nofollow" href="https://www.youtube.com/watch?v=xJMXnf3Qwh8&amp;t=639s"&gt;https://www.youtube.com/watch?v=xJMXnf3Qwh8&amp;t=639s&lt;/a&gt;&amp;gt; but
+&amp;gt; no consensus could be reached (rough consensus was reached between everyone
+&amp;gt; except Mozilla). Youenn (Apple) has shown that frames can be dropped due
+&amp;gt; to Bluetooth connection
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/mediacapture-extensions/issues/129#issuecomment-1822624904"&gt;https://github.com/w3c/mediacapture-extensions/issues/129#issuecomment-1822624904&lt;/a&gt;&amp;gt;
+&amp;gt;  and
+&amp;gt; is not just &amp;quot;measuring browser bugs&amp;quot;.
+&amp;gt;
+&amp;gt; *Web developers*: Positive
+&amp;gt; - The I2P
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/vUbD_psbPL8/m/wqq3kmZFBwAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/vUbD_psbPL8/m/wqq3kmZFBwAJ&lt;/a&gt;&amp;gt;
+&amp;gt;  shows
+&amp;gt; support from Teams, Zoom and GoTo meetings.
+&amp;gt; - In the spec issue
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/mediacapture-extensions/issues/129"&gt;https://github.com/w3c/mediacapture-extensions/issues/129&lt;/a&gt;&amp;gt; regarding the
+&amp;gt; disagreement, more developer support is expressed (e.g. alfredh from Nvidia
+&amp;gt; and steely-glint).
+&amp;gt;
+&amp;gt; WebView application risks
+&amp;gt;
+&amp;gt; None
+&amp;gt;
+&amp;gt; Will this feature be supported on all six Blink platforms (Windows, Mac,
+&amp;gt; Linux, ChromeOS, Android, and Android WebView)?
+&amp;gt; Yes
+&amp;gt;
+&amp;gt; Is this feature fully tested by web-platform-tests
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+&amp;gt; ?
+&amp;gt; Yes and WPTs will be written as part of implementing this, however unit
+&amp;gt; tests will also be needed to verify accuracy of metrics on a lower level.
+&amp;gt; WPTs will be more general like &amp;quot;frame counters increase over time during
+&amp;gt; capture&amp;quot; and that run-to-completion semantics are preserved.
+&amp;gt;
+&amp;gt; Link to entry on the Chrome Platform Status
+&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5141112910249984"&gt;https://chromestatus.com/feature/5141112910249984&lt;/a&gt;
+&amp;gt;
+&amp;gt; Links to previous Intent discussions
+&amp;gt; Intent to prototype:
+&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-&lt;/a&gt;
+&amp;gt; dev/bb6c1af3-9eb3-4c6f-a136-dee709b7f906n%40chromium.org
+&amp;gt;
+&amp;gt; --
+&amp;gt; You received this message because you are subscribed to the Google Groups
+&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt; To view this discussion on the web visit &lt;a  rel="nofollow" href="https://groups.google.com/a/"&gt;https://groups.google.com/a/&lt;/a&gt;
+&amp;gt; chromium.org/d/msgid/blink-dev/a594fc55-8030-4848-9fe6-
+&amp;gt; 549eccfdd8a8n%40chromium.org
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/a594fc55-8030-4848-9fe6-549eccfdd8a8n%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/a594fc55-8030-4848-9fe6-549eccfdd8a8n%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt; .
+&amp;gt;
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY90ZgLed8_wQszu5Q%2Bvxdry3g-B6vrjcfa7%3DpZbPXySWw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY90ZgLed8_wQszu5Q%2Bvxdry3g-B6vrjcfa7%3DpZbPXySWw%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08682.html</id>
         <title>Re: [blink-dev] Intent to Ship: MediaStreamTrack Stats (Audio)</title>
         <author>
@@ -11450,206 +11722,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/012b4410-1af4-4542-ad21-a0e6fa3f24ecn%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/012b4410-1af4-4542-ad21-a0e6fa3f24ecn%40chromium.org&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08633.html</id>
-        <title>Re: [blink-dev] Intent to Ship: Storage Buckets API</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08633.html"/>
-        <updated>2023-12-07T17:35:42.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08633.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Storage+Buckets+API%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Storage Buckets API&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Evan+Stade%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Evan Stade&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231207" rel="nofollow"&gt;Thu, 07 Dec 2023 09:35:42 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Hi Philip,
-
-After conferring with the team, we feel that there is an appropriate
-distribution of coverage provided by WPT and Chromium unit and browser
-tests. Leveraging testdriver for one-off hooks such as this would introduce
-substantial test-only code flows, diminishing the confidence that the tests
-were correctly verifying production behavior, while also imposing a larger
-maintenance burden going forward. The benefit, as we understand it, would
-be that the WPT could be shared by other vendors, but the test itself in
-this case would only be a few lines. The vast majority of LOC would
-be plumbing and internals logic which other vendors would need to provide
-for themselves.&lt;/pre&gt;&lt;pre&gt;
-
-Getting a bit off in the weeds relative to this i2s discussion, but I'll
-continue on this topic for the sake of debate:
-
-We can observe that new testdriver APIs are seldom added. I only see ~4
-changes originating from the Chromium project in the last 5 years. Putting
-all other reasoning aside, this fact alone would suggest that testdriver
-should be touched only in exceptional cases. I would not argue that
-testdriver is without utility. Unlike the one-off actions we'd need for
-these buckets WPT, more generic testdriver actions such as setting
-permission state can enable a wide range of tests. In those cases the
-calculus of cost vs reward is much more favorable. So I would assume that
-changes to testdriver should meet a high bar of broad utility, similar to
-how we treat core libraries in //base/.
-
-Hope that addresses your concerns.
-
--- Evan Stade
-
-
-On Fri, Dec 1, 2023 at 9:03 AM Philip Jägenstedt &amp;lt;foo...@chromium.org&amp;gt;
-wrote:
-
-&amp;gt; Thanks Evan for listing out the tests, they were more spread out than I
-&amp;gt; thought. Great to see more of the tests being upstreamed too!
-&amp;gt;
-&amp;gt; I wonder if we can do even better and test eviction however? Have you
-&amp;gt; looked into defining a WebDriver endpoint for triggering eviction? It could
-&amp;gt; make sense in
-&amp;gt; &lt;a  rel="nofollow" href="https://web-platform-tests.org/writing-tests/testdriver.html#storage"&gt;https://web-platform-tests.org/writing-tests/testdriver.html#storage&lt;/a&gt; and
-&amp;gt; there are plenty of examples in that documentation that might be close to
-&amp;gt; the hook/trigger you need.
-&amp;gt;
-&amp;gt; If you think this is an unreasonable request, please push back, my
-&amp;gt; interest is only that this can be implemented interoperably. Tests are our
-&amp;gt; best way of ensuring that, but it's not the only way, and it's always a
-&amp;gt; tradeoff of effort vs. utility.
-&amp;gt;
-&amp;gt; Best regards,
-&amp;gt; Philip
-&amp;gt;
-&amp;gt; On Wed, Nov 29, 2023 at 6:32 PM Evan Stade &amp;lt;est...@chromium.org&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; Hi Philip,
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Here is a comprehensive list of web tests that verify storageBuckets
-&amp;gt;&amp;gt; behavior. We do feel the size of this list aligns well with the spec,
-&amp;gt;&amp;gt; which is fairly concise. As you can see, some are spread out in directories
-&amp;gt;&amp;gt; for the other storage APIs that storageBuckets brokers.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; That said, not all behavior is verifiable from the web. For example, it's
-&amp;gt;&amp;gt; not possible to reliably trigger an automatic eviction event from the web,
-&amp;gt;&amp;gt; so we can't really know if `persisted` is *actually* respected. Browser
-&amp;gt;&amp;gt; tests provide that kind of coverage.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Some of the WPT are internal but they can/should be moved
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/5072535"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/5072535&lt;/a&gt;&amp;gt; to
-&amp;gt;&amp;gt; the external WPT directory. Thanks for the prompt.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; external/wpt/IndexedDB/storage-buckets.https.any.js:
-&amp;gt;&amp;gt; external/wpt/fs/script-tests/FileSystemBaseHandle-buckets.js:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; external/wpt/service-workers/cache-storage/cache-storage-buckets.https.any.js:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; external/wpt/storage/buckets/bucket-quota-indexeddb.tentative.https.any.js:
-&amp;gt;&amp;gt; external/wpt/storage/buckets/bucket-storage-policy.tentative.https.any.js:
-&amp;gt;&amp;gt; external/wpt/web-locks/storage-buckets.tentative.https.any.js:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; http/tests/inspector-protocol/storage/cache-storage-request-cache-names.js:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; http/tests/inspector-protocol/storage/cache-storage-storage-key-request-cache-names.js:
-&amp;gt;&amp;gt; http/tests/inspector-protocol/storage/indexed-db-storage-key-clear.js:
-&amp;gt;&amp;gt; http/tests/inspector-protocol/storage/indexed-db-storage-key-delete-db.js:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; http/tests/inspector-protocol/storage/indexed-db-storage-key-delete-object-store-entries.js:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; http/tests/inspector-protocol/storage/indexed-db-storage-key-get-metadata.js:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; http/tests/inspector-protocol/storage/indexed-db-storage-key-request-data.js:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; http/tests/inspector-protocol/storage/indexed-db-storage-key-request-database-names.js:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; http/tests/inspector-protocol/storage/indexed-db-storage-key-request-database.js:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; http/tests/inspector-protocol/storage/storage-bucket-storage-key-track-untrack.js:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; http/tests/inspector-protocol/storage/storage-buckets-delete-storage-bucket.js:
-&amp;gt;&amp;gt; wpt_internal/storage/buckets/bucket_names.tentative.https.any.js:
-&amp;gt;&amp;gt; wpt_internal/storage/buckets/buckets_basic.tentative.https.any.js:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; wpt_internal/storage/buckets/buckets_storage_policy.tentative.https.any.js:
-&amp;gt;&amp;gt; wpt_internal/storage/buckets/detached-iframe.https.html:
-&amp;gt;&amp;gt; wpt_internal/storage/buckets/idlharness-worker.https.any.js:
-&amp;gt;&amp;gt; wpt_internal/storage/buckets/opaque-origin.https.window.js:
-&amp;gt;&amp;gt; wpt_internal/storage/buckets/resources/opaque-origin-sandbox.html:
-&amp;gt;&amp;gt; wpt_internal/storage/buckets/storage_bucket_object.tentative.https.any.js:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; -- Evan Stade
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Wed, Nov 29, 2023 at 9:02 AM Philip Jägenstedt &amp;lt;foo...@chromium.org&amp;gt;
-&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Hi Evan,
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Is
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/storage/buckets?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/storage/buckets?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt; the full set of tests? Given the size of the spec, does that cover the
-&amp;gt;&amp;gt;&amp;gt; whole feature well?
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Best regards,
-&amp;gt;&amp;gt;&amp;gt; Philip
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; On Wed, Nov 29, 2023 at 5:58 PM Evan Stade &amp;lt;est...@chromium.org&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; [reply-all this time]
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Hi Philip,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; thanks for pointing out those two oversights. I have fixed the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; checkboxes on the chromestatus entry. It is in fact tested by WPT and
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; supported on all Blink platforms.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Wed, Nov 29, 2023 at 8:43 AM Philip Jägenstedt &amp;lt;foo...@chromium.org&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Hi Evan,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; A few questions inline.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Tue, Nov 14, 2023 at 9:38 PM Evan Stade &amp;lt;est...@chromium.org&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Mac, Linux, Chrome OS, Android, and Android WebView)?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; No
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Which platform will this not be supported on?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; No
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Can this be fully tested in WPT? If it's not tested in WPT, how is it
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; currently tested?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Best regards,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Philip
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAO4XGS8zH0nAjbgaAbwKqv1FcBbipQJJLhUvR-QWuM_Fg4ETTw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAO4XGS8zH0nAjbgaAbwKqv1FcBbipQJJLhUvR-QWuM_Fg4ETTw%40mail.gmail.com&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
