@@ -5,6 +5,457 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08695.html</id>
+        <title>Re: [blink-dev] Intent to Ship: Storage Buckets API</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08695.html"/>
+        <updated>2023-12-15T20:03:26.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08695.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Storage+Buckets+API%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Storage Buckets API&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Evan+Stade%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Evan Stade&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231215" rel="nofollow"&gt;Fri, 15 Dec 2023 12:03:26 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Thanks all!
+
+On Wed, Dec 13, 2023 at 5:10 AM Philip Jägenstedt &amp;lt;foo...@chromium.org&amp;gt;
+wrote:&lt;/pre&gt;&lt;pre&gt;
+
+&amp;gt; Hi Evan,
+&amp;gt;
+&amp;gt; Thanks for looking into this, and for answering some of my questions
+&amp;gt; off-list. To summarize, eviction is spec'd very loosely and a testdriver.js
+&amp;gt; API could probably only be &amp;quot;evict everything&amp;quot; or &amp;quot;evict data in this
+&amp;gt; bucket&amp;quot;. Neither of those would test the interesting parts of how quota,
+&amp;gt; expiry time and probably other signals are used to determine which buckets
+&amp;gt; to evict. Bottom line, if we can't see a WebDriver endpoint that would poke
+&amp;gt; at the right internals *in all browsers*, then it wouldn't be testing
+&amp;gt; production code beyond what is already tested.
+&amp;gt;
+&amp;gt; It looks like get or expire a bucket
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wicg.github.io/storage-buckets/#get-or-expire-a-bucket"&gt;https://wicg.github.io/storage-buckets/#get-or-expire-a-bucket&lt;/a&gt;&amp;gt; could be
+&amp;gt; tested using bucket.setExpires(), but AFAICT this isn't tested.
+&amp;gt;
+
+To write reliable tests for that, we'd need a way to manipulate the clock.
+Is there a way to do that from WPT? I can't seem to find it if so.
+
+
+&amp;gt;
+&amp;gt; So, LGTM1 to ship with added tests for bucket expiration.
+&amp;gt;
+&amp;gt; Best regards,
+&amp;gt; Philip
+&amp;gt;
+&amp;gt; P.S. I disagree that testdriver.js should only be used in exceptional
+&amp;gt; cases. Rather often there's a spec concept which is invoked by the user or
+&amp;gt; under implementation-defined conditions, and it's straightforward to poke
+&amp;gt; this concept with a WebDriver endpoint.
+&amp;gt; &lt;a  rel="nofollow" href="https://fedidcg.github.io/FedCM/#automation"&gt;https://fedidcg.github.io/FedCM/#automation&lt;/a&gt; is a good recent example. API
+&amp;gt; owners don't insist on this currently mainly because testdriver.js needs to
+&amp;gt; be implemented for both Chrome and content_shell. With wptrunner in
+&amp;gt; Chromium CI (thanks @Weizhong Xia &amp;lt;weizh...@google.com&amp;gt;!) I expect the
+&amp;gt; need for double work will be removed, and I would like to raise the bar for
+&amp;gt; test automation. (But even then there will be cases where it wouldn't be
+&amp;gt; testing additional production code and isn't worthwhile.)
+&amp;gt;
+&amp;gt; On Thu, Dec 7, 2023 at 6:43 PM Evan Stade &amp;lt;est...@chromium.org&amp;gt; wrote:
+&amp;gt;
+&amp;gt;&amp;gt; Hi Philip,
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; After conferring with the team, we feel that there is an appropriate
+&amp;gt;&amp;gt; distribution of coverage provided by WPT and Chromium unit and browser
+&amp;gt;&amp;gt; tests. Leveraging testdriver for one-off hooks such as this would introduce
+&amp;gt;&amp;gt; substantial test-only code flows, diminishing the confidence that the tests
+&amp;gt;&amp;gt; were correctly verifying production behavior, while also imposing a larger
+&amp;gt;&amp;gt; maintenance burden going forward. The benefit, as we understand it, would
+&amp;gt;&amp;gt; be that the WPT could be shared by other vendors, but the test itself in
+&amp;gt;&amp;gt; this case would only be a few lines. The vast majority of LOC would
+&amp;gt;&amp;gt; be plumbing and internals logic which other vendors would need to provide
+&amp;gt;&amp;gt; for themselves.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Getting a bit off in the weeds relative to this i2s discussion, but I'll
+&amp;gt;&amp;gt; continue on this topic for the sake of debate:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; We can observe that new testdriver APIs are seldom added. I only see ~4
+&amp;gt;&amp;gt; changes originating from the Chromium project in the last 5 years. Putting
+&amp;gt;&amp;gt; all other reasoning aside, this fact alone would suggest that testdriver
+&amp;gt;&amp;gt; should be touched only in exceptional cases. I would not argue that
+&amp;gt;&amp;gt; testdriver is without utility. Unlike the one-off actions we'd need for
+&amp;gt;&amp;gt; these buckets WPT, more generic testdriver actions such as setting
+&amp;gt;&amp;gt; permission state can enable a wide range of tests. In those cases the
+&amp;gt;&amp;gt; calculus of cost vs reward is much more favorable. So I would assume that
+&amp;gt;&amp;gt; changes to testdriver should meet a high bar of broad utility, similar to
+&amp;gt;&amp;gt; how we treat core libraries in //base/.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Hope that addresses your concerns.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; -- Evan Stade
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; On Fri, Dec 1, 2023 at 9:03 AM Philip Jägenstedt &amp;lt;foo...@chromium.org&amp;gt;
+&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Thanks Evan for listing out the tests, they were more spread out than I
+&amp;gt;&amp;gt;&amp;gt; thought. Great to see more of the tests being upstreamed too!
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; I wonder if we can do even better and test eviction however? Have you
+&amp;gt;&amp;gt;&amp;gt; looked into defining a WebDriver endpoint for triggering eviction? It could
+&amp;gt;&amp;gt;&amp;gt; make sense in
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://web-platform-tests.org/writing-tests/testdriver.html#storage"&gt;https://web-platform-tests.org/writing-tests/testdriver.html#storage&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt; and there are plenty of examples in that documentation that might be close
+&amp;gt;&amp;gt;&amp;gt; to the hook/trigger you need.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; If you think this is an unreasonable request, please push back, my
+&amp;gt;&amp;gt;&amp;gt; interest is only that this can be implemented interoperably. Tests are our
+&amp;gt;&amp;gt;&amp;gt; best way of ensuring that, but it's not the only way, and it's always a
+&amp;gt;&amp;gt;&amp;gt; tradeoff of effort vs. utility.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Best regards,
+&amp;gt;&amp;gt;&amp;gt; Philip
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; On Wed, Nov 29, 2023 at 6:32 PM Evan Stade &amp;lt;est...@chromium.org&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Hi Philip,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Here is a comprehensive list of web tests that verify storageBuckets
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; behavior. We do feel the size of this list aligns well with the spec,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; which is fairly concise. As you can see, some are spread out in directories
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; for the other storage APIs that storageBuckets brokers.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; That said, not all behavior is verifiable from the web. For example,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; it's not possible to reliably trigger an automatic eviction event from the
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; web, so we can't really know if `persisted` is *actually* respected.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Browser tests provide that kind of coverage.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Some of the WPT are internal but they can/should be moved
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/5072535"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/5072535&lt;/a&gt;&amp;gt; to
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; the external WPT directory. Thanks for the prompt.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; external/wpt/IndexedDB/storage-buckets.https.any.js:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; external/wpt/fs/script-tests/FileSystemBaseHandle-buckets.js:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; external/wpt/service-workers/cache-storage/cache-storage-buckets.https.any.js:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; external/wpt/storage/buckets/bucket-quota-indexeddb.tentative.https.any.js:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; external/wpt/storage/buckets/bucket-storage-policy.tentative.https.any.js:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; external/wpt/web-locks/storage-buckets.tentative.https.any.js:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; http/tests/inspector-protocol/storage/cache-storage-request-cache-names.js:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; http/tests/inspector-protocol/storage/cache-storage-storage-key-request-cache-names.js:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; http/tests/inspector-protocol/storage/indexed-db-storage-key-clear.js:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; http/tests/inspector-protocol/storage/indexed-db-storage-key-delete-db.js:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; http/tests/inspector-protocol/storage/indexed-db-storage-key-delete-object-store-entries.js:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; http/tests/inspector-protocol/storage/indexed-db-storage-key-get-metadata.js:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; http/tests/inspector-protocol/storage/indexed-db-storage-key-request-data.js:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; http/tests/inspector-protocol/storage/indexed-db-storage-key-request-database-names.js:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; http/tests/inspector-protocol/storage/indexed-db-storage-key-request-database.js:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; http/tests/inspector-protocol/storage/storage-bucket-storage-key-track-untrack.js:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; http/tests/inspector-protocol/storage/storage-buckets-delete-storage-bucket.js:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; wpt_internal/storage/buckets/bucket_names.tentative.https.any.js:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; wpt_internal/storage/buckets/buckets_basic.tentative.https.any.js:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; wpt_internal/storage/buckets/buckets_storage_policy.tentative.https.any.js:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; wpt_internal/storage/buckets/detached-iframe.https.html:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; wpt_internal/storage/buckets/idlharness-worker.https.any.js:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; wpt_internal/storage/buckets/opaque-origin.https.window.js:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; wpt_internal/storage/buckets/resources/opaque-origin-sandbox.html:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; wpt_internal/storage/buckets/storage_bucket_object.tentative.https.any.js:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; -- Evan Stade
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Wed, Nov 29, 2023 at 9:02 AM Philip Jägenstedt &amp;lt;foo...@chromium.org&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Hi Evan,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/storage/buckets?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/storage/buckets?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the full set of tests? Given the size of the spec, does that cover the
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; whole feature well?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Best regards,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Philip
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Wed, Nov 29, 2023 at 5:58 PM Evan Stade &amp;lt;est...@chromium.org&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; [reply-all this time]
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Hi Philip,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; thanks for pointing out those two oversights. I have fixed the
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; checkboxes on the chromestatus entry. It is in fact tested by WPT and
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; supported on all Blink platforms.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Wed, Nov 29, 2023 at 8:43 AM Philip Jägenstedt &amp;lt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; foo...@chromium.org&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Hi Evan,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; A few questions inline.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Tue, Nov 14, 2023 at 9:38 PM Evan Stade &amp;lt;est...@chromium.org&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Mac, Linux, Chrome OS, Android, and Android WebView)?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; No
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Which platform will this not be supported on?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; No
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Can this be fully tested in WPT? If it's not tested in WPT, how is
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; it currently tested?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Best regards,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Philip
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAO4XGS8e1G_dL-2%3DPnT6pN62SuzJKPZGht%2BRjH7g2Lb0LW3jdQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAO4XGS8e1G_dL-2%3DPnT6pN62SuzJKPZGht%2BRjH7g2Lb0LW3jdQ%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08694.html</id>
+        <title>[blink-dev] Intent to Ship: FedCM: domain hint and disconnect</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08694.html"/>
+        <updated>2023-12-15T19:30:04.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08694.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+FedCM%5C%3A+domain+hint+and+disconnect%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Ship: FedCM: domain hint and disconnect&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Nicol%C3%A1s+Pe%C3%B1a%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Nicolás Peña&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231215" rel="nofollow"&gt;Fri, 15 Dec 2023 11:30:04 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Contact emails
+
+n...@chromium.org&lt;/pre&gt;&lt;pre&gt;
+
+Explainer
+
+Domain Hint (formerly hosted domain): 
+&lt;a  rel="nofollow" href="https://github.com/fedidcg/FedCM/issues/427"&gt;https://github.com/fedidcg/FedCM/issues/427&lt;/a&gt;
+
+Disconnect (formerly revoke): &lt;a  rel="nofollow" href="https://github.com/fedidcg/FedCM/issues/496"&gt;https://github.com/fedidcg/FedCM/issues/496&lt;/a&gt;
+
+(Note: in the FedCM team, we have explainers in the form of GitHub issues 
+per feedback 
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/fedidcg/FedCM/issues/431#issuecomment-1425025469"&gt;https://github.com/fedidcg/FedCM/issues/431#issuecomment-1425025469&lt;/a&gt;&amp;gt; from 
+FedID CG. The issue and the first comment are the explainers in each case.)
+
+Specification
+
+Domain Hint: &lt;a  rel="nofollow" href="https://github.com/fedidcg/FedCM/pull/512"&gt;https://github.com/fedidcg/FedCM/pull/512&lt;/a&gt;
+
+Disconnect: 
+&lt;a  rel="nofollow" href="https://fedidcg.github.io/FedCM/#browser-api-identity-credential-disconnect"&gt;https://fedidcg.github.io/FedCM/#browser-api-identity-credential-disconnect&lt;/a&gt; 
+
+Note on spec PR merging policy (to answer the question “why has the first 
+not been merged”): in the FedID CG, we have agreed that non-editorial spec 
+PRs require review from two implementations. Disconnect has been approved, 
+while domainHint is still under review. Both features have been discussed 
+thoroughly in the FedID CG and the feedback there has been incorporated.
+
+Summary
+
+Allows showing only accounts matching a given domain hint in the FedCM 
+account chooser, and allows disconnecting a federated login account via the 
+relying party website. With domain hint, developers may provide a better UX 
+by only showing the federated login accounts from the domain that they 
+accept. With the disconnect API, a relying party (RP) may notify the 
+identity provider (IdP) that an IdP account previously used via FedCM in an 
+RP is now disconnected, and hence using that account again via federated 
+login would require treating it as a new account.
+
+Blink component
+
+Blink&amp;gt;Identity&amp;gt;FedCM 
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EIdentity%3EFedCM"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EIdentity%3EFedCM&lt;/a&gt;&amp;gt;
+
+TAG review
+
+&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/893"&gt;https://github.com/w3ctag/design-reviews/issues/893&lt;/a&gt;
+
+TAG review status
+
+Issues addressed
+
+Risks
+
+Interoperability and Compatibility
+
+These are small additions to the FedCM API, which has (general) support 
+from WebKit and Mozilla. They haven't shipped FedCM yet, but it would not 
+be a lot more work to add these features. If a user agent did not have 
+domain hint support, this would mean it would show more accounts in the 
+chooser compared to user agents which do have domain hint support. Not 
+adding disconnect would mean that this feature of allowing RPs to 
+disconnect accounts would not be available in the browser, but it would not 
+impact the FedCM API otherwise.
+
+
+Gecko: Positive for disconnect and no signal yet for domainHint. Firefox 
+asked us to not send standards positions requests for small FedCM 
+additions, and to instead rely on pull requests. See 
+&lt;a  rel="nofollow" href="https://github.com/fedidcg/FedCM/pull/512"&gt;https://github.com/fedidcg/FedCM/pull/512&lt;/a&gt; and 
+&lt;a  rel="nofollow" href="https://github.com/fedidcg/FedCM/pull/515"&gt;https://github.com/fedidcg/FedCM/pull/515&lt;/a&gt;.
+
+WebKit: No signal (&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/249"&gt;https://github.com/WebKit/standards-positions/issues/249&lt;/a&gt;)
+
+Web developers: Positive. This is a feature requested by developers to 
+satisfy existing flows which break once third-party cookies are removed.
+
+Other signals:
+
+Ergonomics
+
+It will be often used within the FedCM API. We do not see ergonomics risks.
+
+
+Activation
+
+Domain hint can be polyfilled via login hint but it would be pretty 
+cumbersome to do so. The disconnect API would be hard to polyfill, but 
+could perhaps be done in a non-user friendly way via popups. This would 
+still be imperfect since the browser knowledge about the connection would 
+not be cleared, only the IdP-side disconnection would occur.
+
+
+Security
+
+The Disconnect endpoint will use CORS. An RP may not impact the connection 
+status of accounts not belonging to that RP origin.
+
+
+WebView application risks
+
+Does this intent deprecate or change behavior of existing APIs, such that 
+it has potentially high risk for Android WebView-based applications?
+
+N/A (FedCM does not work on WebViews)
+
+
+Debuggability
+
+Console errors and DevTools issues will be used to highlight any issues 
+with the disconnect call.
+
+
+Will this feature be supported on all six Blink platforms (Windows, Mac, 
+Linux, Chrome OS, Android, and Android WebView)?
+
+FedCM is not supported on Android WebView.
+
+
+Is this feature fully tested by web-platform-tests 
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+?
+
+Yes. Look for domainhint and disconnect in 
+&lt;a  rel="nofollow" href="https://wpt.fyi/results/credential-management?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/credential-management?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
+.
+
+
+Flag name on chrome://flags
+
+FedCmDomainHint, FedCmDisconnect
+
+Finch feature name
+
+FedCmDomainHint, FedCmDisconnect
+
+Requires code in //chrome?
+
+True
+
+Tracking bug
+
+&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1473135"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1473135&lt;/a&gt; (follow 
+implementations in the two BlockedOn bugs)
+
+Launch bug
+
+&lt;a  rel="nofollow" href="https://launch.corp.google.com/launch/4273848"&gt;https://launch.corp.google.com/launch/4273848&lt;/a&gt;
+
+Estimated milestones
+
+No milestones specified
+
+
+Anticipated spec changes
+
+Open questions about a feature may be a source of future web compat or 
+interop issues. Please list open issues (e.g. links to known github issues 
+in the project for the feature specification) whose resolution may 
+introduce web compat/interop risk (e.g., changing to naming or structure of 
+the API in a non-backward-compatible way).
+
+None
+
+Link to entry on the Chrome Platform Status
+
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5202286040580096"&gt;https://chromestatus.com/feature/5202286040580096&lt;/a&gt;
+
+This intent message was generated by Chrome Platform Status 
+&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/d1633723-ab37-4e50-bd81-dfb46970ec39n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/d1633723-ab37-4e50-bd81-dfb46970ec39n%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08693.html</id>
         <title>Re: [blink-dev] Intent to Ship: WebGL drawingBufferStorage</title>
         <author>
@@ -10993,541 +11444,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/SJ0PR00MB09912FF13F0DA983D298E0E4CF8FA%40SJ0PR00MB0991.namprd00.prod.outlook.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/SJ0PR00MB09912FF13F0DA983D298E0E4CF8FA%40SJ0PR00MB0991.namprd00.prod.outlook.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08645.html</id>
-        <title>[blink-dev] Re: Web-Facing Change PSA: Async Clipboard API: Write well-formed HTML document.</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08645.html"/>
-        <updated>2023-12-11T22:47:07.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08645.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Web%5C-Facing+Change+PSA%5C%3A+Async+Clipboard+API%5C%3A+Write+well%5C-formed+HTML+document.%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Re: Web-Facing Change PSA: Async Clipboard API: Write well-formed HTML document.&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Anupam+Snigdha%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Anupam Snigdha' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231211" rel="nofollow"&gt;Mon, 11 Dec 2023 14:47:07 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Fixing typos and formats.
-
-________________________________
-From: Anupam Snigdha
-Sent: Monday, December 11, 2023 2:42 PM
-To: blink-dev@chromium.org &amp;lt;blink-dev@chromium.org&amp;gt;
-Cc: Sanket Joshi (EDGE) &amp;lt;sa...@microsoft.com&amp;gt;; Evan Stade 
-&amp;lt;est...@chromium.org&amp;gt;; Ana Sollano Kim &amp;lt;ana.soll...@microsoft.com&amp;gt;
-Subject: Web-Facing Change PSA: Async Clipboard API: Write well-formed HTML 
-document.&lt;/pre&gt;&lt;pre&gt;
-
-Contact emails
-
-sni...@microsoft.com, sa...@microsoft.com, est...@chromium.org
-
-Specification
-
-&lt;a  rel="nofollow" href="https://w3c.github.io/clipboard-apis/#dom-clipboard-write"&gt;https://w3c.github.io/clipboard-apis/#dom-clipboard-write&lt;/a&gt;
-
-Design docs
-
-
-&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1rTEg2I-hMPXGiLrEMqKJz2Ycu6GRjlM3uvakOe84m8Q/edit?usp=sharing"&gt;https://docs.google.com/document/d/1rTEg2I-hMPXGiLrEMqKJz2Ycu6GRjlM3uvakOe84m8Q/edit?usp=sharing&lt;/a&gt;
-
-Summary
-
-The Async clipboard writer API uses sanitizers to strip out content such as 
-&amp;lt;head&amp;gt;​, &amp;lt;meta&amp;gt;​, &amp;lt;style&amp;gt;​, &amp;lt;script&amp;gt;​ tags from the HTML and inline styles into 
-the markup.
-
-In this proposal, writing to the clipboard for text/html​ MIME type using the 
-navigator.clipboard.write()​ API will write a higher fidelity sanitized, 
-well-formed HTML markup instead of a more strictly sanitized HTML fragment. It 
-will also preserve the tags such as &amp;lt;meta&amp;gt;​,  &amp;lt;style&amp;gt;​, &amp;lt;head&amp;gt;​ etc  that were 
-stripped out by the fragment parser.
-
-
-Roundtripping of HTML content using the async clipboard API within the web 
-doesn’t change as the async clipboard read()​ method still produces a sanitized 
-HTML fragment.
-
-
-Method used to write HTML  data to the clipboard
-
-Does it affect the DataTransfer getData() method?
-
-Does it affect the navigator.clipboard.read() method?
-
-Does it affect the native apps that read HTML data from the clipboard?
-
-navigator.clipboard.write()
-
-Yes, if web authors write via navigator.clipboard.write() and read via 
-DataTransfer getData(). It returns well-formed HTML markup.
-
-No. By-default read() returns a strictly sanitized fragment.
-
-Yes. It returns a higher fidelity sanitized markup instead of a strictly 
-sanitized fragment.
-
-
-Blink component
-
-Blink&amp;gt;DataTransfer&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EDataTransfer"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EDataTransfer&lt;/a&gt;&amp;gt;
-
-Search tags
-
-unsanitized html&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:unsanitized%20html"&gt;https://chromestatus.com/features#tags:unsanitized%20html&lt;/a&gt;&amp;gt;, 
-async clipboard&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:async%20clipboard"&gt;https://chromestatus.com/features#tags:async%20clipboard&lt;/a&gt;&amp;gt;, 
-clipboard&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:clipboard"&gt;https://chromestatus.com/features#tags:clipboard&lt;/a&gt;&amp;gt;, 
-copy&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:copy"&gt;https://chromestatus.com/features#tags:copy&lt;/a&gt;&amp;gt;
-
-TAG review
-
-None. There is no web API change. It only changes the sanitization requirement 
-by writing a higher fidelity sanitized HTML instead of a more strictly 
-sanitized HTML fragment to the system clipboard.
-
-
-TAG reviewed the unsanitized read/write as part of a broader review of the 
-Pickling API
-
-&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/636#issuecomment-919324784"&gt;https://github.com/w3ctag/design-reviews/issues/636#issuecomment-919324784&lt;/a&gt;
-
-&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/636#issuecomment-869792053"&gt;https://github.com/w3ctag/design-reviews/issues/636#issuecomment-869792053&lt;/a&gt;
-
-
-TAG review status
-
-Not applicable
-
-Risks
-
-
-Interoperability and Compatibility
-
-Existing paste targets don't need to make updates to read HTML written via the 
-async clipboard API, as they are already able to handle unsanitized HTML 
-written via the DataTransfer API.
-
-
-
-Gecko: Neutral (&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/769"&gt;https://github.com/mozilla/standards-positions/issues/769&lt;/a&gt;)
-
-
-WebKit: Negative 
-(&lt;a  rel="nofollow" href="https://github.com/w3c/clipboard-apis/issues/150#issuecomment-974236367"&gt;https://github.com/w3c/clipboard-apis/issues/150#issuecomment-974236367&lt;/a&gt;)
-
-
-Web developers: Positive signals from Excel Online. Google Sheets also appear 
-to be positive based on discussions in this 
-bug&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1493388&amp;q=Google%20sheets&amp;can=2"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1493388&amp;q=Google%20sheets&amp;can=2&lt;/a&gt;&amp;gt;,
- 
-I2S&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/pjpN9Lwv5Tk/m/DEALX5QdBwAJ?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/pjpN9Lwv5Tk/m/DEALX5QdBwAJ?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
- and email conversations.
-
-
-Other signals:
-
-Ergonomics
-
-No API change.
-
-
-Activation
-
-The current Clipboard Async API write method as specified in 
-&amp;lt;&lt;a  rel="nofollow" href="https://w3c.github.io/clipboard-apis/#dom-clipboard-write"&gt;https://w3c.github.io/clipboard-apis/#dom-clipboard-write&lt;/a&gt;&amp;gt; 
-&lt;a  rel="nofollow" href="https://w3c.github.io/clipboard-apis/#dom-clipboard-write"&gt;https://w3c.github.io/clipboard-apis/#dom-clipboard-write&lt;/a&gt; isn't affected by 
-this change, the behavior is validated in existing web tests.
-
-
-Security
-
-Existing DataTransfer APIs already allow reading and writing unsanitized HTML 
-content from/to the clipboard. The proposed change just makes sure that the 
-HTML markup that gets written to the clipboard via the async clipboard API is a 
-well-formed HTML document.
-
-&lt;a  rel="nofollow" href="https://github.com/MicrosoftEdge/MSEdgeExplainers/blob/main/ClipboardAPI/tag-security-privacy-clipboard-unsanitized-read.md"&gt;https://github.com/MicrosoftEdge/MSEdgeExplainers/blob/main/ClipboardAPI/tag-security-privacy-clipboard-unsanitized-read.md&lt;/a&gt;
-
-Here is a threat model that was presented to the Chrome security team: 
-&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1QLt50Q8UnlQksVltZ2PNkDZVdk9N58Pq7P0lzGTKh-U/edit?usp=sharing"&gt;https://docs.google.com/document/d/1QLt50Q8UnlQksVltZ2PNkDZVdk9N58Pq7P0lzGTKh-U/edit?usp=sharing&lt;/a&gt;
-
-Discussions: 
-&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1yHUC_laWTRoG65QOQTIqkpiULITDyQmznwKtVr0KMk8/edit?usp=sharing&amp;resourcekey=0-q650DjDFdpHyVLffTwP7Yw"&gt;https://docs.google.com/document/d/1yHUC_laWTRoG65QOQTIqkpiULITDyQmznwKtVr0KMk8/edit?usp=sharing&amp;resourcekey=0-q650DjDFdpHyVLffTwP7Yw&lt;/a&gt;
-
-
-Since the DataTransfer API, which is more widely used,  already allows access 
-to the unsanitized HTML content, we don’t think there are any additional 
-security concerns with this proposal.
-
-
-Native apps have their own HTML parser to process the HTML content before it is 
-inserted into their document model. These apps already handle unsanitized HTML 
-because the DataTransfer API, which is much more commonly used, does not 
-sanitize HTML either. More details here: 
-&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1O2vtCS23nB_6aJy7_xcdaWKw7TtqYm0fERzEjtLyv5M/edit?usp=sharing"&gt;https://docs.google.com/document/d/1O2vtCS23nB_6aJy7_xcdaWKw7TtqYm0fERzEjtLyv5M/edit?usp=sharing&lt;/a&gt;.
-
-
-WebView application risks
-
-Does this intent deprecate or change behavior of existing APIs, such that it 
-has potentially high risk for Android WebView-based applications?
-
-None
-
-
-Debuggability
-
-No specific DevTools changes are required as it doesn’t introduce any new web 
-API. Existing support for async clipboard APIs is sufficient.
-
-
-Will this feature be supported on all six Blink platforms (Windows, Mac, Linux, 
-ChromeOS, Android, and Android WebView)?
-
-Yes
-
-Is this feature fully tested by 
-web-platform-tests&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;?
-
-Yes
-
-&lt;a  rel="nofollow" href="https://wpt.fyi/results/clipboard-apis/async-unsanitized-standard-html-formats-write-read.tentative.https.html"&gt;https://wpt.fyi/results/clipboard-apis/async-unsanitized-standard-html-formats-write-read.tentative.https.html&lt;/a&gt;,
- 
-&amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/clipboard-apis/async-unsanitized-standard-html-read-fail.tentative.https.html"&gt;https://wpt.fyi/results/clipboard-apis/async-unsanitized-standard-html-read-fail.tentative.https.html&lt;/a&gt;&amp;gt;
- 
-&lt;a  rel="nofollow" href="https://wpt.fyi/results/clipboard-apis/async-unsanitized-standard-html-read-fail.tentative.https.html"&gt;https://wpt.fyi/results/clipboard-apis/async-unsanitized-standard-html-read-fail.tentative.https.html&lt;/a&gt;
-
-
-Flag name in Blink
-
-ClipboardWellFormedHtmlSanitizationWrite
-
-Finch feature name
-
-ClipboardWellFormedHtmlSanitizationWrite
-
-Requires code in //chrome?
-
-False
-
-Tracking bug
-
-&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1268679"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1268679&lt;/a&gt;
-
-Sample links
-
-
-&lt;a  rel="nofollow" href="https://github.com/w3c/editing/blob/gh-pages/docs/clipboard-unsanitized/unsanitized-html-demo.html"&gt;https://github.com/w3c/editing/blob/gh-pages/docs/clipboard-unsanitized/unsanitized-html-demo.html&lt;/a&gt;
-
-Estimated milestones
-
-Shipping on desktop
-
-122
-
-
-Shipping on Android
-
-122
-
-
-Shipping on WebView
-
-122
-
-
-
-Anticipated spec changes
-
-None
-
-Link to entry on the Chrome Platform Status
-
-&lt;a  rel="nofollow" href="https://chromestatus.com/feature/6236486997639168"&gt;https://chromestatus.com/feature/6236486997639168&lt;/a&gt;
-
-
-This intent message was generated by Chrome Platform 
-Status&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/SJ0PR00MB0991226DDC0F8A44190F3DAFCF8FA%40SJ0PR00MB0991.namprd00.prod.outlook.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/SJ0PR00MB0991226DDC0F8A44190F3DAFCF8FA%40SJ0PR00MB0991.namprd00.prod.outlook.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08644.html</id>
-        <title>[blink-dev] Web-Facing Change PSA: Async Clipboard API: Write well-formed HTML document.</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08644.html"/>
-        <updated>2023-12-11T22:43:08.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08644.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Web%5C-Facing+Change+PSA%5C%3A+Async+Clipboard+API%5C%3A+Write+well%5C-formed+HTML+document.%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Web-Facing Change PSA: Async Clipboard API: Write well-formed HTML document.&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Anupam+Snigdha%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Anupam Snigdha' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231211" rel="nofollow"&gt;Mon, 11 Dec 2023 14:43:08 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Contact emails
-
-sni...@microsoft.com, sa...@microsoft.com, est...@chromium.org&lt;/pre&gt;&lt;pre&gt;
-
-Specification
-
-&lt;a  rel="nofollow" href="https://w3c.github.io/clipboard-apis/#dom-clipboard-write"&gt;https://w3c.github.io/clipboard-apis/#dom-clipboard-write&lt;/a&gt;
-
-Design docs
-
-
-&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1rTEg2I-hMPXGiLrEMqKJz2Ycu6GRjlM3uvakOe84m8Q/edit?usp=sharing"&gt;https://docs.google.com/document/d/1rTEg2I-hMPXGiLrEMqKJz2Ycu6GRjlM3uvakOe84m8Q/edit?usp=sharing&lt;/a&gt;
-
-Summary
-
-The Async clipboard writer API uses sanitizers to strip out content such as 
-&amp;lt;head&amp;gt;​, &amp;lt;meta&amp;gt;​, &amp;lt;style&amp;gt;​, &amp;lt;script&amp;gt;​ tags from the HTML and inline styles into 
-the markup.
-
-In this proposal, writing to the clipboard for text/html​ MIME type using the 
-navigator.clipboard.write()​ API will write a higher fidelity sanitized, 
-well-formed HTML markup instead of a more strictly sanitized HTML fragment. It 
-will also preserve the tags such as &amp;lt;meta&amp;gt;​,  &amp;lt;style&amp;gt;​, &amp;lt;head&amp;gt;​ etc  that were 
-stripped out by the fragment parser.
-
-
-Roundtripping of HTML content using the async clipboard API within the web 
-doesn’t change as the async clipboard read()​ method still produces a sanitized 
-HTML fragment.
-
-
- MMethod used to write HTML  dadata to the clipboard
-
-Does it affect the DataTransfer getData() method?
-
-Does it affect the navigator.clipboard.read() method?
-
-Does it affect the native apps that read HTML data from the clipboard?
-
-nanavigator.clipboard.write()
-
-Yes, if web authors write via navigator.clipboard.write() and read via 
-DataTransfer getData(). It returns well-formed HTML markup.
-
-No. By-default read() returns a strictly sanitized fragment.
-
-Yes. It returns a higher fidelity sanitized markup instead of a strictly 
-sanitized fragment.
-
-
-Blink component
-
-Blink&amp;gt;DataTransfer&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EDataTransfer"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EDataTransfer&lt;/a&gt;&amp;gt;
-
-Search tags
-
-unsanitized html&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:unsanitized%20html"&gt;https://chromestatus.com/features#tags:unsanitized%20html&lt;/a&gt;&amp;gt;, 
-async clipboard&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:async%20clipboard"&gt;https://chromestatus.com/features#tags:async%20clipboard&lt;/a&gt;&amp;gt;, 
-clipboard&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:clipboard"&gt;https://chromestatus.com/features#tags:clipboard&lt;/a&gt;&amp;gt;, 
-copy&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:copy"&gt;https://chromestatus.com/features#tags:copy&lt;/a&gt;&amp;gt;
-
-TAG review
-
-None. There is no web API change. It only changes the sanitization requirement 
-by writing a higher fidelity sanitized HTML instead of a more strictly 
-sanitized HTML fragment to the system clipboard.
-
-
-TAG reviewed the unsanitized read/write as part of a broader review of the 
-Pickling API
-
-&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/636#issuecomment-919324784"&gt;https://github.com/w3ctag/design-reviews/issues/636#issuecomment-919324784&lt;/a&gt;
-
-&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/636#issuecomment-869792053"&gt;https://github.com/w3ctag/design-reviews/issues/636#issuecomment-869792053&lt;/a&gt;
-
-
-TAG review status
-
-Not applicable
-
-Risks
-
-
-Interoperability and Compatibility
-
-Existing paste targets don't need to make updates to read HTML written via the 
-async clipboard API, as they are already able to handle unsanitized HTML 
-written via the DataTransfer API.
-
-
-
-Gecko: Neutral (&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/769"&gt;https://github.com/mozilla/standards-positions/issues/769&lt;/a&gt;)
-
-
-WebKit: Negative 
-(&lt;a  rel="nofollow" href="https://github.com/w3c/clipboard-apis/issues/150#issuecomment-974236367"&gt;https://github.com/w3c/clipboard-apis/issues/150#issuecomment-974236367&lt;/a&gt;)
-
-
-Web developers: Positive signals from Excel Online. Google Sheets also appear 
-to be positive based on discussions in this 
-bug&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1493388&amp;q=Google%20sheets&amp;can=2"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1493388&amp;q=Google%20sheets&amp;can=2&lt;/a&gt;&amp;gt;,
- 
-I2S&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/pjpN9Lwv5Tk/m/DEALX5QdBwAJ?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/pjpN9Lwv5Tk/m/DEALX5QdBwAJ?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
- and email conversations.
-
-
-Other signals:
-
-Ergonomics
-
-No API change.
-
-
-Activation
-
-The current Clipboard Async API write method as specified in 
-&amp;lt;&lt;a  rel="nofollow" href="https://w3c.github.io/clipboard-apis/#dom-clipboard-write"&gt;https://w3c.github.io/clipboard-apis/#dom-clipboard-write&lt;/a&gt;&amp;gt; 
-&lt;a  rel="nofollow" href="https://w3c.github.io/clipboard-apis/#dom-clipboard-write"&gt;https://w3c.github.io/clipboard-apis/#dom-clipboard-write&lt;/a&gt; isn't affected by 
-this change, the behavior is validated in existing web tests.
-
-
-Security
-
-Existing DataTransfer APIs already allow reading and writing unsanitized HTML 
-content from/to the clipboard. The proposed change just makes sure that the 
-HTML markup that gets written to the clipboard via the async clipboard API is a 
-well-formed HTML document.
-
-&lt;a  rel="nofollow" href="https://github.com/MicrosoftEdge/MSEdgeExplainers/blob/main/ClipboardAPI/tag-security-privacy-clipboard-unsanitized-read.md"&gt;https://github.com/MicrosoftEdge/MSEdgeExplainers/blob/main/ClipboardAPI/tag-security-privacy-clipboard-unsanitized-read.md&lt;/a&gt;
-
-Here is a threat model that was presented to the Chrome security team: 
-&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1QLt50Q8UnlQksVltZ2PNkDZVdk9N58Pq7P0lzGTKh-U/edit?usp=sharing"&gt;https://docs.google.com/document/d/1QLt50Q8UnlQksVltZ2PNkDZVdk9N58Pq7P0lzGTKh-U/edit?usp=sharing&lt;/a&gt;
-
-Discussions: 
-&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1yHUC_laWTRoG65QOQTIqkpiULITDyQmznwKtVr0KMk8/edit?usp=sharing&amp;resourcekey=0-q650DjDFdpHyVLffTwP7Yw"&gt;https://docs.google.com/document/d/1yHUC_laWTRoG65QOQTIqkpiULITDyQmznwKtVr0KMk8/edit?usp=sharing&amp;resourcekey=0-q650DjDFdpHyVLffTwP7Yw&lt;/a&gt;
-
-
-Since the DataTransfer API, which is more widely used,  already allows access 
-to the unsanitized HTML content, we don’t think there are any additional 
-security concerns with this proposal.
-
-
-Native apps have their own HTML parser to process the HTML content before it is 
-inserted into their document model. These apps already handle unsanitized HTML 
-because the DataTransfer API, which is much more commonly used, does not 
-sanitize HTML either. More details here: 
-&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1O2vtCS23nB_6aJy7_xcdaWKw7TtqYm0fERzEjtLyv5M/edit?usp=sharing"&gt;https://docs.google.com/document/d/1O2vtCS23nB_6aJy7_xcdaWKw7TtqYm0fERzEjtLyv5M/edit?usp=sharing&lt;/a&gt;.
-
-
-WebView application risks
-
-Does this intent deprecate or change behavior of existing APIs, such that it 
-has potentially high risk for Android WebView-based applications?
-
-None
-
-
-Debuggability
-
-No specific DevTools changes are required as it doesn’t introduce any new web 
-API. Existing support for async clipboard APIs is sufficient.
-
-
-Will this feature be supported on all six Blink platforms (Windows, Mac, Linux, 
-ChromeOS, Android, and Android WebView)?
-
-Yes
-
-Is this feature fully tested by 
-web-platform-tests&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;?
-
-Yes
-
-&lt;a  rel="nofollow" href="https://wpt.fyi/results/clipboard-apis/async-unsanitized-standard-html-formats-write-read.tentative.https.html"&gt;https://wpt.fyi/results/clipboard-apis/async-unsanitized-standard-html-formats-write-read.tentative.https.html&lt;/a&gt;,
- 
-&amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/clipboard-apis/async-unsanitized-standard-html-read-fail.tentative.https.html"&gt;https://wpt.fyi/results/clipboard-apis/async-unsanitized-standard-html-read-fail.tentative.https.html&lt;/a&gt;&amp;gt;
- 
-&lt;a  rel="nofollow" href="https://wpt.fyi/results/clipboard-apis/async-unsanitized-standard-html-read-fail.tentative.https.html"&gt;https://wpt.fyi/results/clipboard-apis/async-unsanitized-standard-html-read-fail.tentative.https.html&lt;/a&gt;
-
-
-Flag name in Blink
-
-ClipboardWellFormedHtmlSanitizationWrite
-
-Finch feature name
-
-ClipboardWellFormedHtmlSanitizationWrite
-
-Requires code in //chrome?
-
-False
-
-Tracking bug
-
-&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1268679"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1268679&lt;/a&gt;
-
-Sample links
-
-
-&lt;a  rel="nofollow" href="https://github.com/w3c/editing/blob/gh-pages/docs/clipboard-unsanitized/unsanitized-html-demo.html"&gt;https://github.com/w3c/editing/blob/gh-pages/docs/clipboard-unsanitized/unsanitized-html-demo.html&lt;/a&gt;
-
-Estimated milestones
-
-Shipping on desktop
-
-122
-
-
-Shipping on Android
-
-122
-
-
-Shipping on WebView
-
-122
-
-
-
-Anticipated spec changes
-
-None
-
-Link to entry on the Chrome Platform Status
-
-&lt;a  rel="nofollow" href="https://chromestatus.com/feature/6236486997639168"&gt;https://chromestatus.com/feature/6236486997639168&lt;/a&gt;
-
-
-This intent message was generated by Chrome Platform 
-Status&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/SJ0PR00MB0991ACBDD1E04FBEFB53F8FACF8FA%40SJ0PR00MB0991.namprd00.prod.outlook.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/SJ0PR00MB0991ACBDD1E04FBEFB53F8FACF8FA%40SJ0PR00MB0991.namprd00.prod.outlook.com&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
