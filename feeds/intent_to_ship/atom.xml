@@ -5,6 +5,553 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08726.html</id>
+        <title>Re: [blink-dev] PSA: Changing File System Access API interaction with the back/forward cache</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08726.html"/>
+        <updated>2023-12-21T16:23:59.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08726.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+PSA%5C%3A+Changing+File+System+Access+API+interaction+with+the+back%5C%2Fforward+cache%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] PSA: Changing File System Access API interaction with the back/forward cache&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Vladimir+Levin%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Vladimir Levin' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231221" rel="nofollow"&gt;Thu, 21 Dec 2023 08:23:59 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;On Wed, Dec 20, 2023 at 8:17 PM 'Nathan Memmott' via blink-dev &amp;lt;
+blink-dev@chromium.org&amp;gt; wrote:&lt;/pre&gt;&lt;pre&gt;
+
+&amp;gt; Howdy blink-dev,
+&amp;gt;
+&amp;gt; In Chromium M121, we will update how the File System Access (FSA) API
+&amp;gt; interacts with the back/forward cache (BFCache). This should only affect
+&amp;gt; the conditions a page can remain in the BFCache. There should be no
+&amp;gt; behavioral changes to the FSA API.
+&amp;gt;
+&amp;gt; A page can hold FSA locks to files via FileSystemWritableFileStream,
+&amp;gt; FileSystemSyncAccessHandle, and file operations. These FSA locks prevent
+&amp;gt; incompatible concurrent access to a file (e.g. having both a writable and
+&amp;gt; access handle open on a file). A page in BFCache can hold FSA locks and
+&amp;gt; prevent an active (not in BFCache) page from accessing a file. This can be
+&amp;gt; unexpected behavior to a developer/user.
+&amp;gt;
+&amp;gt; The changes made in Chromium M121 address this issue by evicting a page in
+&amp;gt; BFCache if it allows another page to take an FSA lock. If it doesn't allow
+&amp;gt; another page to take an FSA lock, then the page can remain in BFCache.
+&amp;gt;
+
+This might be a misunderstanding in terminology on my part, but is this
+backwards? If the BFCache page allows an active page to acquire a lock,
+then it's evicted? Or is it then allowed to stay?
+
+
+&amp;gt; This doesn't break any assumptions about concurrent access. An FSA lock is
+&amp;gt; not given out until incompatible FSA locks have been released.
+&amp;gt;
+&amp;gt; This PR for the whatwg/fs spec defines the behavior in more detail:
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/whatwg/fs/pull/154"&gt;https://github.com/whatwg/fs/pull/154&lt;/a&gt;
+&amp;gt;
+&amp;gt; Thanks,
+&amp;gt; Nathan
+&amp;gt;
+&amp;gt; --
+&amp;gt; You received this message because you are subscribed to the Google Groups
+&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt; To view this discussion on the web visit
+&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAO4d-SusHj7XEePhBqBkvH24Q50KHF%3DhMNOPpK5wkwpGvkwe4g%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAO4d-SusHj7XEePhBqBkvH24Q50KHF%3DhMNOPpK5wkwpGvkwe4g%40mail.gmail.com&lt;/a&gt;
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAO4d-SusHj7XEePhBqBkvH24Q50KHF%3DhMNOPpK5wkwpGvkwe4g%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAO4d-SusHj7XEePhBqBkvH24Q50KHF%3DhMNOPpK5wkwpGvkwe4g%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt; .
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADsXd2P7af9MprWmij%3DCpzYNgmHg8sxnC%3DDYVvPOP%3DLqr6kzHg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADsXd2P7af9MprWmij%3DCpzYNgmHg8sxnC%3DDYVvPOP%3DLqr6kzHg%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08725.html</id>
+        <title>Re: [blink-dev] Intent to Ship: CSS Highlight Inheritance</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08725.html"/>
+        <updated>2023-12-21T15:42:27.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08725.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+CSS+Highlight+Inheritance%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: CSS Highlight Inheritance&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Mike+Taylor%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Mike Taylor&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231221" rel="nofollow"&gt;Thu, 21 Dec 2023 07:42:27 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;tt&gt;Thanks for the update. I might have jinxed it when I said &amp;quot;breakage in 
+&lt;/tt&gt;&lt;tt&gt;this case would just be cosmetic (unless someone is doing something 
+&lt;/tt&gt;&lt;tt&gt;really clever)&amp;quot;... I hadn't considered editor use cases.
+&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;tt&gt;Do you think this will ever be shippable, even with a gutenberg update? 
+&lt;/tt&gt;&lt;tt&gt;I would imagine old versions stick around for a very long time.
+&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;pre&gt;
+
+On 12/21/23 9:54 AM, Stephen Chenney wrote:
+&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;tt&gt;Update: Due to breakage of the Wordpress editor, and a couple of other 
+&lt;/tt&gt;&lt;tt&gt;sites, we plan to delay the Stable ship milestone to 122.
+&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
+
+I'll update the status entry etc.
+
+Stephen.
+
+On Wed, Nov 8, 2023 at 10:34 AM Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt; wrote:
+
+    LGTM3
+
+    On Wednesday, November 8, 2023 at 4:18:59 PM UTC+1 Daniel Bratell
+    wrote:
+
+        LGTM2
+
+        You may want to ping the Mozilla standards position issue and
+        let them know that we are close to shipping. It looks like
+        they forgotten it.
+
+        /Daniel
+
+        On 2023-11-06 16:43, Mike Taylor wrote:
+&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;
+
+        Thanks for the detailed explanation of compat and for filing
+        a TAG review. The risk of breakage seems low (and I suppose
+        we'll learn how true that is as the change rides the trains),
+        and breakage in this case would just be cosmetic (unless
+        someone is doing something really clever).
+
+        LGTM1 to ship. Good luck. :)
+
+        On 11/3/23 12:19 PM, Stephen Chenney wrote:
+&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;
+        Note that I have moved the shipping milestone to M121, and
+        have created a TAG review issue.
+
+        On Thu, Nov 2, 2023 at 10:07 AM Stephen Chenney
+        &amp;lt;schen...@chromium.org&amp;gt; wrote:
+
+
+
+            On Wed, Nov 1, 2023 at 11:11 AM Stephen Chenney
+            &amp;lt;schen...@chromium.org&amp;gt; wrote:
+
+                Answers inline. Regarding Ander's comment on the
+                current base_feature setting: I'll fix that.
+
+                Cheers,
+                Stephen.
+
+                On Wed, Nov 1, 2023 at 4:17 AM Yoav Weiss
+                &amp;lt;yoavwe...@chromium.org&amp;gt; wrote:
+
+
+
+                    On Tue, Oct 31, 2023 at 1:45 PM Stephen Chenney
+                    &amp;lt;schen...@chromium.org&amp;gt; wrote:
+
+
+                                Contact emails
+
+                        schen...@chromium.org
+
+
+                                Specification
+
+                        &lt;a  rel="nofollow" href="https://drafts.csswg.org/css-pseudo-4/#highlight-cascade"&gt;https://drafts.csswg.org/css-pseudo-4/#highlight-cascade&lt;/a&gt;
+
+
+                                Summary
+
+                        With CSS Highlight Inheritance, the CSS
+                        Highlight pseudo classes, such as
+                        ::selection and ::highlight, inherit their
+                        properties through the pseudo highlight
+                        chain, rather than the element chain. The
+                        result is a more intuitive model for
+                        inheritance of properties in highlights.
+                        Specifically, &amp;quot;When any supported property
+                        is not given a value by the cascade ... its
+                        specified value is determined by inheritance
+                        from the corresponding highlight
+                        pseudo-element of its originating element’s
+                        parent element.&amp;quot;
+                        
+(&lt;a  rel="nofollow" href="https://drafts.csswg.org/css-pseudo-4/#highlight-cascade"&gt;https://drafts.csswg.org/css-pseudo-4/#highlight-cascade&lt;/a&gt;)
+
+
+
+                                Blink component
+
+                        Blink&amp;gt;CSS
+                        
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS&lt;/a&gt;&amp;gt;
+
+
+                                TAG review
+
+                        None
+
+
+                    Features are exempt from a TAG review only when
+                    another vendor has already shipped them. That
+                    doesn't seem to be the case here.
+
+
+                The feature is in the CSS pseudos spec and has been
+                for quite a while. The CSS Working Group has been
+                discussing issues too and Safari, at least, is
+                implementing according to the spec. I think the ship
+                has sailed for any major revision to the behavior.
+                (For context, there was no feature defined for this
+                change until recently because it was originally
+                viewed as a &amp;quot;make the code implement the spec&amp;quot; change.)
+
+
+        TAG Review Issue:
+        &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/914"&gt;https://github.com/w3ctag/design-reviews/issues/914&lt;/a&gt;
+
+
+
+
+
+                                TAG review status
+
+                        Not applicable
+
+
+                                Risks
+
+
+
+                                Interoperability and Compatibility
+
+                        The feature is still under implementation in
+                        other browser engines, but the standards are
+                        well developed and there is general
+                        agreement on the spec. I think compat risk
+                        is very limited at this time.
+
+
+                    Does this feature change the behavior of
+                    existing uses of ::highlight and ::selection? Is
+                    there risk from breakage there?
+
+
+                The change aligns the behavior of ::selection with
+                Firefox. ::highlight is already implemented with
+                this behavior. There was breakage of ::selection due
+                to custom property handling, which was resolved at
+                the spec level and fixed in chromium before sending
+                this intent. No other bugs have come in over the
+                extended period that this has been on for
+                experimental web platform features (since M111).
+
+
+            My above comment is wrong: The spec defining this
+            feature does change the behavior of ::selection (not
+            ::highlight) for all browsers. But evidence suggests
+            that the mitigations that sites used to work around the
+            old behavior still work with the new behavior, so
+            breakage is very limited. There was a single source of
+            significant breakage when the feature was first turned
+            on and the spec and code have been changed to maintain
+            the former behavior (related to custom properties on
+            root applying to ::selection). We have had zero other
+            reported bugs from enabling the feature experimentally.
+
+            Some history ... The spec was changed in response to an
+            issue where Firefox wanted to un-prefix -moz-selection
+            but was not obeying the old spec. As I understand it,
+            the selection style was checking for ::selection on the
+            selected element, using it if found, otherwise using the
+            root selection styling. All browsers were doing this.
+
+            Sites were designed to work around this through the
+            judicious use of ::selection on various elements. That
+            is, put ::selection on anything you wanted a specified
+            selection on, and if the inheritance was wrong, add a
+            more specific ::selection selector. Hence the heavy use
+            of custom properties to keep all these ::selection
+            declarations in sync. You can see this, for example, on
+            GitHub where they define ::selection for an element,
+            element &amp;gt; span, and element &amp;gt; span &amp;gt; span, and again for
+            light and dark mode. Sass even has an operator with a
+            comment on it saying they would remove it if the spec is
+            fixed.
+
+            This intent to ship does not break sites that have taken
+            this approach. Specific selectors for ::selection will
+            resolve to the same properties as they do now. The
+            improvement is that &amp;quot;element &amp;gt; span::selection&amp;quot; and
+            &amp;quot;element &amp;gt; span &amp;gt; span::selection&amp;quot; can now be removed in
+            favor of just &amp;quot;element::selection&amp;quot;.
+
+
+
+                        /Gecko/: Neutral
+                        
+(&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/548"&gt;https://github.com/mozilla/standards-positions/issues/548&lt;/a&gt;)
+                        emilio@ is active in standards discussions
+                        on the issues, but I am not aware of
+                        implementation.
+                        &lt;a  rel="nofollow" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1703963"&gt;https://bugzilla.mozilla.org/show_bug.cgi?id=1703963&lt;/a&gt;
+                        &lt;a  rel="nofollow" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1703961"&gt;https://bugzilla.mozilla.org/show_bug.cgi?id=1703961&lt;/a&gt;
+
+                        /WebKit/: In development
+                        
+(&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/95"&gt;https://github.com/WebKit/standards-positions/issues/95&lt;/a&gt;)
+                        I have a private email from the Apple
+                        engineer tasked with implementing. I don't
+                        want to reveal PI.
+
+                        /Web developers/: Developer ergonomics is
+                        the primary concern motivating highlight
+                        inheritance. See
+                        &lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/2474 for"&gt;https://github.com/w3c/csswg-drafts/issues/2474 for&lt;/a&gt;
+                        the initial spec discussion related to the
+                        behavior of ::selection. See
+                        
+&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1490471 for"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1490471 for&lt;/a&gt;
+                        an example of a user seeing unexpected
+                        behavior without this feature.
+
+                        /Other signals/:
+
+
+                                Ergonomics
+
+                        None.
+
+
+
+                                Activation
+
+                        No. This reflects the already active
+                        behavior for ::selection in Firefox and the
+                        already used behavior for ::highlight,
+                        ::spelling and ::grammar.
+
+
+
+                                Security
+
+                        There are no security risks.
+
+
+
+                                WebView application risks
+
+                        None
+
+
+
+                                Debuggability
+
+                        Devtools supports highlight pseudos and
+                        correctly shows the inheritance chain.
+
+
+
+                                Will this feature be supported on
+                                all six Blink platforms (Windows,
+                                Mac, Linux, Chrome OS, Android, and
+                                Android WebView)?
+
+                        Yes
+
+                        There are no cross-platform issues with
+                        implementation and no reason to discriminate
+                        on platform.
+
+
+
+                                Is this feature fully tested by
+                                web-platform-tests
+                                
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;?
+
+                        Yes
+
+                        
+&lt;a  rel="nofollow" href="https://wpt.fyi/results/css/css-pseudo?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/css/css-pseudo?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
+                        
+&amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/css/css-pseudo?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/css/css-pseudo?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;&amp;gt;
+                        highlight-cascade-* covers this
+                        functionality. There are additional WPT that
+                        make use of the feature in
+                        
+&lt;a  rel="nofollow" href="https://wpt.fyi/results/css/css-highlight-api?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/css/css-highlight-api?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
+                        
+&amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/css/css-highlight-api?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/css/css-highlight-api?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;&amp;gt;
+
+
+
+                                Flag name on chrome://flags
+
+                        experimental-web-platform-features
+
+
+                                Finch feature name
+
+                        HighlightInheritance
+
+
+                                Non-finch justification
+
+                        The feature was enabled as experimental way
+                        back in M111 and stayed that way until M116
+                        when it was switched back to test, and it is
+                        back on experimental for M118. Developers
+                        have significant experience with the feature
+                        enabled via experimental web platform
+                        features. There is no value to running a
+                        finch trial given the large amount of
+                        existing experience with the feature.
+
+
+
+                                Requires code in //chrome?
+
+                        False
+
+
+                                Estimated milestones
+
+                        Shipping on desktop     120
+                        DevTrial on desktop     118
+
+                        Shipping on Android     120
+                        DevTrial on Android     118
+
+                        Shipping on WebView     120
+
+
+
+                                Anticipated spec changes
+
+                        None
+
+
+                                Link to entry on the Chrome Platform
+                                Status
+
+                        &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5090853643354112"&gt;https://chromestatus.com/feature/5090853643354112&lt;/a&gt;
+
+
+                                Links to previous Intent discussions
+
+                        Ready for Trial:
+                        
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/BbvI5VAguvk"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/BbvI5VAguvk&lt;/a&gt;
+
+
+                        This intent message was generated by Chrome
+                        Platform Status &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+&lt;/pre&gt;&lt;tt&gt;                        -- 
+&lt;/tt&gt;&lt;tt&gt;                        You received this message because you are
+&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
+                        subscribed to the Google Groups &amp;quot;blink-dev&amp;quot;
+                        group.
+                        To unsubscribe from this group and stop
+                        receiving emails from it, send an email to
+                        blink-dev+unsubscr...@chromium.org.
+                        To view this discussion on the web visit
+                        
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGsbWzQfdRQU81Cdm2phXD9f4wktm4f%2BReeYJaYVZKLrt_T4rg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGsbWzQfdRQU81Cdm2phXD9f4wktm4f%2BReeYJaYVZKLrt_T4rg%40mail.gmail.com&lt;/a&gt;
+                        
+&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGsbWzQfdRQU81Cdm2phXD9f4wktm4f%2BReeYJaYVZKLrt_T4rg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGsbWzQfdRQU81Cdm2phXD9f4wktm4f%2BReeYJaYVZKLrt_T4rg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
+
+&lt;/pre&gt;&lt;tt&gt;        -- 
+&lt;/tt&gt;&lt;tt&gt;        You received this message because you are subscribed to the
+&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
+        Google Groups &amp;quot;blink-dev&amp;quot; group.
+        To unsubscribe from this group and stop receiving emails
+        from it, send an email to blink-dev+unsubscr...@chromium.org.
+        To view this discussion on the web visit
+        
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGsbWzQV-S4-w5nen9dWqeGRjSx_ietab3MzfF%2B-UdikH-8Hmw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGsbWzQV-S4-w5nen9dWqeGRjSx_ietab3MzfF%2B-UdikH-8Hmw%40mail.gmail.com&lt;/a&gt;
+        
+&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGsbWzQV-S4-w5nen9dWqeGRjSx_ietab3MzfF%2B-UdikH-8Hmw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGsbWzQV-S4-w5nen9dWqeGRjSx_ietab3MzfF%2B-UdikH-8Hmw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
+&lt;/pre&gt;&lt;/blockquote&gt;&lt;tt&gt;        -- 
+&lt;/tt&gt;&lt;tt&gt;        You received this message because you are subscribed to the
+&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
+        Google Groups &amp;quot;blink-dev&amp;quot; group.
+        To unsubscribe from this group and stop receiving emails from
+        it, send an email to blink-dev+unsubscr...@chromium.org.
+        To view this discussion on the web visit
+        
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/b0b3fb6e-bc93-4823-a9e8-d3e7f8e4a388%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/b0b3fb6e-bc93-4823-a9e8-d3e7f8e4a388%40chromium.org&lt;/a&gt;
+        
+&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/b0b3fb6e-bc93-4823-a9e8-d3e7f8e4a388%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/b0b3fb6e-bc93-4823-a9e8-d3e7f8e4a388%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
+&lt;/pre&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;
+
+--
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/13c6b5d7-80b9-4716-b87d-bcb2f2c2db80%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/13c6b5d7-80b9-4716-b87d-bcb2f2c2db80%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08724.html</id>
+        <title>Re: [blink-dev] Re: Intent to deprecate: SMIL</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08724.html"/>
+        <updated>2023-12-21T15:21:13.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08724.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+deprecate%5C%3A+SMIL%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Re: Intent to deprecate: SMIL&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Lorand+Zudor%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Lorand Zudor&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231221" rel="nofollow"&gt;Thu, 21 Dec 2023 07:21:13 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;👍 You are welcome, Philip. Have a great one!
+- L.
+&amp;lt;&lt;a  rel="nofollow" href="https://emojipedia.org/thumbs-up"&gt;https://emojipedia.org/thumbs-up&lt;/a&gt;&amp;gt;
+&amp;lt;&lt;a  rel="nofollow" href="https://emojipedia.org/thumbs-up"&gt;https://emojipedia.org/thumbs-up&lt;/a&gt;&amp;gt;&lt;/pre&gt;&lt;pre&gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/106d3214-4c6d-4db7-be37-1727e2d761b7n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/106d3214-4c6d-4db7-be37-1727e2d761b7n%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08723.html</id>
         <title>Re: [blink-dev] Intent to Ship: CSS Highlight Inheritance</title>
         <author>
@@ -10651,613 +11198,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY8GMOSgmYfhVZ1C%3Dt4G1_Xo02BnWf5t0HQWHnH%3Dj-VhQA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY8GMOSgmYfhVZ1C%3Dt4G1_Xo02BnWf5t0HQWHnH%3Dj-VhQA%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08676.html</id>
-        <title>Re: [blink-dev] Intent to Prototype and Ship: MessagePort.onclose</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08676.html"/>
-        <updated>2023-12-13T16:46:18.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08676.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Prototype+and+Ship%5C%3A+MessagePort.onclose%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Prototype and Ship: MessagePort.onclose&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Mike+Taylor%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Mike Taylor&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231213" rel="nofollow"&gt;Wed, 13 Dec 2023 08:46:18 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;tt&gt;Gentle reminder to request approvals for the other review gates in 
-&lt;/tt&gt;&lt;tt&gt;chromestatus, thanks.
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-
-On 12/1/23 1:05 PM, Mike Taylor wrote:
-&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;pre&gt;
-
-On 11/30/23 10:56 PM, Fergal Daly wrote:
-
-&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;
-On Wednesday, November 29, 2023 at 2:23:12 PM UTC+9 Yoav Weiss wrote:
-
-
-        On Tue, 28 Nov 2023 at 12:31, Nonoka Muraki
-        &amp;lt;murakinon...@chromium.org&amp;gt; wrote:
-        TAG review
-
-        Not needed because This is a small feature where we just
-        dispatch a new event.
-
-
-    Unfortunately that's not a criteria for skipping a TAG review.
-    Can you file one?
-
-
-&lt;/pre&gt;&lt;tt&gt;I'm concerned by this because every TAG review I've seen in the last 
-&lt;/tt&gt;&lt;tt&gt;couple of years has taken months to get a response. If our own 
-&lt;/tt&gt;&lt;tt&gt;privacy review is positive and we have agreement with other vendors 
-&lt;/tt&gt;&lt;tt&gt;would we block on the TAG review?
-&lt;/tt&gt;&lt;/blockquote&gt;&lt;tt&gt;In practice, we don't block on TAG reviews, but we like to give them a 
-&lt;/tt&gt;&lt;tt&gt;chance to review or comment within a reasonable time period (typically 
-&lt;/tt&gt;&lt;tt&gt;a week or two).
-&lt;/tt&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;
-
---
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/bd8cbd8f-4451-4af5-9cea-709a54d0996c%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/bd8cbd8f-4451-4af5-9cea-709a54d0996c%40chromium.org&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08675.html</id>
-        <title>Re: [blink-dev] Intent to Ship: Storage Buckets API</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08675.html"/>
-        <updated>2023-12-13T16:39:21.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08675.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Storage+Buckets+API%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Storage Buckets API&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Mike+Taylor%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Mike Taylor&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231213" rel="nofollow"&gt;Wed, 13 Dec 2023 08:39:21 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre style="margin: 0em;"&gt;
-LGTM3
-
-On 12/13/23 11:04 AM, Rick Byers wrote:
-&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;
-LGTM2&lt;/pre&gt;&lt;pre&gt;&lt;/pre&gt;&lt;tt&gt;+1 to raising the bar on test automation, but only in the cases where 
-&lt;/tt&gt;&lt;tt&gt;there aren't unreasonable burdens and there is clear significant test 
-&lt;/tt&gt;&lt;tt&gt;coverage value (i.e., not this specific case). Thanks for the analysis 
-&lt;/tt&gt;&lt;tt&gt;Evan and Philip!
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;tt&gt;On Wed, Dec 13, 2023 at 8:10 AM Philip Jägenstedt 
-&lt;/tt&gt;&lt;tt&gt;&amp;lt;foo...@chromium.org&amp;gt; wrote:
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-
-    Hi Evan,
-
-    Thanks for looking into this, and for answering some of my
-    questions off-list. To summarize, eviction is spec'd very loosely
-    and a testdriver.js API could probably only be &amp;quot;evict everything&amp;quot;
-    or &amp;quot;evict data in this bucket&amp;quot;. Neither of those would test the
-    interesting parts of how quota, expiry time and probably other
-    signals are used to determine which buckets to evict. Bottom line,
-    if we can't see a WebDriver endpoint that would poke at the right
-    internals /in all browsers/, then it wouldn't be testing
-    production code beyond what is already tested.
-
-    It looks like get or expire a bucket
-    &amp;lt;&lt;a  rel="nofollow" href="https://wicg.github.io/storage-buckets/#get-or-expire-a-bucket"&gt;https://wicg.github.io/storage-buckets/#get-or-expire-a-bucket&lt;/a&gt;&amp;gt; could
-    be tested using bucket.setExpires(), but AFAICT this isn't tested.
-
-    So, LGTM1 to ship with added tests for bucket expiration.
-
-    Best regards,
-    Philip
-
-    P.S. I disagree that testdriver.js should only be used in
-    exceptional cases. Rather often there's a spec concept which is
-    invoked by the user or under implementation-defined conditions,
-    and it's straightforward to poke this concept with a WebDriver
-    endpoint. &lt;a  rel="nofollow" href="https://fedidcg.github.io/FedCM/#automation"&gt;https://fedidcg.github.io/FedCM/#automation&lt;/a&gt; is a good
-    recent example. API owners don't insist on this currently mainly
-    because testdriver.js needs to be implemented for both Chrome and
-    content_shell. With wptrunner in Chromium CI (thanks @Weizhong Xia
-    &amp;lt;&lt;a  rel="nofollow" href="mailto:weizh...@google.com"&gt;mailto:weizh...@google.com&lt;/a&gt;&amp;gt;!) I expect the need for double work
-    will be removed, and I would like to raise the bar for test
-    automation. (But even then there will be cases where it wouldn't
-    be testing additional production code and isn't worthwhile.)
-
-    On Thu, Dec 7, 2023 at 6:43 PM Evan Stade &amp;lt;est...@chromium.org&amp;gt; wrote:
-
-        Hi Philip,
-
-        After conferring with the team, we feel that there is an
-        appropriate distribution of coverage provided by WPT and
-        Chromium unit and browser tests. Leveraging testdriver for
-        one-off hooks such as this would introduce substantial
-        test-only code flows, diminishing the confidence that the
-        tests were correctly verifying production behavior, while also
-        imposing a larger maintenance burden going forward. The
-        benefit, as we understand it, would be that the WPT could be
-        shared by other vendors, but the test itself in this case
-        would only be a few lines. The vast majority of LOC would
-        be plumbing and internals logic which other vendors would need
-        to provide for themselves.
-
-        Getting a bit off in the weeds relative to this i2s
-        discussion, but I'll continue on this topic for the sake of
-        debate:
-
-        We can observe that new testdriver APIs are seldom added. I
-        only see ~4 changes originating from the Chromium project in
-        the last 5 years. Putting all other reasoning aside, this fact
-        alone would suggest that testdriver should be touched only in
-        exceptional cases. I would not argue that testdriver is
-        without utility. Unlike the one-off actions we'd need for
-        these buckets WPT, more generic testdriver actions such as
-        setting permission state can enable a wide range of tests. In
-        those cases the calculus of cost vs reward is much more
-        favorable. So I would assume that changes to testdriver should
-        meet a high bar of broad utility, similar to how we treat core
-        libraries in //base/.
-
-        Hope that addresses your concerns.
-
-        -- Evan Stade
-
-
-        On Fri, Dec 1, 2023 at 9:03 AM Philip Jägenstedt
-        &amp;lt;foo...@chromium.org&amp;gt; wrote:
-
-            Thanks Evan for listing out the tests, they were more
-            spread out than I thought. Great to see more of the tests
-            being upstreamed too!
-
-            I wonder if we can do even better and test eviction
-            however? Have you looked into defining a WebDriver
-            endpoint for triggering eviction? It could make sense in
-            &lt;a  rel="nofollow" href="https://web-platform-tests.org/writing-tests/testdriver.html#storage"&gt;https://web-platform-tests.org/writing-tests/testdriver.html#storage&lt;/a&gt;
-            and there are plenty of examples in that documentation
-            that might be close to the hook/trigger you need.
-
-            If you think this is an unreasonable request, please push
-            back, my interest is only that this can be implemented
-            interoperably. Tests are our best way of ensuring that,
-            but it's not the only way, and it's always a tradeoff of
-            effort vs. utility.
-
-            Best regards,
-            Philip
-
-            On Wed, Nov 29, 2023 at 6:32 PM Evan Stade
-            &amp;lt;est...@chromium.org&amp;gt; wrote:
-
-                Hi Philip,
-
-                Here is a comprehensive list of web tests that verify
-                storageBuckets behavior. We do feel the size of this
-                list aligns well with the spec, which is fairly
-                concise. As you can see, some are spread out in
-                directories for the other storage APIs that
-                storageBuckets brokers.
-
-                That said, not all behavior is verifiable from the
-                web. For example, it's not possible to reliably
-                trigger an automatic eviction event from the web, so
-                we can't really know if `persisted` is /actually/
-                respected. Browser tests provide that kind of coverage.
-
-                Some of the WPT are internal but they can/should be
-                moved
-                
-&amp;lt;&lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/5072535"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/5072535&lt;/a&gt;&amp;gt;
-                to the external WPT directory. Thanks for the prompt.
-
-                external/wpt/IndexedDB/storage-buckets.https.any.js:
-                external/wpt/fs/script-tests/FileSystemBaseHandle-buckets.js:
-                
-external/wpt/service-workers/cache-storage/cache-storage-buckets.https.any.js:
-                
-external/wpt/storage/buckets/bucket-quota-indexeddb.tentative.https.any.js:
-                
-external/wpt/storage/buckets/bucket-storage-policy.tentative.https.any.js:
-                external/wpt/web-locks/storage-buckets.tentative.https.any.js:
-                
-http/tests/inspector-protocol/storage/cache-storage-request-cache-names.js:
-                
-http/tests/inspector-protocol/storage/cache-storage-storage-key-request-cache-names.js:
-                
-http/tests/inspector-protocol/storage/indexed-db-storage-key-clear.js:
-                
-http/tests/inspector-protocol/storage/indexed-db-storage-key-delete-db.js:
-                
-http/tests/inspector-protocol/storage/indexed-db-storage-key-delete-object-store-entries.js:
-                
-http/tests/inspector-protocol/storage/indexed-db-storage-key-get-metadata.js:
-                
-http/tests/inspector-protocol/storage/indexed-db-storage-key-request-data.js:
-                
-http/tests/inspector-protocol/storage/indexed-db-storage-key-request-database-names.js:
-                
-http/tests/inspector-protocol/storage/indexed-db-storage-key-request-database.js:
-                
-http/tests/inspector-protocol/storage/storage-bucket-storage-key-track-untrack.js:
-                
-http/tests/inspector-protocol/storage/storage-buckets-delete-storage-bucket.js:
-                
-wpt_internal/storage/buckets/bucket_names.tentative.https.any.js:
-                
-wpt_internal/storage/buckets/buckets_basic.tentative.https.any.js:
-                
-wpt_internal/storage/buckets/buckets_storage_policy.tentative.https.any.js:
-                wpt_internal/storage/buckets/detached-iframe.https.html:
-                wpt_internal/storage/buckets/idlharness-worker.https.any.js:
-                wpt_internal/storage/buckets/opaque-origin.https.window.js:
-                
-wpt_internal/storage/buckets/resources/opaque-origin-sandbox.html:
-                
-wpt_internal/storage/buckets/storage_bucket_object.tentative.https.any.js:
-
-                -- Evan Stade
-
-
-                On Wed, Nov 29, 2023 at 9:02 AM Philip Jägenstedt
-                &amp;lt;foo...@chromium.org&amp;gt; wrote:
-
-                    Hi Evan,
-
-                    Is
-                    
-&lt;a  rel="nofollow" href="https://wpt.fyi/results/storage/buckets?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/storage/buckets?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
-                    
-&amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/storage/buckets?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/storage/buckets?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;&amp;gt;
-                    the full set of tests? Given the size of the spec,
-                    does that cover the whole feature well?
-
-                    Best regards,
-                    Philip
-
-                    On Wed, Nov 29, 2023 at 5:58 PM Evan Stade
-                    &amp;lt;est...@chromium.org&amp;gt; wrote:
-
-                        [reply-all this time]
-
-                        Hi Philip,
-
-                        thanks for pointing out those two oversights.
-                        I have fixed the checkboxes on the
-                        chromestatus entry. It is in fact tested by
-                        WPT and supported on all Blink platforms.
-
-                        On Wed, Nov 29, 2023 at 8:43 AM Philip
-                        Jägenstedt &amp;lt;foo...@chromium.org&amp;gt; wrote:
-
-                            Hi Evan,
-
-                            A few questions inline.
-
-                            On Tue, Nov 14, 2023 at 9:38 PM Evan Stade
-                            &amp;lt;est...@chromium.org&amp;gt; wrote:
-
-
-
-                                        Will this feature be supported
-                                        on all six Blink platforms
-                                        (Windows, Mac, Linux, Chrome
-                                        OS, Android, and Android WebView)?
-
-                                No
-
-
-                            Which platform will this not be supported on?
-
-
-                                        Is this feature fully tested
-                                        by web-platform-tests
-                                        
-&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;?
-
-                                No
-
-
-                            Can this be fully tested in WPT? If it's
-                            not tested in WPT, how is it currently tested?
-
-                            Best regards,
-                            Philip
-
-&lt;/pre&gt;&lt;tt&gt;    -- 
-&lt;/tt&gt;&lt;tt&gt;    You received this message because you are subscribed to the Google
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-    Groups &amp;quot;blink-dev&amp;quot; group.
-    To unsubscribe from this group and stop receiving emails from it,
-    send an email to blink-dev+unsubscr...@chromium.org.
-    To view this discussion on the web visit
-    
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAARdPYfLUBkQCsJG4RYHSUqxLkN42NdMTRWAK817hofLU6CrPA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAARdPYfLUBkQCsJG4RYHSUqxLkN42NdMTRWAK817hofLU6CrPA%40mail.gmail.com&lt;/a&gt;
-    
-&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAARdPYfLUBkQCsJG4RYHSUqxLkN42NdMTRWAK817hofLU6CrPA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAARdPYfLUBkQCsJG4RYHSUqxLkN42NdMTRWAK817hofLU6CrPA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-
---
-&lt;/pre&gt;&lt;tt&gt;You received this message because you are subscribed to the Google 
-&lt;/tt&gt;&lt;tt&gt;Groups &amp;quot;blink-dev&amp;quot; group.
-&lt;/tt&gt;&lt;tt&gt;To unsubscribe from this group and stop receiving emails from it, send 
-&lt;/tt&gt;&lt;tt&gt;an email to blink-dev+unsubscr...@chromium.org.
-&lt;/tt&gt;&lt;tt&gt;To view this discussion on the web visit 
-&lt;/tt&gt;&lt;tt&gt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY-7zXke53y9TQ44fBtZBUG%2BvM701WT1FXfTBfeVUjS5cg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY-7zXke53y9TQ44fBtZBUG%2BvM701WT1FXfTBfeVUjS5cg%40mail.gmail.com&lt;/a&gt; 
-&lt;/tt&gt;&lt;tt&gt;&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY-7zXke53y9TQ44fBtZBUG%2BvM701WT1FXfTBfeVUjS5cg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY-7zXke53y9TQ44fBtZBUG%2BvM701WT1FXfTBfeVUjS5cg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-&lt;/tt&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;
-
---
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/eb274beb-e2ec-4669-bbba-1354102bd147%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/eb274beb-e2ec-4669-bbba-1354102bd147%40chromium.org&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08674.html</id>
-        <title>Re: [blink-dev] Intent to Ship: CSSKeyframesRule.length</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08674.html"/>
-        <updated>2023-12-13T16:25:22.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08674.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+CSSKeyframesRule.length%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: CSSKeyframesRule.length&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Daniel+Bratell%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Daniel Bratell&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231213" rel="nofollow"&gt;Wed, 13 Dec 2023 08:25:22 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre style="margin: 0em;"&gt;
-LGTM2
-
-&lt;/pre&gt;&lt;tt&gt;I would recommend a flag but given Philip's arguments I'll not consider 
-&lt;/tt&gt;&lt;tt&gt;it an absolute requirement.
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;pre&gt;
-
-/Daniel
-
-On 2023-12-13 15:28, Philip Jägenstedt wrote:
-&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;
-LGTM1 with or without a feature flag.
-
-&lt;/pre&gt;&lt;tt&gt;I'm comfortable to LGTM this even without a flag because the length 
-&lt;/tt&gt;&lt;tt&gt;property was exposed in Gecko 
-&lt;/tt&gt;&lt;tt&gt;&amp;lt;&lt;a  rel="nofollow" href="https://github.com/mozilla/gecko-dev/commit/fef2d448e2264502e5dbb2297781db4a2c795b81"&gt;https://github.com/mozilla/gecko-dev/commit/fef2d448e2264502e5dbb2297781db4a2c795b81&lt;/a&gt;&amp;gt; 
-&lt;/tt&gt;&lt;tt&gt;and WebKit 
-&lt;/tt&gt;&lt;tt&gt;&amp;lt;&lt;a  rel="nofollow" href="https://github.com/WebKit/WebKit/commit/e6fb2489c688f12f374f6605820f9927b422ddeb"&gt;https://github.com/WebKit/WebKit/commit/e6fb2489c688f12f374f6605820f9927b422ddeb&lt;/a&gt;&amp;gt; quite 
-&lt;/tt&gt;&lt;tt&gt;recently, so `'length' in CSSKeyframesRule.prototype` is not a 
-&lt;/tt&gt;&lt;tt&gt;reasonable proxy for &amp;quot;is not Chrome&amp;quot;. Firefox 108 and Safari 16 
-&lt;/tt&gt;&lt;tt&gt;(source 
-&lt;/tt&gt;&lt;tt&gt;&amp;lt;&lt;a  rel="nofollow" href="https://github.com/mdn/browser-compat-data/blob/568fde27290173610f7a0129597a0be83111642d/api/CSSKeyframesRule.json#L306-L339"&gt;https://github.com/mdn/browser-compat-data/blob/568fde27290173610f7a0129597a0be83111642d/api/CSSKeyframesRule.json#L306-L339&lt;/a&gt;&amp;gt;) 
-&lt;/tt&gt;&lt;tt&gt;would fall into the same code path, and those are still in wide enough 
-&lt;/tt&gt;&lt;tt&gt;use that this API doesn't work for engine detection.
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;tt&gt;On Mon, Dec 11, 2023 at 3:48 PM Mike Taylor &amp;lt;miketa...@chromium.org&amp;gt; 
-&lt;/tt&gt;&lt;tt&gt;wrote:
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-
-    This seems like a fairly trivial and useful addition, but can we
-    put this behind a feature flag? It's not hard to imagine some code
-    looking at `CSSKeyframesRule.length` as a proxy for &amp;quot;is not
-    Chrome&amp;quot; and something going wrong (though, I imagine this is a
-    very small risk).
-
-    
-&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/flag_guarding_guidelines.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/flag_guarding_guidelines.md&lt;/a&gt;
-
-    On 12/8/23 11:50 PM, Amos Lim wrote:
-&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;
-
-
-            Contact emails
-
-    eui-sang....@samsung.com
-
-
-            Explainer
-
-    None
-
-
-            Specification
-
-    &lt;a  rel="nofollow" href="https://drafts.csswg.org/css-animations/#interface-csskeyframesrule"&gt;https://drafts.csswg.org/css-animations/#interface-csskeyframesrule&lt;/a&gt;
-
-
-            Summary
-
-    Exposes length attribute of CSSKeyframesRule. Interfaces that
-    support indexed properties must define an integer-typed attribute
-    named &amp;quot;length&amp;quot;.
-
-
-
-            Blink component
-
-    Blink&amp;gt;CSS
-    &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS&lt;/a&gt;&amp;gt;
-
-
-            TAG review
-
-    None
-
-
-            TAG review status
-
-    Not applicable
-
-
-            Risks
-
-
-
-            Interoperability and Compatibility
-
-    None
-
-
-
-    /Gecko/: Shipped/Shipping
-
-    /WebKit/: Shipped/Shipping
-
-    /Web developers/: No signals
-
-    /Other signals/:
-
-
-            WebView application risks
-
-    Does this intent deprecate or change behavior of existing APIs,
-    such that it has potentially high risk for Android WebView-based
-    applications?
-
-    None
-
-
-
-            Debuggability
-
-    None
-
-
-
-            Will this feature be supported on all six Blink platforms
-            (Windows, Mac, Linux, ChromeOS, Android, and Android
-            WebView)?
-
-    Yes
-
-
-            Is this feature fully tested by web-platform-tests
-            
-&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;?
-
-    Yes
-
-    &lt;a  rel="nofollow" href="https://wpt.fyi/results/css/css-animations/idlharness.html"&gt;https://wpt.fyi/results/css/css-animations/idlharness.html&lt;/a&gt;
-    &lt;a  rel="nofollow" href="https://wpt.fyi/results/css/cssom/CSSKeyframesRule.html"&gt;https://wpt.fyi/results/css/cssom/CSSKeyframesRule.html&lt;/a&gt;
-
-
-
-            Flag name on chrome://flags
-
-    None
-
-
-            Finch feature name
-
-    None
-
-
-            Non-finch justification
-
-    None
-
-
-            Requires code in //chrome?
-
-    False
-
-
-            Tracking bug
-
-    &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1502758"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1502758&lt;/a&gt;
-
-
-            Estimated milestones
-
-    No milestones specified
-
-
-
-            Anticipated spec changes
-
-    Open questions about a feature may be a source of future web
-    compat or interop issues. Please list open issues (e.g. links to
-    known github issues in the project for the feature specification)
-    whose resolution may introduce web compat/interop risk (e.g.,
-    changing to naming or structure of the API in a
-    non-backward-compatible way).
-
-    None
-
-
-            Link to entry on the Chrome Platform Status
-
-    &lt;a  rel="nofollow" href="https://chromestatus.com/feature/6289894144212992"&gt;https://chromestatus.com/feature/6289894144212992&lt;/a&gt;
-
-    This intent message was generated by Chrome Platform Status
-    &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-&lt;/pre&gt;&lt;tt&gt;    -- 
-&lt;/tt&gt;&lt;tt&gt;    You received this message because you are subscribed to the
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-    Google Groups &amp;quot;blink-dev&amp;quot; group.
-    To unsubscribe from this group and stop receiving emails from it,
-    send an email to blink-dev+unsubscr...@chromium.org.
-    To view this discussion on the web visit
-    
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOGEg00LjpMvMpkdeOQWaLoCsgeCrDMck9wMP4wvX7ttMEE3SQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOGEg00LjpMvMpkdeOQWaLoCsgeCrDMck9wMP4wvX7ttMEE3SQ%40mail.gmail.com&lt;/a&gt;
-    
-&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOGEg00LjpMvMpkdeOQWaLoCsgeCrDMck9wMP4wvX7ttMEE3SQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOGEg00LjpMvMpkdeOQWaLoCsgeCrDMck9wMP4wvX7ttMEE3SQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-&lt;/pre&gt;&lt;/blockquote&gt;&lt;tt&gt;    -- 
-&lt;/tt&gt;&lt;tt&gt;    You received this message because you are subscribed to the Google
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-    Groups &amp;quot;blink-dev&amp;quot; group.
-    To unsubscribe from this group and stop receiving emails from it,
-    send an email to blink-dev+unsubscr...@chromium.org.
-    To view this discussion on the web visit
-    
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/cc41c466-0562-455c-a6de-2ac2094693de%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/cc41c466-0562-455c-a6de-2ac2094693de%40chromium.org&lt;/a&gt;
-    
-&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/cc41c466-0562-455c-a6de-2ac2094693de%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/cc41c466-0562-455c-a6de-2ac2094693de%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-
---
-&lt;/pre&gt;&lt;tt&gt;You received this message because you are subscribed to the Google 
-&lt;/tt&gt;&lt;tt&gt;Groups &amp;quot;blink-dev&amp;quot; group.
-&lt;/tt&gt;&lt;tt&gt;To unsubscribe from this group and stop receiving emails from it, send 
-&lt;/tt&gt;&lt;tt&gt;an email to blink-dev+unsubscr...@chromium.org.
-&lt;/tt&gt;&lt;tt&gt;To view this discussion on the web visit 
-&lt;/tt&gt;&lt;tt&gt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAARdPYdxEsMXCWFkipT_MO%2B9UvEduQu4x-LSD2FN2s%3Dg9kTfSw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAARdPYdxEsMXCWFkipT_MO%2B9UvEduQu4x-LSD2FN2s%3Dg9kTfSw%40mail.gmail.com&lt;/a&gt; 
-&lt;/tt&gt;&lt;tt&gt;&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAARdPYdxEsMXCWFkipT_MO%2B9UvEduQu4x-LSD2FN2s%3Dg9kTfSw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAARdPYdxEsMXCWFkipT_MO%2B9UvEduQu4x-LSD2FN2s%3Dg9kTfSw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-&lt;/tt&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;
-
---
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/ae0da666-f830-43fc-b9de-2ed2d7225787%40gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/ae0da666-f830-43fc-b9de-2ed2d7225787%40gmail.com&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
