@@ -5,6 +5,132 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08766.html</id>
+        <title>Re: [blink-dev] Re: Intent to Ship: HTTPS Upgrades</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08766.html"/>
+        <updated>2024-01-04T17:18:25.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08766.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Ship%5C%3A+HTTPS+Upgrades%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Re: Intent to Ship: HTTPS Upgrades&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Jo%C3%A3o+Paiva%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'João Paiva' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240104" rel="nofollow"&gt;Thu, 04 Jan 2024 09:18:25 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;
+
+We are observing that this change is breaking traffic going through 
+middleboxes when the upstreams have misconfigured TLS. The main problem is 
+that from the moment a middlebox completes the TLS handshake of the 
+HTTPS-upgraded connection, the fallback cannot be triggered. Although the 
+blog post [link 
+&amp;lt;&lt;a  rel="nofollow" href="https://blog.chromium.org/2023/08/towards-https-by-default.html"&gt;https://blog.chromium.org/2023/08/towards-https-by-default.html&lt;/a&gt;&amp;gt;] and the 
+explainer [link &amp;lt;&lt;a  rel="nofollow" href="http://main"&gt;http://main&lt;/a&gt;&amp;gt;] suggest using a 404 response or a specific 
+header from the upstream to trigger the fallback, neither of these options 
+seem to be available in Chrome. Consequently, enterprise proxies need to 
+advise admins to disable the automatic upgrades feature for their users to 
+avoid breaking some traffic. This is a bad outcome both in terms of 
+security and configuration complexity. Ideally we’d like all users to keep 
+this feature enabled, but have it work when middleboxes are involved and 
+the upstream is faulty.&lt;/pre&gt;&lt;pre&gt;
+
+Another critical aspect here is that sometimes middleboxes terminate TLS 
+with the eyeball before contacting the upstream. This can happen for 
+security or performance reasons, to improve UX, or to provide other 
+features. Previously this was acceptable as the middlebox could return an 
+HTML error page if the connection failed. With the introduction of this 
+feature, instead users are unable to access the upstream, only seeing an 
+error message from the middlebox.
+
+If Chrome were to support the opt-out header as outlined in the explainer 
+linked above, middleboxes could return it when upstreams turn out to be 
+unreachable. Alternatively, following the recommendation on this comment [
+link 
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/853#issuecomment-1622149334"&gt;https://github.com/w3ctag/design-reviews/issues/853#issuecomment-1622149334&lt;/a&gt;&amp;gt;], 
+if Chrome sent a header identifying the current request as being triggered 
+by the automatic upgrade flow, then middleboxes would be able to redirect 
+to HTTP in these situations. Notice this can’t be done in the general case, 
+since the middlebox might be redirecting the user to a site they didn’t 
+request.
+
+We believe implementing these changes would greatly enhance compatibility 
+with middleboxes and improve the overall user experience,so we appreciate 
+your attention to this matter and eagerly await your feedback
+
+
+On Tuesday, December 5, 2023 at 1:26:28 AM UTC bul...@hotmail.com wrote:
+
+&amp;gt; On Thursday, November 9, 2023 at 11:18:51 AM UTC-5 Andreas S wrote:
+&amp;gt;
+&amp;gt; Same situation here @Franky
+&amp;gt; I'm working for a mobile payment service provider that offers mobile 
+&amp;gt; payment in multiple countries in Europe. 
+&amp;gt; Multiple mobile network operators in Europe like few ones in Poland 
+&amp;gt; currently only support end user identification via header enrichment! 
+&amp;gt;
+&amp;gt; The header enrichment is used for an automatic silent end user 
+&amp;gt; identification that allows service providers in subsequent flow (of course 
+&amp;gt; via https!) to: 
+&amp;gt; a) auto-login an already known end user in mobile web
+&amp;gt; b) offer an end-user the possibility to purchase a good/service without 
+&amp;gt; need to enter mobile phone number of a user in mobile web (which would 
+&amp;gt; require a media break to validate the number via SMS). 
+&amp;gt;
+&amp;gt; The enforced https upgrade has a huge negative impact on usability of such 
+&amp;gt; services for end-users in mobile web: 
+&amp;gt; Flow that worked automatically in the past gets now interrupted by a 
+&amp;gt; request for confirmation for an unsecure flow -&amp;gt; scares a lot of people as 
+&amp;gt; it looks very unprofessional. 
+&amp;gt;
+&amp;gt; Hope you have a realizable idea to deal with this use case, to offer end 
+&amp;gt; users a good user experience again! 
+&amp;gt; (changing identify flow from HE to redirect loop ot mobile network 
+&amp;gt; operator is unfortunately not, as they have very limited ressources :( 
+&amp;gt;
+&amp;gt;
+&amp;gt; ATT Wireless USA (my testing, not easy to look up its exact header name 
+&amp;gt; for me, but I've seen it before, partial evidence that ATTW has an 
+&amp;gt; transparent port 80 proxy that adds req headers 
+&amp;gt; &lt;a  rel="nofollow" href="https://howardforums.com/showthread.php/1908276-AT-amp-T-Prepaid-no-IPV6-address?p=17008722#post17008722"&gt;https://howardforums.com/showthread.php/1908276-AT-amp-T-Prepaid-no-IPV6-address?p=17008722#post17008722&lt;/a&gt;
+&amp;gt;  
+&amp;gt; ) and Verizon Wireless USA  ( &lt;a  rel="nofollow" href="https://news.ycombinator.com/item?id=8500131"&gt;https://news.ycombinator.com/item?id=8500131&lt;/a&gt; 
+&amp;gt; ) also add per-customer (I guess per SIM card) GUIDs to clear HTTP req 
+&amp;gt; headers, by default. Its not politically correct, for any USA based service 
+&amp;gt; provider, to publicly admit or document, they use ISP/customer specific 
+&amp;gt; info from an LTE provider's port 80 transparent proxy, if a port 80 
+&amp;gt; transparent proxy exists, but as the post above says, in Poland, is it is 
+&amp;gt; standard procedure to use an LTE ISP's metadata to change features and 
+&amp;gt; behavior for customer facing websites.
+&amp;gt;
+&amp;gt; Advocating &amp;quot;can't you just make a smartphone native app and pass Apple and 
+&amp;gt; Play store review if you want that info (raw TCP sockets)?&amp;quot; seems the 
+&amp;gt; opposite of the goals and purpose of the W3C/WP. So whats the solution, if 
+&amp;gt; there is a clear business need, as above, for a browser to navigate to a 
+&amp;gt; cleartext port 80 domain and back again, which sounds impossible now? Note, 
+&amp;gt; there is no opt-out mechanism from HTTPS upgrades defined in this spec 
+&amp;gt; other than a a server delivering a RST TCP packet on port 443 or TLS 
+&amp;gt; handshake but invalid/unsigned cert returned, or a many seconds long TCP 
+&amp;gt; timeout on port 443.
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/8874d5e9-2c8a-432e-94ac-9a19d99665a0n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/8874d5e9-2c8a-432e-94ac-9a19d99665a0n%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08765.html</id>
         <title>Re: [blink-dev] Intent to Ship: Protected Audiences Negative Targeting</title>
         <author>
@@ -13091,288 +13217,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMYvS2dyA0p4zUykxus8u%3DoHV_4CcJEj4NqR4aGyBMZ7g2HPtw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMYvS2dyA0p4zUykxus8u%3DoHV_4CcJEj4NqR4aGyBMZ7g2HPtw%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08716.html</id>
-        <title>Re: [blink-dev] Re: Intent to deprecate: SMIL</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08716.html"/>
-        <updated>2023-12-20T21:19:48.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08716.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+deprecate%5C%3A+SMIL%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Re: Intent to deprecate: SMIL&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Philip+Rogers%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Philip Rogers&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20231220" rel="nofollow"&gt;Wed, 20 Dec 2023 13:19:48 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Thanks Lorand for updating the MDN page in this commit 
-&amp;lt;&lt;a  rel="nofollow" href="https://github.com/mdn/content/commit/b68049936ef4d1328e07065eafc87e3e43e826af"&gt;https://github.com/mdn/content/commit/b68049936ef4d1328e07065eafc87e3e43e826af&lt;/a&gt;&amp;gt;
-.&lt;/pre&gt;&lt;pre&gt;
-
-On Wednesday, December 20, 2023 at 1:14:48 PM UTC-8 Philip Rogers wrote:
-
-&amp;gt; I'll see if I can get the MDN page updated.
-&amp;gt;
-&amp;gt; SMIL usage has grown to 2.0% of page loads (link 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/metrics/feature/timeline/popularity/501"&gt;https://chromestatus.com/metrics/feature/timeline/popularity/501&lt;/a&gt;&amp;gt;).
-&amp;gt;
-&amp;gt; On Wednesday, December 20, 2023 at 6:37:36 AM UTC-8 Lorand Zudor wrote:
-&amp;gt;
-&amp;gt;&amp;gt; Hi Chris,
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Sorry for the late reply, noticed this message only now &amp; by mistake.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Exactly - SMIL was actually never deprecated, yet many informamtion one 
-&amp;gt;&amp;gt; can find online (mainly this thread, linked from MDN's SMIL documentation 
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/SVG/SVG_animation_with_SMIL"&gt;https://developer.mozilla.org/en-US/docs/Web/SVG/SVG_animation_with_SMIL&lt;/a&gt;&amp;gt;) 
-&amp;gt;&amp;gt; points toward the direction that it was or will be in the near future, 
-&amp;gt;&amp;gt; however, most of such threads and posts are deprecated &amp; outdated 
-&amp;gt;&amp;gt; themselves.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; To avoid further confusions raised (i.e. SVGator 
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://www.svgator.com/help/getting-started/what-export-options-are-available"&gt;https://www.svgator.com/help/getting-started/what-export-options-are-available&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt; offers SVGs animated w/ JS and CSS yet SMIL was never implemented due to 
-&amp;gt;&amp;gt; the deprecation warning) I'd better delete this thread - let me know what 
-&amp;gt;&amp;gt; do You think
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Wednesday, February 8, 2023 at 7:03:53 PM UTC+2 Chris Harrelson wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Hi Lorand, 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; SMIL was not deprecated and there are no plans to do so. It's still a 
-&amp;gt;&amp;gt; supported feature in Chromium.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Wed, Feb 8, 2023 at 9:02 AM Lorand Zudor &amp;lt;lorand...@gmail.com&amp;gt; wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Hi There,
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Does anyone happen to know what's the status on this one..? Is it more 
-&amp;gt;&amp;gt; like an abandoned thread...?
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Best,
-&amp;gt;&amp;gt; - Lorand.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Friday, April 29, 2022 at 8:29:29 PM UTC+3 Mahdi Hosseinzadeh wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; One use case is how to replace the SMIL animations with CSS animations in 
-&amp;gt;&amp;gt; markdown files?
-&amp;gt;&amp;gt; For example, GitHub *README.md* files or Stack Overflow post body.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; See this stackoverflow post 
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://stackoverflow.com/a/69523392/8583692"&gt;https://stackoverflow.com/a/69523392/8583692&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Wednesday, February 17, 2021 at 8:36:46 PM UTC+3:30 Andrea wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Hello,
-&amp;gt;&amp;gt; i think that after some years it would useful to do new considerations:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; - SMIL is now supported in all major browsers: [1]
-&amp;gt;&amp;gt; - the Usage continues to increase and it's now &amp;gt; 1 % [2]
-&amp;gt;&amp;gt; - Last update of the polyfill is from 5/6 years ago [3]
-&amp;gt;&amp;gt; - Updates about W3C SVG Animations Level 2 [4]
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; I read several websites that point towards this discussion about the ( 
-&amp;gt;&amp;gt; future? ) deprecation of SMIL.
-&amp;gt;&amp;gt; So think it would be useful an updated referenced info about the support 
-&amp;gt;&amp;gt; of SMIL for the SVG animations.
-&amp;gt;&amp;gt; Could you please write an update about the SMIL support?
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; I personally think that now SMIL is a valid open standard for the SVG 
-&amp;gt;&amp;gt; animations so for who builds projects with it, it's very important to have 
-&amp;gt;&amp;gt; no worries about a possible future deprecation.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Thank you.
-&amp;gt;&amp;gt; Andrea Monzini
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; [1] &lt;a  rel="nofollow" href="https://caniuse.com/svg-smil"&gt;https://caniuse.com/svg-smil&lt;/a&gt;
-&amp;gt;&amp;gt; [2] &lt;a  rel="nofollow" href="https://www.chromestatus.com/metrics/feature/timeline/popularity/501"&gt;https://www.chromestatus.com/metrics/feature/timeline/popularity/501&lt;/a&gt;
-&amp;gt;&amp;gt; [3] &lt;a  rel="nofollow" href="https://github.com/ericwilligers/svg-animation"&gt;https://github.com/ericwilligers/svg-animation&lt;/a&gt;
-&amp;gt;&amp;gt; [4] &lt;a  rel="nofollow" href="https://svgwg.org/specs/animations/"&gt;https://svgwg.org/specs/animations/&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Il giorno mercoledì 17 agosto 2016 alle 19:52:10 UTC+2 Philip Rogers ha 
-&amp;gt;&amp;gt; scritto:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Hi all,
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; In the 15 months since we announced our intention to deprecate and 
-&amp;gt;&amp;gt; eventually remove SMIL, we’ve heard a variety of opinions from members of 
-&amp;gt;&amp;gt; the community. We value all of your feedback, and it's clear that there are 
-&amp;gt;&amp;gt; use cases serviced by SMIL that just don’t have high-fidelity replacements 
-&amp;gt;&amp;gt; yet. As a result, we’ve decided to suspend our intent to deprecate and take 
-&amp;gt;&amp;gt; smaller steps toward other options.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; We firmly believe that SMIL is not in the best long-term interests of the 
-&amp;gt;&amp;gt; open web platform for several reasons:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;    - There is no clear path towards broad cross-browser support.
-&amp;gt;&amp;gt;    - The vendors which support SMIL have implementations that continue 
-&amp;gt;&amp;gt;    to vary widely, even after more than a decade of support.
-&amp;gt;&amp;gt;    - There are high-quality cross-platform replacement features on the 
-&amp;gt;&amp;gt;    horizon.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; However, your feedback has made it clear that removing SMIL today would 
-&amp;gt;&amp;gt; be taking away a feature that our community relies on. For example, the 
-&amp;gt;&amp;gt; most common use case of SMIL is to animate SVG content inside image tags. 
-&amp;gt;&amp;gt; While in theory CSS animations can animate this content, there are still 
-&amp;gt;&amp;gt; missing features and bugs on all platforms that make SMIL a better option 
-&amp;gt;&amp;gt; for now. For example, motion-path, path morphing, and the subset of SVG 
-&amp;gt;&amp;gt; properties for which animation is supported all vary between platforms and 
-&amp;gt;&amp;gt; browsers. 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Given these gaps in support, we'll instead proceed over the next few 
-&amp;gt;&amp;gt; months by: 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;    - Proposing removal of pieces of SMIL that don’t enjoy widespread use.
-&amp;gt;&amp;gt;    - Improving our own CSS animations implementation.
-&amp;gt;&amp;gt;    - Filing bugs with browser vendors to help solidify their CSS 
-&amp;gt;&amp;gt;    animations implementations.
-&amp;gt;&amp;gt;    - Continuing to support and promote modern alternatives like 
-&amp;gt;&amp;gt;    motion-path and SVG 2.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Additionally, before we pursue deprecation of SMIL further, we'll make 
-&amp;gt;&amp;gt; sure there's are automatic polyfill- and server-based solutions for any 
-&amp;gt;&amp;gt; content that relies on it.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; It’s the Chromium community that make this an awesome project to work on. 
-&amp;gt;&amp;gt; Thanks to everyone for your feedback and we look forward to hearing from 
-&amp;gt;&amp;gt; you into the future!
-&amp;gt;&amp;gt; 😀😀
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Mon, Sep 21, 2015 at 1:59 PM, &amp;lt;a.sara....@gmail.com&amp;gt; wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; I've been using SVG and SMIL recently and was planning to keep on using 
-&amp;gt;&amp;gt; it from now on. What sold me on it was the ability of using Flash2SVG to 
-&amp;gt;&amp;gt; create animations in Flash (proprietary) using a timeline, and export them 
-&amp;gt;&amp;gt; to SVG. Visual authoring tools to create animations in CSS aren't great, 
-&amp;gt;&amp;gt; and the time it takes to create them by hand is prohibitive. The added 
-&amp;gt;&amp;gt; bonus of using SVG/SMIL is that the animation will fallback to a static 
-&amp;gt;&amp;gt; frame for browsers that do not support it - IE, Edge. Yes, there is the 
-&amp;gt;&amp;gt; need, as with CSS animations, to provide fallbacks to browsers that do not 
-&amp;gt;&amp;gt; support SVG (IE9 and below, Android 2) but I feel that depending on the 
-&amp;gt;&amp;gt; project's target this might not even be a consideration.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; SVG and SMIL are neat self contained files that can just be dropped on 
-&amp;gt;&amp;gt; the page. They do require external JavaScript for animation but so do (or 
-&amp;gt;&amp;gt; might) animations made with CSS. They are a realistic alternative to GIFs 
-&amp;gt;&amp;gt; and as far as I'm aware they're the only sane option for having animations 
-&amp;gt;&amp;gt; with morphing paths.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; In the absence of good authoring tools to create semi-complex CSS 
-&amp;gt;&amp;gt; animations most designers/developers won't do it. There is no time or 
-&amp;gt;&amp;gt; budget to be spent on a project - a regular project for a client with a 
-&amp;gt;&amp;gt; small business - creating animations by hand. This has to be well resolved 
-&amp;gt;&amp;gt; before deprecating SMIL.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Please don't remove the support, at least until there are solid, well 
-&amp;gt;&amp;gt; established alternatives. It seems we're moving backwards, not forward.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Thursday, 30 April 2015 09:09:31 UTC+12, Philip Rogers wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Primary eng emails*
-&amp;gt;&amp;gt; ericwi...@chromium.org, p...@chromium.org
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Summary*
-&amp;gt;&amp;gt; We intend to deprecate SMIL animations in favor of CSS animations and Web 
-&amp;gt;&amp;gt; animations.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Motivation*
-&amp;gt;&amp;gt; SMIL (pronounced “smile”) is a declarative animation system that 
-&amp;gt;&amp;gt; pioneered animations on the web and inspired both CSS animations and Web 
-&amp;gt;&amp;gt; animations. SMIL was never implemented in all major browsers which limited 
-&amp;gt;&amp;gt; its use and spec development slowed after the last spec update in 2008. We 
-&amp;gt;&amp;gt; would like to deprecate our SVG-specific SMIL implementation and 
-&amp;gt;&amp;gt; double-down on support and tooling of integrated HTML &amp; SVG animation 
-&amp;gt;&amp;gt; models: CSS animations and Web animations.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; For content authors, browsers are actively improving the SVG animation 
-&amp;gt;&amp;gt; experience without SMIL. Microsoft just announced CSS animation support for 
-&amp;gt;&amp;gt; SVG[1] which means authors can, for the first time, create an animated SVG 
-&amp;gt;&amp;gt; image that works in all major browsers. Both Chromium[2] and Firefox[3] are 
-&amp;gt;&amp;gt; actively developing CSS animation and Web animation tooling which will work 
-&amp;gt;&amp;gt; for SVG content too. Eric Willigers has also created a SMIL polyfill 
-&amp;gt;&amp;gt; implemented entirely on the Web Animations API[5].
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; In terms of implementation, SMIL adds significant complexity to Blink. In 
-&amp;gt;&amp;gt; the past year we had two large efforts to rewrite the tear-off 
-&amp;gt;&amp;gt; implementation[4] (this supports ‘live’ animated values) as well as a 
-&amp;gt;&amp;gt; difficult integration with Oilpan. Deprecating SMIL will help us focus on 
-&amp;gt;&amp;gt; more general animation issues.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Compatibility Risk*
-&amp;gt;&amp;gt; Medium-Low: Internet Explorer does not support SMIL which limited its use 
-&amp;gt;&amp;gt; for critical functionality. A concern is existing SMIL communities and 
-&amp;gt;&amp;gt; content authors: we will use developer outreach to minimize risks here.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Alternative implementation suggestion for web developers*
-&amp;gt;&amp;gt; There are three migration strategies:
-&amp;gt;&amp;gt; 1) CSS animations.
-&amp;gt;&amp;gt; 2) Web animations.
-&amp;gt;&amp;gt; 3) Javascript polyfills such as Eric’s SMIL polyfill based on Web 
-&amp;gt;&amp;gt; animations or fakesmile.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Usage information from UseCounter*
-&amp;gt;&amp;gt; Usage is low but stable at 0.0403% of pageviews[6]. The top SMIL user is 
-&amp;gt;&amp;gt; currently ign.com which only uses SMIL for a minor effect. Usage of SMIL 
-&amp;gt;&amp;gt; inside images (i.e., &amp;lt;img src=”...svg”&amp;gt;) where javascript polyfills will 
-&amp;gt;&amp;gt; not work is lower at 0.006% of pageviews.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Entry on chromestatus.com &amp;lt;&lt;a  rel="nofollow" href="http://chromestatus.com"&gt;http://chromestatus.com&lt;/a&gt;&amp;gt;, crbug.com 
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="http://crbug.com"&gt;http://crbug.com&lt;/a&gt;&amp;gt;, or MDN*
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="http://crbug.com/482689"&gt;http://crbug.com/482689&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Requesting approval to remove too?*
-&amp;gt;&amp;gt; No, this is only an intent to deprecate and we plan to show a deprecation 
-&amp;gt;&amp;gt; warning in the console.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; [1] &lt;a  rel="nofollow" href="https://status.modern.ie/csstransitionsanimationsforsvgelements"&gt;https://status.modern.ie/csstransitionsanimationsforsvgelements&lt;/a&gt;
-&amp;gt;&amp;gt; [2] &lt;a  rel="nofollow" href="https://twitter.com/ChromeDevTools/status/575327634319540224"&gt;https://twitter.com/ChromeDevTools/status/575327634319540224&lt;/a&gt;
-&amp;gt;&amp;gt; [3] 
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://hacks.mozilla.org/2015/01/web-animation-tools-network-security-insights-font-inspector-improvements-and-more-firefox-developer-tools-episode-37/"&gt;https://hacks.mozilla.org/2015/01/web-animation-tools-network-security-insights-font-inspector-improvements-and-more-firefox-developer-tools-episode-37/&lt;/a&gt;
-&amp;gt;&amp;gt; [4] 
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://docs.google.com/document/d/1bg7CUyUszqdwmENY3JX6_PoQD6uHRCNcRPJMlC4qlkw/view"&gt;https://docs.google.com/document/d/1bg7CUyUszqdwmENY3JX6_PoQD6uHRCNcRPJMlC4qlkw/view&lt;/a&gt;
-&amp;gt;&amp;gt; [5] &lt;a  rel="nofollow" href="https://github.com/ericwilligers/svg-animation"&gt;https://github.com/ericwilligers/svg-animation&lt;/a&gt;
-&amp;gt;&amp;gt; [6] &lt;a  rel="nofollow" href="https://www.chromestatus.com/metrics/feature/timeline/popularity/501"&gt;https://www.chromestatus.com/metrics/feature/timeline/popularity/501&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; -- 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups 
-&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an 
-&amp;gt;&amp;gt; email to blink-dev+...@chromium.org.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; To view this discussion on the web visit 
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/c79d315e-a293-474c-9ee1-87372c4c06a4n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/c79d315e-a293-474c-9ee1-87372c4c06a4n%40chromium.org&lt;/a&gt;
-&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/c79d315e-a293-474c-9ee1-87372c4c06a4n%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/c79d315e-a293-474c-9ee1-87372c4c06a4n%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/d9c63bd1-f110-4b56-8701-02a6577232b0n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/d9c63bd1-f110-4b56-8701-02a6577232b0n%40chromium.org&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
