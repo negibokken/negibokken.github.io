@@ -5,6 +5,83 @@
     <link href="https://negibokken.github.io/feeds/chromium_commits/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>https://chromium.googlesource.com/chromium/src/+/19df46fa1436fa447231f4f4d951fec987bf3747%5E%21/</id>
+        <title>Revert "When testing MPC hits for matching inherited data, compare by-value."</title>
+        <author>
+            <name>Chromium commit feed</name>
+        </author>
+        <link href="https://chromium.googlesource.com/chromium/src/+/19df46fa1436fa447231f4f4d951fec987bf3747%5E%21/"/>
+        <updated>2024-01-04T06:18:14.000Z</updated>
+        <summary>https://chromium.googlesource.com/chromium/src/+/19df46fa1436fa447231f4f4d951fec987bf3747%5E%21/</summary>
+        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;This reverts commit c9c6c875f6b8df9aeba5653c60571143e475ba08.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Reason for revert: Suspected culprit for Builder: Linux CFI (more details in bug https://bugs.chromium.org/p/chromium/issues/detail?id=1515486&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Original change's description:&lt;br/&gt;&lt;br/&gt;&gt; When testing MPC hits for matching inherited data, compare by-value.&lt;br/&gt;&lt;br/&gt;&gt;&lt;br/&gt;&lt;br/&gt;&gt; This makes for a more expensive comparison, but we get it back by&lt;br/&gt;&lt;br/&gt;&gt; getting complete MPC hits more often -- saving both RAM and CPU.&lt;br/&gt;&lt;br/&gt;&gt; (The effect is especially pronounced on style recalcs, where the&lt;br/&gt;&lt;br/&gt;&gt; MPC already most likely contains nearly everything we'd want.)&lt;br/&gt;&lt;br/&gt;&gt; In particular, if two elements get the same state from different&lt;br/&gt;&lt;br/&gt;&gt; parts in the tree, the pointers are not the same, but the data&lt;br/&gt;&lt;br/&gt;&gt; is equivalent. E.g.&lt;br/&gt;&lt;br/&gt;&gt;&lt;br/&gt;&lt;br/&gt;&gt;   * div&lt;br/&gt;&lt;br/&gt;&gt;     * div class="a"&lt;br/&gt;&lt;br/&gt;&gt;       * span class="b"&lt;br/&gt;&lt;br/&gt;&gt;     * div class="a"&lt;br/&gt;&lt;br/&gt;&gt;       * span class="b"  &lt;-- would get a partial MPC hit before, full now&lt;br/&gt;&lt;br/&gt;&gt;&lt;br/&gt;&lt;br/&gt;&gt; Note also that there is a knock-on effect from reusing the ComputedStyle&lt;br/&gt;&lt;br/&gt;&gt; from the MPC hit, in that any similar children of the two spans would&lt;br/&gt;&lt;br/&gt;&gt; now automatically have the same group pointers for inherited data,&lt;br/&gt;&lt;br/&gt;&gt; too (so when we get a match, we don't need the by-value comparison for&lt;br/&gt;&lt;br/&gt;&gt; all the children; the pointers will be the same and the comparison will&lt;br/&gt;&lt;br/&gt;&gt; short-circuit).&lt;br/&gt;&lt;br/&gt;&gt;&lt;br/&gt;&lt;br/&gt;&gt; This saves a large amount of ComputedStyle RAM:&lt;br/&gt;&lt;br/&gt;&gt;&lt;br/&gt;&lt;br/&gt;&gt;   Video            766 →   395 kB ( -371 kB)&lt;br/&gt;&lt;br/&gt;&gt;   Extension       3002 →  1670 kB (-1332 kB)&lt;br/&gt;&lt;br/&gt;&gt;   News            1724 →  1442 kB ( -282 kB)&lt;br/&gt;&lt;br/&gt;&gt;   ECommerce        238 →   198 kB (  -40 kB)&lt;br/&gt;&lt;br/&gt;&gt;   Social1          755 →   588 kB ( -167 kB)&lt;br/&gt;&lt;br/&gt;&gt;   Social2          536 →   461 kB (  -75 kB)&lt;br/&gt;&lt;br/&gt;&gt;   Encyclopedia    1658 →  1293 kB ( -365 kB)&lt;br/&gt;&lt;br/&gt;&gt;   Sports           541 →   409 kB ( -132 kB)&lt;br/&gt;&lt;br/&gt;&gt;   Search           415 →   238 kB ( -177 kB)&lt;br/&gt;&lt;br/&gt;&gt;&lt;br/&gt;&lt;br/&gt;&gt; It would be possible to force-rewrite equivalent pointers into&lt;br/&gt;&lt;br/&gt;&gt; each other to save yet more RAM (one of them could be GC-ed away&lt;br/&gt;&lt;br/&gt;&gt; even if we did not have an MPC match), but from a quick prototyping,&lt;br/&gt;&lt;br/&gt;&gt; the effect is mostly small, and it costs a little more CPU (~1%).&lt;br/&gt;&lt;br/&gt;&gt;&lt;br/&gt;&lt;br/&gt;&gt; It also saves CPU (style perftest, Zen 2, LTO but no PGO):&lt;br/&gt;&lt;br/&gt;&gt;&lt;br/&gt;&lt;br/&gt;&gt;   Initial style (µs)     Before     After    Perf      95% CI (BCa)&lt;br/&gt;&lt;br/&gt;&gt;   =================== ========= ========= ======= =================&lt;br/&gt;&lt;br/&gt;&gt;   ECommerce                8456      8373   +1.0%  [ +0.4%,  +1.5%]&lt;br/&gt;&lt;br/&gt;&gt;   Encyclopedia            71749     70657   +1.5%  [ +1.0%,  +2.4%]&lt;br/&gt;&lt;br/&gt;&gt;   Extension               93541     86623   +8.0%  [ +7.2%,  +8.6%]&lt;br/&gt;&lt;br/&gt;&gt;   News                    36167     35159   +2.9%  [ +2.4%,  +3.7%]&lt;br/&gt;&lt;br/&gt;&gt;   Search                  10621     10295   +3.2%  [ +2.7%,  +3.7%]&lt;br/&gt;&lt;br/&gt;&gt;   Social1                 20412     19897   +2.6%  [ +2.1%,  +3.1%]&lt;br/&gt;&lt;br/&gt;&gt;   Social2                 13418     13165   +1.9%  [ +1.3%,  +2.6%]&lt;br/&gt;&lt;br/&gt;&gt;   Sports                  39573     38658   +2.4%  [ +1.3%,  +6.3%]&lt;br/&gt;&lt;br/&gt;&gt;   Video                   30046     27558   +9.0%  [ +8.5%,  +9.6%]&lt;br/&gt;&lt;br/&gt;&gt;   Geometric mean                            +3.6%  [ +3.0%,  +4.1%]&lt;br/&gt;&lt;br/&gt;&gt;&lt;br/&gt;&lt;br/&gt;&gt;   Recalc style (µs)      Before     After    Perf      95% CI (BCa)&lt;br/&gt;&lt;br/&gt;&gt;   =================== ========= ========= ======= =================&lt;br/&gt;&lt;br/&gt;&gt;   ECommerce                5267      4418  +19.2%  [+18.1%, +20.5%]&lt;br/&gt;&lt;br/&gt;&gt;   Encyclopedia            59969     56885   +5.4%  [ +5.0%,  +6.3%]&lt;br/&gt;&lt;br/&gt;&gt;   Extension               79453     70043  +13.4%  [+12.2%, +14.5%]&lt;br/&gt;&lt;br/&gt;&gt;   News                    27126     22136  +22.5%  [+21.5%, +23.6%]&lt;br/&gt;&lt;br/&gt;&gt;   Search                   5500      4340  +26.7%  [+25.4%, +27.8%]&lt;br/&gt;&lt;br/&gt;&gt;   Social1                 12423     10405  +19.4%  [+18.1%, +20.4%]&lt;br/&gt;&lt;br/&gt;&gt;   Social2                  9104      8050  +13.1%  [+11.8%, +14.1%]&lt;br/&gt;&lt;br/&gt;&gt;   Sports                  22436     19062  +17.7%  [+15.0%, +26.9%]&lt;br/&gt;&lt;br/&gt;&gt;   Video                   17912     12632  +41.8%  [+40.8%, +42.8%]&lt;br/&gt;&lt;br/&gt;&gt;   Geometric mean                           +19.6%  [+18.5%, +20.8%]&lt;br/&gt;&lt;br/&gt;&gt;&lt;br/&gt;&lt;br/&gt;&gt; Speedometer3, M1 Pinpoint (lower is better except Score,&lt;br/&gt;&lt;br/&gt;&gt; significant results at 95% CI only, ordered by increasing goodness):&lt;br/&gt;&lt;br/&gt;&gt;&lt;br/&gt;&lt;br/&gt;&gt;   TodoMVC-JavaScript-ES6-Webpack            [ +0.6%,  +2.2%]&lt;br/&gt;&lt;br/&gt;&gt;   TodoMVC-React-Redux                       [ +0.2%,  +0.9%]&lt;br/&gt;&lt;br/&gt;&gt;   Editor-TipTap                             [ +0.2%,  +0.6%]&lt;br/&gt;&lt;br/&gt;&gt;   Charts-chartjs                            [ -0.9%,  -0.1%]&lt;br/&gt;&lt;br/&gt;&gt;   TodoMVC-Backbone                          [ -0.8%,  -0.1%]&lt;br/&gt;&lt;br/&gt;&gt;   TodoMVC-JavaScript-ES5                    [ -0.8%,  -0.1%]&lt;br/&gt;&lt;br/&gt;&gt;   TodoMVC-jQuery                            [ -0.8%,  -0.2%]&lt;br/&gt;&lt;br/&gt;&gt;   TodoMVC-React                             [ -1.1%,  -0.3%]&lt;br/&gt;&lt;br/&gt;&gt;   TodoMVC-Angular                           [ -1.5%,  -0.3%]&lt;br/&gt;&lt;br/&gt;&gt;   TodoMVC-Preact                            [ -3.0%,  -1.4%]&lt;br/&gt;&lt;br/&gt;&gt;   TodoMVC-React-Complex-DOM                 [ -3.7%,  -2.6%]&lt;br/&gt;&lt;br/&gt;&gt;   TodoMVC-WebComponents                     [ -5.5%,  -4.8%]&lt;br/&gt;&lt;br/&gt;&gt;   TodoMVC-Lit                               [ -6.6%,  -5.7%]&lt;br/&gt;&lt;br/&gt;&gt;&lt;br/&gt;&lt;br/&gt;&gt;   Score                                     [ +0.7%,  +1.0%]&lt;br/&gt;&lt;br/&gt;&gt;&lt;br/&gt;&lt;br/&gt;&gt; We put it behind the CSSMPCImprovement flag (default on), to be able&lt;br/&gt;&lt;br/&gt;&gt; to fold it into the ongoing GWS experiment.&lt;br/&gt;&lt;br/&gt;&gt;&lt;br/&gt;&lt;br/&gt;&gt; Bug: 1504480&lt;br/&gt;&lt;br/&gt;&gt; Change-Id: Id47631629f90ad049181957adce47e330a512693&lt;br/&gt;&lt;br/&gt;&gt; Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/5149687&lt;br/&gt;&lt;br/&gt;&gt; Reviewed-by: Rune Lillesveen &lt;futhark@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;&gt; Commit-Queue: Steinar H Gunderson &lt;sesse@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;&gt; Cr-Commit-Position: refs/heads/main@{#1242371}&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: 1504480, 1515486&lt;br/&gt;&lt;br/&gt;Change-Id: I1d21491fd5ed31219a6d652c98751ce8fdc2bb53&lt;br/&gt;&lt;br/&gt;No-Presubmit: true&lt;br/&gt;&lt;br/&gt;No-Tree-Checks: true&lt;br/&gt;&lt;br/&gt;No-Try: true&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/5167289&lt;br/&gt;&lt;br/&gt;Auto-Submit: Sophia Lin &lt;sophialin@google.com&gt;&lt;br/&gt;&lt;br/&gt;Owners-Override: Sophia Lin &lt;sophialin@google.com&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Rubber Stamper &lt;rubber-stamper@appspot.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Bot-Commit: Rubber Stamper &lt;rubber-stamper@appspot.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1242774}&lt;br/&gt;&lt;br/&gt;</content>
+    </entry>
+    <entry>
+        <id>https://chromium.googlesource.com/chromium/src/+/bead0a5b89601c5ed326a8e60fc4a1422eefd6de%5E%21/</id>
+        <title>Use base::Contains() instead of std::find()</title>
+        <author>
+            <name>Chromium commit feed</name>
+        </author>
+        <link href="https://chromium.googlesource.com/chromium/src/+/bead0a5b89601c5ed326a8e60fc4a1422eefd6de%5E%21/"/>
+        <updated>2024-01-04T04:09:37.000Z</updated>
+        <summary>https://chromium.googlesource.com/chromium/src/+/bead0a5b89601c5ed326a8e60fc4a1422eefd6de%5E%21/</summary>
+        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Use base::Contains() instead of std;:find() where appropriate for better readability.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: 561800&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Signed-off-by: Binoy Kumar Sutradhar &lt;binoy.s@samsung.com&gt;&lt;br/&gt;&lt;br/&gt;Change-Id: If1767dd604c4fd7712143ed743c708933be408c0&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/5143281&lt;br/&gt;&lt;br/&gt;Reviewed-by: Christian Dullweber &lt;dullweber@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Daniel Murphy &lt;dmurph@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Reviewed-by: Steven Holte &lt;holte@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Reviewed-by: Daniel Murphy &lt;dmurph@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1242773}&lt;br/&gt;&lt;br/&gt;</content>
+    </entry>
+    <entry>
+        <id>https://chromium.googlesource.com/chromium/src/+/6044d2c6c02ed03724d42fc8d623812fbeafced6%5E%21/</id>
+        <title>Updating trunk VERSION from 6226.0 to 6227.0</title>
+        <author>
+            <name>Chromium commit feed</name>
+        </author>
+        <link href="https://chromium.googlesource.com/chromium/src/+/6044d2c6c02ed03724d42fc8d623812fbeafced6%5E%21/"/>
+        <updated>2024-01-04T04:00:37.000Z</updated>
+        <summary>https://chromium.googlesource.com/chromium/src/+/6044d2c6c02ed03724d42fc8d623812fbeafced6%5E%21/</summary>
+        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;* This is an automated release commit.&lt;br/&gt;&lt;br/&gt;* Do not revert without consulting chrome-pmo@google.com.&lt;br/&gt;&lt;br/&gt;NOAUTOREVERT=true&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Change-Id: I10f843bc4e8af461f5a50fc45988e0dea49d9867&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/5165470&lt;br/&gt;&lt;br/&gt;Bot-Commit: Chrome Release Bot (LUCI) &lt;chrome-official-brancher@chops-service-accounts.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1242772}&lt;br/&gt;&lt;br/&gt;</content>
+    </entry>
+    <entry>
+        <id>https://chromium.googlesource.com/chromium/src/+/ff2a9f7f8f41dc9db01e47ac6f3357d6a0581590%5E%21/</id>
+        <title>WebNN: Define DirectML Node for hardSigmoid MLOperator</title>
+        <author>
+            <name>Chromium commit feed</name>
+        </author>
+        <link href="https://chromium.googlesource.com/chromium/src/+/ff2a9f7f8f41dc9db01e47ac6f3357d6a0581590%5E%21/"/>
+        <updated>2024-01-04T03:48:54.000Z</updated>
+        <summary>https://chromium.googlesource.com/chromium/src/+/ff2a9f7f8f41dc9db01e47ac6f3357d6a0581590%5E%21/</summary>
+        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;This CL adds mojo definition of hardSigmoid operator, implements the&lt;br/&gt;&lt;br/&gt;operator validation on service side and method&lt;br/&gt;&lt;br/&gt;CreateOperatorForHardSigmoid for DirectML backend.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: 1273291&lt;br/&gt;&lt;br/&gt;Change-Id: I5e25ac934576e138e7444241841a1102ed5d1e25&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/5136968&lt;br/&gt;&lt;br/&gt;Reviewed-by: Alex Gough &lt;ajgo@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Reviewed-by: Rafael Cintron &lt;rafael.cintron@microsoft.com&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Lisha Guo &lt;lisha.guo@intel.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1242771}&lt;br/&gt;&lt;br/&gt;</content>
+    </entry>
+    <entry>
+        <id>https://chromium.googlesource.com/chromium/src/+/3d1a7bbb11855e1d5b2fa4106d86c1ba27c6acb6%5E%21/</id>
+        <title>[DanglingPtr] Fix dangling ptr in AutomationInternalCustomBindingsTest</title>
+        <author>
+            <name>Chromium commit feed</name>
+        </author>
+        <link href="https://chromium.googlesource.com/chromium/src/+/3d1a7bbb11855e1d5b2fa4106d86c1ba27c6acb6%5E%21/"/>
+        <updated>2024-01-04T03:42:04.000Z</updated>
+        <summary>https://chromium.googlesource.com/chromium/src/+/3d1a7bbb11855e1d5b2fa4106d86c1ba27c6acb6%5E%21/</summary>
+        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;This CL removes an unused member |automation_internal_bindings_|.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: 1291138&lt;br/&gt;&lt;br/&gt;Change-Id: I40cdade82af352a24229f0f0a29dfbec5897984f&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/5162188&lt;br/&gt;&lt;br/&gt;Commit-Queue: Hyowon Kim &lt;hyowon@igalia.com&gt;&lt;br/&gt;&lt;br/&gt;Reviewed-by: Finnur Thorarinsson &lt;finnur@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1242770}&lt;br/&gt;&lt;br/&gt;</content>
+    </entry>
+    <entry>
+        <id>https://chromium.googlesource.com/chromium/src/+/588e5d69885205e138dccdf2e37300cdf3e4ecf0%5E%21/</id>
+        <title>Roll Chrome Win64 PGO Profile</title>
+        <author>
+            <name>Chromium commit feed</name>
+        </author>
+        <link href="https://chromium.googlesource.com/chromium/src/+/588e5d69885205e138dccdf2e37300cdf3e4ecf0%5E%21/"/>
+        <updated>2024-01-04T03:35:43.000Z</updated>
+        <summary>https://chromium.googlesource.com/chromium/src/+/588e5d69885205e138dccdf2e37300cdf3e4ecf0%5E%21/</summary>
+        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Roll Chrome Win64 PGO profile from chrome-win64-main-1704315597-bd9b2d46d75914af5e2333c5f67c85ad3892be4d.profdata to chrome-win64-main-1704326379-2fad40cb42fb648241c1744df6bc13a95d86996e.profdata&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;If this roll has caused a breakage, revert this CL and stop the roller&lt;br/&gt;&lt;br/&gt;using the controls here:&lt;br/&gt;&lt;br/&gt;https://autoroll.skia.org/r/pgo-win64-chromium&lt;br/&gt;&lt;br/&gt;Please CC chrome-brapp-engprod@google.com,pgo-profile-sheriffs@google.com on the revert to ensure that a human&lt;br/&gt;&lt;br/&gt;is aware of the problem.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To file a bug in Chromium main branch: https://bugs.chromium.org/p/chromium/issues/entry&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To report a problem with the AutoRoller itself, please file a bug:&lt;br/&gt;&lt;br/&gt;https://issues.skia.org/issues/new?component=1389291&amp;template=1850622&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Documentation for the AutoRoller is here:&lt;br/&gt;&lt;br/&gt;https://skia.googlesource.com/buildbot/+doc/main/autoroll/README.md&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Cq-Include-Trybots: luci.chrome.try:win64-chrome&lt;br/&gt;&lt;br/&gt;Tbr: pgo-profile-sheriffs@google.com&lt;br/&gt;&lt;br/&gt;Change-Id: I8f44cabbfe36a70a54205e884bdb16adc90dd10b&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/5167151&lt;br/&gt;&lt;br/&gt;Commit-Queue: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Bot-Commit: chromium-autoroll &lt;chromium-autoroll@skia-public.iam.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1242769}&lt;br/&gt;&lt;br/&gt;</content>
+    </entry>
+    <entry>
+        <id>https://chromium.googlesource.com/chromium/src/+/622165bce6753d7ae8b24bb30b950f4e95620dee%5E%21/</id>
+        <title>Ignore disconnect signals when a QUIC connection migration is happening on the default network</title>
+        <author>
+            <name>Chromium commit feed</name>
+        </author>
+        <link href="https://chromium.googlesource.com/chromium/src/+/622165bce6753d7ae8b24bb30b950f4e95620dee%5E%21/"/>
+        <updated>2024-01-04T03:19:54.000Z</updated>
+        <summary>https://chromium.googlesource.com/chromium/src/+/622165bce6753d7ae8b24bb30b950f4e95620dee%5E%21/</summary>
+        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Suppose that both wifi and mobile networks are active and the default&lt;br/&gt;&lt;br/&gt;network is wifi. When wifi becomes unavailable, there could be two&lt;br/&gt;&lt;br/&gt;signals from NetworkChangeNotifier via NetworkObserver to trigger&lt;br/&gt;&lt;br/&gt;a QUIC connection migration:&lt;br/&gt;&lt;br/&gt;- OnNetworkDisconnected() to signal wifi becomes inactive&lt;br/&gt;&lt;br/&gt;- OnNetworkMadeDefault() to signal mobile becomes the default network&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;The former doesn't require proving, but the latter requires proving.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;The order of these signals is not guaranteed. Before this CL,&lt;br/&gt;&lt;br/&gt;QuicChromiumClientSession didn't handle the case where&lt;br/&gt;&lt;br/&gt;OnNetworkMadeDefault() comes first and the OnNetworkDisconnected()&lt;br/&gt;&lt;br/&gt;comes next. There was no valid connection IDs until proving finished,&lt;br/&gt;&lt;br/&gt;but QuicChromiumClientSession::OnNetworkDisconnectedV2() tried to&lt;br/&gt;&lt;br/&gt;migrate immediately, resulting in a migration failure.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;To avoid the problem, ignore disconnect signals when a migration is&lt;br/&gt;&lt;br/&gt;happening on the default network.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;The existing QuicConnectionMigrationTest.Basic test will cover this&lt;br/&gt;&lt;br/&gt;change once it starts running on bots.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: 1509458&lt;br/&gt;&lt;br/&gt;Change-Id: I9b348ad82ef004800356f5b63c1f702c1d09ccca&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/5138419&lt;br/&gt;&lt;br/&gt;Commit-Queue: Kenichi Ishibashi &lt;bashi@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Reviewed-by: Stefano Duo &lt;stefanoduo@google.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1242768}&lt;br/&gt;&lt;br/&gt;</content>
+    </entry>
+    <entry>
         <id>https://chromium.googlesource.com/chromium/src/+/cf7829b2f849f9fc818a6888ce256cce6c2c4984%5E%21/</id>
         <title>Enable bugprone-unique-ptr-array-mismatch clang-tidy check</title>
         <author>
@@ -2126,82 +2203,5 @@
         <updated>2024-01-03T19:47:44.000Z</updated>
         <summary>https://chromium.googlesource.com/chromium/src/+/9fb208e6b1baf75c3aa6a687c8d232bcb36038f3%5E%21/</summary>
         <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;This boolean was used with if-else statements to branch between address&lt;br/&gt;&lt;br/&gt;and credit card suggestions.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Now that we have more data types to suggest (e.g. IBAN) and that&lt;br/&gt;&lt;br/&gt;there is plans to add support for more data types, it becomes&lt;br/&gt;&lt;br/&gt;problematic and leads to confusion and bugs (see the attached bug).&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;This CL replaces the boolean by a FillingProduct member and the if-else&lt;br/&gt;&lt;br/&gt;statements by explicit if conditions.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;This CL touches the following metric:&lt;br/&gt;&lt;br/&gt;Autofill.AddressSuggestionsCount&lt;br/&gt;&lt;br/&gt;It fixes cases where this metric was logged for non-address suggestions.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Fixed: b/318488182&lt;br/&gt;&lt;br/&gt;Change-Id: I8c736f95c1faf1cc0327f304ea402100c779b751&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/5164111&lt;br/&gt;&lt;br/&gt;Commit-Queue: Jihad Hanna &lt;jihadghanna@google.com&gt;&lt;br/&gt;&lt;br/&gt;Reviewed-by: Florian Leimgruber &lt;fleimgruber@google.com&gt;&lt;br/&gt;&lt;br/&gt;Code-Coverage: findit-for-me@appspot.gserviceaccount.com &lt;findit-for-me@appspot.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1242575}&lt;br/&gt;&lt;br/&gt;</content>
-    </entry>
-    <entry>
-        <id>https://chromium.googlesource.com/chromium/src/+/8497bec1d702848264b88d8419c2a5d0a5e433d9%5E%21/</id>
-        <title>CrOS Settings: Re-link on Restore Apps notification link</title>
-        <author>
-            <name>Chromium commit feed</name>
-        </author>
-        <link href="https://chromium.googlesource.com/chromium/src/+/8497bec1d702848264b88d8419c2a5d0a5e433d9%5E%21/"/>
-        <updated>2024-01-03T19:47:27.000Z</updated>
-        <summary>https://chromium.googlesource.com/chromium/src/+/8497bec1d702848264b88d8419c2a5d0a5e433d9%5E%21/</summary>
-        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;When clicking on the notification for Restore Apps &gt; Settings, the user&lt;br/&gt;&lt;br/&gt;will now get directed to Startup's dropdown.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;New page opening: https://screenshot.googleplex.com/AsXmBqCMXHBpKv6&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;BUG=b/316975648&lt;br/&gt;&lt;br/&gt;TEST=Manually test that the Settings button links to Startup&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Change-Id: I2eef78d9daa25d97d80c467c464ce6c9eb547ff2&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/5161008&lt;br/&gt;&lt;br/&gt;Reviewed-by: Kyle Horimoto &lt;khorimoto@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Nikki Moteva &lt;moteva@google.com&gt;&lt;br/&gt;&lt;br/&gt;Reviewed-by: Mike Wasserman &lt;msw@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Reviewed-by: Wes Okuhara &lt;wesokuhara@google.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1242574}&lt;br/&gt;&lt;br/&gt;</content>
-    </entry>
-    <entry>
-        <id>https://chromium.googlesource.com/chromium/src/+/6cef6ea629dc764f1da59c8fa33f57dc5482d5a5%5E%21/</id>
-        <title>Add field trial for MmapSafeBrowsingDatabase on iOS</title>
-        <author>
-            <name>Chromium commit feed</name>
-        </author>
-        <link href="https://chromium.googlesource.com/chromium/src/+/6cef6ea629dc764f1da59c8fa33f57dc5482d5a5%5E%21/"/>
-        <updated>2024-01-03T19:45:24.000Z</updated>
-        <summary>https://chromium.googlesource.com/chromium/src/+/6cef6ea629dc764f1da59c8fa33f57dc5482d5a5%5E%21/</summary>
-        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;This experiment impacts iOS as well, so add the platform.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: b/315332927&lt;br/&gt;&lt;br/&gt;Change-Id: I1c08fb71fc966afa9c055e43334057ff9ebcd972&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/5164335&lt;br/&gt;&lt;br/&gt;Reviewed-by: thefrog &lt;thefrog@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Auto-Submit: Daniel Rubery &lt;drubery@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Daniel Rubery &lt;drubery@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: thefrog &lt;thefrog@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1242573}&lt;br/&gt;&lt;br/&gt;</content>
-    </entry>
-    <entry>
-        <id>https://chromium.googlesource.com/chromium/src/+/3e95e8d8c5fd3aedebf6b3e085a49eeb1262fa64%5E%21/</id>
-        <title>Roll src/chrome/app/theme/google_chrome/ d66f472d9..f390600d9 (1 commit)</title>
-        <author>
-            <name>Chromium commit feed</name>
-        </author>
-        <link href="https://chromium.googlesource.com/chromium/src/+/3e95e8d8c5fd3aedebf6b3e085a49eeb1262fa64%5E%21/"/>
-        <updated>2024-01-03T19:33:29.000Z</updated>
-        <summary>https://chromium.googlesource.com/chromium/src/+/3e95e8d8c5fd3aedebf6b3e085a49eeb1262fa64%5E%21/</summary>
-        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;https://chrome-internal.googlesource.com/chrome/theme/google_chrome.git/+log/d66f472d926c..f390600d9ddd&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;$ git log d66f472d9..f390600d9 --date=short --no-merges --format='%ad %ae %s'&lt;br/&gt;&lt;br/&gt;2023-12-27 davidbienvenu win: add chrome pdf and doc icons&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Created with:&lt;br/&gt;&lt;br/&gt;  roll-dep src/chrome/app/theme/google_chrome&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: 414141&lt;br/&gt;&lt;br/&gt;Change-Id: I9b1271f0bb02cf988316ac15d5600f63a34b9ec5&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/5163056&lt;br/&gt;&lt;br/&gt;Reviewed-by: Peter Boström &lt;pbos@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: David Bienvenu &lt;davidbienvenu@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1242572}&lt;br/&gt;&lt;br/&gt;</content>
-    </entry>
-    <entry>
-        <id>https://chromium.googlesource.com/chromium/src/+/9963a17a5d946c01b859d332d8a0e64345b5e2da%5E%21/</id>
-        <title>[Code Health] Remove some uses of base::SupportsWeakPtr. (sub_filt)</title>
-        <author>
-            <name>Chromium commit feed</name>
-        </author>
-        <link href="https://chromium.googlesource.com/chromium/src/+/9963a17a5d946c01b859d332d8a0e64345b5e2da%5E%21/"/>
-        <updated>2024-01-03T19:31:11.000Z</updated>
-        <summary>https://chromium.googlesource.com/chromium/src/+/9963a17a5d946c01b859d332d8a0e64345b5e2da%5E%21/</summary>
-        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: 647430&lt;br/&gt;&lt;br/&gt;Change-Id: Ib2309d63cff714cfc96bcb4f4f10e8b9c33303ca&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/5159855&lt;br/&gt;&lt;br/&gt;Auto-Submit: David Bertoni &lt;dbertoni@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Charlie Harrison &lt;csharrison@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Reviewed-by: Charlie Harrison &lt;csharrison@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1242571}&lt;br/&gt;&lt;br/&gt;</content>
-    </entry>
-    <entry>
-        <id>https://chromium.googlesource.com/chromium/src/+/7857b9847f593fbe8a0e567c6e1d41b933dc2b8b%5E%21/</id>
-        <title>Add command line arg to disable FRE signin on automotive</title>
-        <author>
-            <name>Chromium commit feed</name>
-        </author>
-        <link href="https://chromium.googlesource.com/chromium/src/+/7857b9847f593fbe8a0e567c6e1d41b933dc2b8b%5E%21/"/>
-        <updated>2024-01-03T19:31:01.000Z</updated>
-        <summary>https://chromium.googlesource.com/chromium/src/+/7857b9847f593fbe8a0e567c6e1d41b933dc2b8b%5E%21/</summary>
-        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: 1514653&lt;br/&gt;&lt;br/&gt;Change-Id: Iddb0177857a2a87b2a03c82d748a52696a705db3&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/5154225&lt;br/&gt;&lt;br/&gt;Code-Coverage: findit-for-me@appspot.gserviceaccount.com &lt;findit-for-me@appspot.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Reviewed-by: Tommy Nyquist &lt;nyquist@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Charles Hager &lt;clhager@google.com&gt;&lt;br/&gt;&lt;br/&gt;Reviewed-by: Theresa Sullivan &lt;twellington@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1242570}&lt;br/&gt;&lt;br/&gt;</content>
-    </entry>
-    <entry>
-        <id>https://chromium.googlesource.com/chromium/src/+/db56a10f659c3a9233f50f53ee1185ad74b33803%5E%21/</id>
-        <title>CrOS Settings: Update style of L2+ subpages</title>
-        <author>
-            <name>Chromium commit feed</name>
-        </author>
-        <link href="https://chromium.googlesource.com/chromium/src/+/db56a10f659c3a9233f50f53ee1185ad74b33803%5E%21/"/>
-        <updated>2024-01-03T19:30:03.000Z</updated>
-        <summary>https://chromium.googlesource.com/chromium/src/+/db56a10f659c3a9233f50f53ee1185ad74b33803%5E%21/</summary>
-        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;When the OsSettingsRevampWayfinding feature is enabled, subpage style&lt;br/&gt;&lt;br/&gt;should match the mock: go/settings-base-spec.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Light mode: http://screen/8iwA7vw7WCZvk58.png&lt;br/&gt;&lt;br/&gt;Dark mode: http://screen/5DCpsZ53nRwECBo.png&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: b:312241416&lt;br/&gt;&lt;br/&gt;Test: Manually verify UI&lt;br/&gt;&lt;br/&gt;Change-Id: I6d5ed1e6a9e5b1e784be5bc9857cba69fb332337&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/5159853&lt;br/&gt;&lt;br/&gt;Reviewed-by: Connie Xu &lt;conniekxu@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Wes Okuhara &lt;wesokuhara@google.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1242569}&lt;br/&gt;&lt;br/&gt;</content>
-    </entry>
-    <entry>
-        <id>https://chromium.googlesource.com/chromium/src/+/210406228271eca55fcc55fe30cd17bde1ac7eff%5E%21/</id>
-        <title>Take display cut out margins into account when computing NTP / Feed padding</title>
-        <author>
-            <name>Chromium commit feed</name>
-        </author>
-        <link href="https://chromium.googlesource.com/chromium/src/+/210406228271eca55fcc55fe30cd17bde1ac7eff%5E%21/"/>
-        <updated>2024-01-03T19:29:53.000Z</updated>
-        <summary>https://chromium.googlesource.com/chromium/src/+/210406228271eca55fcc55fe30cd17bde1ac7eff%5E%21/</summary>
-        <content type="html">&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;https://screenshot.googleplex.com/AZNvxJQUhNq8oAo.png&lt;br/&gt;&lt;br/&gt;https://screenshot.googleplex.com/APEaiXagcMeeuu4.png&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Bug: b/313500064&lt;br/&gt;&lt;br/&gt;Change-Id: Ib911f2bbaf082b7f21198db28a9245e70396ad61&lt;br/&gt;&lt;br/&gt;Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/5126700&lt;br/&gt;&lt;br/&gt;Reviewed-by: Theresa Sullivan &lt;twellington@chromium.org&gt;&lt;br/&gt;&lt;br/&gt;Commit-Queue: Charles Hager &lt;clhager@google.com&gt;&lt;br/&gt;&lt;br/&gt;Code-Coverage: findit-for-me@appspot.gserviceaccount.com &lt;findit-for-me@appspot.gserviceaccount.com&gt;&lt;br/&gt;&lt;br/&gt;Cr-Commit-Position: refs/heads/main@{#1242568}&lt;br/&gt;&lt;br/&gt;</content>
     </entry>
 </feed>
