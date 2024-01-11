@@ -5,6 +5,397 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08841.html</id>
+        <title>Re: [blink-dev] Re: Intent to Ship: Close requests for CloseWatcher, &amp;lt;dialog&amp;gt;, and popover=""</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08841.html"/>
+        <updated>2024-01-11T02:23:26.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08841.html summary</summary>
+        <content type="html">&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Hi all,
+
+Over the holidays, some developers experienced the 0.000015% of pages
+impacted by skipped cancel events on &amp;lt;dialog&amp;gt;s, and filed a regression bug
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1512224"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1512224&lt;/a&gt;&amp;gt;. Out of an
+abundance of caution, we disabled this feature remotely using Finch for
+M120 and M121, and then disabled it in the codebase for M122.&lt;/pre&gt;&lt;pre&gt;
+
+In the subsequent discussions, we discovered two possible spec changes we
+could make to drive down that 0.000015% even further:
+
+   - A bug fix to allow cancel events to fire for the first-created close
+   watcher, as long as it was created by user activation. Even if the user
+   never interacts with the &amp;lt;dialog&amp;gt;. Spec issue
+   &amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/10046"&gt;https://github.com/whatwg/html/issues/10046&lt;/a&gt;&amp;gt;, spec PR
+   &amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/pull/10048"&gt;https://github.com/whatwg/html/pull/10048&lt;/a&gt;&amp;gt;, wip CL
+   &amp;lt;&lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/5187183"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/5187183&lt;/a&gt;&amp;gt;.
+   - A more significant change, to consider firing cancel events even if
+   you cannot call preventDefault(). Spec issue
+   &amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/10047"&gt;https://github.com/whatwg/html/issues/10047&lt;/a&gt;&amp;gt;.
+
+Our plan is to implement the first of these bug fixes, which will address
+the cases reported on the Chromium bug tracker so far, and then re-enable
+the feature starting in M122.
+
+In parallel we'll explore fast-following with the second change, after a
+bit more discussion with the community. (The main goal of the second change
+is to enable a use case; we don't think the compat improvement is urgent.
+See more discussion on the spec issue.)
+
+Let me know if there are any concerns,
+-Domenic
+
+On Thu, Oct 19, 2023 at 12:59 AM Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt; wrote:
+
+&amp;gt; LGTM3
+&amp;gt;
+&amp;gt; I agree that introspection can be additive on top of what we want to ship
+&amp;gt; here.
+&amp;gt;
+&amp;gt; On Wed, Oct 18, 2023 at 5:48 PM Philip Jägenstedt &amp;lt;foo...@chromium.org&amp;gt;
+&amp;gt; wrote:
+&amp;gt;
+&amp;gt;&amp;gt; The spec change has now landed, LGTM2.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; More introspection could possibly be useful
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/pull/9462#discussion_r1361110313"&gt;https://github.com/whatwg/html/pull/9462#discussion_r1361110313&lt;/a&gt;&amp;gt;, but
+&amp;gt;&amp;gt; without a concrete use case, example code, or developer feedback, I think
+&amp;gt;&amp;gt; it's hard to do a good job. Having reviewed the spec change, I'm confident
+&amp;gt;&amp;gt; that exposing more information is technically straightforward if the need
+&amp;gt;&amp;gt; arises.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; On Thu, Oct 12, 2023 at 1:59 AM Domenic Denicola &amp;lt;dome...@chromium.org&amp;gt;
+&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; On Thu, Oct 12, 2023 at 12:51 AM Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Friday, October 6, 2023 at 12:34:21 AM UTC+2 Chris Harrelson wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Hi,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; While Alex's concerns are totally valid to consider from a feature
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; design perspective, I think they are better to be discussed on the WHATWG
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; issues for this feature. I chatted offline with Alex and he agreed about
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; that point, and agreed to post comments and questions there.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; So from an API owners perspective LGTM1 modulo considering and taking
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; into account all comments and feedback from Alex on the spec (as we should
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; for all such feedback from anyone, of course!).
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Wed, Oct 4, 2023 at 8:28 AM Domenic Denicola &amp;lt;dome...@chromium.org&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; 2023年10月4日(水) 8:16 Alex Russell &amp;lt;slightly...@chromium.org&amp;gt;:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Monday, October 2, 2023 at 10:16:53 AM UTC-7 Domenic Denicola wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; 2023年10月2日(月) 10:11 Alex Russell &amp;lt;slightly...@chromium.org&amp;gt;:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Sunday, October 1, 2023 at 9:08:57 PM UTC-7 Domenic Denicola wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Sat, Sep 30, 2023 at 5:01 AM Alex Russell &amp;lt;slightly...@chromium.org&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; The implicit behaviours based on construction order in this API are
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; very strange and seem like footguns.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; I don't understand why you find this strange, or a footgun. It's
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; intended to be the opposite: it guides developers toward creating the
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; experience the user expects, where when the user requests to close
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; something, the last thing that was opened, is what closes.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Chris Palmer covered this pretty well recently, so I'll defer to his
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; more eloquent writeup:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://noncombatant.org/2023/05/29/complexities-of-allocation/"&gt;https://noncombatant.org/2023/05/29/complexities-of-allocation/&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Basically, this is spooky action at a distance and without _at least_
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; some reflection and manipulation surface (via DOM, probably), it's hard to
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; understand how this won't turn into a footgun.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; As a separate note, I'm disappointed in the proliferation of APIs that
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; affect DOM but have no API and reflection. Import Maps spring to mind, but
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; there are other recent examples too. If manual disposal is going to be
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; required for this, we should at least make it possible to introspect
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; outside the scope in which an object that defines this behaviour is
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; allocated.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; In what way does this API affect the DOM? No parts of the DOM tree are
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; modified by CloseWatcher. The same is true for import maps...
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; This is view state, which is frequently reflected via DOM. The primary
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; concern here is that there's no way to inspect and/or modify the stack
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; (attached to Node instances or not) independently of closure-scoped object
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; lifetimes.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; It's not clear to me what definition of &amp;quot;view state&amp;quot; you are using,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; such that it encompasses things like the module specifier resolution
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; algorithm or the routing of Android back gestures.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Maybe, if this is a principle you believe in, you could file it as a
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; suggestion on the w3ctag/design-principles repository, ideally with a clear
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; explanation of what the boundaries of this &amp;quot;view state&amp;quot; concept are.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; (Including what, in your view, would *not* quality as view state.)
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; The TAG feedback didn't touch on this very much, AFAICT, but it's
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; somewhat surprising that the stack of close actions isn't inspectable.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; I can't speak for the TAG, but here are the reasons why the stack of
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; close watchers isn't inspectable:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    - We received no developer or partner feedback requesting this
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    capability
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    - This could cause potential forward-compat problems without
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    careful design. E.g., it could make it possible for developers to write
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    code that assumes that only CloseWatchers, dialogs, and popover=&amp;quot;&amp;quot; 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; elements
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    are close watchers, and thus make it hard for the web platform to 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; introduce
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    a fourth close watcher (e.g., &amp;lt;selectlist&amp;gt;) in the future.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    - This would be somewhat of an encapsulation leak between different
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    parts of the application, making it harder to write resilient 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; components.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    (This is not a strong argument, but rather a bias toward waiting for a 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; use
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;    case instead of just exposing the information automatically.)
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Thanks, I appreciate the context, and I am impressed by the
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; thoroughness of the design artifacts.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; What's the behaviour of non-`destroy()`'d watchers; e.g. if a developer
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; forgets to dispose of one correctly? Can users get stuck?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Non-destroy()ed is the default state of a CloseWatcher, so such
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; CloseWatchers will respond to the next close request if they are on the top
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; of the stack. The user cannot really get stuck, as every close request will
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; either destroy the topmost close watcher on the stack, or possibly trigger
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; (at most once) a preventDefault()ed cancel event. See
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/close-watcher/blob/main/README.m"&gt;https://github.com/WICG/close-watcher/blob/main/README.m&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; d#abuse-analysis for more details.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Also helpful; thank you!
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Note that the API generally guides you away from this possibility by
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; making the simpler code be the one that automatically calls destroy() for
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; you: &lt;a  rel="nofollow" href="https://github.com/WICG/close-watcher/blob/main/README"&gt;https://github.com/WICG/close-watcher/blob/main/README&lt;/a&gt;.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; md#requesting-close-yourself .
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Wednesday, September 27, 2023 at 7:43:49 PM UTC-7 Domenic Denicola
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Contact emailsjap...@chromium.org, dome...@chromium.org, jarhar@chro
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; mium.org
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Explainer&lt;a  rel="nofollow" href="https://github.com/WICG/close-watcher/blob/main/README.md"&gt;https://github.com/WICG/close-watcher/blob/main/README.md&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Specification&lt;a  rel="nofollow" href="https://github.com/whatwg/html/pull/9462"&gt;https://github.com/whatwg/html/pull/9462&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; What's preventing the PR from landing?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; It needs review, and none of the other editors have made the time yet.
+&amp;gt;&amp;gt;&amp;gt; (Maybe +Philip Jägenstedt &amp;lt;foo...@chromium.org&amp;gt; could help?)
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Summary
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;quot;Close requests&amp;quot; are a new concept that encompasses user requests to
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; close something currently open, using the Esc key on desktop or the back
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; gesture/button on Android. Integrating them into Chromium comes with two
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; changes: * CloseWatcher, a new API for directly listening and responding to
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; close requests. * Upgrades to &amp;lt;dialog&amp;gt; and popover=&amp;quot;&amp;quot; to use the new close
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; request framework, so that they respond to the Android back button.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink componentBlink
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/594"&gt;https://github.com/w3ctag/design-reviews/issues/594&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review statusIssues addressed
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Risks
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Interoperability and Compatibility
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; This API is designed to have an interoperable surface for web
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; developers, to help them avoid platform-specific code. So, if it were
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; implemented across browsers, it would be a positive for interoperability.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Otherwise, it has the usual risks of not getting adopted by other vendors.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Compatibility: To avoid allowing CloseWatchers, dialogs, and popovers
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; (&amp;quot;close watchers&amp;quot;) to prevent the Android back gesture/button from
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; navigating through history, how close watchers respond to close requests
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; depends on user activation. If no user activation occurs between opening,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; and the user issuing a close request, this can cause a
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; CloseWatcher/dialog's cancel event to be skipped, or cause multiple close
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; watchers to be closed at once. Although this behavior is meant to prevent
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; back-trapping on Android specifically, it applies to desktop as well, for
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; interoperability reasons. This change is a compatibility risk. However, use
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; counters show it to be an acceptable one: - 0.000015% of pages impacted by
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; skipped cancel events - 0.000007% of pages impacted by skipped cancel
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; events that would otherwise call preventDefault() - between 0.000000% and
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; 0.000001% of pages impacted by multiple dialogs closed
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Gecko*: Positive (&lt;a  rel="nofollow" href="https://github.com/mozilla/st"&gt;https://github.com/mozilla/st&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; andards-positions/issues/604)
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; *WebKit*: No signal (&lt;a  rel="nofollow" href="https://github.com/WebKit/sta"&gt;https://github.com/WebKit/sta&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; ndards-positions/issues/215)
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Web developers*: Positive (&lt;a  rel="nofollow" href="https://github.com/w3ctag/des"&gt;https://github.com/w3ctag/des&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; ign-reviews/issues/594#issuecomment-890257686) See also
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1319915"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1319915&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Other signals*:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Activation
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; The CloseWatcher API is meant to be usable as a progressive
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; enhancement; if developers use it with feature detection, then their app
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; will be able to watch for unusual close watchers in supporting browsers,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; while falling back to listening for the Esc key in browsers that haven't
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; implemented the API. It would benefit from a conditional polyfill that
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; translates the Esc key into a close signal, so that then developers don't
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; even have to have feature detection and fallback logic, but can just use
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; the CloseWatcher API surface. One such polyfill is available in the demo:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://close-watcher-demo.glitch.me/"&gt;https://close-watcher-demo.glitch.me/&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Security
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; The main security-related concern in this API is preventing it from
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; being usable for back-trapping, i.e. disabling the Android back
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; gesture/button. Although this is already possible in Chromium and other
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; browsers due to bugs, we worked to ensure CloseWatcher and close request
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; integration to dialogs/popups does not increase the size of the problem, by
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; gating repeated use of these behind transient user activation checks: see
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/close-watcher#abuse-analysis"&gt;https://github.com/WICG/close-watcher#abuse-analysis&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; WebView application risks
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Does this intent deprecate or change behavior of existing APIs, such
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; that it has potentially high risk for Android WebView-based applications?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Beyond the low risks already listed in the Compat section, we do not
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; anticipate any WebView-specific risks. A base::Feature killswitch is
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; available just in case.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Debuggability
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; No special DevTools support is required.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Mac, Linux, Chrome OS, Android, and Android WebView)?Yes
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; ?Yes
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Flag name on chrome://flagsCloseWatcher
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Finch feature nameCloseWatcher
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Requires code in //chrome?False
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Tracking bug&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=117"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=117&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; 1318
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Non-OSS dependencies
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Does the feature depend on any code or APIs outside the Chromium open
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; source repository and its open-source dependencies to function?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; No.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Sample links
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://close-watcher-demo.glitch.me"&gt;https://close-watcher-demo.glitch.me&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Estimated milestonesShipping on desktop119DevTrial on desktop97Shipping
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; on Android119DevTrial on Android97Shipping on WebView119
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Anticipated spec changes
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Open questions about a feature may be a source of future web compat or
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; interop issues. Please list open issues (e.g. links to known github issues
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; in the project for the feature specification) whose resolution may
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; introduce web compat/interop risk (e.g., changing to naming or structure of
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; the API in a non-backward-compatible way).
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; None.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; feature/4722261258928128
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Links to previous Intent discussionsIntent to prototype:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/NA5NC16OmsU"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/NA5NC16OmsU&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+unsubscr...@chromium.org.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit &lt;a  rel="nofollow" href="https://groups.google.com/a/"&gt;https://groups.google.com/a/&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; chromium.org/d/msgid/blink-dev/CAM0wra-SULEU6D-HmDDuf%
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; 3D5T9faNVk_LcqjKxY%3Do%3Du-vqTzaag%40mail.gmail.com
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAM0wra-SULEU6D-HmDDuf%3D5T9faNVk_LcqjKxY%3Do%3Du-vqTzaag%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAM0wra-SULEU6D-HmDDuf%3D5T9faNVk_LcqjKxY%3Do%3Du-vqTzaag%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAM0wra_%2BF9FzkRb6eG8vZFJ2wszhqOk5j6VQSC1JXisY8gBtBA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAM0wra_%2BF9FzkRb6eG8vZFJ2wszhqOk5j6VQSC1JXisY8gBtBA%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08840.html</id>
         <title>[blink-dev] Web-Facing Change PSA: Enable clipboard access via Async Clipboard API in event handlers</title>
         <author>
@@ -9183,198 +9574,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/368b86c4-4445-4b71-afbf-8fbb63218cben%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/368b86c4-4445-4b71-afbf-8fbb63218cben%40chromium.org&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08789.html</id>
-        <title>Re: [blink-dev] Intent to Ship: CSS custom state new :state() syntax</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08789.html"/>
-        <updated>2024-01-09T00:03:44.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08789.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+CSS+custom+state+new+%5C%3Astate%5C%28%5C%29+syntax%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: CSS custom state new :state() syntax&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22TAMURA%2C+Kent%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;TAMURA, Kent&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240108" rel="nofollow"&gt;Mon, 08 Jan 2024 16:03:44 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;LGTM3.
-&lt;/pre&gt;&lt;pre&gt;
-
-On Thu, Jan 4, 2024 at 3:11 AM Mike Taylor &amp;lt;miketa...@chromium.org&amp;gt; wrote:
-
-&amp;gt; (but please remember to request reviews for the other review gates in
-&amp;gt; chromestatus)
-&amp;gt; On 1/3/24 1:10 PM, Mike Taylor wrote:
-&amp;gt;
-&amp;gt; LGTM2
-&amp;gt; On 1/3/24 12:54 PM, Chris Harrelson wrote:
-&amp;gt;
-&amp;gt; LGTM1
-&amp;gt;
-&amp;gt; On Wed, Jan 3, 2024 at 9:44 AM Joey Arhar &amp;lt;jar...@chromium.org&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; Contact emails jar...@chromium.org
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Explainer None
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Specification
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://html.spec.whatwg.org/multipage/custom-elements.html#custom-state-pseudo-class"&gt;https://html.spec.whatwg.org/multipage/custom-elements.html#custom-state-pseudo-class&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Summary
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; This is the new syntax for the CSS custom state feature for custom
-&amp;gt;&amp;gt; elements. The old syntax, :--foo, is being deprecated and removed. This new
-&amp;gt;&amp;gt; syntax, :state(foo), is shipping in WebKit. Deprecation for old syntax:
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/JvpHoUfhJYE"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/JvpHoUfhJYE&lt;/a&gt; Spec
-&amp;gt;&amp;gt; for new syntax: &lt;a  rel="nofollow" href="https://github.com/whatwg/html/pull/8467"&gt;https://github.com/whatwg/html/pull/8467&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Blink component Blink&amp;gt;HTML&amp;gt;CustomElements
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EHTML%3ECustomElements"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EHTML%3ECustomElements&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; TAG review None
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; TAG review status Not applicable
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Risks
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Interoperability and Compatibility
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; The new syntax will not have any interop or compat risks. WebKit has
-&amp;gt;&amp;gt; enabled the new syntax by default. I will implement and ship the new syntax
-&amp;gt;&amp;gt; alongside the old syntax so that developers can have access to both at the
-&amp;gt;&amp;gt; same time on stable and migrate to the new syntax.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Gecko*: No signal (&lt;a  rel="nofollow" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1588763"&gt;https://bugzilla.mozilla.org/show_bug.cgi?id=1588763&lt;/a&gt;)
-&amp;gt;&amp;gt; I believe this is being implemented in gecko by Keith.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *WebKit*: Shipped/Shipping (&lt;a  rel="nofollow" href="https://github.com/WebKit/WebKit/pull/22223"&gt;https://github.com/WebKit/WebKit/pull/22223&lt;/a&gt;)
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Web developers*: No signals
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Other signals*:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Ergonomics
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; This will be used in tandem with custom elements. This API will not make
-&amp;gt;&amp;gt; it hard for chrome to maintain good performance.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Activation
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Developers will be able to take advantage of this feature immediately.
-&amp;gt;&amp;gt; Documentation and outreach could be useful for the deprecation of the old
-&amp;gt;&amp;gt; syntax and migration to the new syntax.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Security
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; There are no security/privacy risks for this CSS feature.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; WebView application risks
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Does this intent deprecate or change behavior of existing APIs, such that
-&amp;gt;&amp;gt; it has potentially high risk for Android WebView-based applications?
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Debuggability
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Styles applied by the custom state pseudo classes will appear in the
-&amp;gt;&amp;gt; styles sidebar of DevTools.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows, Mac,
-&amp;gt;&amp;gt; Linux, ChromeOS, Android, and Android WebView)? Yes
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; ? Yes
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/custom-elements/state?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/custom-elements/state?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Flag name on chrome://flags CustomStatePseudoRename
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Finch feature name CustomStatePseudoRename
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Requires code in //chrome? False
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Estimated milestones
-&amp;gt;&amp;gt; DevTrial on desktop 122
-&amp;gt;&amp;gt; DevTrial on Android 122
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Anticipated spec changes
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Open questions about a feature may be a source of future web compat or
-&amp;gt;&amp;gt; interop issues. Please list open issues (e.g. links to known github issues
-&amp;gt;&amp;gt; in the project for the feature specification) whose resolution may
-&amp;gt;&amp;gt; introduce web compat/interop risk (e.g., changing to naming or structure of
-&amp;gt;&amp;gt; the API in a non-backward-compatible way).
-&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5586433790443520"&gt;https://chromestatus.com/feature/5586433790443520&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt;&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt;&amp;gt; To view this discussion on the web visit
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAK6btwJzbjvYUjj55%2BReonmSUKMONT5zsH3MX8Unvq3ED%2B6Qaw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAK6btwJzbjvYUjj55%2BReonmSUKMONT5zsH3MX8Unvq3ED%2B6Qaw%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAK6btwJzbjvYUjj55%2BReonmSUKMONT5zsH3MX8Unvq3ED%2B6Qaw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAK6btwJzbjvYUjj55%2BReonmSUKMONT5zsH3MX8Unvq3ED%2B6Qaw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;
-&amp;gt; --
-&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt; To view this discussion on the web visit
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw86Bs%3DXkHDmHyEmnTw0W%2BESmnRqOxHN2p50azsvuaDnxA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw86Bs%3DXkHDmHyEmnTw0W%2BESmnRqOxHN2p50azsvuaDnxA%40mail.gmail.com&lt;/a&gt;
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw86Bs%3DXkHDmHyEmnTw0W%2BESmnRqOxHN2p50azsvuaDnxA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw86Bs%3DXkHDmHyEmnTw0W%2BESmnRqOxHN2p50azsvuaDnxA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt; .
-&amp;gt;
-&amp;gt; --
-&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt; To view this discussion on the web visit
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/b21ffeb5-9870-40f6-bc97-6cc5c40bfe18%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/b21ffeb5-9870-40f6-bc97-6cc5c40bfe18%40chromium.org&lt;/a&gt;
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/b21ffeb5-9870-40f6-bc97-6cc5c40bfe18%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/b21ffeb5-9870-40f6-bc97-6cc5c40bfe18%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt; .
-&amp;gt;
-
-
--- 
-TAMURA Kent
-Software Engineer, Google
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGH7WqEoH2Aq9tQp2tYrH_7mwnCabFN6dwqGbwmUY7ne9kqJ4A%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGH7WqEoH2Aq9tQp2tYrH_7mwnCabFN6dwqGbwmUY7ne9kqJ4A%40mail.gmail.com&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
