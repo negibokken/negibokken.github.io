@@ -5,6 +5,199 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08871.html</id>
+        <title>[blink-dev] Re: Intent to Prototype: document.caretPositionFromPoint API</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08871.html"/>
+        <updated>2024-01-16T17:31:53.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08871.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Prototype%5C%3A+document.caretPositionFromPoint+API%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Re: Intent to Prototype: document.caretPositionFromPoint API&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Siye+Liu%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Siye Liu' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240116" rel="nofollow"&gt;Tue, 16 Jan 2024 09:31:53 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Hi Brian,
+
+To answer your question,
+1. This prototype only covers the main dom scenario 
+(&lt;a  rel="nofollow" href="https://crbug.com/388976"&gt;https://crbug.com/388976&lt;/a&gt;). Shadow dom scenario is tracked in 
+&lt;a  rel="nofollow" href="https://crbug.com/1514810"&gt;https://crbug.com/1514810&lt;/a&gt;.
+2. The prototype should have similar behavior as caretRangeFromPoint's 
+implementation in Blink (when the point is over an input element, the 
+returned CaretPosition should be the nearest ancestor of the input element) 
+because I expect both APIs share same hit testing logic under the hood.&lt;/pre&gt;&lt;pre&gt;
+
+Once the prototype is ready for dev trial, we can discuss further about 
+improving current implementation in both caretRangeFromPoint and 
+caretPositionFromPoint in Blink.
+
+
+Thanks,
+Siye
+
+On Friday, January 12, 2024 at 5:23:25 PM UTC-8 Brian Birtles wrote:
+
+Hi,
+
+Will this also cover the behavioral differences between 
+caretPositionFromPoint as implemented in Gecko and caretRangeFromPoint as 
+implemented in Blink such as:
+
+1. caretPositionFromPoint in Gecko digs into shadow DOM elements whereas 
+caretRangeFromPoint in Blink does not.
+2. When the point is over a text input element, caretPositionFromPoint in 
+Gecko returns the text input element and offset into it but 
+caretRangeFromPoint in Blink returns the nearest ancestor of the text input 
+element. (Note that caretRangeFromPoint in Webkit returns the text input 
+element but always returns a zero offset into it.)
+
+Thanks,
+
+Brian
+
+2024年1月13日土曜日 3:35:59 UTC+9 si...@microsoft.com:
+
+Contact emails
+si...@microsoft.com, sa...@microsoft.com
+
+Explainer
+None
+
+Specification
+&lt;a  rel="nofollow" href="https://www.w3.org/TR/cssom-view-1/#dom-document-caretpositionfrompoint"&gt;https://www.w3.org/TR/cssom-view-1/#dom-document-caretpositionfrompoint&lt;/a&gt;
+
+Summary
+
+This new API allows users to get current caret position from a given screen 
+point. The API returns a CaretPosition object which represents the caret 
+position indicating current text insertion point including the containing 
+DOM node, caret's character offset, and the client rectangle of caret 
+range. 
+
+
+Blink component
+Blink&amp;gt;CSS 
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS&lt;/a&gt;&amp;gt;
+
+Motivation
+
+document.caretPositionFromPoint API is in CSSOM View and is already 
+implemented by Gecko. WebKit/Blink has similar document.caretRangeFromPoint 
+API which returns a text range indicating the text insertion point. The 
+existing API was in CSSOM View at the time it was implemented: 
+&lt;a  rel="nofollow" href="https://bugs.webkit.org/show_bug.cgi?id=27046"&gt;https://bugs.webkit.org/show_bug.cgi?id=27046&lt;/a&gt; 
+&lt;a  rel="nofollow" href="http://web.archive.org/web/20090708002518/http://dev.w3.org/csswg/cssom-view/#the-documentview-interface"&gt;http://web.archive.org/web/20090708002518/http://dev.w3.org/csswg/cssom-view/#the-documentview-interface&lt;/a&gt;
+ 
+The existing API was replaced by the new API later: 
+&lt;a  rel="nofollow" href="https://hg.csswg.org/drafts/rev/4c7b6f843171"&gt;https://hg.csswg.org/drafts/rev/4c7b6f843171&lt;/a&gt;. The switch happened around 
+2009 and we don't have the historical context about the decision. Given how 
+long it has been since the spec was updated, we believe it's best that 
+Blink complies with the spec so that future innovations with the API can be 
+spec compliant and have lower interop/compat risk.
+
+
+Initial public proposal
+None
+
+TAG review
+None
+
+TAG review status
+Not applicable
+
+Risks
+
+
+Interoperability and Compatibility
+
+Gecko already implemented the API. Webkit/Blink didn't implement it. The 
+interop risk is that it's unclear at this moment about Webkit's position on 
+this. We won't be able to achieve full interop with this API if Webkit 
+isn't willing to support this API. There is a compat risk too if we decided 
+to deprecate the old API: &lt;a  rel="nofollow" href="https://crbug.com/690599"&gt;https://crbug.com/690599&lt;/a&gt;
+
+
+*Gecko*: Shipped/Shipping
+
+*WebKit*: No signal (
+&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/301"&gt;https://github.com/WebKit/standards-positions/issues/301&lt;/a&gt;)
+
+*Web developers*: Positive (
+&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=388976#c34"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=388976#c34&lt;/a&gt;) Web 
+developers are asking to have document.caretPositionFromPoint API 
+implemented in Blink: 
+&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=388976#c28"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=388976#c28&lt;/a&gt; 
+&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=388976#c34"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=388976#c34&lt;/a&gt;
+
+*Other signals*:
+
+WebView application risks
+
+Does this intent deprecate or change behavior of existing APIs, such that 
+it has potentially high risk for Android WebView-based applications?
+
+None
+
+
+Debuggability
+
+None
+
+
+Is this feature fully tested by web-platform-tests 
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+?
+Yes
+
+The API is tested in WPT: 
+&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/c18cfd4eb319ca535db8c194941719598b3b6ea8/css/cssom/caretPositionFromPoint.html"&gt;https://github.com/web-platform-tests/wpt/blob/c18cfd4eb319ca535db8c194941719598b3b6ea8/css/cssom/caretPositionFromPoint.html&lt;/a&gt;
+
+
+Flag name on chrome://flags
+None
+
+Finch feature name
+None
+
+Non-finch justification
+None
+
+Requires code in //chrome?
+False
+
+Tracking bug
+&lt;a  rel="nofollow" href="https://crbug.com/388976"&gt;https://crbug.com/388976&lt;/a&gt;
+
+Estimated milestones
+
+No milestones specified
+
+
+Link to entry on the Chrome Platform Status
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5201014343073792"&gt;https://chromestatus.com/feature/5201014343073792&lt;/a&gt;
+
+This intent message was generated by Chrome Platform Status 
+&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/0169dc69-72a5-46e4-b377-e682f8818a80n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/0169dc69-72a5-46e4-b377-e682f8818a80n%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08870.html</id>
         <title>Re: [blink-dev] Intent to Experiment: fetchLater API</title>
         <author>
@@ -8968,184 +9161,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOmohSJoR8Akr5RKCBVPj%2BKC5w0v1E7QQNM62Tdh9v8q9BSRYw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOmohSJoR8Akr5RKCBVPj%2BKC5w0v1E7QQNM62Tdh9v8q9BSRYw%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08821.html</id>
-        <title>[blink-dev] Re: Intent to implement and ship: Allow elements with CSS display:contents to be focusable</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08821.html"/>
-        <updated>2024-01-10T16:14:24.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08821.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+implement+and+ship%5C%3A+Allow+elements+with+CSS+display%5C%3Acontents+to+be+focusable%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Re: Intent to implement and ship: Allow elements with CSS display:contents to be focusable&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Yoav+Weiss%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Yoav Weiss&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240110" rel="nofollow"&gt;Wed, 10 Jan 2024 08:14:24 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;
-
-On Tuesday, January 9, 2024 at 5:39:19 PM UTC+1 David Baron wrote:&lt;/pre&gt;&lt;pre&gt;
-
-Contact emailsdba...@chromium.org
-
-ExplainerNone
-
-Specification&lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/2632#"&gt;https://github.com/w3c/csswg-drafts/issues/2632#&lt;/a&gt;
-issuecomment-438851770
-
-
-Is this actually defined in the spec? Should the spec be more explicit 
-about it?
-
- 
-
-
-
-Summary
-
-This change means that elements that have CSS display:contents can be 
-focusable. In other words, if they would have been focusable without 
-display:contents, display:contents will no longer change that. Before this 
-change, elements with display:contents could never be focused. Developers 
-making elements with display:contents that can be focused need to ensure 
-that such elements have appropriate styles to make the focus visually 
-apparent, since they will not have a default focus outline.
-
-
-Blink componentBlink&amp;gt;HTML&amp;gt;Focus 
-&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EHTML%3EFocus"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EHTML%3EFocus&lt;/a&gt;&amp;gt;
-
-Motivation
-
-Elements with display:contents are exposed to assistive technology as 
-having their normal roles (as though they had their default display). The 
-contract for the meaning of accessibility roles includes support for 
-certain role-specific keyboard interactions which often include 
-focusability. So it's important that the exposure to AT match the 
-focusability. The CSS Working Group has concluded that both AT exposure and 
-focusability should be as-normal. Prior to this change, AT exposure was 
-interoperably as specified, but such elements were interoperably not 
-focusable.
-
-
-Search tagsCSS &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:CSS"&gt;https://chromestatus.com/features#tags:CSS&lt;/a&gt;&amp;gt;, a11y 
-&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:a11y"&gt;https://chromestatus.com/features#tags:a11y&lt;/a&gt;&amp;gt;, accessibility 
-&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:accessibility"&gt;https://chromestatus.com/features#tags:accessibility&lt;/a&gt;&amp;gt;, focus 
-&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:focus"&gt;https://chromestatus.com/features#tags:focus&lt;/a&gt;&amp;gt;
-
-TAG reviewNone
-
-TAG review statusNot applicable
-
-Risks
-
-
-Interoperability and Compatibility
-
-This is proposing to change a currently interoperable behavior. This has 
-some risk that other engines won't match the change and we'll end up with 
-less interoperability. However, I think there is probably enough support 
-from other engines at this point that we should take the lead and hope that 
-other engines will soon follow.
-
-
-What about compat? Would existing users of `display: contents` have their 
-keyboard flows disrupted by this change?
- 
-
-
-
-*Gecko*: Positive (&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/772"&gt;https://github.com/mozilla/standards-positions/issues/772&lt;/a&gt;
-)
-
-*WebKit*: No signal (&lt;a  rel="nofollow" href="https://github.com/WebKit/"&gt;https://github.com/WebKit/&lt;/a&gt;
-standards-positions/issues/164) No official position but 
-&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/interop/issues/568"&gt;https://github.com/web-platform-tests/interop/issues/568&lt;/a&gt; does show Safari 
-interest in the topic.
-
-*Web developers*: No signals
-
-*Other signals*: Positive advocacy from users / user advocates such as in 
-&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1366037"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1366037&lt;/a&gt; and 
-&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/interop/issues/568"&gt;https://github.com/web-platform-tests/interop/issues/568&lt;/a&gt;
-
-Activation
-
-This fixes what appears to be one of the obstacles for developers to use 
-display:contents in a way that is accessible. While in the short term it 
-reduces interoperability (since engines agree on the current &amp;quot;bad&amp;quot; 
-behavior), the long term goal is that engines will converge on the new 
-behavior, and this will lead to increased developer confidence in and 
-increased usability of CSS display:contents.
-
-
-WebView application risks
-
-Does this intent deprecate or change behavior of existing APIs, such that 
-it has potentially high risk for Android WebView-based applications?
-
-None
-
-
-Debuggability
-
-None
-
-
-Will this feature be supported on all six Blink platforms (Windows, Mac, 
-Linux, ChromeOS, Android, and Android WebView)?Yes
-
-Is this feature fully tested by web-platform-tests 
-&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-?Yes
-
-&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/pull/39247"&gt;https://github.com/web-platform-tests/wpt/pull/39247&lt;/a&gt;
-
-
-Flag name on chrome://flagsNone
-
-Finch feature namekDisplayContentsFocusable
-
-Requires code in //chrome?False
-
-Tracking bug&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1366037"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1366037&lt;/a&gt;
-
-Estimated milestones
-
-No milestones specified
-
-
-Anticipated spec changes
-
-Open questions about a feature may be a source of future web compat or 
-interop issues. Please list open issues (e.g. links to known github issues 
-in the project for the feature specification) whose resolution may 
-introduce web compat/interop risk (e.g., changing to naming or structure of 
-the API in a non-backward-compatible way).
-None
-
-Link to entry on the Chrome Platform Status&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;
-feature/6237396851228672
-
-This intent message was generated by Chrome Platform Status 
-&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt; and edited by hand.
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/aaabc541-832c-4c47-89f6-0d6bab35bf98n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/aaabc541-832c-4c47-89f6-0d6bab35bf98n%40chromium.org&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
