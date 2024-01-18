@@ -5,6 +5,1007 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08923.html</id>
+        <title>Re: [blink-dev] Re: Intent to Prototype: document.caretPositionFromPoint API</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08923.html"/>
+        <updated>2024-01-18T14:13:47.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08923.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Prototype%5C%3A+document.caretPositionFromPoint+API%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Re: Intent to Prototype: document.caretPositionFromPoint API&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Daniel+Bratell%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Daniel Bratell&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240118" rel="nofollow"&gt;Thu, 18 Jan 2024 06:13:47 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;tt&gt;Sounds like something that should be reflected in the specs. Again, not 
+&lt;/tt&gt;&lt;tt&gt;directly related to this Intent, but maybe something that should happen 
+&lt;/tt&gt;&lt;tt&gt;in parallel.
+&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
+
+/Daniel&lt;/pre&gt;&lt;pre&gt;
+
+On 2024-01-17 23:38, 'Siye Liu' via blink-dev wrote:
+&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;tt&gt;Blink has similar concept called &amp;quot;affinity&amp;quot; when placing caret at 
+&lt;/tt&gt;&lt;tt&gt;wrapped line. definition: 
+&lt;/tt&gt;&lt;tt&gt;&lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/core/editing/visible_position.h;l=39-54"&gt;https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/core/editing/visible_position.h;l=39-54&lt;/a&gt; 
+&lt;/tt&gt;&lt;tt&gt;
+&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
+
+Thanks,
+Siye
+
+On Wednesday, January 17, 2024 at 6:35:14 AM UTC-8 Daniel Bratell wrote:
+
+    This is not directly related to this one function but more to the
+    whole API. I quickly skimmed the spec and I could not find out how
+    it handles line breaks which make caret positions ambigious?
+
+    When you press the END key at one line, and the HOME key at the
+    following line your caret DOM position can be the same, but the
+    visual caret positions should be different, and so should certain
+    actions like arrow-down and arrow-up.
+
+    When developing code to handle this in Opera, I solved it by
+    letting carets know if they were connected forward or backwards
+    (basically a bool) in the dom element, but maybe this is solved in
+    some other way now?
+
+    /Daniel
+
+    On 2024-01-16 18:31, 'Siye Liu' via blink-dev wrote:
+&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;
+    Hi Brian,
+
+    To answer your question,
+    1. This prototype only covers the main dom scenario
+    (&lt;a  rel="nofollow" href="https://crbug.com/388976"&gt;https://crbug.com/388976&lt;/a&gt;). Shadow dom scenario is tracked in
+    &lt;a  rel="nofollow" href="https://crbug.com/1514810"&gt;https://crbug.com/1514810&lt;/a&gt;.
+    2. The prototype should have similar behavior as
+    caretRangeFromPoint's implementation in Blink (when the point is
+    over an input element, the returned CaretPosition should be the
+    nearest ancestor of the input element) because I expect both APIs
+    share same hit testing logic under the hood.
+
+    Once the prototype is ready for dev trial, we can discuss further
+    about improving current implementation in both
+    caretRangeFromPoint and caretPositionFromPoint in Blink.
+
+
+    Thanks,
+    Siye
+
+    On Friday, January 12, 2024 at 5:23:25 PM UTC-8 Brian Birtles wrote:
+
+        Hi,
+
+        Will this also cover the behavioral differences between
+        caretPositionFromPoint as implemented in Gecko and
+        caretRangeFromPoint as implemented in Blink such as:
+
+        1. caretPositionFromPoint in Gecko digs into shadow DOM
+        elements whereas caretRangeFromPoint in Blink does not.
+        2. When the point is over a text input element,
+        caretPositionFromPoint in Gecko returns the text input
+        element and offset into it but caretRangeFromPoint in Blink
+        returns the nearest ancestor of the text input element. (Note
+        that caretRangeFromPoint in Webkit returns the text input
+        element but always returns a zero offset into it.)
+
+        Thanks,
+
+        Brian
+
+        2024年1月13日土曜日 3:35:59 UTC+9 si...@microsoft.com:
+
+            Contact emails
+            si...@microsoft.com, sa...@microsoft.com
+
+            Explainer
+            None
+
+            Specification
+            
+&lt;a  rel="nofollow" href="https://www.w3.org/TR/cssom-view-1/#dom-document-caretpositionfrompoint"&gt;https://www.w3.org/TR/cssom-view-1/#dom-document-caretpositionfrompoint&lt;/a&gt;
+
+            Summary
+
+            This new API allows users to get current caret position
+            from a given screen point. The API returns a
+            CaretPosition object which represents the caret position
+            indicating current text insertion point including the
+            containing DOM node, caret's character offset, and the
+            client rectangle of caret range.
+
+
+
+            Blink component
+            Blink&amp;gt;CSS
+            
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS&lt;/a&gt;&amp;gt;
+
+            Motivation
+
+            document.caretPositionFromPoint API is in CSSOM View and
+            is already implemented by Gecko. WebKit/Blink has similar
+            document.caretRangeFromPoint API which returns a text
+            range indicating the text insertion point. The existing
+            API was in CSSOM View at the time it was implemented:
+            &lt;a  rel="nofollow" href="https://bugs.webkit.org/show_bug.cgi?id=27046"&gt;https://bugs.webkit.org/show_bug.cgi?id=27046&lt;/a&gt;
+            
+&lt;a  rel="nofollow" href="http://web.archive.org/web/20090708002518/http://dev.w3.org/csswg/cssom-view/#the-documentview-interface"&gt;http://web.archive.org/web/20090708002518/http://dev.w3.org/csswg/cssom-view/#the-documentview-interface&lt;/a&gt;
+            The existing API was replaced by the new API later:
+            &lt;a  rel="nofollow" href="https://hg.csswg.org/drafts/rev/4c7b6f843171"&gt;https://hg.csswg.org/drafts/rev/4c7b6f843171&lt;/a&gt;. The switch
+            happened around 2009 and we don't have the historical
+            context about the decision. Given how long it has been
+            since the spec was updated, we believe it's best that
+            Blink complies with the spec so that future innovations
+            with the API can be spec compliant and have lower
+            interop/compat risk.
+
+
+
+            Initial public proposal
+            None
+
+            TAG review
+            None
+
+            TAG review status
+            Not applicable
+
+            Risks
+
+
+            Interoperability and Compatibility
+
+            Gecko already implemented the API. Webkit/Blink didn't
+            implement it. The interop risk is that it's unclear at
+            this moment about Webkit's position on this. We won't be
+            able to achieve full interop with this API if Webkit
+            isn't willing to support this API. There is a compat risk
+            too if we decided to deprecate the old API:
+            &lt;a  rel="nofollow" href="https://crbug.com/690599"&gt;https://crbug.com/690599&lt;/a&gt;
+
+
+
+            /Gecko/: Shipped/Shipping
+
+            /WebKit/: No signal
+            (&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/301"&gt;https://github.com/WebKit/standards-positions/issues/301&lt;/a&gt;)
+
+            /Web developers/: Positive
+            (&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=388976#c34"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=388976#c34&lt;/a&gt;)
+            Web developers are asking to have
+            document.caretPositionFromPoint API implemented in Blink:
+            &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=388976#c28"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=388976#c28&lt;/a&gt;
+            &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=388976#c34"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=388976#c34&lt;/a&gt;
+
+            /Other signals/:
+
+            WebView application risks
+
+            Does this intent deprecate or change behavior of existing
+            APIs, such that it has potentially high risk for Android
+            WebView-based applications?
+
+            None
+
+
+
+            Debuggability
+
+            None
+
+
+
+            Is this feature fully tested by web-platform-tests
+            
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;?
+            Yes
+
+            The API is tested in WPT:
+            
+&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/c18cfd4eb319ca535db8c194941719598b3b6ea8/css/cssom/caretPositionFromPoint.html"&gt;https://github.com/web-platform-tests/wpt/blob/c18cfd4eb319ca535db8c194941719598b3b6ea8/css/cssom/caretPositionFromPoint.html&lt;/a&gt;
+
+
+
+            Flag name on chrome://flags
+            None
+
+            Finch feature name
+            None
+
+            Non-finch justification
+            None
+
+            Requires code in //chrome?
+            False
+
+            Tracking bug
+            &lt;a  rel="nofollow" href="https://crbug.com/388976"&gt;https://crbug.com/388976&lt;/a&gt;
+
+            Estimated milestones
+
+            No milestones specified
+
+
+
+            Link to entry on the Chrome Platform
+            Status&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5201014343073792"&gt;https://chromestatus.com/feature/5201014343073792&lt;/a&gt;
+
+            This intent message was generated by Chrome Platform
+            Status &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+
+&lt;/pre&gt;&lt;tt&gt;    -- 
+&lt;/tt&gt;&lt;tt&gt;    You received this message because you are subscribed to the
+&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
+    Google Groups &amp;quot;blink-dev&amp;quot; group.
+    To unsubscribe from this group and stop receiving emails from it,
+    send an email to blink-dev+...@chromium.org.
+    To view this discussion on the web visit
+    
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/0169dc69-72a5-46e4-b377-e682f8818a80n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/0169dc69-72a5-46e4-b377-e682f8818a80n%40chromium.org&lt;/a&gt;
+    
+&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/0169dc69-72a5-46e4-b377-e682f8818a80n%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/0169dc69-72a5-46e4-b377-e682f8818a80n%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
+&lt;/pre&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;
+
+--
+&lt;/pre&gt;&lt;tt&gt;You received this message because you are subscribed to the Google 
+&lt;/tt&gt;&lt;tt&gt;Groups &amp;quot;blink-dev&amp;quot; group.
+&lt;/tt&gt;&lt;tt&gt;To unsubscribe from this group and stop receiving emails from it, send 
+&lt;/tt&gt;&lt;tt&gt;an email to blink-dev+unsubscr...@chromium.org.
+&lt;/tt&gt;&lt;tt&gt;To view this discussion on the web visit 
+&lt;/tt&gt;&lt;tt&gt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/7183ed6f-73e0-4858-a477-5469d764efc8n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/7183ed6f-73e0-4858-a477-5469d764efc8n%40chromium.org&lt;/a&gt; 
+&lt;/tt&gt;&lt;tt&gt;&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/7183ed6f-73e0-4858-a477-5469d764efc8n%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/7183ed6f-73e0-4858-a477-5469d764efc8n%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
+&lt;/tt&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;
+
+--
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/7b753381-6d60-45a8-a195-9cd5e4fb656b%40gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/7b753381-6d60-45a8-a195-9cd5e4fb656b%40gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08922.html</id>
+        <title>Re: [blink-dev] Intent to Ship: Scroll To Text Fragment</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08922.html"/>
+        <updated>2024-01-18T13:25:33.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08922.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Scroll+To+Text+Fragment%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Scroll To Text Fragment&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Mike+Taylor%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Mike Taylor&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240118" rel="nofollow"&gt;Thu, 18 Jan 2024 05:25:33 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;tt&gt;If you believe you've found a bug, please file a new issue at 
+&lt;/tt&gt;&lt;tt&gt;crbug.com/new. This is not a support forum.
+&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
+
+thanks,
+Mike&lt;/pre&gt;&lt;pre&gt;
+
+On 1/17/24 7:30 PM, Adam Semenenko wrote:
+&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;tt&gt;Unfortunately the opt-out feature no longer seems to work, and now 
+&lt;/tt&gt;&lt;tt&gt;Chrome is randomly highlighting text and scrolling halfway through a 
+&lt;/tt&gt;&lt;tt&gt;page even when no highlighting was requested.
+&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
+
+The colours are getting even more garish over time too.
+
+Is there any other way to disable the highlighting?
+
+&lt;/pre&gt;&lt;tt&gt;On Wed, 25 Oct 2023 at 09:53, Adam Semenenko 
+&lt;/tt&gt;&lt;tt&gt;&amp;lt;adam.semene...@gmail.com&amp;gt; wrote:
+&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
+
+    Sorry, this is just an email isn't it? The thread was closed. I've
+    heard many things from different people, but I'm still
+    experiencing the problem. I'm not sure who any of you are either,
+    is there some sort of guide for who's in charge of who I can
+    email? It'd be nice if the OP was could reply to their thread,
+    instead of just cherry picking praise and running away with an
+    idea that could be improved.
+
+    It's not a Chrome product feedback by the way, as I understand
+    there's the same problem in other browsers.
+
+    On Thu, 19 Oct 2023, 06:04 K. Moon, &amp;lt;km...@chromium.org&amp;gt; wrote:
+
+        Please stop posting this kind of feedback to this thread;
+        you've been informed multiple times by multiple individuals
+        that this is not the right forum for Chrome product feedback.
+
+        Continuing to persist in doing so may lead to intervention,
+        like blocking your ability to post entirely.
+
+        On Tue, Oct 17, 2023, 10:15 PM Adam Semenenko
+        &amp;lt;adam.semene...@gmail.com&amp;gt; wrote:
+
+            Here's another example of useless and distracting
+            highlighting. What is it about the first two sentences
+            that need highlighting? Is their position not significant
+            enough?
+
+            On Thu, 5 Oct 2023, 11:40 Adam Semenenko,
+            &amp;lt;adam.semene...@gmail.com&amp;gt; wrote:
+
+                Is it still not possible to disable this distraction
+                yet? I found a wonderfully ironic example today - see
+                attached screenshot.
+
+                There seem to be only two ways that this feature is used:
+
+                1. The first sentence of a page is highlighted, which
+                is completely redundant and patronising. Yes Chrome,
+                thank you for highlighting the very first sentence.
+                However could I cope without you.
+
+                2. A random sentence halfway through the page is
+                highlighted. This is never what I want: I always want
+                to read the page so that I can understand the sentence
+                in context.
+
+
+
+                On Wed, 5 May 2021, 06:40 Adam Semenenko,
+                &amp;lt;adam.semene...@gmail.com&amp;gt; wrote:
+
+                    Hi all,
+
+                    Do you know if there's a consistent and easy way
+                    to disable this yet? It's really distracting for
+                    me. When I google something and click on a result,
+                    I like consistent behaviour and to see the whole
+                    page from the start. I feel disrupted when I'm
+                    randomly dropped into the middle of a page with a
+                    garish colour jumping out at me.
+
+                    Cheers,
+                    Adam
+
+                    On Mon, 26 Apr 2021 at 21:54, 'Grant Wang' via
+                    blink-dev &amp;lt;blink-dev@chromium.org&amp;gt; wrote:
+
+                        Hi all,
+
+                        It’s been roughly nine months since we first
+                        utilized Scroll To Text Fragment in featured
+                        snippets in Google Search. In that time, we’ve
+                        seen that Scroll To Text Fragment links help
+                        us towards our goal to get users the
+                        information they need.  In particular:
+
+                         1. We find that Scroll To Text Fragment links
+                            increase engagement -- users are less
+                            likely to visit a page and then quickly
+                            hit the back button, because they can more
+                            readily understand how relevant the page
+                            is to their search after arriving at the page.
+
+                         2. In user surveys, we find that users prefer
+                            being scrolled to the relevant section of
+                            a page that’s in a featured snippet. Users
+                            who were scrolled to the relevant section
+                            preferred the experience at a rate of 2:1;
+                            even users who were not scrolled in the
+                            control group preferred the option of
+                            being scrolled to the relevant section at
+                            the same 2:1 rate.
+
+                        Besides their usage on Google Search, we’ve
+                        noticed scroll to text fragments links during
+                        our crawls of the web.  One of the best use
+                        cases has been wikipedia citations.  For
+                        instance, citation 9
+                        
+&amp;lt;&lt;a  rel="nofollow" href="https://en.wikipedia.org/wiki/Melbourne_Cup_%28greyhounds%29#:~:text=%22How%20the%20Cup%20Was%20Won%22.%20Sandown%20Greyhounds.%20Retrieved%2017%20March%202021"&gt;https://en.wikipedia.org/wiki/Melbourne_Cup_%28greyhounds%29#:~:text=%22How%20the%20Cup%20Was%20Won%22.%20Sandown%20Greyhounds.%20Retrieved%2017%20March%202021&lt;/a&gt;.&amp;gt;
+                        on this page:
+                        &lt;a  rel="nofollow" href="https://en.wikipedia.org/wiki/Melbourne_Cup_"&gt;https://en.wikipedia.org/wiki/Melbourne_Cup_&lt;/a&gt;(greyhounds)
+                        provides the detailed attribution to the
+                        fastest-ever time at the Melbourne Cup.
+
+                        Cheers,
+                        Grant
+                        On Thursday, December 12, 2019 at 12:24:40 PM
+                        UTC-8 sligh...@chromium.org wrote:
+
+                            LGTM4
+
+
+                            On Thursday, December 12, 2019 at 12:17:49
+                            PM UTC-8, Daniel Bratell wrote:
+
+                                LGTM3
+
+                                /Daniel
+
+
+                                On Thursday, 12 December 2019 19:45:38
+                                UTC+1, Chris Harrelson wrote:
+
+                                    LGTM2
+
+                                    On Wed, Dec 11, 2019 at 10:27 PM
+                                    Yoav Weiss &amp;lt;yo...@yoav.ws&amp;gt; wrote:
+
+                                        LGTM1
+
+
+                                        On Wed, Dec 11, 2019, 22:03
+                                        Nick Burris
+                                        &amp;lt;nbu...@chromium.org&amp;gt; wrote:
+
+                                            Hi all,
+
+                                            We feel that we're now in
+                                            good shape for shipping.
+                                            We have addressed all of
+                                            the shipping blockers that
+                                            I listed in my previous
+                                            email, and the
+                                            corresponding
+                                            implementation changes
+                                            have landed in Chrome.
+                                            We're still continuing to
+                                            make improvements to the
+                                            spec, functionality, and
+                                            web platform tests but we
+                                            consider the outstanding
+                                            issues to be minor and
+                                            wouldn't have an effect on
+                                            interop, so we don't
+                                            believe they're ship-blocking.
+
+                                            We have received positive
+                                            signal on the feature from
+                                            Safari, thank you Maciej
+                                            for the reply on
+                                            webkit-dev
+                                            
+&amp;lt;&lt;a  rel="nofollow" href="https://lists.webkit.org/pipermail/webkit-dev/2019-December/030996.html"&gt;https://lists.webkit.org/pipermail/webkit-dev/2019-December/030996.html&lt;/a&gt;&amp;gt;!
+                                            Note that we actually do
+                                            have feature detectability
+                                            specified implemented per
+                                            my reply
+                                            
+&amp;lt;&lt;a  rel="nofollow" href="https://lists.webkit.org/pipermail/webkit-dev/2019-December/030998.html"&gt;https://lists.webkit.org/pipermail/webkit-dev/2019-December/030998.html&lt;/a&gt;&amp;gt;.
+                                            My apologies this was not
+                                            mentioned in the initial
+                                            intent to ship email, it
+                                            developed a few emails
+                                            down the line.
+
+                                            Thanks,
+                                            Nick
+
+                                            On Thursday, October 31,
+                                            2019 at 11:50:21 AM UTC-4,
+                                            Nick Burris wrote:
+
+                                                Thanks so much for the
+                                                detailed feedback!
+                                                Here's a specific list
+                                                of blockers, with some
+                                                comments inline.
+
+                                                Specification issues
+
+                                                  * #64
+                                                    
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/ScrollToTextFragment/issues/64"&gt;https://github.com/WICG/ScrollToTextFragment/issues/64&lt;/a&gt;&amp;gt;
+                                                    - Prevent
+                                                    invocation from popup
+                                                  * #66
+                                                    
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/ScrollToTextFragment/issues/66"&gt;https://github.com/WICG/ScrollToTextFragment/issues/66&lt;/a&gt;&amp;gt;
+                                                    - Clarify how
+                                                    scroll to fragment
+                                                    is performed
+
+                                                Web platform test cases
+
+                                                  * Security
+                                                    restrictions
+                                                    
+&amp;lt;&lt;a  rel="nofollow" href="https://wicg.github.io/ScrollToTextFragment/#should-allow-text-fragment"&gt;https://wicg.github.io/ScrollToTextFragment/#should-allow-text-fragment&lt;/a&gt;&amp;gt;
+                                                  * Setting
+                                                    
+window.location.fragmentDirective
+                                                    has no effect
+                                                  * All combinations
+                                                    of optional
+                                                    parameters in text
+                                                    directive
+                                                  * Matching
+                                                    TextMatchChar
+                                                    
+&amp;lt;&lt;a  rel="nofollow" href="https://wicg.github.io/ScrollToTextFragment/#textmatchchar"&gt;https://wicg.github.io/ScrollToTextFragment/#textmatchchar&lt;/a&gt;&amp;gt;s
+                                                    and
+                                                    PercentEncodedChar
+                                                    
+&amp;lt;&lt;a  rel="nofollow" href="https://wicg.github.io/ScrollToTextFragment/#percentencodedchar"&gt;https://wicg.github.io/ScrollToTextFragment/#percentencodedchar&lt;/a&gt;&amp;gt;s
+                                                    (in particular the
+                                                    syntactical
+                                                    characters ‘,’ and
+                                                    ‘-’) including
+                                                    non-ASCII
+                                                  * Multiple matches
+                                                    in the page
+                                                    (currently we only
+                                                    test 0 or 1 match)
+                                                  * Cross-whitespace/node
+                                                    matching (i.e.
+                                                    context terms and
+                                                    match terms can be
+                                                    separated by
+                                                    whitespace and
+                                                    node boundaries)
+                                                  * Test matching
+                                                    hidden and shadow DOM
+                                                  * Test horizontal
+                                                    scroll into view
+
+
+                                                On Thursday, October
+                                                31, 2019 at 10:17:56
+                                                AM UTC-4, Frédéric
+                                                Wang wrote:
+
+                                                    On 30/10/2019
+                                                    15:52, Yoav Weiss
+                                                    wrote:
+&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;
+                                                    This intent
+                                                    received a lot of
+                                                    feedback, but
+                                                    some of it more
+                                                    relevant to the
+                                                    general Blink
+                                                    process in
+                                                    general than to
+                                                    this intent
+                                                    specifically. So,
+                                                    let me try to sum
+                                                    up where I
+                                                    believe things
+                                                    are and what is
+                                                    and isn't
+                                                    blocking this
+                                                    intent from my
+                                                    perspective.
+
+                                                    While the
+                                                    original intent
+                                                    could have done a
+                                                    better job at
+                                                    expressing the
+                                                    outreach efforts
+                                                    done, and
+                                                    potentially a
+                                                    better job
+                                                    reaching out to
+                                                    WebKit folks,
+                                                    that *should not
+                                                    block* the
+                                                    current intent.
+                                                    Official signals
+                                                    from other
+                                                    vendors would be
+                                                    most welcome, but
+                                                    I would not block
+                                                    the intent on
+                                                    getting them.
+                                                    (The Blink
+                                                    process needs to
+                                                    establish the
+                                                    best ways to get
+                                                    feedback from
+                                                    other vendors in
+                                                    reasonable
+                                                    timeframes. That
+                                                    discussion is
+                                                    beyond the scope
+                                                    of this intent)
+
+                                                    A list of
+                                                    blockers for this
+                                                    intent from my
+                                                    perspective:
+
+                                                      * Anne's
+                                                        security
+                                                        concern
+                                                        
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/392#issuecomment-510855073"&gt;https://github.com/w3ctag/design-reviews/issues/392#issuecomment-510855073&lt;/a&gt;&amp;gt; 
+seems
+                                                        like
+                                                        something we
+                                                        should
+                                                        address in
+                                                        spec. Even if
+                                                        Chrome
+                                                        security
+                                                        folks don't
+                                                        consider this
+                                                        a blocking
+                                                        issue,
+                                                        assuming
+                                                        Mozilla does,
+                                                        that would
+                                                        get in their
+                                                        way if they
+                                                        wished to
+                                                        follow us.
+                                                      * Daniel's
+                                                        feedback on
+                                                        augmenting
+                                                        the Privacy &amp;
+                                                        Security
+                                                        section with
+                                                        feedback from
+                                                        the Chrome
+                                                        security
+                                                        seems
+                                                        valuable, and
+                                                        I'd like to
+                                                        see it
+                                                        addressed
+                                                        before shipping.
+
+&lt;/pre&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;
+                                                Forgot to note that
+                                                David did address this
+                                                in #62
+                                                
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/ScrollToTextFragment/issues/62"&gt;https://github.com/WICG/ScrollToTextFragment/issues/62&lt;/a&gt;&amp;gt;,
+                                                I believe the security
+                                                and privacy
+                                                
+&amp;lt;&lt;a  rel="nofollow" href="https://wicg.github.io/ScrollToTextFragment/#allow-text-fragment-directives"&gt;https://wicg.github.io/ScrollToTextFragment/#allow-text-fragment-directives&lt;/a&gt;&amp;gt;
+                                                section now details
+                                                all of the feedback
+                                                and work we've done here.
+
+&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;
+                                                      * Regarding
+                                                        Rego and
+                                                        Fréd's
+                                                        feedback on
+                                                        WPTs - I'd
+                                                        like for us
+                                                        to reach
+                                                        agreement on
+                                                        which test
+                                                        cases should
+                                                        be added
+                                                        beyond what's
+                                                        currently
+                                                        covered in
+                                                        order for the
+                                                        test suite to
+                                                        be considered
+                                                        complete.
+                                                        Rego/Fréd -
+                                                        do you have
+                                                        such a list
+                                                        of cases in
+                                                        mind? Once we
+                                                        reach
+                                                        agreement on
+                                                        what that
+                                                        list should
+                                                        be, we should
+                                                        block
+                                                        shipping
+                                                        until the
+                                                        test suite is
+                                                        complete.
+
+&lt;/pre&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;
+                                                    People developing
+                                                    the feature
+                                                    probably know
+                                                    better the things
+                                                    to test. That
+                                                    said, after
+                                                    checking a bit the
+                                                    spec and tests, it
+                                                    looks like the
+                                                    features can be
+                                                    divided into the
+                                                    following categories:
+
+                                                    (1) Fragment
+                                                    directive, IDL
+                                                    interface and
+                                                    TreeWalker navigation
+                                                        This is the
+                                                    core of the
+                                                    proposal, so it
+                                                    would probably be
+                                                    a blocker if it
+                                                        is not tested
+                                                    extensively.
+                                                    Exiting tests
+                                                    already cover
+                                                    several cases, but
+                                                        I suspect more
+                                                    can be tested here
+                                                    (e.g. check the
+                                                    actual value
+                                                        of
+                                                    
+window.location.fragmentDirective
+                                                    for different
+                                                    cases, check that
+
+
+                                                Note that
+                                                
+window.location.fragmentDirective
+                                                does not actually
+                                                expose the fragment
+                                                directive string, for
+                                                now it is just
+                                                specified for feature
+                                                detectability (see #19
+                                                
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/ScrollToTextFragment/issues/19"&gt;https://github.com/WICG/ScrollToTextFragment/issues/19&lt;/a&gt;&amp;gt;
+                                                and spec
+                                                
+&amp;lt;&lt;a  rel="nofollow" href="https://wicg.github.io/ScrollToTextFragment/#feature-detectability"&gt;https://wicg.github.io/ScrollToTextFragment/#feature-detectability&lt;/a&gt;&amp;gt;).
+
+                                                    setting it has no
+                                                    effect, doing
+                                                    query for all
+                                                    combinations of
+                                                    mandatory/optional
+                                                    parameters,
+                                                    TextMatchChar,
+                                                    percent encoding
+                                                    of special
+                                                    characters,
+                                                    non-ascii chars,
+                                                    more complex test
+                                                    pages with 0, 1 or
+                                                    more
+                                                        matches, with
+                                                    whitespace, with
+                                                    different locales,
+                                                    etc)
+
+                                                    (2) Security &amp; Privacy
+                                                        Apparently
+                                                    people have raised
+                                                    concerns about
+                                                    this so it seems
+                                                    important to
+                                                        tests any
+                                                    mitigation or
+                                                    protection
+                                                    described in the
+                                                    spec, if any (and if
+                                                        possible with
+                                                    the current WPT
+                                                    infrastructure).
+
+                                                    (3) Navigating to
+                                                    a Text Fragment
+                                                        It seems that
+                                                    the idea of the
+                                                    proposal is to
+                                                    rely on existing
+                                                    concepts
+                                                        like
+                                                    Range/TreeWalker
+                                                    and APIs similar
+                                                    to
+                                                    window.find/scrollIntoView.
+                                                        I think it
+                                                    would be good to
+                                                    have minimal tests
+                                                    checking that (scroll
+                                                        position
+                                                    actually changed,
+                                                    scroll
+                                                    alignment/behavior,
+                                                    hidden DOM/CSS, etc)
+                                                        but this does
+                                                    not need to be
+                                                    exhaustive, since
+                                                    it is assumed that
+                                                    these are
+                                                        already
+                                                    implemented,
+                                                    tested and
+                                                    inter-operable
+                                                    (See comment below
+                                                    though).
+
+                                                    (4) Indicating The
+                                                    Text Match
+                                                        The spec
+                                                    explicitly says it
+                                                    is UA-defined so
+                                                    it cannot really be
+                                                        tested. I
+                                                    guess one could
+                                                    write a minimal !=
+                                                    reftest to check
+                                                    that highlight
+                                                        actually
+                                                    happens but it
+                                                    would be very weak
+                                                    anyway, so I'm not
+                                                    sure it's
+                                                        necessary.
+                                                    These will instead
+                                                    likely be
+                                                    browser-specific
+                                                    tests.
+
+
+                                                Agreed, I think this
+                                                should be left as
+                                                browser-specific; we
+                                                only want to specify
+                                                the
+                                                matching/scroll-into-view
+                                                behavior and leave it
+                                                up to the UA/browser
+                                                how the specific text
+                                                is actually indicated.
+
+                                                    BTW, I don't think
+                                                    my comment
+                                                    regarding
+                                                    BroadcastChannel
+                                                    is a blocker, I
+                                                    just believe it
+                                                    would be nice to
+                                                    avoid relying on
+                                                    non-interoperable
+                                                    APIs.
+
+
+                                                Though not a shipping
+                                                blocker I definitely
+                                                want to fix this, I
+                                                spoke to some WPT
+                                                experts and using
+                                                WPT's Stash
+                                                
+&amp;lt;&lt;a  rel="nofollow" href="https://web-platform-tests.org/tools/wptserve/docs/stash.html"&gt;https://web-platform-tests.org/tools/wptserve/docs/stash.html&lt;/a&gt;&amp;gt;
+                                                seems like a viable
+                                                option.
+
+                                                    Besides tests, I
+                                                    share Anne's
+                                                    concern on Mozilla
+                                                    repo regarding
+                                                    lack of existing
+                                                    primitive for
+                                                    actually
+                                                    performing the
+                                                    scroll to text. I
+                                                    opened
+                                                    
+&lt;a  rel="nofollow" href="https://github.com/WICG/ScrollToTextFragment/issues/66"&gt;https://github.com/WICG/ScrollToTextFragment/issues/66&lt;/a&gt;
+                                                    for that purpose.
+                                                    Right now it's
+                                                    unclear to me if
+                                                    this is
+                                                    well-specified and
+                                                    tested in the
+                                                    current proposal,
+                                                    and this may be
+                                                    considered a blocker.
+
+&lt;/pre&gt;&lt;tt&gt;                                                    -- 
+&lt;/tt&gt;&lt;tt&gt;                                                    Frédéric Wang
+&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;tt&gt;                                            -- 
+&lt;/tt&gt;&lt;tt&gt;                                            You received this message
+&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
+                                            because you are subscribed
+                                            to the Google Groups
+                                            &amp;quot;blink-dev&amp;quot; group.
+                                            To unsubscribe from this
+                                            group and stop receiving
+                                            emails from it, send an
+                                            email to blin...@chromium.org.
+                                            To view this discussion on
+                                            the web visit
+                                            
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/1238c06f-dcd1-434c-87b8-97a373fdf735%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/1238c06f-dcd1-434c-87b8-97a373fdf735%40chromium.org&lt;/a&gt;
+                                            
+&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/1238c06f-dcd1-434c-87b8-97a373fdf735%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/1238c06f-dcd1-434c-87b8-97a373fdf735%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
+
+&lt;/pre&gt;&lt;tt&gt;                                        -- 
+&lt;/tt&gt;&lt;tt&gt;                                        You received this message
+&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
+                                        because you are subscribed to
+                                        the Google Groups &amp;quot;blink-dev&amp;quot;
+                                        group.
+                                        To unsubscribe from this group
+                                        and stop receiving emails from
+                                        it, send an email to
+                                        blin...@chromium.org.
+                                        To view this discussion on the
+                                        web visit
+                                        
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CACj%3DBEgFMwT1ArGjrHMcWZ9pKe8%2Bsv%2BJHDLpOd4ofOQss0a-zA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CACj%3DBEgFMwT1ArGjrHMcWZ9pKe8%2Bsv%2BJHDLpOd4ofOQss0a-zA%40mail.gmail.com&lt;/a&gt;
+                                        
+&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CACj%3DBEgFMwT1ArGjrHMcWZ9pKe8%2Bsv%2BJHDLpOd4ofOQss0a-zA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CACj%3DBEgFMwT1ArGjrHMcWZ9pKe8%2Bsv%2BJHDLpOd4ofOQss0a-zA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
+
+&lt;/pre&gt;&lt;tt&gt;                        -- 
+&lt;/tt&gt;&lt;tt&gt;                        You received this message because you are
+&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
+                        subscribed to a topic in the Google Groups
+                        &amp;quot;blink-dev&amp;quot; group.
+                        To unsubscribe from this topic, visit
+                        
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/topic/blink-dev/zlLSxQ9BA8Y/unsubscribe"&gt;https://groups.google.com/a/chromium.org/d/topic/blink-dev/zlLSxQ9BA8Y/unsubscribe&lt;/a&gt;.
+                        To unsubscribe from this group and all its
+                        topics, send an email to
+                        blink-dev+unsubscr...@chromium.org.
+                        To view this discussion on the web visit
+                        
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/e9c07baa-3c2a-4835-9014-9d5a2b249618n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/e9c07baa-3c2a-4835-9014-9d5a2b249618n%40chromium.org&lt;/a&gt;
+                        
+&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/e9c07baa-3c2a-4835-9014-9d5a2b249618n%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/e9c07baa-3c2a-4835-9014-9d5a2b249618n%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
+
+&lt;/pre&gt;&lt;tt&gt;            -- 
+&lt;/tt&gt;&lt;tt&gt;            You received this message because you are subscribed to
+&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
+            the Google Groups &amp;quot;blink-dev&amp;quot; group.
+            To unsubscribe from this group and stop receiving emails
+            from it, send an email to blink-dev+unsubscr...@chromium.org.
+            To view this discussion on the web visit
+            
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAyoetTc9x1UFboXG0KpRvp9t3CScyYjYNpiX839XX7p8gWCKQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAyoetTc9x1UFboXG0KpRvp9t3CScyYjYNpiX839XX7p8gWCKQ%40mail.gmail.com&lt;/a&gt;
+            
+&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAyoetTc9x1UFboXG0KpRvp9t3CScyYjYNpiX839XX7p8gWCKQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAyoetTc9x1UFboXG0KpRvp9t3CScyYjYNpiX839XX7p8gWCKQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
+
+--
+&lt;/pre&gt;&lt;tt&gt;You received this message because you are subscribed to the Google 
+&lt;/tt&gt;&lt;tt&gt;Groups &amp;quot;blink-dev&amp;quot; group.
+&lt;/tt&gt;&lt;tt&gt;To unsubscribe from this group and stop receiving emails from it, send 
+&lt;/tt&gt;&lt;tt&gt;an email to blink-dev+unsubscr...@chromium.org.
+&lt;/tt&gt;&lt;tt&gt;To view this discussion on the web visit 
+&lt;/tt&gt;&lt;tt&gt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAyoetQCRN2yCPu6j5xSK3odOhX3VNvWbjsHgUiM-PpWLXCCbw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAyoetQCRN2yCPu6j5xSK3odOhX3VNvWbjsHgUiM-PpWLXCCbw%40mail.gmail.com&lt;/a&gt; 
+&lt;/tt&gt;&lt;tt&gt;&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAyoetQCRN2yCPu6j5xSK3odOhX3VNvWbjsHgUiM-PpWLXCCbw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAAyoetQCRN2yCPu6j5xSK3odOhX3VNvWbjsHgUiM-PpWLXCCbw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
+&lt;/tt&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;
+
+--
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/6a0cfa59-71e8-4f8a-b572-1898a89d0cff%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/6a0cfa59-71e8-4f8a-b572-1898a89d0cff%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08921.html</id>
         <title>Re: [blink-dev] Intent to Ship: WebGPU: separate Read-only depth-stencil</title>
         <author>
@@ -9814,237 +10815,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/704e3d0e-e8cb-4802-8e20-e8cb01641b99%40igalia.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/704e3d0e-e8cb-4802-8e20-e8cb01641b99%40igalia.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08873.html</id>
-        <title>Re: [blink-dev] Intent to Ship: Long Animation Frame Timing</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08873.html"/>
-        <updated>2024-01-17T08:32:54.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08873.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Long+Animation+Frame+Timing%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Long Animation Frame Timing&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Noam+Rosenthal%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Noam Rosenthal' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240117" rel="nofollow"&gt;Wed, 17 Jan 2024 00:32:54 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Updating that Mozilla gave an official positive signal:
-&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/pull/962"&gt;https://github.com/mozilla/standards-positions/pull/962&lt;/a&gt;&lt;/pre&gt;&lt;pre&gt;
-
-Updated the corresponding chromestatus field.
-
-On Monday, January 15, 2024 at 10:34:19 AM UTC Noam Rosenthal wrote:
-
-&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Regarding the spec, I see that it's monkeypatching WebIDL, DOM and HTML. 
-&amp;gt;&amp;gt; This feels odd in a WG-adopted spec.
-&amp;gt;&amp;gt; Have you tried to PR these changes upstream?
-&amp;gt;&amp;gt;
-&amp;gt;
-&amp;gt; Was planning to upstream the monkey-patches once we have formal positive 
-&amp;gt; signals from Gecko/WebKit. 
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/1fe0c37e-d02c-474e-824f-498d7866c598n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/1fe0c37e-d02c-474e-824f-498d7866c598n%40chromium.org&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08872.html</id>
-        <title>[blink-dev] Intent to Ship: Allow Cross-Origin Subframes to Send Automatic Beacons</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08872.html"/>
-        <updated>2024-01-16T20:49:34.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08872.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Allow+Cross%5C-Origin+Subframes+to+Send+Automatic+Beacons%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Ship: Allow Cross-Origin Subframes to Send Automatic Beacons&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Liam+Brady%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Liam Brady' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240116" rel="nofollow"&gt;Tue, 16 Jan 2024 12:49:34 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;
-
-Contact emails&lt;/pre&gt;&lt;pre&gt;
-
-lbr...@google.com, shivani...@chromium.org, jkar...@chromium.org
-
-Explainer(s)
-
-&lt;a  rel="nofollow" href="https://github.com/WICG/turtledove/pull/904"&gt;https://github.com/WICG/turtledove/pull/904&lt;/a&gt;
-
-Spec(s)
-
-&lt;a  rel="nofollow" href="https://github.com/WICG/fenced-frame/pull/133"&gt;https://github.com/WICG/fenced-frame/pull/133&lt;/a&gt;
-
-Summary
-
-As part of the Privacy Sandbox experiment, we introduced a way for beacons 
-to be sent automatically if a top-level navigation is initiated from within 
-an ad frame 
-&amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/turtledove/blob/main/Fenced_Frames_Ads_Reporting.md#registeradbeacon-1"&gt;https://github.com/WICG/turtledove/blob/main/Fenced_Frames_Ads_Reporting.md#registeradbeacon-1&lt;/a&gt;&amp;gt;.
- 
-At the time, we restricted this feature to frames and subframes that were 
-same-origin to the root ad frame. However, there is a use case that this is 
-not able to handle. With third-party ad serving (3PAS), the actual contents 
-of the ad (including links/click handlers) are loaded in a cross-origin 
-subframe. Because it is cross-origin, the frame does not get access to the 
-automatic beacon API, and therefore is not able to report a top-level 
-navigation when a user clicks on the ad.
-
-A cross-origin subframe can now opt in to sending automatic beacons by 
-setting a new response header: &amp;quot;Allow-Fenced-Frame-Automatic-Beacons&amp;quot;. The 
-cross-origin frame still cannot set automatic beacon data; instead, the 
-main ad frame will set the automatic beacon data, but opt in to having the 
-data be used for cross-origin automatic beacons using a new 
-&amp;quot;crossOrigin=true&amp;quot; parameter. When these 2 criteria are met, the 
-cross-origin subframe will send an automatic beacon when a top-level 
-navigation happens.
-
-This feature will also fix a separate issue 
-&amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/turtledove/pull/808#issuecomment-1721411495"&gt;https://github.com/WICG/turtledove/pull/808#issuecomment-1721411495&lt;/a&gt;&amp;gt; 
-brought up externally and allow for ad components to opt into sending 
-automatic beacons without needing to invoke 
-setReportEventDataForAutomaticBeacons(); they instead will just need to 
-supply the &amp;quot;Allow-Fenced-Frame-Automatic-Beacons&amp;quot; response header. This 
-will not remove the existing way for ad components to opt into sending 
-beacons.
-
-Blink component
-
-Blink&amp;gt;FencedFrames 
-&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EFencedFrames"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EFencedFrames&lt;/a&gt;&amp;gt;
-
-TAG reviews and status
-
-Fenced frames existing TAG review appended with these spec changes 
-&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/838#"&gt;https://github.com/w3ctag/design-reviews/issues/838#&lt;/a&gt; 
-&amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/838#issuecomment-1792881253"&gt;https://github.com/w3ctag/design-reviews/issues/838#issuecomment-1792881253&lt;/a&gt;&amp;gt;
-
-Link to Origin Trial feedback summary
-
-No Origin Trial performed
-
-Is this feature supported on all six Blink platforms (Windows, Mac, Linux, 
-Chrome OS, Android, and Android WebView)?
-
-Supported on all the above platforms except Android WebView.
-
-Debuggability
-
-Additional debugging capabilities are not necessary for these feature 
-changes.
-
-Risks
-
-Compatibility
-
-This is an added functionality and is backward compatible.
-
-Interoperability
-
-There are no interoperability risks as no other browsers have decided to 
-implement these features yet.
-
-Is this feature fully tested by web-platform-tests 
-&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;?
- 
-Link to test suite results from wpt.fyi. 
-
-Yes. New automatic beacon tests have been added to test cross-origin 
-beacons.
-
-automatic-beacon-cross-origin-false.https.html (test 
-&amp;lt;&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-cross-origin-false.https.html"&gt;https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-cross-origin-false.https.html&lt;/a&gt;&amp;gt;)
- 
-(results 
-&amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/fenced-frame/automatic-beacon-cross-origin-false.https.html"&gt;https://wpt.fyi/results/fenced-frame/automatic-beacon-cross-origin-false.https.html&lt;/a&gt;&amp;gt;
-)
-
-automatic-beacon-cross-origin-navigation.https.html (test 
-&amp;lt;&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-cross-origin-navigation.https.html"&gt;https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-cross-origin-navigation.https.html&lt;/a&gt;&amp;gt;)
- 
-(results 
-&amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/fenced-frame/automatic-beacon-cross-origin-navigation.https.html"&gt;https://wpt.fyi/results/fenced-frame/automatic-beacon-cross-origin-navigation.https.html&lt;/a&gt;&amp;gt;
-)
-
-automatic-beacon-cross-origin-no-data.https.html (test 
-&amp;lt;&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-cross-origin-no-data.https.html"&gt;https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-cross-origin-no-data.https.html&lt;/a&gt;&amp;gt;)
- 
-(results 
-&amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/fenced-frame/automatic-beacon-cross-origin-no-data.https.html"&gt;https://wpt.fyi/results/fenced-frame/automatic-beacon-cross-origin-no-data.https.html&lt;/a&gt;&amp;gt;
-)
-
-automatic-beacon-cross-origin-no-opt-in.https.html (test 
-&amp;lt;&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-cross-origin-no-opt-in.https.html"&gt;https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-cross-origin-no-opt-in.https.html&lt;/a&gt;&amp;gt;)
- 
-(results 
-&amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/fenced-frame/automatic-beacon-cross-origin-no-opt-in.https.html"&gt;https://wpt.fyi/results/fenced-frame/automatic-beacon-cross-origin-no-opt-in.https.html&lt;/a&gt;&amp;gt;
-)
-
-automatic-beacon-use-ancestor-data.https.html (test 
-&amp;lt;&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-use-ancestor-data.https.html"&gt;https://github.com/web-platform-tests/wpt/blob/master/fenced-frame/automatic-beacon-use-ancestor-data.https.html&lt;/a&gt;&amp;gt;)
- 
-(results 
-&amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/fenced-frame/automatic-beacon-use-ancestor-data.https.html"&gt;https://wpt.fyi/results/fenced-frame/automatic-beacon-use-ancestor-data.https.html&lt;/a&gt;&amp;gt;
-)
-
-WPT directory for Fenced Frames: 
-&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/tree/master/fenced-frame"&gt;https://github.com/web-platform-tests/wpt/tree/master/fenced-frame&lt;/a&gt;
-
-Anticipated spec changes
-
-None
-
-Link to entry on the Chrome Platform Status
-
-&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5179499557945344"&gt;https://chromestatus.com/feature/5179499557945344&lt;/a&gt;
-
-Links to previous Intent discussions
-
-Intent to prototype: 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/Ko9UXQYPgUE/m/URRsB-qvAAAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/Ko9UXQYPgUE/m/URRsB-qvAAAJ&lt;/a&gt;
- 
-
-Intent to experiment: 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/y6G3cvKXjlg/m/Lcpmpi_LAgAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/y6G3cvKXjlg/m/Lcpmpi_LAgAJ&lt;/a&gt;
- 
-
-Intent to ship:
-
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/tpw8wW0VenQ/m/mePLTiHlDQAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/tpw8wW0VenQ/m/mePLTiHlDQAJ&lt;/a&gt;
-
-
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/d33531b6-bc29-4951-ab8b-3b58880568den%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/d33531b6-bc29-4951-ab8b-3b58880568den%40chromium.org&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
