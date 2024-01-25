@@ -5,6 +5,252 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09030.html</id>
+        <title>Re: [blink-dev] Intent to Prototype: Call stacks in crash reports from unresponsive web pages</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09030.html"/>
+        <updated>2024-01-25T16:05:15.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09030.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Prototype%5C%3A+Call+stacks+in+crash+reports+from+unresponsive+web+pages%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Prototype: Call stacks in crash reports from unresponsive web pages&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Dave+Tapuska%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Dave Tapuska&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240125" rel="nofollow"&gt;Thu, 25 Jan 2024 08:05:15 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Yes I was thinking of how the stack trace format was standardized as well.
+How do wasm call stacks work with this proposal?&lt;/pre&gt;&lt;pre&gt;
+
+dave.
+
+On Wed, Jan 24, 2024 at 8:27 PM Domenic Denicola &amp;lt;dome...@chromium.org&amp;gt;
+wrote:
+
+&amp;gt; I agree with Dave's take on the importance of not including extension
+&amp;gt; scripts themselves, and Rick's take on how it is OK to include
+&amp;gt; extension-injected main world scripts.
+&amp;gt;
+&amp;gt; One additional interop concern that's worth highlighting here is that the
+&amp;gt; stack trace format itself is not compatible across browsers. However, I
+&amp;gt; don't think that should block this intent. It is already exposed throughout
+&amp;gt; the web platform (via the `error.stack` getter), and there is already a lot
+&amp;gt; of software, both client- and server-side, which deals with parsing the
+&amp;gt; different browsers' formats. I don't think this would make the situation
+&amp;gt; any worse.
+&amp;gt;
+&amp;gt; I do wish that one day browsers would get together and standardize the
+&amp;gt; stack trace format. &lt;a  rel="nofollow" href="https://github.com/tc39/proposal-error-stacks"&gt;https://github.com/tc39/proposal-error-stacks&lt;/a&gt; is one
+&amp;gt; attempt at that, but it has been largely dormant for 3 years.
+&amp;gt;
+&amp;gt; On Thu, Jan 25, 2024 at 5:59 AM Rick Byers &amp;lt;rby...@chromium.org&amp;gt; wrote:
+&amp;gt;
+&amp;gt;&amp;gt; Not to distract from Dave's good technical questions. But I just wanted
+&amp;gt;&amp;gt; to say that I'm quite excited about this work - I think it's an important
+&amp;gt;&amp;gt; capability for any serious platform to have that app developers can get
+&amp;gt;&amp;gt; actionable crash and hang reports, and this has been a gap. Thank you for
+&amp;gt;&amp;gt; working on it! Don't hesitate to reach out if I can help unblock progress
+&amp;gt;&amp;gt; in any way.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; What you have listed as a spec is more of a design doc so you'll
+&amp;gt;&amp;gt; eventually need a formal spec. But the reporting spec editor @Ian
+&amp;gt;&amp;gt; Clelland &amp;lt;iclell...@chromium.org&amp;gt; mentioned over breakfast to me today
+&amp;gt;&amp;gt; that he was helping to support this work, so that's great to hear.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Dave's question about extensions in the main thread and privacy
+&amp;gt;&amp;gt; implications is a good one. My initial personal take is that we probably
+&amp;gt;&amp;gt; shouldn't report from extension isolated worlds, but when an extension
+&amp;gt;&amp;gt; injects script into the main world, I think I can argue that they're
+&amp;gt;&amp;gt; explicitly informing the site developer about their presence. In practice I
+&amp;gt;&amp;gt; believe sites can detect such extensions already if suitably motivated (eg.
+&amp;gt;&amp;gt; hook into the prototype of various APIs and identify their calling patterns
+&amp;gt;&amp;gt; or look at JS exception stack traces). I can see an argument for not giving
+&amp;gt;&amp;gt; sites easy access to such information in real-time and wonder if this has
+&amp;gt;&amp;gt; come up already for the self-profiling API proposal
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wicg.github.io/js-self-profiling/"&gt;https://wicg.github.io/js-self-profiling/&lt;/a&gt;&amp;gt;? But for an asynchronous
+&amp;gt;&amp;gt; crash report sent only after the page has been shut down, I personally
+&amp;gt;&amp;gt; don't think it's a threat we should be trying to defend against. I'd go
+&amp;gt;&amp;gt; even further and say that if a site is hanging or crashing only under the
+&amp;gt;&amp;gt; presence of extension-injected code in the main world, then that's critical
+&amp;gt;&amp;gt; information for the site owner to know from a customer support perspective.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Rick
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; On Wed, Jan 24, 2024 at 3:10 PM Dave Tapuska &amp;lt;dtapu...@chromium.org&amp;gt;
+&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Just a few thoughts...
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; I haven't seen a proposed implementation but I presume you are going to
+&amp;gt;&amp;gt;&amp;gt; restrict this only to execution stacks in the main world?
+&amp;gt;&amp;gt;&amp;gt; If you get an extension executing scripts in the main world how will you
+&amp;gt;&amp;gt;&amp;gt; prevent the endpoint from knowing about the agent's execution
+&amp;gt;&amp;gt;&amp;gt; environment such as what extensions they have installed?
+&amp;gt;&amp;gt;&amp;gt; How do you know from the IO thread what the main thread isolate is?
+&amp;gt;&amp;gt;&amp;gt; (blink::MainThreadIsolate is deprecated, please don't use it).
+&amp;gt;&amp;gt;&amp;gt; How do document policies work across same origin documents? What realms
+&amp;gt;&amp;gt;&amp;gt; are you checking that the policy applies, do you walk the stack looking at
+&amp;gt;&amp;gt;&amp;gt; realms and checking if the policies apply? Or is it the current realm or
+&amp;gt;&amp;gt;&amp;gt; incumbent realm or what?
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; dave.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; On Wed, Jan 24, 2024 at 12:47 PM 'Issack John' via blink-dev &amp;lt;
+&amp;gt;&amp;gt;&amp;gt; blink-dev@chromium.org&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Contact emails
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; issackj...@microsoft.com, seth.bren...@microsoft.com
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Explainer
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/crash-reporting/issues/12"&gt;https://github.com/WICG/crash-reporting/issues/12&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Specification
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://docs.google.com/document/d/19DpvHIiYbmB9wgIP0BdI4vOnfVLcAZFmfIAml7SqRQA/edit?usp=sharing"&gt;https://docs.google.com/document/d/19DpvHIiYbmB9wgIP0BdI4vOnfVLcAZFmfIAml7SqRQA/edit?usp=sharing&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Summary
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; This feature captures the JS call stack when a web page becomes
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; unresponsive due to JavaScript code running an infinite loop or other very
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; long computation. This helps developers to identify the cause of the
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; unresponsiveness and fix it more easily. The JS call stack is included in
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; the crash reporting API when the reason is unresponsive.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink component
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink&amp;gt;ReportingObserver
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EReportingObserver"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EReportingObserver&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Motivation
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; When a web page becomes unresponsive, it's often because of JavaScript
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; code which is busy running an infinite loop or other very long computation.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; When a developer receives a report from the crash reporting API, and the
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; reason is unresponsive, it would be very helpful to include the JS call
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; stack from when the page was deemed unresponsive. This would let the
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; website developer more easily find the find and fix the problem. What
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; happens instead? The page reports that it was terminated due to being
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; unresponsive, but the developer of the page has no further information
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; about how to fix the problem.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Initial public proposal
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1445539"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1445539&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review status
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Pending
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Risks
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Interoperability and Compatibility
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Gecko*: No signal
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; *WebKit*: No signal
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Web developers*: No signals
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Other signals*:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; WebView application risks
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Does this intent deprecate or change behavior of existing APIs, such
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; that it has potentially high risk for Android WebView-based applications?*
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Debuggability
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; ?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; No
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Flag name on chrome://flags
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Finch feature name
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Non-finch justification
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Requires code in //chrome?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; False
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Tracking bug
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1445539"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1445539&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Estimated milestones
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; No milestones specified
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/4731248572628992"&gt;https://chromestatus.com/feature/4731248572628992&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+unsubscr...@chromium.org.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/MW2PPF6784DDB763E2DA7BFC75AE51613ABC27B2%40MW2PPF6784DDB76.namprd00.prod.outlook.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/MW2PPF6784DDB763E2DA7BFC75AE51613ABC27B2%40MW2PPF6784DDB76.namprd00.prod.outlook.com&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/MW2PPF6784DDB763E2DA7BFC75AE51613ABC27B2%40MW2PPF6784DDB76.namprd00.prod.outlook.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/MW2PPF6784DDB763E2DA7BFC75AE51613ABC27B2%40MW2PPF6784DDB76.namprd00.prod.outlook.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; --
+&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
+&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send
+&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+unsubscr...@chromium.org.
+&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAHgVhZUui22mB-J5SAEmEd%3DCk%2BrcyRSr4tGASLGFcsvRn9QVOQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAHgVhZUui22mB-J5SAEmEd%3DCk%2BrcyRSr4tGASLGFcsvRn9QVOQ%40mail.gmail.com&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAHgVhZUui22mB-J5SAEmEd%3DCk%2BrcyRSr4tGASLGFcsvRn9QVOQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAHgVhZUui22mB-J5SAEmEd%3DCk%2BrcyRSr4tGASLGFcsvRn9QVOQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; --
+&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups
+&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&amp;gt;&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt;&amp;gt; To view this discussion on the web visit
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY_LQuaFsJXuQvBnwrJUjQeHnsya6QENTVVW9mkkrO26OA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY_LQuaFsJXuQvBnwrJUjQeHnsya6QENTVVW9mkkrO26OA%40mail.gmail.com&lt;/a&gt;
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY_LQuaFsJXuQvBnwrJUjQeHnsya6QENTVVW9mkkrO26OA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY_LQuaFsJXuQvBnwrJUjQeHnsya6QENTVVW9mkkrO26OA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAHgVhZXmpxUmoa3bmPNiTAY-iDgiu6B-Mr-p9c7dSfZWHbNGMg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAHgVhZXmpxUmoa3bmPNiTAY-iDgiu6B-Mr-p9c7dSfZWHbNGMg%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09029.html</id>
         <title>Re: [blink-dev] Request for Deprecation Trial : HTMLVideoElement-specific Prefixed Fullscreen API</title>
         <author>
@@ -12480,311 +12726,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/fbfcefbb-637e-428b-9ca2-3c879e2af1e2n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/fbfcefbb-637e-428b-9ca2-3c879e2af1e2n%40chromium.org&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg08980.html</id>
-        <title>Re: [blink-dev] Re: Intent to Ship: New ALPS code point</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg08980.html"/>
-        <updated>2024-01-23T16:27:39.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg08980.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Ship%5C%3A+New+ALPS+code+point%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Re: Intent to Ship: New ALPS code point&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Victor+Tan%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Victor Tan' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240123" rel="nofollow"&gt;Tue, 23 Jan 2024 08:27:39 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Hi Erik,
-We are actively working on it, but we need to put more efforts to 
-standardization. 
-In the last serval IETF, David is the only person is talking about the ALPS 
-feature.  We'd glad to combine more efforts to move it forward to 
-standardization.&lt;/pre&gt;&lt;pre&gt;
-
-Bests,
-Victor 
-
-On Monday, January 22, 2024 at 5:24:25 PM UTC-5 Erik Anderson wrote:
-
-&amp;gt; Is the ALPS draft being actively worked on?
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt; Various teams at Microsoft that own web sites leveraging client hints have 
-&amp;gt; expressed interest in using it, but the lack of a finalized standard has 
-&amp;gt; significantly slowed conversations with the teams that own the server code 
-&amp;gt; that would need to add support first.
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt; Are you looking for help in moving standardization forward?
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt; *From:* Yoav Weiss (@Shopify) &amp;lt;yoav...@chromium.org&amp;gt; 
-&amp;gt; *Sent:* Monday, January 22, 2024 7:39 AM
-&amp;gt; *To:* Victor Tan &amp;lt;vict...@chromium.org&amp;gt;
-&amp;gt; *Cc:* blink-dev &amp;lt;blin...@chromium.org&amp;gt;; Chris Harrelson &amp;lt;
-&amp;gt; chri...@chromium.org&amp;gt;; David Benjamin &amp;lt;davi...@chromium.org&amp;gt;; Mike Taylor 
-&amp;gt; &amp;lt;mike...@chromium.org&amp;gt;
-&amp;gt; *Subject:* Re: [blink-dev] Re: Intent to Ship: New ALPS code point
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt; Is the old code point defined somewhere? Would it be possible to add such 
-&amp;gt; a definition to one of the I-Ds? Or is this something that's not 
-&amp;gt; traditionally defined in IETF drafts?
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt; On Mon, Jan 22, 2024 at 4:03 PM Victor Tan &amp;lt;vict...@chromium.org&amp;gt; wrote:
-&amp;gt;
-&amp;gt; Currently, It's on the code: 
-&amp;gt; &lt;a  rel="nofollow" href="https://boringssl.googlesource.com/boringssl/+/master/include/openssl/tls1.h?pli=1#247"&gt;https://boringssl.googlesource.com/boringssl/+/master/include/openssl/tls1.h?pli=1#247&lt;/a&gt;
-&amp;gt;
-&amp;gt; Once we standardize the ALPS RFC draft, we can finalize the value.  Hope 
-&amp;gt; this helps. 
-&amp;gt;
-&amp;gt; On Saturday, January 20, 2024 at 7:50:46 PM UTC-5 Chris Harrelson wrote:
-&amp;gt;
-&amp;gt; Thanks for clarifying. Last question: where in the specifications is the 
-&amp;gt; new 17613 code point documented?
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt; On Fri, Jan 19, 2024 at 12:59 PM Mike Taylor &amp;lt;mike...@chromium.org&amp;gt; wrote:
-&amp;gt;
-&amp;gt; In our OWNERS meeting this week, there was some confusion on what's being 
-&amp;gt; proposed here (which is understandable, this isn't quite a typical intent 
-&amp;gt; for web exposed feature). Here's a summary of what we're trying to 
-&amp;gt; accomplish:
-&amp;gt;
-&amp;gt; 1) We shipped support for the ACCEPT_CH frame over h2 and h3 back in M96, 
-&amp;gt; which relies on the TLS ALPS protocol extension.
-&amp;gt; 2) There are 2 parts to this: the client being able to understand 
-&amp;gt; ALPS/ACCEPT_CH (and in return do something useful), and the server being 
-&amp;gt; able to send it.
-&amp;gt; 3) Because of a (long fixed) bug present in Chromium's implementation, 
-&amp;gt; it's risky for a server to send too much data via ACCEPT_CH, so it's 
-&amp;gt; usefulness is potentially limited.
-&amp;gt; 4) In order to guarantee that older clients don't have this bug, we 
-&amp;gt; propose to rev the version (aka, code point) at the protocol layer. This 
-&amp;gt; way, if a server sends the new code point and the client understands it, it 
-&amp;gt; can send a larger payload without triggering the bug (which may result in 
-&amp;gt; sad things like a connection being refused).
-&amp;gt; 5) This is sort of web observable, but right now if servers that support 
-&amp;gt; the old code point continue to send the old code point - nothing will 
-&amp;gt; break. Chromium will support both for now, with hopes to deprecate and 
-&amp;gt; remove the older one in the future when we're confident it won't result in 
-&amp;gt; performance regressions for servers sending ACCEPT_CH (since this is a 
-&amp;gt; performance optimization).
-&amp;gt;
-&amp;gt; I hope that helps clear it up, and I'm sure Victor or David will chime in 
-&amp;gt; if I'm getting something wrong. :)
-&amp;gt;
-&amp;gt; And to be clear - this isn't a request for a deprecation or removal (yet), 
-&amp;gt; but for shipping the new code point.
-&amp;gt;
-&amp;gt; On 1/17/24 11:16 AM, Victor Tan wrote:
-&amp;gt;
-&amp;gt; If the server received the new code point, while it doesn't support, the 
-&amp;gt; ALPS extension will ignore. This also mean client might not know the 
-&amp;gt; server's client hints preferences before the first request. Currently, only 
-&amp;gt; few sites using the ALPS extension.  As TLS extension is negotiated, the 
-&amp;gt; server need to support both code points during the transition period, after 
-&amp;gt; some time, the server can drop the old one.  
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt; On Wednesday, January 17, 2024 at 11:00:13 AM UTC-5 Yoav Weiss wrote:
-&amp;gt;
-&amp;gt; On Saturday, January 13, 2024 at 12:08:33 AM UTC+1 Victor Tan wrote:
-&amp;gt;
-&amp;gt; *Contact emails* 
-&amp;gt;
-&amp;gt; vict...@chromium.org, mike...@chromium.org, davi...@chromium.org
-&amp;gt;
-&amp;gt;
-&amp;gt; *Explainer* 
-&amp;gt;
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/client-hints-infrastructure/blob/main/reliability.md"&gt;https://github.com/WICG/client-hints-infrastructure/blob/main/reliability.md&lt;/a&gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt;
-&amp;gt; *Specification* 
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://tools.ietf.org/html/draft-davidben-http-client-hint-reliability"&gt;https://tools.ietf.org/html/draft-davidben-http-client-hint-reliability&lt;/a&gt;  
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://tools.ietf.org/html/draft-vvv-httpbis-alps"&gt;https://tools.ietf.org/html/draft-vvv-httpbis-alps&lt;/a&gt; 
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://tools.ietf.org/html/draft-vvv-tls-alps"&gt;https://tools.ietf.org/html/draft-vvv-tls-alps&lt;/a&gt;    
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt; *Summary* 
-&amp;gt;
-&amp;gt; Shipping a new code point (17613) for TLS ALPS extension to allow adding 
-&amp;gt; more data in the ACCEPT_CH HTTP/2 and HTTP/3 frame. The ACCEPT_CH HTTP/2 
-&amp;gt; frame with the existing TLS ALPS extension code point (17513) had an 
-&amp;gt; arithmetic overflow bug &amp;lt;&lt;a  rel="nofollow" href="https://crbug.com/1292069"&gt;https://crbug.com/1292069&lt;/a&gt;&amp;gt; in the Chrome ALPS 
-&amp;gt; decoder. It limits the capability to add more than 128 bytes data (in 
-&amp;gt; theory, the problem range is 128 bytes to 255 bytes) to the ACCEPT_CH 
-&amp;gt; frame. With the new ALPS code point, we can fully mitigate the issue.
-&amp;gt;
-&amp;gt;
-&amp;gt; *Blink component* 
-&amp;gt;
-&amp;gt; Blink&amp;gt;Network&amp;gt;ClientHints 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component%3ABlink%3ENetwork%3EClientHints%2C&amp;can=2"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component%3ABlink%3ENetwork%3EClientHints%2C&amp;can=2&lt;/a&gt;&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; *TAG review* 
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/549"&gt;https://github.com/w3ctag/design-reviews/issues/549&lt;/a&gt; 
-&amp;gt;
-&amp;gt;
-&amp;gt; *TAG review status* 
-&amp;gt;
-&amp;gt; Closed
-&amp;gt;
-&amp;gt;
-&amp;gt; *Risks*
-&amp;gt; *Interoperability and Compatibility* 
-&amp;gt;
-&amp;gt; This is switching to a new code point for the TLS ALPS extension. It won’t 
-&amp;gt; change the design of ALPS and ACCEPT_CH mechanism implementation.  The main 
-&amp;gt; source of compatibility risk is that it causes conflicts with ALPS 
-&amp;gt; negotiation since some clients could still use the old code point while 
-&amp;gt; others are switching to use the new code point.  The ALPS extension could 
-&amp;gt; be ignored if the code point doesn’t match during negotiation, which means 
-&amp;gt; the server's client hints preferences won’t be delivered in the ACCEPT_CH 
-&amp;gt; HTTP/2 and HTTP/3 frame.  We mitigate this by enabling servers to support 
-&amp;gt; both code points, monitoring both code points usage and removing the old 
-&amp;gt; ALPS code point support in a future intent once the usage is low enough. We 
-&amp;gt; also split the rollout into two phases: we first start to enable the new 
-&amp;gt; ALPS code point for ACCEPT_CH  with HTTP/3 frame in a slow rollout, and 
-&amp;gt; then eventually enable the new code point with HTTP/2 frame.
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt; Does the server have an indication if the client in question supports the 
-&amp;gt; newer code point?
-&amp;gt;
-&amp;gt; If not, what would we expect servers that support the newer code point to 
-&amp;gt; do?
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt; *Edge*: No signals
-&amp;gt;
-&amp;gt; *Firefox*: Pending 
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/510"&gt;https://github.com/mozilla/standards-positions/issues/510&lt;/a&gt;
-&amp;gt; *Safari*: Pending 
-&amp;gt; &lt;a  rel="nofollow" href="https://lists.webkit.org/pipermail/webkit-dev/2021-April/031768.html"&gt;https://lists.webkit.org/pipermail/webkit-dev/2021-April/031768.html&lt;/a&gt;
-&amp;gt;
-&amp;gt; *Web/Framework developers*: 
-&amp;gt; &lt;a  rel="nofollow" href="https://twitter.com/Sawtaytoes/status/1369031447940526080"&gt;https://twitter.com/Sawtaytoes/status/1369031447940526080&lt;/a&gt; 
-&amp;gt; &lt;a  rel="nofollow" href="https://twitter.com/_jayphelps/status/1369023028735148032"&gt;https://twitter.com/_jayphelps/status/1369023028735148032&lt;/a&gt;
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt; *Activation*
-&amp;gt;
-&amp;gt; The site’s TLS and HTTP serving application would need to be updated to 
-&amp;gt; support this new code point. We aren’t aware of many sites using this 
-&amp;gt; feature yet, however.
-&amp;gt;
-&amp;gt;
-&amp;gt; *Debuggability* 
-&amp;gt;
-&amp;gt; No special DevTools support needed. The effects of the code point change 
-&amp;gt; of ACCEPT_CH frame will be visible in the DevTools’ network tab. Also, the 
-&amp;gt; NetLog will record the ACCEPT_CH frame value if TLS ALPS extension is 
-&amp;gt; negotiated successfully. 
-&amp;gt;
-&amp;gt;
-&amp;gt; *Will this feature be supported on all six Blink platforms (Windows, Mac, 
-&amp;gt; Linux, Chrome OS, Android, and Android WebView)?* 
-&amp;gt;
-&amp;gt; Yes
-&amp;gt;
-&amp;gt;
-&amp;gt; *Is this feature fully tested by **web-platform-tests* 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt; *?* 
-&amp;gt;
-&amp;gt; No, this feature is tested with browser-side tests. We can’t test 
-&amp;gt; TLS-adjacent features currently through web-platform-tests. See this issue: 
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/issues/20159"&gt;https://github.com/web-platform-tests/wpt/issues/20159&lt;/a&gt;   
-&amp;gt;
-&amp;gt;
-&amp;gt; *Flag name* 
-&amp;gt;
-&amp;gt; UseNewAlpsCodepointHttp2
-&amp;gt;
-&amp;gt; UseNewAlpsCodepointQUIC
-&amp;gt;
-&amp;gt;
-&amp;gt; *Tracking bug* 
-&amp;gt;
-&amp;gt; b/289087287 
-&amp;gt;
-&amp;gt;
-&amp;gt; *Launch bug* 
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://launch.corp.google.com/launch/4299022"&gt;https://launch.corp.google.com/launch/4299022&lt;/a&gt; 
-&amp;gt;
-&amp;gt;
-&amp;gt; *Link to entry on the Chrome Platform Status*
-&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5149147365900288"&gt;https://chromestatus.com/feature/5149147365900288&lt;/a&gt; 
-&amp;gt;
-&amp;gt; -- 
-&amp;gt;
-&amp;gt; You received this message because you are subscribed to the Google Groups 
-&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an 
-&amp;gt; email to blink-dev+...@chromium.org.
-&amp;gt;
-&amp;gt; To view this discussion on the web visit 
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/c704d985-a5cc-4e5e-99b0-1f78cc4428e6%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/c704d985-a5cc-4e5e-99b0-1f78cc4428e6%40chromium.org&lt;/a&gt;
-&amp;gt;  
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/c704d985-a5cc-4e5e-99b0-1f78cc4428e6%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/c704d985-a5cc-4e5e-99b0-1f78cc4428e6%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt; .
-&amp;gt;
-&amp;gt; -- 
-&amp;gt; You received this message because you are subscribed to the Google Groups 
-&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an 
-&amp;gt; email to blink-dev+...@chromium.org.
-&amp;gt;
-&amp;gt; To view this discussion on the web visit 
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOmohSJQu%2BjtN9hQ302XVW1_Y1b8BUYQUDr4ujMavPU1vU7%2Bzw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOmohSJQu%2BjtN9hQ302XVW1_Y1b8BUYQUDr4ujMavPU1vU7%2Bzw%40mail.gmail.com&lt;/a&gt;
-&amp;gt;  
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOmohSJQu%2BjtN9hQ302XVW1_Y1b8BUYQUDr4ujMavPU1vU7%2Bzw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOmohSJQu%2BjtN9hQ302XVW1_Y1b8BUYQUDr4ujMavPU1vU7%2Bzw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt; .
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/235af7f9-013d-4133-be0a-4b90e589b451n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/235af7f9-013d-4133-be0a-4b90e589b451n%40chromium.org&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
