@@ -5,6 +5,1095 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09072.html</id>
+        <title>Re: [blink-dev] Intent to Prototype: Call stacks in crash reports from unresponsive web pages</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09072.html"/>
+        <updated>2024-01-31T00:08:31.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09072.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Prototype%5C%3A+Call+stacks+in+crash+reports+from+unresponsive+web+pages%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Prototype: Call stacks in crash reports from unresponsive web pages&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Issack+John%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Issack John' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240130" rel="nofollow"&gt;Tue, 30 Jan 2024 16:08:31 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Hi all, 
+
+Thank you for the great questions and insights. &lt;/pre&gt;&lt;pre&gt;
+
+This feature will be restricted to only the execution stacks in the main 
+world. As Rick described, extension code injected into the main world may 
+be visible.
+
+*How do you know from the IO thread what the main thread isolate is?*
+Because blink::MainThreadIsolate is deprecated, I believe we have some 
+options.
+1. V8::PerIsolateData::MainThreadIsolate, unless that is also deprecated. 
+(No code comment saying that it is.)
+2. 
+MainThreadSchedulerImpl::ForEachMainThreadIsolate(base::RepeatingCallback&amp;lt;void(v8::Isolate*
+ 
+isolate)&amp;gt; callback)
+    Currently, this function only calls the callback for a single isolate 
+but IIUC, we can check if the isolate has a main world and that would be 
+the main thread isolate?
+
+The design document now includes the questions that I have received. I am 
+working on getting more information to address the remaining technical 
+questions.
+
+Issack
+On Thursday, January 25, 2024 at 8:05:14 AM UTC-8 Dave Tapuska wrote:
+
+&amp;gt; Yes I was thinking of how the stack trace format was standardized as well. 
+&amp;gt; How do wasm call stacks work with this proposal?
+&amp;gt;
+&amp;gt; dave.
+&amp;gt;
+&amp;gt; On Wed, Jan 24, 2024 at 8:27 PM Domenic Denicola &amp;lt;dom...@chromium.org&amp;gt; 
+&amp;gt; wrote:
+&amp;gt;
+&amp;gt;&amp;gt; I agree with Dave's take on the importance of not including extension 
+&amp;gt;&amp;gt; scripts themselves, and Rick's take on how it is OK to include 
+&amp;gt;&amp;gt; extension-injected main world scripts.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; One additional interop concern that's worth highlighting here is that the 
+&amp;gt;&amp;gt; stack trace format itself is not compatible across browsers. However, I 
+&amp;gt;&amp;gt; don't think that should block this intent. It is already exposed throughout 
+&amp;gt;&amp;gt; the web platform (via the `error.stack` getter), and there is already a lot 
+&amp;gt;&amp;gt; of software, both client- and server-side, which deals with parsing the 
+&amp;gt;&amp;gt; different browsers' formats. I don't think this would make the situation 
+&amp;gt;&amp;gt; any worse.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; I do wish that one day browsers would get together and standardize the 
+&amp;gt;&amp;gt; stack trace format. &lt;a  rel="nofollow" href="https://github.com/tc39/proposal-error-stacks"&gt;https://github.com/tc39/proposal-error-stacks&lt;/a&gt; is one 
+&amp;gt;&amp;gt; attempt at that, but it has been largely dormant for 3 years.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; On Thu, Jan 25, 2024 at 5:59 AM Rick Byers &amp;lt;rby...@chromium.org&amp;gt; wrote:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Not to distract from Dave's good technical questions. But I just wanted 
+&amp;gt;&amp;gt;&amp;gt; to say that I'm quite excited about this work - I think it's an important 
+&amp;gt;&amp;gt;&amp;gt; capability for any serious platform to have that app developers can get 
+&amp;gt;&amp;gt;&amp;gt; actionable crash and hang reports, and this has been a gap. Thank you for 
+&amp;gt;&amp;gt;&amp;gt; working on it! Don't hesitate to reach out if I can help unblock progress 
+&amp;gt;&amp;gt;&amp;gt; in any way.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; What you have listed as a spec is more of a design doc so you'll 
+&amp;gt;&amp;gt;&amp;gt; eventually need a formal spec. But the reporting spec editor @Ian 
+&amp;gt;&amp;gt;&amp;gt; Clelland mentioned over breakfast to me today that he was helping to 
+&amp;gt;&amp;gt;&amp;gt; support this work, so that's great to hear.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Dave's question about extensions in the main thread and privacy 
+&amp;gt;&amp;gt;&amp;gt; implications is a good one. My initial personal take is that we probably 
+&amp;gt;&amp;gt;&amp;gt; shouldn't report from extension isolated worlds, but when an extension 
+&amp;gt;&amp;gt;&amp;gt; injects script into the main world, I think I can argue that they're 
+&amp;gt;&amp;gt;&amp;gt; explicitly informing the site developer about their presence. In practice I 
+&amp;gt;&amp;gt;&amp;gt; believe sites can detect such extensions already if suitably motivated (eg. 
+&amp;gt;&amp;gt;&amp;gt; hook into the prototype of various APIs and identify their calling patterns 
+&amp;gt;&amp;gt;&amp;gt; or look at JS exception stack traces). I can see an argument for not giving 
+&amp;gt;&amp;gt;&amp;gt; sites easy access to such information in real-time and wonder if this has 
+&amp;gt;&amp;gt;&amp;gt; come up already for the self-profiling API proposal 
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wicg.github.io/js-self-profiling/"&gt;https://wicg.github.io/js-self-profiling/&lt;/a&gt;&amp;gt;? But for an asynchronous 
+&amp;gt;&amp;gt;&amp;gt; crash report sent only after the page has been shut down, I personally 
+&amp;gt;&amp;gt;&amp;gt; don't think it's a threat we should be trying to defend against. I'd go 
+&amp;gt;&amp;gt;&amp;gt; even further and say that if a site is hanging or crashing only under the 
+&amp;gt;&amp;gt;&amp;gt; presence of extension-injected code in the main world, then that's critical 
+&amp;gt;&amp;gt;&amp;gt; information for the site owner to know from a customer support perspective.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Rick
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; On Wed, Jan 24, 2024 at 3:10 PM Dave Tapuska &amp;lt;dtap...@chromium.org&amp;gt; 
+&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Just a few thoughts...
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; I haven't seen a proposed implementation but I presume you are going to 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; restrict this only to execution stacks in the main world? 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; If you get an extension executing scripts in the main world how will 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; you prevent the endpoint from knowing about the agent's execution 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; environment such as what extensions they have installed?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; How do you know from the IO thread what the main thread isolate is? 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; (blink::MainThreadIsolate is deprecated, please don't use it).
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; How do document policies work across same origin documents? What realms 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; are you checking that the policy applies, do you walk the stack looking at 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; realms and checking if the policies apply? Or is it the current realm or 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; incumbent realm or what? 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; dave.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Wed, Jan 24, 2024 at 12:47 PM 'Issack John' via blink-dev &amp;lt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; blin...@chromium.org&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Contact emails 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; issac...@microsoft.com, seth.b...@microsoft.com
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Explainer 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/crash-reporting/issues/12"&gt;https://github.com/WICG/crash-reporting/issues/12&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Specification 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://docs.google.com/document/d/19DpvHIiYbmB9wgIP0BdI4vOnfVLcAZFmfIAml7SqRQA/edit?usp=sharing"&gt;https://docs.google.com/document/d/19DpvHIiYbmB9wgIP0BdI4vOnfVLcAZFmfIAml7SqRQA/edit?usp=sharing&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Summary 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; This feature captures the JS call stack when a web page becomes 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; unresponsive due to JavaScript code running an infinite loop or other 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; very 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; long computation. This helps developers to identify the cause of the 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; unresponsiveness and fix it more easily. The JS call stack is included in 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the crash reporting API when the reason is unresponsive.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink component 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink&amp;gt;ReportingObserver 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EReportingObserver"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EReportingObserver&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Motivation 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; When a web page becomes unresponsive, it's often because of JavaScript 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; code which is busy running an infinite loop or other very long 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; computation. 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; When a developer receives a report from the crash reporting API, and the 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; reason is unresponsive, it would be very helpful to include the JS call 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; stack from when the page was deemed unresponsive. This would let the 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; website developer more easily find the find and fix the problem. What 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; happens instead? The page reports that it was terminated due to being 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; unresponsive, but the developer of the page has no further information 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; about how to fix the problem.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Initial public proposal 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1445539"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1445539&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review status 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Pending
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Risks 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Interoperability and Compatibility 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Gecko*: No signal
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *WebKit*: No signal
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Web developers*: No signals
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Other signals*:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; WebView application risks 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Does this intent deprecate or change behavior of existing APIs, such 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; that it has potentially high risk for Android WebView-based applications?*
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Debuggability 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ? 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; No
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Flag name on chrome://flags 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Finch feature name 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Non-finch justification 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Requires code in //chrome? 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; False
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Tracking bug 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1445539"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1445539&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Estimated milestones 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; No milestones specified
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/4731248572628992"&gt;https://chromestatus.com/feature/4731248572628992&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; -- 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+...@chromium.org.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/MW2PPF6784DDB763E2DA7BFC75AE51613ABC27B2%40MW2PPF6784DDB76.namprd00.prod.outlook.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/MW2PPF6784DDB763E2DA7BFC75AE51613ABC27B2%40MW2PPF6784DDB76.namprd00.prod.outlook.com&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/MW2PPF6784DDB763E2DA7BFC75AE51613ABC27B2%40MW2PPF6784DDB76.namprd00.prod.outlook.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/MW2PPF6784DDB763E2DA7BFC75AE51613ABC27B2%40MW2PPF6784DDB76.namprd00.prod.outlook.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; -- 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+...@chromium.org.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAHgVhZUui22mB-J5SAEmEd%3DCk%2BrcyRSr4tGASLGFcsvRn9QVOQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAHgVhZUui22mB-J5SAEmEd%3DCk%2BrcyRSr4tGASLGFcsvRn9QVOQ%40mail.gmail.com&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAHgVhZUui22mB-J5SAEmEd%3DCk%2BrcyRSr4tGASLGFcsvRn9QVOQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAHgVhZUui22mB-J5SAEmEd%3DCk%2BrcyRSr4tGASLGFcsvRn9QVOQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; -- 
+&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google 
+&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send 
+&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+...@chromium.org.
+&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit 
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY_LQuaFsJXuQvBnwrJUjQeHnsya6QENTVVW9mkkrO26OA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY_LQuaFsJXuQvBnwrJUjQeHnsya6QENTVVW9mkkrO26OA%40mail.gmail.com&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY_LQuaFsJXuQvBnwrJUjQeHnsya6QENTVVW9mkkrO26OA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY_LQuaFsJXuQvBnwrJUjQeHnsya6QENTVVW9mkkrO26OA%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/f0ee10ea-759b-4c01-89e5-63bb2d34a94fn%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/f0ee10ea-759b-4c01-89e5-63bb2d34a94fn%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09071.html</id>
+        <title>[blink-dev] Chromium’s migration to the new issue tracker begins Feb 2</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09071.html"/>
+        <updated>2024-01-30T21:27:57.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09071.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Chromium%E2%80%99s+migration+to+the+new+issue+tracker+begins+Feb+2%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Chromium’s migration to the new issue tracker begins Feb 2&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Joe+Gregorio%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Joe Gregorio' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240130" rel="nofollow"&gt;Tue, 30 Jan 2024 13:27:57 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Hi all,
+
+As we shared last year
+&amp;lt;&lt;a  rel="nofollow" href="https://blog.chromium.org/2023/10/update-to-developers-chromium-issue.html"&gt;https://blog.chromium.org/2023/10/update-to-developers-chromium-issue.html&lt;/a&gt;&amp;gt;,
+Chromium is moving to a different issue tracker to provide a well-supported
+user experience for the long term. Migration is on track to begin February
+2, 2024 at 5pm PST, and we expect migration will be completed by the end of
+day February 4, 2024 PST. There will be downtime during this period as
+Chromium’s Monorail project will be marked as read-only and the new Issue
+Tracker will not yet be available.&lt;/pre&gt;&lt;pre&gt;
+
+If any critical issues arise during this period, please follow the
+escalation paths below:
+
+   -
+
+   P0 Security bugs: email secur...@chromium.org
+   -
+
+   P0 General bugs: email file-a...@chromium.org
+
+
+For all non-critical issues, please wait until the migration is complete to
+file in Chromium’s new Issue Tracker.
+
+We will share daily updates through migration, as well as confirm via email
+once the new Issue Tracker is ready for use. Also, emails later in the week
+will include links to documentation on the new issue tracker.
+
+You can reach out at any time to issue-tracker-supp...@chromium.org with
+questions or concerns.
+
+Thanks,
+
+-joe, on behalf of the Chromium Issue Tracker team
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAA6qSUBrc0CubpZVoXLjG4HkAcwM8Dy3AjjMgLXHMxkZx75QDQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAA6qSUBrc0CubpZVoXLjG4HkAcwM8Dy3AjjMgLXHMxkZx75QDQ%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09070.html</id>
+        <title>Re: [blink-dev] Intent to Ship: CSS light-dark() Color Function</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09070.html"/>
+        <updated>2024-01-30T20:32:20.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09070.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+CSS+light%5C-dark%5C%28%5C%29+Color+Function%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: CSS light-dark() Color Function&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Daniel+Bratell%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Daniel Bratell&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240130" rel="nofollow"&gt;Tue, 30 Jan 2024 12:32:20 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre style="margin: 0em;"&gt;
+LGTM3
+
+/Daniel&lt;/pre&gt;&lt;pre&gt;
+
+On 2024-01-30 21:23, Mike Taylor wrote:
+&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;
+
+LGTM2
+
+On 1/30/24 1:11 PM, Chris Harrelson wrote:
+&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;
+LGTM1
+
+&lt;/pre&gt;&lt;tt&gt;On Tue, Jan 30, 2024 at 10:08 AM Rune Lillesveen 
+&lt;/tt&gt;&lt;tt&gt;&amp;lt;futh...@chromium.org&amp;gt; wrote:
+&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
+
+
+            Contact emails
+
+    futh...@chromium.org
+
+
+            Explainer
+
+    None
+
+
+            Specification
+
+    &lt;a  rel="nofollow" href="https://drafts.csswg.org/css-color-5/#light-dark"&gt;https://drafts.csswg.org/css-color-5/#light-dark&lt;/a&gt;
+
+
+            Summary
+
+    Allows authors to provide separate colors for light and dark
+    color-schemes on a per element basis. System colors and UA form
+    controls are rendered with different colors depending on the
+    color-scheme set on an element. Authors can have the same
+    possibility through the light-dark() function: #target {
+    background-color: light-dark(lime, green); } The #target element
+    will have a green background if the used color-scheme for the
+    element is 'dark'. Otherwise, the background will be lime.
+
+
+
+            Blink component
+
+    Blink&amp;gt;CSS
+    &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS&lt;/a&gt;&amp;gt;
+
+
+            TAG review
+
+    None
+
+
+            TAG review status
+
+    Not applicable
+
+
+            Risks
+
+
+
+            Interoperability and Compatibility
+
+    None
+
+
+
+    /Gecko/: Shipped/Shipping
+    (&lt;a  rel="nofollow" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1856999"&gt;https://bugzilla.mozilla.org/show_bug.cgi?id=1856999&lt;/a&gt;) Shipped in 120
+
+    /WebKit/: Shipped/Shipping
+    (&lt;a  rel="nofollow" href="https://bugs.webkit.org/show_bug.cgi?id=262914"&gt;https://bugs.webkit.org/show_bug.cgi?id=262914&lt;/a&gt;) Enabled by
+    default: &lt;a  rel="nofollow" href="https://github.com/WebKit/WebKit/pull/23364"&gt;https://github.com/WebKit/WebKit/pull/23364&lt;/a&gt;
+
+    /Web developers/: No signals
+
+    /Other signals/:
+
+
+            WebView application risks
+
+    Does this intent deprecate or change behavior of existing APIs,
+    such that it has potentially high risk for Android WebView-based
+    applications?
+
+    None
+
+
+
+            Debuggability
+
+    Colors in the light-dark() function can be edited like it is
+    currently possible for the color-mix() function. No changes needed.
+
+
+
+            Will this feature be supported on all six Blink platforms
+            (Windows, Mac, Linux, ChromeOS, Android, and Android
+            WebView)?
+
+    Yes
+
+
+            Is this feature fully tested by web-platform-tests
+            
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;?
+
+    Yes
+
+    Existing tests:
+    &lt;a  rel="nofollow" href="https://wpt.fyi/results/css/css-color/light-dark-basic.html"&gt;https://wpt.fyi/results/css/css-color/light-dark-basic.html&lt;/a&gt;
+    &lt;a  rel="nofollow" href="https://wpt.fyi/results/css/css-color/light-dark-currentcolor.html"&gt;https://wpt.fyi/results/css/css-color/light-dark-currentcolor.html&lt;/a&gt;
+    &lt;a  rel="nofollow" href="https://wpt.fyi/results/css/css-color/light-dark-inheritance.html"&gt;https://wpt.fyi/results/css/css-color/light-dark-inheritance.html&lt;/a&gt;
+    To be added by Chromium implementation:
+    &lt;a  rel="nofollow" href="https://wpt.fyi/results/css/css-color/light-dark-currentcolor-in-color.html"&gt;https://wpt.fyi/results/css/css-color/light-dark-currentcolor-in-color.html&lt;/a&gt;
+    
+(&lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/5245470/5/third_party/blink/web_tests/external/wpt/css/css-color/light-dark-currentcolor-in-color.html"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/5245470/5/third_party/blink/web_tests/external/wpt/css/css-color/light-dark-currentcolor-in-color.html&lt;/a&gt;)
+
+
+
+
+            Flag name on chrome://flags
+
+    None
+
+
+            Finch feature name
+
+    CSSLightDarkColors
+
+
+            Requires code in //chrome?
+
+    False
+
+
+            Tracking bug
+
+    &lt;a  rel="nofollow" href="https://crbug.com/1490618"&gt;https://crbug.com/1490618&lt;/a&gt;
+
+
+            Estimated milestones
+
+    Shipping on desktop         123
+
+    Shipping on Android         123
+
+    Shipping on WebView         123
+
+
+
+            Anticipated spec changes
+
+    Open questions about a feature may be a source of future web
+    compat or interop issues. Please list open issues (e.g. links to
+    known github issues in the project for the feature specification)
+    whose resolution may introduce web compat/interop risk (e.g.,
+    changing to naming or structure of the API in a
+    non-backward-compatible way).
+
+    None
+
+
+            Link to entry on the Chrome Platform Status
+
+    &lt;a  rel="nofollow" href="https://chromestatus.com/feature/4909742688567296"&gt;https://chromestatus.com/feature/4909742688567296&lt;/a&gt;
+
+    This intent message was generated by Chrome Platform Status
+    &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+
+&lt;/pre&gt;&lt;tt&gt;    -- 
+&lt;/tt&gt;&lt;tt&gt;    Rune Lillesveen
+&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;tt&gt;    -- 
+&lt;/tt&gt;&lt;tt&gt;    You received this message because you are subscribed to the
+&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
+    Google Groups &amp;quot;blink-dev&amp;quot; group.
+    To unsubscribe from this group and stop receiving emails from it,
+    send an email to blink-dev+unsubscr...@chromium.org.
+    To view this discussion on the web visit
+    
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CACuPfeRdn47UWS8NzHSxokHbkEwkyXbqqceBJg50QSGh3Q4sQg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CACuPfeRdn47UWS8NzHSxokHbkEwkyXbqqceBJg50QSGh3Q4sQg%40mail.gmail.com&lt;/a&gt;
+    
+&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CACuPfeRdn47UWS8NzHSxokHbkEwkyXbqqceBJg50QSGh3Q4sQg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CACuPfeRdn47UWS8NzHSxokHbkEwkyXbqqceBJg50QSGh3Q4sQg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
+
+--
+&lt;/pre&gt;&lt;tt&gt;You received this message because you are subscribed to the Google 
+&lt;/tt&gt;&lt;tt&gt;Groups &amp;quot;blink-dev&amp;quot; group.
+&lt;/tt&gt;&lt;tt&gt;To unsubscribe from this group and stop receiving emails from it, 
+&lt;/tt&gt;&lt;tt&gt;send an email to blink-dev+unsubscr...@chromium.org.
+&lt;/tt&gt;&lt;tt&gt;To view this discussion on the web visit 
+&lt;/tt&gt;&lt;tt&gt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw8UVSF9e0BeJE1dVaksDHJ4QGniGa8rqEkn401JtYDDjg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw8UVSF9e0BeJE1dVaksDHJ4QGniGa8rqEkn401JtYDDjg%40mail.gmail.com&lt;/a&gt; 
+&lt;/tt&gt;&lt;tt&gt;&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw8UVSF9e0BeJE1dVaksDHJ4QGniGa8rqEkn401JtYDDjg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw8UVSF9e0BeJE1dVaksDHJ4QGniGa8rqEkn401JtYDDjg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
+&lt;/tt&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;
+--
+&lt;/pre&gt;&lt;tt&gt;You received this message because you are subscribed to the Google 
+&lt;/tt&gt;&lt;tt&gt;Groups &amp;quot;blink-dev&amp;quot; group.
+&lt;/tt&gt;&lt;tt&gt;To unsubscribe from this group and stop receiving emails from it, send 
+&lt;/tt&gt;&lt;tt&gt;an email to blink-dev+unsubscr...@chromium.org.
+&lt;/tt&gt;&lt;tt&gt;To view this discussion on the web visit 
+&lt;/tt&gt;&lt;tt&gt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/3b0cb34e-386a-45a3-8842-df4ced99c5db%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/3b0cb34e-386a-45a3-8842-df4ced99c5db%40chromium.org&lt;/a&gt; 
+&lt;/tt&gt;&lt;tt&gt;&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/3b0cb34e-386a-45a3-8842-df4ced99c5db%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/3b0cb34e-386a-45a3-8842-df4ced99c5db%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
+&lt;/tt&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;
+
+--
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/167fd2d8-38da-454d-955a-809316719c95%40gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/167fd2d8-38da-454d-955a-809316719c95%40gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09069.html</id>
+        <title>Re: [blink-dev] Intent to Ship: CSS light-dark() Color Function</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09069.html"/>
+        <updated>2024-01-30T20:23:45.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09069.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+CSS+light%5C-dark%5C%28%5C%29+Color+Function%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: CSS light-dark() Color Function&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Mike+Taylor%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Mike Taylor&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240130" rel="nofollow"&gt;Tue, 30 Jan 2024 12:23:45 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre style="margin: 0em;"&gt;
+LGTM2
+
+On 1/30/24 1:11 PM, Chris Harrelson wrote:
+&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;
+LGTM1&lt;/pre&gt;&lt;pre&gt;&lt;/pre&gt;&lt;tt&gt;On Tue, Jan 30, 2024 at 10:08 AM Rune Lillesveen 
+&lt;/tt&gt;&lt;tt&gt;&amp;lt;futh...@chromium.org&amp;gt; wrote:
+&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
+
+
+            Contact emails
+
+    futh...@chromium.org
+
+
+            Explainer
+
+    None
+
+
+            Specification
+
+    &lt;a  rel="nofollow" href="https://drafts.csswg.org/css-color-5/#light-dark"&gt;https://drafts.csswg.org/css-color-5/#light-dark&lt;/a&gt;
+
+
+            Summary
+
+    Allows authors to provide separate colors for light and dark
+    color-schemes on a per element basis. System colors and UA form
+    controls are rendered with different colors depending on the
+    color-scheme set on an element. Authors can have the same
+    possibility through the light-dark() function: #target {
+    background-color: light-dark(lime, green); } The #target element
+    will have a green background if the used color-scheme for the
+    element is 'dark'. Otherwise, the background will be lime.
+
+
+
+            Blink component
+
+    Blink&amp;gt;CSS
+    &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS&lt;/a&gt;&amp;gt;
+
+
+            TAG review
+
+    None
+
+
+            TAG review status
+
+    Not applicable
+
+
+            Risks
+
+
+
+            Interoperability and Compatibility
+
+    None
+
+
+
+    /Gecko/: Shipped/Shipping
+    (&lt;a  rel="nofollow" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1856999"&gt;https://bugzilla.mozilla.org/show_bug.cgi?id=1856999&lt;/a&gt;) Shipped in 120
+
+    /WebKit/: Shipped/Shipping
+    (&lt;a  rel="nofollow" href="https://bugs.webkit.org/show_bug.cgi?id=262914"&gt;https://bugs.webkit.org/show_bug.cgi?id=262914&lt;/a&gt;) Enabled by
+    default: &lt;a  rel="nofollow" href="https://github.com/WebKit/WebKit/pull/23364"&gt;https://github.com/WebKit/WebKit/pull/23364&lt;/a&gt;
+
+    /Web developers/: No signals
+
+    /Other signals/:
+
+
+            WebView application risks
+
+    Does this intent deprecate or change behavior of existing APIs,
+    such that it has potentially high risk for Android WebView-based
+    applications?
+
+    None
+
+
+
+            Debuggability
+
+    Colors in the light-dark() function can be edited like it is
+    currently possible for the color-mix() function. No changes needed.
+
+
+
+            Will this feature be supported on all six Blink platforms
+            (Windows, Mac, Linux, ChromeOS, Android, and Android WebView)?
+
+    Yes
+
+
+            Is this feature fully tested by web-platform-tests
+            
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;?
+
+    Yes
+
+    Existing tests:
+    &lt;a  rel="nofollow" href="https://wpt.fyi/results/css/css-color/light-dark-basic.html"&gt;https://wpt.fyi/results/css/css-color/light-dark-basic.html&lt;/a&gt;
+    &lt;a  rel="nofollow" href="https://wpt.fyi/results/css/css-color/light-dark-currentcolor.html"&gt;https://wpt.fyi/results/css/css-color/light-dark-currentcolor.html&lt;/a&gt;
+    &lt;a  rel="nofollow" href="https://wpt.fyi/results/css/css-color/light-dark-inheritance.html"&gt;https://wpt.fyi/results/css/css-color/light-dark-inheritance.html&lt;/a&gt;
+    To be added by Chromium implementation:
+    &lt;a  rel="nofollow" href="https://wpt.fyi/results/css/css-color/light-dark-currentcolor-in-color.html"&gt;https://wpt.fyi/results/css/css-color/light-dark-currentcolor-in-color.html&lt;/a&gt;
+    
+(&lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/5245470/5/third_party/blink/web_tests/external/wpt/css/css-color/light-dark-currentcolor-in-color.html"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/5245470/5/third_party/blink/web_tests/external/wpt/css/css-color/light-dark-currentcolor-in-color.html&lt;/a&gt;)
+
+
+
+
+            Flag name on chrome://flags
+
+    None
+
+
+            Finch feature name
+
+    CSSLightDarkColors
+
+
+            Requires code in //chrome?
+
+    False
+
+
+            Tracking bug
+
+    &lt;a  rel="nofollow" href="https://crbug.com/1490618"&gt;https://crbug.com/1490618&lt;/a&gt;
+
+
+            Estimated milestones
+
+    Shipping on desktop         123
+
+    Shipping on Android         123
+
+    Shipping on WebView         123
+
+
+
+            Anticipated spec changes
+
+    Open questions about a feature may be a source of future web
+    compat or interop issues. Please list open issues (e.g. links to
+    known github issues in the project for the feature specification)
+    whose resolution may introduce web compat/interop risk (e.g.,
+    changing to naming or structure of the API in a
+    non-backward-compatible way).
+
+    None
+
+
+            Link to entry on the Chrome Platform Status
+
+    &lt;a  rel="nofollow" href="https://chromestatus.com/feature/4909742688567296"&gt;https://chromestatus.com/feature/4909742688567296&lt;/a&gt;
+
+    This intent message was generated by Chrome Platform Status
+    &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+
+&lt;/pre&gt;&lt;tt&gt;    -- 
+&lt;/tt&gt;&lt;tt&gt;    Rune Lillesveen
+&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;tt&gt;    -- 
+&lt;/tt&gt;&lt;tt&gt;    You received this message because you are subscribed to the Google
+&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
+    Groups &amp;quot;blink-dev&amp;quot; group.
+    To unsubscribe from this group and stop receiving emails from it,
+    send an email to blink-dev+unsubscr...@chromium.org.
+    To view this discussion on the web visit
+    
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CACuPfeRdn47UWS8NzHSxokHbkEwkyXbqqceBJg50QSGh3Q4sQg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CACuPfeRdn47UWS8NzHSxokHbkEwkyXbqqceBJg50QSGh3Q4sQg%40mail.gmail.com&lt;/a&gt;
+    
+&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CACuPfeRdn47UWS8NzHSxokHbkEwkyXbqqceBJg50QSGh3Q4sQg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CACuPfeRdn47UWS8NzHSxokHbkEwkyXbqqceBJg50QSGh3Q4sQg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
+
+--
+&lt;/pre&gt;&lt;tt&gt;You received this message because you are subscribed to the Google 
+&lt;/tt&gt;&lt;tt&gt;Groups &amp;quot;blink-dev&amp;quot; group.
+&lt;/tt&gt;&lt;tt&gt;To unsubscribe from this group and stop receiving emails from it, send 
+&lt;/tt&gt;&lt;tt&gt;an email to blink-dev+unsubscr...@chromium.org.
+&lt;/tt&gt;&lt;tt&gt;To view this discussion on the web visit 
+&lt;/tt&gt;&lt;tt&gt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw8UVSF9e0BeJE1dVaksDHJ4QGniGa8rqEkn401JtYDDjg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw8UVSF9e0BeJE1dVaksDHJ4QGniGa8rqEkn401JtYDDjg%40mail.gmail.com&lt;/a&gt; 
+&lt;/tt&gt;&lt;tt&gt;&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw8UVSF9e0BeJE1dVaksDHJ4QGniGa8rqEkn401JtYDDjg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw8UVSF9e0BeJE1dVaksDHJ4QGniGa8rqEkn401JtYDDjg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
+&lt;/tt&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;
+
+--
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/3b0cb34e-386a-45a3-8842-df4ced99c5db%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/3b0cb34e-386a-45a3-8842-df4ced99c5db%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09068.html</id>
+        <title>Re: [blink-dev] Intent to Ship: CSS light-dark() Color Function</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09068.html"/>
+        <updated>2024-01-30T18:11:58.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09068.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+CSS+light%5C-dark%5C%28%5C%29+Color+Function%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: CSS light-dark() Color Function&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Chris+Harrelson%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Chris Harrelson&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240130" rel="nofollow"&gt;Tue, 30 Jan 2024 10:11:58 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;LGTM1
+
+On Tue, Jan 30, 2024 at 10:08 AM Rune Lillesveen &amp;lt;futh...@chromium.org&amp;gt;
+wrote:&lt;/pre&gt;&lt;pre&gt;
+
+&amp;gt; Contact emailsfuth...@chromium.org
+&amp;gt;
+&amp;gt; ExplainerNone
+&amp;gt;
+&amp;gt; Specification&lt;a  rel="nofollow" href="https://drafts.csswg.org/css-color-5/#light-dark"&gt;https://drafts.csswg.org/css-color-5/#light-dark&lt;/a&gt;
+&amp;gt;
+&amp;gt; Summary
+&amp;gt;
+&amp;gt; Allows authors to provide separate colors for light and dark color-schemes
+&amp;gt; on a per element basis. System colors and UA form controls are rendered
+&amp;gt; with different colors depending on the color-scheme set on an element.
+&amp;gt; Authors can have the same possibility through the light-dark() function:
+&amp;gt; #target { background-color: light-dark(lime, green); } The #target element
+&amp;gt; will have a green background if the used color-scheme for the element is
+&amp;gt; 'dark'. Otherwise, the background will be lime.
+&amp;gt;
+&amp;gt;
+&amp;gt; Blink componentBlink&amp;gt;CSS
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS&lt;/a&gt;&amp;gt;
+&amp;gt;
+&amp;gt; TAG reviewNone
+&amp;gt;
+&amp;gt; TAG review statusNot applicable
+&amp;gt;
+&amp;gt; Risks
+&amp;gt;
+&amp;gt;
+&amp;gt; Interoperability and Compatibility
+&amp;gt;
+&amp;gt; None
+&amp;gt;
+&amp;gt;
+&amp;gt; *Gecko*: Shipped/Shipping (
+&amp;gt; &lt;a  rel="nofollow" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1856999"&gt;https://bugzilla.mozilla.org/show_bug.cgi?id=1856999&lt;/a&gt;) Shipped in 120
+&amp;gt;
+&amp;gt; *WebKit*: Shipped/Shipping (&lt;a  rel="nofollow" href="https://bugs.webkit.org/show_bug.cgi?id=262914"&gt;https://bugs.webkit.org/show_bug.cgi?id=262914&lt;/a&gt;)
+&amp;gt; Enabled by default: &lt;a  rel="nofollow" href="https://github.com/WebKit/WebKit/pull/23364"&gt;https://github.com/WebKit/WebKit/pull/23364&lt;/a&gt;
+&amp;gt;
+&amp;gt; *Web developers*: No signals
+&amp;gt;
+&amp;gt; *Other signals*:
+&amp;gt;
+&amp;gt; WebView application risks
+&amp;gt;
+&amp;gt; Does this intent deprecate or change behavior of existing APIs, such that
+&amp;gt; it has potentially high risk for Android WebView-based applications?
+&amp;gt;
+&amp;gt; None
+&amp;gt;
+&amp;gt;
+&amp;gt; Debuggability
+&amp;gt;
+&amp;gt; Colors in the light-dark() function can be edited like it is currently
+&amp;gt; possible for the color-mix() function. No changes needed.
+&amp;gt;
+&amp;gt;
+&amp;gt; Will this feature be supported on all six Blink platforms (Windows, Mac,
+&amp;gt; Linux, ChromeOS, Android, and Android WebView)?Yes
+&amp;gt;
+&amp;gt; Is this feature fully tested by web-platform-tests
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+&amp;gt; ?Yes
+&amp;gt;
+&amp;gt; Existing tests:
+&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/css/css-color/light-dark-basic.html"&gt;https://wpt.fyi/results/css/css-color/light-dark-basic.html&lt;/a&gt;
+&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/css/css-color/light-dark-currentcolor.html"&gt;https://wpt.fyi/results/css/css-color/light-dark-currentcolor.html&lt;/a&gt;
+&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/css/css-color/light-dark-inheritance.html"&gt;https://wpt.fyi/results/css/css-color/light-dark-inheritance.html&lt;/a&gt; To be
+&amp;gt; added by Chromium implementation:
+&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/css/css-color/light-dark-currentcolor-in-color.html"&gt;https://wpt.fyi/results/css/css-color/light-dark-currentcolor-in-color.html&lt;/a&gt;
+&amp;gt; (
+&amp;gt; &lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/5245470/5/third_party/blink/web_tests/external/wpt/css/css-color/light-dark-currentcolor-in-color.html"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/5245470/5/third_party/blink/web_tests/external/wpt/css/css-color/light-dark-currentcolor-in-color.html&lt;/a&gt;)
+&amp;gt;
+&amp;gt;
+&amp;gt;
+&amp;gt; Flag name on chrome://flagsNone
+&amp;gt;
+&amp;gt; Finch feature nameCSSLightDarkColors
+&amp;gt;
+&amp;gt; Requires code in //chrome?False
+&amp;gt;
+&amp;gt; Tracking bug&lt;a  rel="nofollow" href="https://crbug.com/1490618"&gt;https://crbug.com/1490618&lt;/a&gt;
+&amp;gt;
+&amp;gt; Estimated milestones
+&amp;gt; Shipping on desktop 123
+&amp;gt; Shipping on Android 123
+&amp;gt; Shipping on WebView 123
+&amp;gt;
+&amp;gt; Anticipated spec changes
+&amp;gt;
+&amp;gt; Open questions about a feature may be a source of future web compat or
+&amp;gt; interop issues. Please list open issues (e.g. links to known github issues
+&amp;gt; in the project for the feature specification) whose resolution may
+&amp;gt; introduce web compat/interop risk (e.g., changing to naming or structure of
+&amp;gt; the API in a non-backward-compatible way).
+&amp;gt; None
+&amp;gt;
+&amp;gt; Link to entry on the Chrome Platform Status
+&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/4909742688567296"&gt;https://chromestatus.com/feature/4909742688567296&lt;/a&gt;
+&amp;gt;
+&amp;gt; This intent message was generated by Chrome Platform Status
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+&amp;gt;
+&amp;gt; --
+&amp;gt; Rune Lillesveen
+&amp;gt;
+&amp;gt; --
+&amp;gt; You received this message because you are subscribed to the Google Groups
+&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt; To view this discussion on the web visit
+&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CACuPfeRdn47UWS8NzHSxokHbkEwkyXbqqceBJg50QSGh3Q4sQg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CACuPfeRdn47UWS8NzHSxokHbkEwkyXbqqceBJg50QSGh3Q4sQg%40mail.gmail.com&lt;/a&gt;
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CACuPfeRdn47UWS8NzHSxokHbkEwkyXbqqceBJg50QSGh3Q4sQg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CACuPfeRdn47UWS8NzHSxokHbkEwkyXbqqceBJg50QSGh3Q4sQg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt; .
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw8UVSF9e0BeJE1dVaksDHJ4QGniGa8rqEkn401JtYDDjg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOMQ%2Bw8UVSF9e0BeJE1dVaksDHJ4QGniGa8rqEkn401JtYDDjg%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09067.html</id>
+        <title>[blink-dev] Intent to Ship: CSS light-dark() Color Function</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09067.html"/>
+        <updated>2024-01-30T18:08:17.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09067.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+CSS+light%5C-dark%5C%28%5C%29+Color+Function%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Ship: CSS light-dark() Color Function&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Rune+Lillesveen%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Rune Lillesveen&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240130" rel="nofollow"&gt;Tue, 30 Jan 2024 10:08:17 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Contact emailsfuth...@chromium.org
+
+ExplainerNone&lt;/pre&gt;&lt;pre&gt;
+
+Specification&lt;a  rel="nofollow" href="https://drafts.csswg.org/css-color-5/#light-dark"&gt;https://drafts.csswg.org/css-color-5/#light-dark&lt;/a&gt;
+
+Summary
+
+Allows authors to provide separate colors for light and dark color-schemes
+on a per element basis. System colors and UA form controls are rendered
+with different colors depending on the color-scheme set on an element.
+Authors can have the same possibility through the light-dark() function:
+#target { background-color: light-dark(lime, green); } The #target element
+will have a green background if the used color-scheme for the element is
+'dark'. Otherwise, the background will be lime.
+
+
+Blink componentBlink&amp;gt;CSS
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS&lt;/a&gt;&amp;gt;
+
+TAG reviewNone
+
+TAG review statusNot applicable
+
+Risks
+
+
+Interoperability and Compatibility
+
+None
+
+
+*Gecko*: Shipped/Shipping (
+&lt;a  rel="nofollow" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1856999"&gt;https://bugzilla.mozilla.org/show_bug.cgi?id=1856999&lt;/a&gt;) Shipped in 120
+
+*WebKit*: Shipped/Shipping (&lt;a  rel="nofollow" href="https://bugs.webkit.org/show_bug.cgi?id=262914"&gt;https://bugs.webkit.org/show_bug.cgi?id=262914&lt;/a&gt;)
+Enabled by default: &lt;a  rel="nofollow" href="https://github.com/WebKit/WebKit/pull/23364"&gt;https://github.com/WebKit/WebKit/pull/23364&lt;/a&gt;
+
+*Web developers*: No signals
+
+*Other signals*:
+
+WebView application risks
+
+Does this intent deprecate or change behavior of existing APIs, such that
+it has potentially high risk for Android WebView-based applications?
+
+None
+
+
+Debuggability
+
+Colors in the light-dark() function can be edited like it is currently
+possible for the color-mix() function. No changes needed.
+
+
+Will this feature be supported on all six Blink platforms (Windows, Mac,
+Linux, ChromeOS, Android, and Android WebView)?Yes
+
+Is this feature fully tested by web-platform-tests
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+?Yes
+
+Existing tests: &lt;a  rel="nofollow" href="https://wpt.fyi/results/css/css-color/light-dark-basic.html"&gt;https://wpt.fyi/results/css/css-color/light-dark-basic.html&lt;/a&gt;
+&lt;a  rel="nofollow" href="https://wpt.fyi/results/css/css-color/light-dark-currentcolor.html"&gt;https://wpt.fyi/results/css/css-color/light-dark-currentcolor.html&lt;/a&gt;
+&lt;a  rel="nofollow" href="https://wpt.fyi/results/css/css-color/light-dark-inheritance.html"&gt;https://wpt.fyi/results/css/css-color/light-dark-inheritance.html&lt;/a&gt; To be
+added by Chromium implementation:
+&lt;a  rel="nofollow" href="https://wpt.fyi/results/css/css-color/light-dark-currentcolor-in-color.html"&gt;https://wpt.fyi/results/css/css-color/light-dark-currentcolor-in-color.html&lt;/a&gt;
+(
+&lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/5245470/5/third_party/blink/web_tests/external/wpt/css/css-color/light-dark-currentcolor-in-color.html"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/5245470/5/third_party/blink/web_tests/external/wpt/css/css-color/light-dark-currentcolor-in-color.html&lt;/a&gt;)
+
+
+
+Flag name on chrome://flagsNone
+
+Finch feature nameCSSLightDarkColors
+
+Requires code in //chrome?False
+
+Tracking bug&lt;a  rel="nofollow" href="https://crbug.com/1490618"&gt;https://crbug.com/1490618&lt;/a&gt;
+
+Estimated milestones
+Shipping on desktop 123
+Shipping on Android 123
+Shipping on WebView 123
+
+Anticipated spec changes
+
+Open questions about a feature may be a source of future web compat or
+interop issues. Please list open issues (e.g. links to known github issues
+in the project for the feature specification) whose resolution may
+introduce web compat/interop risk (e.g., changing to naming or structure of
+the API in a non-backward-compatible way).
+None
+
+Link to entry on the Chrome Platform Status
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/4909742688567296"&gt;https://chromestatus.com/feature/4909742688567296&lt;/a&gt;
+
+This intent message was generated by Chrome Platform Status
+&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+
+-- 
+Rune Lillesveen
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CACuPfeRdn47UWS8NzHSxokHbkEwkyXbqqceBJg50QSGh3Q4sQg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CACuPfeRdn47UWS8NzHSxokHbkEwkyXbqqceBJg50QSGh3Q4sQg%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09066.html</id>
         <title>Re: [blink-dev] Request for Deprecation Trial : HTMLVideoElement-specific Prefixed Fullscreen API</title>
         <author>
@@ -9349,1839 +10438,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAM0wra-h5kZb3dNL%2BX5aXgM-bh8CSzG9SZZWCmoHFPMWAGrALg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAM0wra-h5kZb3dNL%2BX5aXgM-bh8CSzG9SZZWCmoHFPMWAGrALg%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09022.html</id>
-        <title>Re: [blink-dev] Request for Deprecation Trial : HTMLVideoElement-specific Prefixed Fullscreen API</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09022.html"/>
-        <updated>2024-01-25T01:01:33.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09022.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Request+for+Deprecation+Trial+%5C%3A+HTMLVideoElement%5C-specific+Prefixed+Fullscreen+API%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Request for Deprecation Trial : HTMLVideoElement-specific Prefixed Fullscreen API&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Wesley+Luyten%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Wesley Luyten&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240124" rel="nofollow"&gt;Wed, 24 Jan 2024 17:01:33 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Wesley from Mux here. I saw the issue come by.
-
-We'd be happy those API's could get deprecated and unified into the new 
-one. &lt;/pre&gt;&lt;pre&gt;
-
-Our Media Chrome (library, not browser) implementation handles this 
-gracefully, some code here 
-&lt;a  rel="nofollow" href="https://github.com/muxinc/media-chrome/blob/83c1a0f000bc8898971f030bcafa0d6df37cdc34/src/js/controller.js#L636-L636"&gt;https://github.com/muxinc/media-chrome/blob/83c1a0f000bc8898971f030bcafa0d6df37cdc34/src/js/controller.js#L636-L636&lt;/a&gt;
-
-The Vimeo player uses a variant of &lt;a  rel="nofollow" href="https://github.com/bdougherty/BigScreen"&gt;https://github.com/bdougherty/BigScreen&lt;/a&gt;, 
-a similar popular library is &lt;a  rel="nofollow" href="https://github.com/sindresorhus/screenfull"&gt;https://github.com/sindresorhus/screenfull&lt;/a&gt;
-
-Just thought to mention it but iOS never supported the generic fullscreen 
-API until very recent 
-&lt;a  rel="nofollow" href="https://twitter.com/jensimmons/status/1717937227190460797"&gt;https://twitter.com/jensimmons/status/1717937227190460797&lt;/a&gt;
-It always required the webkit prefixed API on the video element (not any 
-other element like a div etc )
-Y'all are aware of that?
-On Wednesday, January 24, 2024 at 6:23:16 PM UTC-6 Thomas Guilbert wrote:
-
-&amp;gt; I opened a support ticket with Mux, and opened an issue for Clappr 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/clappr/clappr/issues/2136"&gt;https://github.com/clappr/clappr/issues/2136&lt;/a&gt;&amp;gt;.
-&amp;gt;
-&amp;gt; On Wed, Jan 24, 2024 at 3:40 PM Thomas Guilbert &amp;lt;tgui...@chromium.org&amp;gt; 
-&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; I've created a new ChromeStatus entry 
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5111638103687168"&gt;https://chromestatus.com/feature/5111638103687168&lt;/a&gt;&amp;gt;, and requested the 
-&amp;gt;&amp;gt; privacy/security/debuggability gates for the deprecation trial.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; I audited a little more than 20 sites from the HTTP Archive. I've found a 
-&amp;gt;&amp;gt; few JS player libraries that primarily use the `webkitSupportsFullscreen` 
-&amp;gt;&amp;gt; and `webkitDisplayingFullscreen` APIs: Mux and Clappr, and one instance of 
-&amp;gt;&amp;gt; PlayerJS.
-&amp;gt;&amp;gt; I found websites with a fullscreen button for Mux and PlayerJS, and they 
-&amp;gt;&amp;gt; behaved as expected on a build of Chrome without the APIs. The one site I 
-&amp;gt;&amp;gt; found using Clappr that had a fullscreen button did not work, both on the 
-&amp;gt;&amp;gt; custom build and the latest canary.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; It also seems like some version of the Vimeo CDN player uses 
-&amp;gt;&amp;gt; `webkitEnterFullscreen`: 
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://f.vimeocdn.com/p/4.27.1/js/vendor.module.js*.*"&gt;https://f.vimeocdn.com/p/4.27.1/js/vendor.module.js*.*&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Thanks,
-&amp;gt;&amp;gt; Thomas
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Mon, Jan 22, 2024 at 5:31 PM Domenic Denicola &amp;lt;dom...@chromium.org&amp;gt; 
-&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; On Tue, Jan 23, 2024 at 7:55 AM Thomas Guilbert &amp;lt;tgui...@chromium.org&amp;gt; 
-&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Good point about the most used APIs being the boolean properties! The 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; APIs are now only aliases for the standard non-prefixed fullscreen APIs 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; (see 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; this code for the current implementation 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/core/html/media/html_video_element.cc;l=418;drc=25705537e65f031d28c1a531046b11914055b7e6"&gt;https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/core/html/media/html_video_element.cc;l=418;drc=25705537e65f031d28c1a531046b11914055b7e6&lt;/a&gt;&amp;gt;),
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; and therefore aren't much of a burden to maintain.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; I opened a WebKit standards position here: 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/306"&gt;https://github.com/WebKit/standards-positions/issues/306&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; I unfortunately do not have access to edit the listed ChromeStatus 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; entry, and the current owner no longer works on Chromium. Should I create 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; a 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; new feature (titled &amp;quot;Deprecation of HTMLVideoElement-specific Prefixed 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Fullscreen API&amp;quot;)? I think the current ChromeStatus entry also covers this 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; API 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/core/fullscreen/element_fullscreen.idl;l=19;drc=047c7dc4ee1ce908d7fea38ca063fa2f80f92c77"&gt;https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/core/fullscreen/element_fullscreen.idl;l=19;drc=047c7dc4ee1ce908d7fea38ca063fa2f80f92c77&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; which I am not trying to deprecate in this Intent.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Yeah, I think a new feature is a good idea. The old feature seems to be 
-&amp;gt;&amp;gt;&amp;gt; for the *addition* of the prefixed fullscreen API properties back in 
-&amp;gt;&amp;gt;&amp;gt; Chrome 15, whereas a *deprecation/removal* has a different set of 
-&amp;gt;&amp;gt;&amp;gt; fields, if I understand correctly.
-&amp;gt;&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; What's a reasonable sample size of HTTP Archive sites to audit? Should 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; this be a complement/precursor to the proposed Deprecation Trial, or would 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; this sampling be enough?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; I recall +Philip Jägenstedt having done some computations in the past 
-&amp;gt;&amp;gt;&amp;gt; based on what would actually be statistically significant. But, I couldn't 
-&amp;gt;&amp;gt;&amp;gt; find them in this documentation 
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://www.chromium.org/blink/platform-predictability/compat-tools/"&gt;https://www.chromium.org/blink/platform-predictability/compat-tools/&lt;/a&gt;&amp;gt; (or 
-&amp;gt;&amp;gt;&amp;gt; the linked document 
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1cpjWFoXBiuFYI4zb9I7wHs7uYZ0ntbOgLwH-mgqXdEM/edit#heading=h.1m1gg72jnnrt"&gt;https://docs.google.com/document/d/1cpjWFoXBiuFYI4zb9I7wHs7uYZ0ntbOgLwH-mgqXdEM/edit#heading=h.1m1gg72jnnrt&lt;/a&gt;&amp;gt;).
-&amp;gt;&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;&amp;gt; So, I'll just state that I would be happy with 20 sites.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; I think the deprecation trial is a great complement to have in any case, 
-&amp;gt;&amp;gt;&amp;gt; so I would treat this as a precursor. It's always safest to have the option 
-&amp;gt;&amp;gt;&amp;gt; for web developers to un-break their sites. The purpose of the HTTP Archive 
-&amp;gt;&amp;gt;&amp;gt; investigation is mostly to see if we can find major shared patterns, to say 
-&amp;gt;&amp;gt;&amp;gt; things like &amp;quot;all sites using this code will be broken&amp;quot; or &amp;quot;all sites using 
-&amp;gt;&amp;gt;&amp;gt; this code will be slightly worse, but basically fine&amp;quot;, or even &amp;quot;all sites 
-&amp;gt;&amp;gt;&amp;gt; using this open-source library will be broken, but we can send them a PR 
-&amp;gt;&amp;gt;&amp;gt; and that will create a clear upgrade path&amp;quot;.
-&amp;gt;&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Thank you,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Thomas
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Sun, Jan 21, 2024 at 7:56 PM Domenic Denicola &amp;lt;dom...@chromium.org&amp;gt; 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; It would be very exciting to clean this up! I have some questions that 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; might help clarify the cost-benefit analysis.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Sat, Jan 20, 2024 at 6:43 AM Thomas Guilbert &amp;lt;tgui...@chromium.org&amp;gt; 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Contact emails
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; tgui...@chromium.org
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Explainer
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Specification
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://fullscreen.spec.whatwg.org/#dom-document-fullscreenenabled"&gt;https://fullscreen.spec.whatwg.org/#dom-document-fullscreenenabled&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Summary
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; There was an attempt in 2014 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/Bxe7DnDVRZ0/m/5K61HQPrNK4J"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/Bxe7DnDVRZ0/m/5K61HQPrNK4J&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to deprecate and remove the HTMLVideoElement-specific Prefixed 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Fullscreen 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; APIs. This meant removing the following APIs from HTMLVideoElement:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; readonly attribute boolean webkitSupportsFullscreen;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; readonly attribute boolean webkitDisplayingFullscreen;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; void webkitEnterFullscreen();
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; void webkitExitFullscreen();
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; // Note the different capitalization of the &amp;quot;S&amp;quot; in FullScreen.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; void webkitEnterFullScreen();
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; void webkitExitFullScreen();
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; How &amp;quot;expensive&amp;quot; is it to support these APIs? For example, if some of 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; them are just straight-up aliases of standard APIs, then the benefit of 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; removal might be low. Whereas if, for example, these prefixed &amp;quot;enter 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; fullscreen&amp;quot; APIs have different behavior than the standardized 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; requestFullscreen() API, then supporting the prefixed variants feels 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; expensive, and getting rid of them is more worthwhile.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; The overall usage of these APIs is low, and has trended downwards 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; over time. Here are the latest usage numbers, as a % of total page 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; loads:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; PrefixedVideoSupportsFullscreen: 0.025%
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; PrefixedVideoDisplayingFullscreen: 0.082%
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; PrefixedVideoEnterFullscreen: 0.001%
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; PrefixedVideoExitFullscreen: 0.010%
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; PrefixedVideoEnterFullScreen: 0.001%
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; PrefixedVideoExitFullScreen: 0.000%
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; It's notable that the highest counters are for the boolean properties. 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; That makes this slightly less risky, because removing them will cause 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; them 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to return `undefined`, so code like `if 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (videoEl.webkitSupportsFullscreen) 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; { ... }` will just return false, instead of throwing an exception or 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; similar.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; There has been an unfortunate uptick in the past 2 years for the two 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; following APIs, which means that it's best to remove them now, before 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; they 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; see a wider adoption. These numbers might be going up because the 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; prefixed 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; APIs are also present on iOS.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/metrics/feature/timeline/popularity/166"&gt;https://chromestatus.com/metrics/feature/timeline/popularity/166&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/metrics/feature/timeline/popularity/167"&gt;https://chromestatus.com/metrics/feature/timeline/popularity/167&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I was going to ask about if there are popular sites or libraries using 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; these, but I found some discussion of that in the bug 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=346236#c74"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=346236#c74&lt;/a&gt;&amp;gt;. 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; It seems like there's a hope that some sites already have fallbacks in 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; place to the standardized APIs, but it's not quite clear. Maybe you could 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; try running a build of Chromium with the prefixed APIs disabled on a 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; random 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; sampling of the HTTP Archive sites, and reporting back on if the user 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; experience changes or new errors show up in the JS console? That could 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; give 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; us more confidence in the removal.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; There is an alternative set of APIs supported by all browsers that 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; web authors can use.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; The full history of the removal attempt is here: crbug.com/346236
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Goals for experimentation
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; The primary goal of the deprecation trial is to reduce the amount of 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; broken user-visible experiences as the prefixed fullscreen APIs are 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; removed, and to give time to web authors to transition to the modern API 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (which has been available for 5 years).
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; The un-prefixed fullscreen APIs have been available since Chrome M71.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Experiment timeline
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TBD, with a proposed 3 months duration
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink component
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink&amp;gt;Fullscreen
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink&amp;gt;Media&amp;gt;Video
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review status
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Not applicable
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Risks
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Interoperability and Compatibility
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Web Compatibility:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Removing non-standard APIs should overall help web compatibility, and 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; encourage web authors to use the unprefixed APIs. Some experiences might 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; be 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; broken by this change, thus justifying this deprecation trial. The API 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; has 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; been deprecated for a significant amount of time however, and usage has 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; gone down.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; This would only be an issue for websites that *only* support the 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; prefixed APIs.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Interoperability:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; All browsers have shipped the new APIs, most of them using an 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; unprefixed version (Safari on iOS being the only remaining prefixed-only 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; API). See also 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/API/Element/requestFullscreen#browser_compatibility"&gt;https://developer.mozilla.org/en-US/docs/Web/API/Element/requestFullscreen#browser_compatibility&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Based on the WPT results 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/fullscreen/api/historical.html?label=master&amp;label=experimental&amp;aligned&amp;q=%2Ffullscreen%2Fapi%2Fhistorical.html"&gt;https://wpt.fyi/results/fullscreen/api/historical.html?label=master&amp;label=experimental&amp;aligned&amp;q=%2Ffullscreen%2Fapi%2Fhistorical.html&lt;/a&gt;&amp;gt;,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Gecko supports none of the prefixed APIs, and WebKit supports all of 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; them. 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I think this is worth noting in the ChromeStatus entry. (Although it's 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; not 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; an official signal, so leave the dropdown at &amp;quot;No signals&amp;quot;.)
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Given this, filing a standards-positions issue on WebKit to get their 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; take on the deprecation might be a good idea. Sometimes those discussions 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; end up going in surprising directions; see e.g. this request for a 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; position on the deprecation of mutation events 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/192"&gt;https://github.com/WebKit/standards-positions/issues/192&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (Gecko also has their own, smaller set of prefixed APIs. But it's not 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; as relevant to this intent about the webkit-prefixed ones.)
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Gecko: 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; WebKit: 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Web developers:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Other signals:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Activation
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Impact on the Ads ecosystem:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; N/A
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; WebView application risks
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Does this intent deprecate or change behavior of existing APIs, such 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; that it has potentially high risk for Android WebView-based applications?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Potentially. The deprecation trial should give a heads up and 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; appropriate time for apps to switch over to the unprefixed APIs.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Ongoing technical constraints
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Debuggability
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; N/A
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows, 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Mac, Linux, Chrome OS, Android, and Android WebView)?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Yes - the prefixed API will be removed across all platforms.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Yes
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; WPTs testing the prefixes are removed: 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/master/fullscreen/api/historical.html"&gt;https://github.com/web-platform-tests/wpt/blob/master/fullscreen/api/historical.html&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; WPTs testing the new API: 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/tree/master/fullscreen/api"&gt;https://github.com/web-platform-tests/wpt/tree/master/fullscreen/api&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Flag name on chrome://flags
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Finch feature name
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; PrefixedVideoFullscreen
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Non-finch justification
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Requires code in //chrome?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; False
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Launch bug
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Estimated milestones
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; DevTrial on desktop
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; 123
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; DevTrial on Android
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; 123
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5259513871466496"&gt;https://chromestatus.com/feature/5259513871466496&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; -- 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; send an email to blink-dev+...@chromium.org.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABrVPoa373%3Dnxuc%2BTe_h9e0WdS53_oAyUEa%2B4j0v2xWgJ2MFcw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABrVPoa373%3Dnxuc%2BTe_h9e0WdS53_oAyUEa%2B4j0v2xWgJ2MFcw%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABrVPoa373%3Dnxuc%2BTe_h9e0WdS53_oAyUEa%2B4j0v2xWgJ2MFcw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABrVPoa373%3Dnxuc%2BTe_h9e0WdS53_oAyUEa%2B4j0v2xWgJ2MFcw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/928177d8-d02b-41ea-a1b2-0efe1e18e466n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/928177d8-d02b-41ea-a1b2-0efe1e18e466n%40chromium.org&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09021.html</id>
-        <title>Re: [blink-dev] Request for Deprecation Trial : HTMLVideoElement-specific Prefixed Fullscreen API</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09021.html"/>
-        <updated>2024-01-25T00:23:13.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09021.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Request+for+Deprecation+Trial+%5C%3A+HTMLVideoElement%5C-specific+Prefixed+Fullscreen+API%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Request for Deprecation Trial : HTMLVideoElement-specific Prefixed Fullscreen API&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Thomas+Guilbert%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Thomas Guilbert&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240124" rel="nofollow"&gt;Wed, 24 Jan 2024 16:23:13 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;I opened a support ticket with Mux, and opened an issue for Clappr
-&amp;lt;&lt;a  rel="nofollow" href="https://github.com/clappr/clappr/issues/2136"&gt;https://github.com/clappr/clappr/issues/2136&lt;/a&gt;&amp;gt;.&lt;/pre&gt;&lt;pre&gt;
-
-On Wed, Jan 24, 2024 at 3:40 PM Thomas Guilbert &amp;lt;tguilb...@chromium.org&amp;gt;
-wrote:
-
-&amp;gt; I've created a new ChromeStatus entry
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5111638103687168"&gt;https://chromestatus.com/feature/5111638103687168&lt;/a&gt;&amp;gt;, and requested the
-&amp;gt; privacy/security/debuggability gates for the deprecation trial.
-&amp;gt;
-&amp;gt; I audited a little more than 20 sites from the HTTP Archive. I've found a
-&amp;gt; few JS player libraries that primarily use the `webkitSupportsFullscreen`
-&amp;gt; and `webkitDisplayingFullscreen` APIs: Mux and Clappr, and one instance of
-&amp;gt; PlayerJS.
-&amp;gt; I found websites with a fullscreen button for Mux and PlayerJS, and they
-&amp;gt; behaved as expected on a build of Chrome without the APIs. The one site I
-&amp;gt; found using Clappr that had a fullscreen button did not work, both on the
-&amp;gt; custom build and the latest canary.
-&amp;gt;
-&amp;gt; It also seems like some version of the Vimeo CDN player uses
-&amp;gt; `webkitEnterFullscreen`:
-&amp;gt; &lt;a  rel="nofollow" href="https://f.vimeocdn.com/p/4.27.1/js/vendor.module.js*.*"&gt;https://f.vimeocdn.com/p/4.27.1/js/vendor.module.js*.*&lt;/a&gt;
-&amp;gt;
-&amp;gt; Thanks,
-&amp;gt; Thomas
-&amp;gt;
-&amp;gt; On Mon, Jan 22, 2024 at 5:31 PM Domenic Denicola &amp;lt;dome...@chromium.org&amp;gt;
-&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Tue, Jan 23, 2024 at 7:55 AM Thomas Guilbert &amp;lt;tguilb...@chromium.org&amp;gt;
-&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Good point about the most used APIs being the boolean properties! The
-&amp;gt;&amp;gt;&amp;gt; APIs are now only aliases for the standard non-prefixed fullscreen APIs (see
-&amp;gt;&amp;gt;&amp;gt; this code for the current implementation
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/core/html/media/html_video_element.cc;l=418;drc=25705537e65f031d28c1a531046b11914055b7e6"&gt;https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/core/html/media/html_video_element.cc;l=418;drc=25705537e65f031d28c1a531046b11914055b7e6&lt;/a&gt;&amp;gt;),
-&amp;gt;&amp;gt;&amp;gt; and therefore aren't much of a burden to maintain.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; I opened a WebKit standards position here:
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/306"&gt;https://github.com/WebKit/standards-positions/issues/306&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; I unfortunately do not have access to edit the listed ChromeStatus
-&amp;gt;&amp;gt;&amp;gt; entry, and the current owner no longer works on Chromium. Should I create a
-&amp;gt;&amp;gt;&amp;gt; new feature (titled &amp;quot;Deprecation of HTMLVideoElement-specific Prefixed
-&amp;gt;&amp;gt;&amp;gt; Fullscreen API&amp;quot;)? I think the current ChromeStatus entry also covers this
-&amp;gt;&amp;gt;&amp;gt; API
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/core/fullscreen/element_fullscreen.idl;l=19;drc=047c7dc4ee1ce908d7fea38ca063fa2f80f92c77"&gt;https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/core/fullscreen/element_fullscreen.idl;l=19;drc=047c7dc4ee1ce908d7fea38ca063fa2f80f92c77&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; which I am not trying to deprecate in this Intent.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Yeah, I think a new feature is a good idea. The old feature seems to be
-&amp;gt;&amp;gt; for the *addition* of the prefixed fullscreen API properties back in
-&amp;gt;&amp;gt; Chrome 15, whereas a *deprecation/removal* has a different set of
-&amp;gt;&amp;gt; fields, if I understand correctly.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; What's a reasonable sample size of HTTP Archive sites to audit? Should
-&amp;gt;&amp;gt;&amp;gt; this be a complement/precursor to the proposed Deprecation Trial, or would
-&amp;gt;&amp;gt;&amp;gt; this sampling be enough?
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; I recall +Philip Jägenstedt &amp;lt;foo...@chromium.org&amp;gt; having done some
-&amp;gt;&amp;gt; computations in the past based on what would actually be statistically
-&amp;gt;&amp;gt; significant. But, I couldn't find them in this documentation
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://www.chromium.org/blink/platform-predictability/compat-tools/"&gt;https://www.chromium.org/blink/platform-predictability/compat-tools/&lt;/a&gt;&amp;gt; (or
-&amp;gt;&amp;gt; the linked document
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1cpjWFoXBiuFYI4zb9I7wHs7uYZ0ntbOgLwH-mgqXdEM/edit#heading=h.1m1gg72jnnrt"&gt;https://docs.google.com/document/d/1cpjWFoXBiuFYI4zb9I7wHs7uYZ0ntbOgLwH-mgqXdEM/edit#heading=h.1m1gg72jnnrt&lt;/a&gt;&amp;gt;).
-&amp;gt;&amp;gt; So, I'll just state that I would be happy with 20 sites.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; I think the deprecation trial is a great complement to have in any case,
-&amp;gt;&amp;gt; so I would treat this as a precursor. It's always safest to have the option
-&amp;gt;&amp;gt; for web developers to un-break their sites. The purpose of the HTTP Archive
-&amp;gt;&amp;gt; investigation is mostly to see if we can find major shared patterns, to say
-&amp;gt;&amp;gt; things like &amp;quot;all sites using this code will be broken&amp;quot; or &amp;quot;all sites using
-&amp;gt;&amp;gt; this code will be slightly worse, but basically fine&amp;quot;, or even &amp;quot;all sites
-&amp;gt;&amp;gt; using this open-source library will be broken, but we can send them a PR
-&amp;gt;&amp;gt; and that will create a clear upgrade path&amp;quot;.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Thank you,
-&amp;gt;&amp;gt;&amp;gt; Thomas
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; On Sun, Jan 21, 2024 at 7:56 PM Domenic Denicola &amp;lt;dome...@chromium.org&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; It would be very exciting to clean this up! I have some questions that
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; might help clarify the cost-benefit analysis.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Sat, Jan 20, 2024 at 6:43 AM Thomas Guilbert &amp;lt;tguilb...@chromium.org&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Contact emails
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; tguilb...@chromium.org
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Explainer
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Specification
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://fullscreen.spec.whatwg.org/#dom-document-fullscreenenabled"&gt;https://fullscreen.spec.whatwg.org/#dom-document-fullscreenenabled&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Summary
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; There was an attempt in 2014
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/Bxe7DnDVRZ0/m/5K61HQPrNK4J"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/Bxe7DnDVRZ0/m/5K61HQPrNK4J&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to deprecate and remove the HTMLVideoElement-specific Prefixed Fullscreen
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; APIs. This meant removing the following APIs from HTMLVideoElement:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; readonly attribute boolean webkitSupportsFullscreen;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; readonly attribute boolean webkitDisplayingFullscreen;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; void webkitEnterFullscreen();
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; void webkitExitFullscreen();
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; // Note the different capitalization of the &amp;quot;S&amp;quot; in FullScreen.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; void webkitEnterFullScreen();
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; void webkitExitFullScreen();
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; How &amp;quot;expensive&amp;quot; is it to support these APIs? For example, if some of
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; them are just straight-up aliases of standard APIs, then the benefit of
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; removal might be low. Whereas if, for example, these prefixed &amp;quot;enter
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; fullscreen&amp;quot; APIs have different behavior than the standardized
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; requestFullscreen() API, then supporting the prefixed variants feels
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; expensive, and getting rid of them is more worthwhile.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; The overall usage of these APIs is low, and has trended downwards over
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; time. Here are the latest usage numbers, as a % of total page loads:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; PrefixedVideoSupportsFullscreen: 0.025%
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; PrefixedVideoDisplayingFullscreen: 0.082%
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; PrefixedVideoEnterFullscreen: 0.001%
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; PrefixedVideoExitFullscreen: 0.010%
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; PrefixedVideoEnterFullScreen: 0.001%
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; PrefixedVideoExitFullScreen: 0.000%
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; It's notable that the highest counters are for the boolean properties.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; That makes this slightly less risky, because removing them will cause them
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; to return `undefined`, so code like `if (videoEl.webkitSupportsFullscreen)
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; { ... }` will just return false, instead of throwing an exception or
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; similar.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; There has been an unfortunate uptick in the past 2 years for the two
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; following APIs, which means that it's best to remove them now, before they
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; see a wider adoption. These numbers might be going up because the prefixed
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; APIs are also present on iOS.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/metrics/feature/timeline/popularity/166"&gt;https://chromestatus.com/metrics/feature/timeline/popularity/166&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/metrics/feature/timeline/popularity/167"&gt;https://chromestatus.com/metrics/feature/timeline/popularity/167&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; I was going to ask about if there are popular sites or libraries using
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; these, but I found some discussion of that in the bug
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=346236#c74"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=346236#c74&lt;/a&gt;&amp;gt;. It
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; seems like there's a hope that some sites already have fallbacks in place
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; to the standardized APIs, but it's not quite clear. Maybe you could try
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; running a build of Chromium with the prefixed APIs disabled on a random
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; sampling of the HTTP Archive sites, and reporting back on if the user
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; experience changes or new errors show up in the JS console? That could give
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; us more confidence in the removal.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; There is an alternative set of APIs supported by all browsers that web
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; authors can use.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; The full history of the removal attempt is here: crbug.com/346236
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Goals for experimentation
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; The primary goal of the deprecation trial is to reduce the amount of
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; broken user-visible experiences as the prefixed fullscreen APIs are
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; removed, and to give time to web authors to transition to the modern API
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (which has been available for 5 years).
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; The un-prefixed fullscreen APIs have been available since Chrome M71.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Experiment timeline
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TBD, with a proposed 3 months duration
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink component
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink&amp;gt;Fullscreen
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink&amp;gt;Media&amp;gt;Video
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review status
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Not applicable
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Risks
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Interoperability and Compatibility
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Web Compatibility:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Removing non-standard APIs should overall help web compatibility, and
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; encourage web authors to use the unprefixed APIs. Some experiences might 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; be
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; broken by this change, thus justifying this deprecation trial. The API has
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; been deprecated for a significant amount of time however, and usage has
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; gone down.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; This would only be an issue for websites that *only* support the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; prefixed APIs.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Interoperability:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; All browsers have shipped the new APIs, most of them using an
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; unprefixed version (Safari on iOS being the only remaining prefixed-only
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; API). See also
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/API/Element/requestFullscreen#browser_compatibility"&gt;https://developer.mozilla.org/en-US/docs/Web/API/Element/requestFullscreen#browser_compatibility&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Based on the WPT results
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/fullscreen/api/historical.html?label=master&amp;label=experimental&amp;aligned&amp;q=%2Ffullscreen%2Fapi%2Fhistorical.html"&gt;https://wpt.fyi/results/fullscreen/api/historical.html?label=master&amp;label=experimental&amp;aligned&amp;q=%2Ffullscreen%2Fapi%2Fhistorical.html&lt;/a&gt;&amp;gt;,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Gecko supports none of the prefixed APIs, and WebKit supports all of them.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; I think this is worth noting in the ChromeStatus entry. (Although it's not
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; an official signal, so leave the dropdown at &amp;quot;No signals&amp;quot;.)
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Given this, filing a standards-positions issue on WebKit to get their
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; take on the deprecation might be a good idea. Sometimes those discussions
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; end up going in surprising directions; see e.g. this request for a
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; position on the deprecation of mutation events
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/192"&gt;https://github.com/WebKit/standards-positions/issues/192&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; (Gecko also has their own, smaller set of prefixed APIs. But it's not
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; as relevant to this intent about the webkit-prefixed ones.)
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Gecko:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; WebKit:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Web developers:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Other signals:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Activation
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Impact on the Ads ecosystem:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; N/A
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; WebView application risks
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Does this intent deprecate or change behavior of existing APIs, such
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; that it has potentially high risk for Android WebView-based applications?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Potentially. The deprecation trial should give a heads up and
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; appropriate time for apps to switch over to the unprefixed APIs.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Ongoing technical constraints
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Debuggability
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; N/A
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Mac, Linux, Chrome OS, Android, and Android WebView)?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Yes - the prefixed API will be removed across all platforms.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Yes
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; WPTs testing the prefixes are removed:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/master/fullscreen/api/historical.html"&gt;https://github.com/web-platform-tests/wpt/blob/master/fullscreen/api/historical.html&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; WPTs testing the new API:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/tree/master/fullscreen/api"&gt;https://github.com/web-platform-tests/wpt/tree/master/fullscreen/api&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Flag name on chrome://flags
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Finch feature name
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; PrefixedVideoFullscreen
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Non-finch justification
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Requires code in //chrome?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; False
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Launch bug
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Estimated milestones
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; DevTrial on desktop
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; 123
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; DevTrial on Android
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; 123
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5259513871466496"&gt;https://chromestatus.com/feature/5259513871466496&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+unsubscr...@chromium.org.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABrVPoa373%3Dnxuc%2BTe_h9e0WdS53_oAyUEa%2B4j0v2xWgJ2MFcw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABrVPoa373%3Dnxuc%2BTe_h9e0WdS53_oAyUEa%2B4j0v2xWgJ2MFcw%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABrVPoa373%3Dnxuc%2BTe_h9e0WdS53_oAyUEa%2B4j0v2xWgJ2MFcw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABrVPoa373%3Dnxuc%2BTe_h9e0WdS53_oAyUEa%2B4j0v2xWgJ2MFcw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABrVPoa2ayp_OmrFH%2B9Q6dS_9nLMwgyZNgUTiL_OkfHBdh6HNw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABrVPoa2ayp_OmrFH%2B9Q6dS_9nLMwgyZNgUTiL_OkfHBdh6HNw%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09020.html</id>
-        <title>Re: [blink-dev] Request for Deprecation Trial : HTMLVideoElement-specific Prefixed Fullscreen API</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09020.html"/>
-        <updated>2024-01-24T23:41:18.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09020.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Request+for+Deprecation+Trial+%5C%3A+HTMLVideoElement%5C-specific+Prefixed+Fullscreen+API%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Request for Deprecation Trial : HTMLVideoElement-specific Prefixed Fullscreen API&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Thomas+Guilbert%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Thomas Guilbert&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240124" rel="nofollow"&gt;Wed, 24 Jan 2024 15:41:18 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;I've created a new ChromeStatus entry
-&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5111638103687168"&gt;https://chromestatus.com/feature/5111638103687168&lt;/a&gt;&amp;gt;, and requested the
-privacy/security/debuggability gates for the deprecation trial.&lt;/pre&gt;&lt;pre&gt;
-
-I audited a little more than 20 sites from the HTTP Archive. I've found a
-few JS player libraries that primarily use the `webkitSupportsFullscreen`
-and `webkitDisplayingFullscreen` APIs: Mux and Clappr, and one instance of
-PlayerJS.
-I found websites with a fullscreen button for Mux and PlayerJS, and they
-behaved as expected on a build of Chrome without the APIs. The one site I
-found using Clappr that had a fullscreen button did not work, both on the
-custom build and the latest canary.
-
-It also seems like some version of the Vimeo CDN player uses
-`webkitEnterFullscreen`: &lt;a  rel="nofollow" href="https://f.vimeocdn.com/p/4.27.1/js/vendor.module.js"&gt;https://f.vimeocdn.com/p/4.27.1/js/vendor.module.js&lt;/a&gt;
-*.*
-
-Thanks,
-Thomas
-
-On Mon, Jan 22, 2024 at 5:31 PM Domenic Denicola &amp;lt;dome...@chromium.org&amp;gt;
-wrote:
-
-&amp;gt;
-&amp;gt;
-&amp;gt; On Tue, Jan 23, 2024 at 7:55 AM Thomas Guilbert &amp;lt;tguilb...@chromium.org&amp;gt;
-&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; Good point about the most used APIs being the boolean properties! The
-&amp;gt;&amp;gt; APIs are now only aliases for the standard non-prefixed fullscreen APIs (see
-&amp;gt;&amp;gt; this code for the current implementation
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/core/html/media/html_video_element.cc;l=418;drc=25705537e65f031d28c1a531046b11914055b7e6"&gt;https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/core/html/media/html_video_element.cc;l=418;drc=25705537e65f031d28c1a531046b11914055b7e6&lt;/a&gt;&amp;gt;),
-&amp;gt;&amp;gt; and therefore aren't much of a burden to maintain.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; I opened a WebKit standards position here:
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/306"&gt;https://github.com/WebKit/standards-positions/issues/306&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; I unfortunately do not have access to edit the listed ChromeStatus entry,
-&amp;gt;&amp;gt; and the current owner no longer works on Chromium. Should I create a new
-&amp;gt;&amp;gt; feature (titled &amp;quot;Deprecation of HTMLVideoElement-specific Prefixed
-&amp;gt;&amp;gt; Fullscreen API&amp;quot;)? I think the current ChromeStatus entry also covers this
-&amp;gt;&amp;gt; API
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/core/fullscreen/element_fullscreen.idl;l=19;drc=047c7dc4ee1ce908d7fea38ca063fa2f80f92c77"&gt;https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/core/fullscreen/element_fullscreen.idl;l=19;drc=047c7dc4ee1ce908d7fea38ca063fa2f80f92c77&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; which I am not trying to deprecate in this Intent.
-&amp;gt;&amp;gt;
-&amp;gt;
-&amp;gt; Yeah, I think a new feature is a good idea. The old feature seems to be
-&amp;gt; for the *addition* of the prefixed fullscreen API properties back in
-&amp;gt; Chrome 15, whereas a *deprecation/removal* has a different set of fields,
-&amp;gt; if I understand correctly.
-&amp;gt;
-&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; What's a reasonable sample size of HTTP Archive sites to audit? Should
-&amp;gt;&amp;gt; this be a complement/precursor to the proposed Deprecation Trial, or would
-&amp;gt;&amp;gt; this sampling be enough?
-&amp;gt;&amp;gt;
-&amp;gt;
-&amp;gt; I recall +Philip Jägenstedt &amp;lt;foo...@chromium.org&amp;gt; having done some
-&amp;gt; computations in the past based on what would actually be statistically
-&amp;gt; significant. But, I couldn't find them in this documentation
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://www.chromium.org/blink/platform-predictability/compat-tools/"&gt;https://www.chromium.org/blink/platform-predictability/compat-tools/&lt;/a&gt;&amp;gt; (or
-&amp;gt; the linked document
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1cpjWFoXBiuFYI4zb9I7wHs7uYZ0ntbOgLwH-mgqXdEM/edit#heading=h.1m1gg72jnnrt"&gt;https://docs.google.com/document/d/1cpjWFoXBiuFYI4zb9I7wHs7uYZ0ntbOgLwH-mgqXdEM/edit#heading=h.1m1gg72jnnrt&lt;/a&gt;&amp;gt;).
-&amp;gt; So, I'll just state that I would be happy with 20 sites.
-&amp;gt;
-&amp;gt; I think the deprecation trial is a great complement to have in any case,
-&amp;gt; so I would treat this as a precursor. It's always safest to have the option
-&amp;gt; for web developers to un-break their sites. The purpose of the HTTP Archive
-&amp;gt; investigation is mostly to see if we can find major shared patterns, to say
-&amp;gt; things like &amp;quot;all sites using this code will be broken&amp;quot; or &amp;quot;all sites using
-&amp;gt; this code will be slightly worse, but basically fine&amp;quot;, or even &amp;quot;all sites
-&amp;gt; using this open-source library will be broken, but we can send them a PR
-&amp;gt; and that will create a clear upgrade path&amp;quot;.
-&amp;gt;
-&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Thank you,
-&amp;gt;&amp;gt; Thomas
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Sun, Jan 21, 2024 at 7:56 PM Domenic Denicola &amp;lt;dome...@chromium.org&amp;gt;
-&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; It would be very exciting to clean this up! I have some questions that
-&amp;gt;&amp;gt;&amp;gt; might help clarify the cost-benefit analysis.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; On Sat, Jan 20, 2024 at 6:43 AM Thomas Guilbert &amp;lt;tguilb...@chromium.org&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Contact emails
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; tguilb...@chromium.org
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Explainer
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Specification
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://fullscreen.spec.whatwg.org/#dom-document-fullscreenenabled"&gt;https://fullscreen.spec.whatwg.org/#dom-document-fullscreenenabled&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Summary
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; There was an attempt in 2014
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/Bxe7DnDVRZ0/m/5K61HQPrNK4J"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/Bxe7DnDVRZ0/m/5K61HQPrNK4J&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; to deprecate and remove the HTMLVideoElement-specific Prefixed Fullscreen
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; APIs. This meant removing the following APIs from HTMLVideoElement:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; readonly attribute boolean webkitSupportsFullscreen;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; readonly attribute boolean webkitDisplayingFullscreen;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; void webkitEnterFullscreen();
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; void webkitExitFullscreen();
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; // Note the different capitalization of the &amp;quot;S&amp;quot; in FullScreen.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; void webkitEnterFullScreen();
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; void webkitExitFullScreen();
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; How &amp;quot;expensive&amp;quot; is it to support these APIs? For example, if some of
-&amp;gt;&amp;gt;&amp;gt; them are just straight-up aliases of standard APIs, then the benefit of
-&amp;gt;&amp;gt;&amp;gt; removal might be low. Whereas if, for example, these prefixed &amp;quot;enter
-&amp;gt;&amp;gt;&amp;gt; fullscreen&amp;quot; APIs have different behavior than the standardized
-&amp;gt;&amp;gt;&amp;gt; requestFullscreen() API, then supporting the prefixed variants feels
-&amp;gt;&amp;gt;&amp;gt; expensive, and getting rid of them is more worthwhile.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; The overall usage of these APIs is low, and has trended downwards over
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; time. Here are the latest usage numbers, as a % of total page loads:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; PrefixedVideoSupportsFullscreen: 0.025%
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; PrefixedVideoDisplayingFullscreen: 0.082%
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; PrefixedVideoEnterFullscreen: 0.001%
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; PrefixedVideoExitFullscreen: 0.010%
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; PrefixedVideoEnterFullScreen: 0.001%
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; PrefixedVideoExitFullScreen: 0.000%
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; It's notable that the highest counters are for the boolean properties.
-&amp;gt;&amp;gt;&amp;gt; That makes this slightly less risky, because removing them will cause them
-&amp;gt;&amp;gt;&amp;gt; to return `undefined`, so code like `if (videoEl.webkitSupportsFullscreen)
-&amp;gt;&amp;gt;&amp;gt; { ... }` will just return false, instead of throwing an exception or
-&amp;gt;&amp;gt;&amp;gt; similar.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; There has been an unfortunate uptick in the past 2 years for the two
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; following APIs, which means that it's best to remove them now, before they
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; see a wider adoption. These numbers might be going up because the prefixed
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; APIs are also present on iOS.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/metrics/feature/timeline/popularity/166"&gt;https://chromestatus.com/metrics/feature/timeline/popularity/166&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/metrics/feature/timeline/popularity/167"&gt;https://chromestatus.com/metrics/feature/timeline/popularity/167&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; I was going to ask about if there are popular sites or libraries using
-&amp;gt;&amp;gt;&amp;gt; these, but I found some discussion of that in the bug
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=346236#c74"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=346236#c74&lt;/a&gt;&amp;gt;. It
-&amp;gt;&amp;gt;&amp;gt; seems like there's a hope that some sites already have fallbacks in place
-&amp;gt;&amp;gt;&amp;gt; to the standardized APIs, but it's not quite clear. Maybe you could try
-&amp;gt;&amp;gt;&amp;gt; running a build of Chromium with the prefixed APIs disabled on a random
-&amp;gt;&amp;gt;&amp;gt; sampling of the HTTP Archive sites, and reporting back on if the user
-&amp;gt;&amp;gt;&amp;gt; experience changes or new errors show up in the JS console? That could give
-&amp;gt;&amp;gt;&amp;gt; us more confidence in the removal.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; There is an alternative set of APIs supported by all browsers that web
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; authors can use.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; The full history of the removal attempt is here: crbug.com/346236
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Goals for experimentation
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; The primary goal of the deprecation trial is to reduce the amount of
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; broken user-visible experiences as the prefixed fullscreen APIs are
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; removed, and to give time to web authors to transition to the modern API
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; (which has been available for 5 years).
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; The un-prefixed fullscreen APIs have been available since Chrome M71.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Experiment timeline
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; TBD, with a proposed 3 months duration
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink component
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink&amp;gt;Fullscreen
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink&amp;gt;Media&amp;gt;Video
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review status
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Not applicable
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Risks
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Interoperability and Compatibility
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Web Compatibility:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Removing non-standard APIs should overall help web compatibility, and
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; encourage web authors to use the unprefixed APIs. Some experiences might be
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; broken by this change, thus justifying this deprecation trial. The API has
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; been deprecated for a significant amount of time however, and usage has
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; gone down.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; This would only be an issue for websites that *only* support the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; prefixed APIs.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Interoperability:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; All browsers have shipped the new APIs, most of them using an
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; unprefixed version (Safari on iOS being the only remaining prefixed-only
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; API). See also
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/API/Element/requestFullscreen#browser_compatibility"&gt;https://developer.mozilla.org/en-US/docs/Web/API/Element/requestFullscreen#browser_compatibility&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Based on the WPT results
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/fullscreen/api/historical.html?label=master&amp;label=experimental&amp;aligned&amp;q=%2Ffullscreen%2Fapi%2Fhistorical.html"&gt;https://wpt.fyi/results/fullscreen/api/historical.html?label=master&amp;label=experimental&amp;aligned&amp;q=%2Ffullscreen%2Fapi%2Fhistorical.html&lt;/a&gt;&amp;gt;,
-&amp;gt;&amp;gt;&amp;gt; Gecko supports none of the prefixed APIs, and WebKit supports all of them.
-&amp;gt;&amp;gt;&amp;gt; I think this is worth noting in the ChromeStatus entry. (Although it's not
-&amp;gt;&amp;gt;&amp;gt; an official signal, so leave the dropdown at &amp;quot;No signals&amp;quot;.)
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Given this, filing a standards-positions issue on WebKit to get their
-&amp;gt;&amp;gt;&amp;gt; take on the deprecation might be a good idea. Sometimes those discussions
-&amp;gt;&amp;gt;&amp;gt; end up going in surprising directions; see e.g. this request for a
-&amp;gt;&amp;gt;&amp;gt; position on the deprecation of mutation events
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/192"&gt;https://github.com/WebKit/standards-positions/issues/192&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; (Gecko also has their own, smaller set of prefixed APIs. But it's not as
-&amp;gt;&amp;gt;&amp;gt; relevant to this intent about the webkit-prefixed ones.)
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Gecko:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; WebKit:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Web developers:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Other signals:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Activation
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Impact on the Ads ecosystem:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; N/A
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; WebView application risks
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Does this intent deprecate or change behavior of existing APIs, such
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; that it has potentially high risk for Android WebView-based applications?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Potentially. The deprecation trial should give a heads up and
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; appropriate time for apps to switch over to the unprefixed APIs.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Ongoing technical constraints
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Debuggability
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; N/A
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Mac, Linux, Chrome OS, Android, and Android WebView)?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Yes - the prefixed API will be removed across all platforms.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; ?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Yes
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; WPTs testing the prefixes are removed:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/blob/master/fullscreen/api/historical.html"&gt;https://github.com/web-platform-tests/wpt/blob/master/fullscreen/api/historical.html&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; WPTs testing the new API:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/tree/master/fullscreen/api"&gt;https://github.com/web-platform-tests/wpt/tree/master/fullscreen/api&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Flag name on chrome://flags
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Finch feature name
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; PrefixedVideoFullscreen
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Non-finch justification
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Requires code in //chrome?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; False
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Launch bug
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Estimated milestones
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; DevTrial on desktop
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; 123
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; DevTrial on Android
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; 123
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5259513871466496"&gt;https://chromestatus.com/feature/5259513871466496&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+unsubscr...@chromium.org.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABrVPoa373%3Dnxuc%2BTe_h9e0WdS53_oAyUEa%2B4j0v2xWgJ2MFcw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABrVPoa373%3Dnxuc%2BTe_h9e0WdS53_oAyUEa%2B4j0v2xWgJ2MFcw%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABrVPoa373%3Dnxuc%2BTe_h9e0WdS53_oAyUEa%2B4j0v2xWgJ2MFcw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABrVPoa373%3Dnxuc%2BTe_h9e0WdS53_oAyUEa%2B4j0v2xWgJ2MFcw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABrVPoYM-4J0JKLRL4AkScjcMUsyZng06TVXx9N1wZTgNv9uHA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABrVPoYM-4J0JKLRL4AkScjcMUsyZng06TVXx9N1wZTgNv9uHA%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09019.html</id>
-        <title>Re: [blink-dev] Intent to Prototype: Call stacks in crash reports from unresponsive web pages</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09019.html"/>
-        <updated>2024-01-24T20:59:05.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09019.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Prototype%5C%3A+Call+stacks+in+crash+reports+from+unresponsive+web+pages%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Prototype: Call stacks in crash reports from unresponsive web pages&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Rick+Byers%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Rick Byers&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240124" rel="nofollow"&gt;Wed, 24 Jan 2024 12:59:05 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Not to distract from Dave's good technical questions. But I just wanted to
-say that I'm quite excited about this work - I think it's an important
-capability for any serious platform to have that app developers can get
-actionable crash and hang reports, and this has been a gap. Thank you for
-working on it! Don't hesitate to reach out if I can help unblock progress
-in any way.&lt;/pre&gt;&lt;pre&gt;
-
-What you have listed as a spec is more of a design doc so you'll eventually
-need a formal spec. But the reporting spec editor @Ian Clelland
-&amp;lt;iclell...@chromium.org&amp;gt; mentioned over breakfast to me today that he was
-helping to support this work, so that's great to hear.
-
-Dave's question about extensions in the main thread and privacy
-implications is a good one. My initial personal take is that we probably
-shouldn't report from extension isolated worlds, but when an extension
-injects script into the main world, I think I can argue that they're
-explicitly informing the site developer about their presence. In practice I
-believe sites can detect such extensions already if suitably motivated (eg.
-hook into the prototype of various APIs and identify their calling patterns
-or look at JS exception stack traces). I can see an argument for not giving
-sites easy access to such information in real-time and wonder if this has
-come up already for the self-profiling API proposal
-&amp;lt;&lt;a  rel="nofollow" href="https://wicg.github.io/js-self-profiling/"&gt;https://wicg.github.io/js-self-profiling/&lt;/a&gt;&amp;gt;? But for an asynchronous crash
-report sent only after the page has been shut down, I personally don't
-think it's a threat we should be trying to defend against. I'd go even
-further and say that if a site is hanging or crashing only under the
-presence of extension-injected code in the main world, then that's critical
-information for the site owner to know from a customer support perspective.
-
-Rick
-
-On Wed, Jan 24, 2024 at 3:10 PM Dave Tapuska &amp;lt;dtapu...@chromium.org&amp;gt; wrote:
-
-&amp;gt; Just a few thoughts...
-&amp;gt;
-&amp;gt; I haven't seen a proposed implementation but I presume you are going to
-&amp;gt; restrict this only to execution stacks in the main world?
-&amp;gt; If you get an extension executing scripts in the main world how will you
-&amp;gt; prevent the endpoint from knowing about the agent's execution
-&amp;gt; environment such as what extensions they have installed?
-&amp;gt; How do you know from the IO thread what the main thread isolate is?
-&amp;gt; (blink::MainThreadIsolate is deprecated, please don't use it).
-&amp;gt; How do document policies work across same origin documents? What realms
-&amp;gt; are you checking that the policy applies, do you walk the stack looking at
-&amp;gt; realms and checking if the policies apply? Or is it the current realm or
-&amp;gt; incumbent realm or what?
-&amp;gt;
-&amp;gt; dave.
-&amp;gt;
-&amp;gt; On Wed, Jan 24, 2024 at 12:47 PM 'Issack John' via blink-dev &amp;lt;
-&amp;gt; blink-dev@chromium.org&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; Contact emails
-&amp;gt;&amp;gt; issackj...@microsoft.com, seth.bren...@microsoft.com
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Explainer
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/crash-reporting/issues/12"&gt;https://github.com/WICG/crash-reporting/issues/12&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Specification
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://docs.google.com/document/d/19DpvHIiYbmB9wgIP0BdI4vOnfVLcAZFmfIAml7SqRQA/edit?usp=sharing"&gt;https://docs.google.com/document/d/19DpvHIiYbmB9wgIP0BdI4vOnfVLcAZFmfIAml7SqRQA/edit?usp=sharing&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Summary
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; This feature captures the JS call stack when a web page becomes
-&amp;gt;&amp;gt; unresponsive due to JavaScript code running an infinite loop or other very
-&amp;gt;&amp;gt; long computation. This helps developers to identify the cause of the
-&amp;gt;&amp;gt; unresponsiveness and fix it more easily. The JS call stack is included in
-&amp;gt;&amp;gt; the crash reporting API when the reason is unresponsive.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Blink component
-&amp;gt;&amp;gt; Blink&amp;gt;ReportingObserver
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EReportingObserver"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EReportingObserver&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Motivation
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; When a web page becomes unresponsive, it's often because of JavaScript
-&amp;gt;&amp;gt; code which is busy running an infinite loop or other very long computation.
-&amp;gt;&amp;gt; When a developer receives a report from the crash reporting API, and the
-&amp;gt;&amp;gt; reason is unresponsive, it would be very helpful to include the JS call
-&amp;gt;&amp;gt; stack from when the page was deemed unresponsive. This would let the
-&amp;gt;&amp;gt; website developer more easily find the find and fix the problem. What
-&amp;gt;&amp;gt; happens instead? The page reports that it was terminated due to being
-&amp;gt;&amp;gt; unresponsive, but the developer of the page has no further information
-&amp;gt;&amp;gt; about how to fix the problem.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Initial public proposal
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1445539"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1445539&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; TAG review
-&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; TAG review status
-&amp;gt;&amp;gt; Pending
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Risks
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Interoperability and Compatibility
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Gecko*: No signal
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *WebKit*: No signal
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Web developers*: No signals
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Other signals*:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; WebView application risks
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; *Does this intent deprecate or change behavior of existing APIs, such
-&amp;gt;&amp;gt; that it has potentially high risk for Android WebView-based applications?*
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Debuggability
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; ?
-&amp;gt;&amp;gt; No
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Flag name on chrome://flags
-&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Finch feature name
-&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Non-finch justification
-&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Requires code in //chrome?
-&amp;gt;&amp;gt; False
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Tracking bug
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1445539"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1445539&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Estimated milestones
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; No milestones specified
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/4731248572628992"&gt;https://chromestatus.com/feature/4731248572628992&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt;&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt;&amp;gt; To view this discussion on the web visit
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/MW2PPF6784DDB763E2DA7BFC75AE51613ABC27B2%40MW2PPF6784DDB76.namprd00.prod.outlook.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/MW2PPF6784DDB763E2DA7BFC75AE51613ABC27B2%40MW2PPF6784DDB76.namprd00.prod.outlook.com&lt;/a&gt;
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/MW2PPF6784DDB763E2DA7BFC75AE51613ABC27B2%40MW2PPF6784DDB76.namprd00.prod.outlook.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/MW2PPF6784DDB763E2DA7BFC75AE51613ABC27B2%40MW2PPF6784DDB76.namprd00.prod.outlook.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;
-&amp;gt; --
-&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt; To view this discussion on the web visit
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAHgVhZUui22mB-J5SAEmEd%3DCk%2BrcyRSr4tGASLGFcsvRn9QVOQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAHgVhZUui22mB-J5SAEmEd%3DCk%2BrcyRSr4tGASLGFcsvRn9QVOQ%40mail.gmail.com&lt;/a&gt;
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAHgVhZUui22mB-J5SAEmEd%3DCk%2BrcyRSr4tGASLGFcsvRn9QVOQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAHgVhZUui22mB-J5SAEmEd%3DCk%2BrcyRSr4tGASLGFcsvRn9QVOQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt; .
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY_LQuaFsJXuQvBnwrJUjQeHnsya6QENTVVW9mkkrO26OA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAFUtAY_LQuaFsJXuQvBnwrJUjQeHnsya6QENTVVW9mkkrO26OA%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09018.html</id>
-        <title>[blink-dev] Web-facing PSA: Allow setting IDP login status from same-site subresources</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09018.html"/>
-        <updated>2024-01-24T20:40:04.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09018.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Web%5C-facing+PSA%5C%3A+Allow+setting+IDP+login+status+from+same%5C-site+subresources%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Web-facing PSA: Allow setting IDP login status from same-site subresources&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Christian+Biesinger%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Christian Biesinger&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240124" rel="nofollow"&gt;Wed, 24 Jan 2024 12:40:04 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;We have recently shipped &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5177628008382464"&gt;https://chromestatus.com/feature/5177628008382464&lt;/a&gt;&amp;gt;
-the login status API to let identity providers (IdPs) (and, technically,
-other websites) tell Chrome when a user is logging in to or logging out
-from the website.&lt;/pre&gt;&lt;pre&gt;
-
-We previously only allowed setting the login status on toplevel loads or
-for subresources which are same-origin with all their ancestors, both when
-using the JavaScript API and when using the HTTP header.
-
-As described here &amp;lt;&lt;a  rel="nofollow" href="https://github.com/fedidcg/FedCM/issues/537"&gt;https://github.com/fedidcg/FedCM/issues/537&lt;/a&gt;&amp;gt;, we now
-also allow same-site (same eTLD+1) subresources to set a login status (for
-the origin of the subresource). This is useful for IdPs where the IdP login
-happens on one subdomain, but the FedCM endpoint is on a different
-subdomain. To make sure that FedCM works correctly, the login status needs
-to be set on the FedCM subdomain.
-
-The change has been approved by the Chrome Web Platform security and
-privacy teams and will ship in Chrome 122.
-
-Spec change: &lt;a  rel="nofollow" href="https://github.com/fedidcg/FedCM/pull/538"&gt;https://github.com/fedidcg/FedCM/pull/538&lt;/a&gt;
-
-WPT tests added in
-&lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/5207174"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/5207174&lt;/a&gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPTJ0XHOLmKkgNtmySMj65%3D%3DAJ8HwkWkHHuarC_n2EcahYycAg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPTJ0XHOLmKkgNtmySMj65%3D%3DAJ8HwkWkHHuarC_n2EcahYycAg%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09017.html</id>
-        <title>Re: [blink-dev] Re: Intent to Ship: New ALPS code point</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09017.html"/>
-        <updated>2024-01-24T20:34:50.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09017.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Ship%5C%3A+New+ALPS+code+point%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Re: Intent to Ship: New ALPS code point&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Victor+Tan%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Victor Tan&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240124" rel="nofollow"&gt;Wed, 24 Jan 2024 12:34:50 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;create a PR for the code point change on the RFC draft, will work on 
-there: &lt;a  rel="nofollow" href="https://github.com/vasilvv/tls-alps/pull/15"&gt;https://github.com/vasilvv/tls-alps/pull/15&lt;/a&gt;, thanks. &lt;/pre&gt;&lt;pre&gt;
-
-On Wednesday, January 24, 2024 at 1:55:56 PM UTC-5 Erik Anderson wrote:
-
-&amp;gt; Thanks, it will be helpful to make sure this is documented outside of 
-&amp;gt; Chromium. I will also chat with some folks on Microsoft’s end that both own 
-&amp;gt; server implementations and have more IETF experience to explore how we can 
-&amp;gt; help with moving things forward.
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt; *From:* Victor Tan &amp;lt;victor...@chromium.org&amp;gt; 
-&amp;gt; *Sent:* Wednesday, January 24, 2024 9:00 AM
-&amp;gt; *To:* blink-dev &amp;lt;blink-dev@chromium.org&amp;gt;
-&amp;gt; *Cc:* Yoav Weiss &amp;lt;yoavwe...@chromium.org&amp;gt;; blink-dev &amp;lt;
-&amp;gt; blink-dev@chromium.org&amp;gt;; Erik Anderson &amp;lt;erik.ander...@microsoft.com&amp;gt;; 
-&amp;gt; Chris Harrelson &amp;lt;chris...@chromium.org&amp;gt;; David Benjamin &amp;lt;
-&amp;gt; david...@chromium.org&amp;gt;; Mike Taylor &amp;lt;miketa...@chromium.org&amp;gt;; Victor Tan &amp;lt;
-&amp;gt; victor...@chromium.org&amp;gt;; Rick Byers &amp;lt;rby...@chromium.org&amp;gt;
-&amp;gt; *Subject:* Re: [blink-dev] Re: Intent to Ship: New ALPS code point
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt; You don't often get email from victor...@chromium.org. Learn why this is 
-&amp;gt; important &amp;lt;&lt;a  rel="nofollow" href="https://aka.ms/LearnAboutSenderIdentification"&gt;https://aka.ms/LearnAboutSenderIdentification&lt;/a&gt;&amp;gt;
-&amp;gt;
-&amp;gt; Rick, thanks for question, I will create a PR on the ALPS RFC draft to 
-&amp;gt; document the new code point regarding the early experiment. 
-&amp;gt;
-&amp;gt; On Wednesday, January 24, 2024 at 11:15:39 AM UTC-5 Yoav Weiss wrote:
-&amp;gt;
-&amp;gt; On Wed, Jan 24, 2024 at 4:48 PM Rick Byers &amp;lt;rby...@chromium.org&amp;gt; wrote:
-&amp;gt;
-&amp;gt; Oof, I agree it's not good that the only documentation for the actual code 
-&amp;gt; point value is in Chromium code - that's the sort of thing our blink I2S 
-&amp;gt; process is supposed to prevent. In addition to confusion, there's also 
-&amp;gt; potential IP-risk downsides to this. Our blink process is generally to 
-&amp;gt; block shipping on the existence of some specification for everything 
-&amp;gt; necessary for a compatible implementation in a forum that ensures IP 
-&amp;gt; protection. While this isn't typically an adoption barrier for many 
-&amp;gt; companies, I know it has been in the past for some (including Microsoft). 
-&amp;gt; This doesn't mean we have to block on getting consensus in the &amp;quot;right&amp;quot; 
-&amp;gt; standards venue, we can just do a monkey-patch spec in a venue like the 
-&amp;gt; WICG, or an unlanded PR in a formal WG where the PR counts as an IP 
-&amp;gt; contribution. Then we can ship it as an &amp;quot;incubation&amp;quot; while doing the 
-&amp;gt; standards maturation work in parallel. Erik, can you comment on the extent 
-&amp;gt; to which such incubation spec work would help with Microsoft adoption?
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt; Victor, is there any chance you can throw something together quickly (spec 
-&amp;gt; PR or monkey-patch) that would cover the gaps in what's necessary for 
-&amp;gt; compatible implementations? This particular delta seems very tiny and 
-&amp;gt; straightforward to me, so I was originally thinking I'd just approve it. 
-&amp;gt; But in principle I don't think we should be continuing to approve changes 
-&amp;gt; to APIs which we realize are struggling with adoption due to the standards 
-&amp;gt; work not quite being up to our I2S bar.
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt; +1 to defining these codepoints somewhere. Where are such codepoints 
-&amp;gt; typically defined? I'd have assumed they'd go into one of the relevant 
-&amp;gt; I-Ds..
-&amp;gt;
-&amp;gt;   
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt; Erik, thank you for your offer of help on the standardization front! It 
-&amp;gt; definitely sounds to me like we should be pushing on the full standards 
-&amp;gt; effort in parallel to this specific intent. Having Microsoft and Google 
-&amp;gt; work together on that would hopefully be able to accelerate it.
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt; Rick
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt; On Tue, Jan 23, 2024 at 11:40 AM 'Victor Tan' via blink-dev &amp;lt;
-&amp;gt; blink-dev@chromium.org&amp;gt; wrote:
-&amp;gt;
-&amp;gt; To be clarify,  currently David is not working on the standardizing ALPS 
-&amp;gt; feature.   
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt; On Tuesday, January 23, 2024 at 11:27:41 AM UTC-5 Victor Tan wrote:
-&amp;gt;
-&amp;gt; Hi Erik, 
-&amp;gt;
-&amp;gt; We are actively working on it, but we need to put more efforts to 
-&amp;gt; standardization. 
-&amp;gt;
-&amp;gt; In the last serval IETF, David is the only person is talking about the 
-&amp;gt; ALPS feature.  We'd glad to combine more efforts to move it forward to 
-&amp;gt; standardization.
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt; Bests,
-&amp;gt;
-&amp;gt; Victor 
-&amp;gt;
-&amp;gt; On Monday, January 22, 2024 at 5:24:25 PM UTC-5 Erik Anderson wrote:
-&amp;gt;
-&amp;gt; Is the ALPS draft being actively worked on?
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt; Various teams at Microsoft that own web sites leveraging client hints have 
-&amp;gt; expressed interest in using it, but the lack of a finalized standard has 
-&amp;gt; significantly slowed conversations with the teams that own the server code 
-&amp;gt; that would need to add support first.
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt; Are you looking for help in moving standardization forward?
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt; *From:* Yoav Weiss (@Shopify) &amp;lt;yoav...@chromium.org&amp;gt; 
-&amp;gt; *Sent:* Monday, January 22, 2024 7:39 AM
-&amp;gt; *To:* Victor Tan &amp;lt;vict...@chromium.org&amp;gt;
-&amp;gt; *Cc:* blink-dev &amp;lt;blin...@chromium.org&amp;gt;; Chris Harrelson &amp;lt;
-&amp;gt; chri...@chromium.org&amp;gt;; David Benjamin &amp;lt;davi...@chromium.org&amp;gt;; Mike Taylor 
-&amp;gt; &amp;lt;mike...@chromium.org&amp;gt;
-&amp;gt; *Subject:* Re: [blink-dev] Re: Intent to Ship: New ALPS code point
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt; Is the old code point defined somewhere? Would it be possible to add such 
-&amp;gt; a definition to one of the I-Ds? Or is this something that's not 
-&amp;gt; traditionally defined in IETF drafts?
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt; On Mon, Jan 22, 2024 at 4:03 PM Victor Tan &amp;lt;vict...@chromium.org&amp;gt; wrote:
-&amp;gt;
-&amp;gt; Currently, It's on the code: 
-&amp;gt; &lt;a  rel="nofollow" href="https://boringssl.googlesource.com/boringssl/+/master/include/openssl/tls1.h?pli=1#247"&gt;https://boringssl.googlesource.com/boringssl/+/master/include/openssl/tls1.h?pli=1#247&lt;/a&gt;
-&amp;gt;
-&amp;gt; Once we standardize the ALPS RFC draft, we can finalize the value.  Hope 
-&amp;gt; this helps. 
-&amp;gt;
-&amp;gt; On Saturday, January 20, 2024 at 7:50:46 PM UTC-5 Chris Harrelson wrote:
-&amp;gt;
-&amp;gt; Thanks for clarifying. Last question: where in the specifications is the 
-&amp;gt; new 17613 code point documented?
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt; On Fri, Jan 19, 2024 at 12:59 PM Mike Taylor &amp;lt;mike...@chromium.org&amp;gt; wrote:
-&amp;gt;
-&amp;gt; In our OWNERS meeting this week, there was some confusion on what's being 
-&amp;gt; proposed here (which is understandable, this isn't quite a typical intent 
-&amp;gt; for web exposed feature). Here's a summary of what we're trying to 
-&amp;gt; accomplish:
-&amp;gt;
-&amp;gt; 1) We shipped support for the ACCEPT_CH frame over h2 and h3 back in M96, 
-&amp;gt; which relies on the TLS ALPS protocol extension.
-&amp;gt; 2) There are 2 parts to this: the client being able to understand 
-&amp;gt; ALPS/ACCEPT_CH (and in return do something useful), and the server being 
-&amp;gt; able to send it.
-&amp;gt; 3) Because of a (long fixed) bug present in Chromium's implementation, 
-&amp;gt; it's risky for a server to send too much data via ACCEPT_CH, so it's 
-&amp;gt; usefulness is potentially limited.
-&amp;gt; 4) In order to guarantee that older clients don't have this bug, we 
-&amp;gt; propose to rev the version (aka, code point) at the protocol layer. This 
-&amp;gt; way, if a server sends the new code point and the client understands it, it 
-&amp;gt; can send a larger payload without triggering the bug (which may result in 
-&amp;gt; sad things like a connection being refused).
-&amp;gt; 5) This is sort of web observable, but right now if servers that support 
-&amp;gt; the old code point continue to send the old code point - nothing will 
-&amp;gt; break. Chromium will support both for now, with hopes to deprecate and 
-&amp;gt; remove the older one in the future when we're confident it won't result in 
-&amp;gt; performance regressions for servers sending ACCEPT_CH (since this is a 
-&amp;gt; performance optimization).
-&amp;gt;
-&amp;gt; I hope that helps clear it up, and I'm sure Victor or David will chime in 
-&amp;gt; if I'm getting something wrong. :)
-&amp;gt;
-&amp;gt; And to be clear - this isn't a request for a deprecation or removal (yet), 
-&amp;gt; but for shipping the new code point.
-&amp;gt;
-&amp;gt; On 1/17/24 11:16 AM, Victor Tan wrote:
-&amp;gt;
-&amp;gt; If the server received the new code point, while it doesn't support, the 
-&amp;gt; ALPS extension will ignore. This also mean client might not know the 
-&amp;gt; server's client hints preferences before the first request. Currently, only 
-&amp;gt; few sites using the ALPS extension.  As TLS extension is negotiated, the 
-&amp;gt; server need to support both code points during the transition period, after 
-&amp;gt; some time, the server can drop the old one.  
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt; On Wednesday, January 17, 2024 at 11:00:13 AM UTC-5 Yoav Weiss wrote:
-&amp;gt;
-&amp;gt; On Saturday, January 13, 2024 at 12:08:33 AM UTC+1 Victor Tan wrote:
-&amp;gt;
-&amp;gt; *Contact emails* 
-&amp;gt;
-&amp;gt; vict...@chromium.org, mike...@chromium.org, davi...@chromium.org
-&amp;gt;
-&amp;gt;
-&amp;gt; *Explainer* 
-&amp;gt;
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/client-hints-infrastructure/blob/main/reliability.md"&gt;https://github.com/WICG/client-hints-infrastructure/blob/main/reliability.md&lt;/a&gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt;
-&amp;gt; *Specification* 
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://tools.ietf.org/html/draft-davidben-http-client-hint-reliability"&gt;https://tools.ietf.org/html/draft-davidben-http-client-hint-reliability&lt;/a&gt;  
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://tools.ietf.org/html/draft-vvv-httpbis-alps"&gt;https://tools.ietf.org/html/draft-vvv-httpbis-alps&lt;/a&gt; 
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://tools.ietf.org/html/draft-vvv-tls-alps"&gt;https://tools.ietf.org/html/draft-vvv-tls-alps&lt;/a&gt;    
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt; *Summary* 
-&amp;gt;
-&amp;gt; Shipping a new code point (17613) for TLS ALPS extension to allow adding 
-&amp;gt; more data in the ACCEPT_CH HTTP/2 and HTTP/3 frame. The ACCEPT_CH HTTP/2 
-&amp;gt; frame with the existing TLS ALPS extension code point (17513) had an 
-&amp;gt; arithmetic overflow bug &amp;lt;&lt;a  rel="nofollow" href="https://crbug.com/1292069"&gt;https://crbug.com/1292069&lt;/a&gt;&amp;gt; in the Chrome ALPS 
-&amp;gt; decoder. It limits the capability to add more than 128 bytes data (in 
-&amp;gt; theory, the problem range is 128 bytes to 255 bytes) to the ACCEPT_CH 
-&amp;gt; frame. With the new ALPS code point, we can fully mitigate the issue.
-&amp;gt;
-&amp;gt;
-&amp;gt; *Blink component* 
-&amp;gt;
-&amp;gt; Blink&amp;gt;Network&amp;gt;ClientHints 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component%3ABlink%3ENetwork%3EClientHints%2C&amp;can=2"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component%3ABlink%3ENetwork%3EClientHints%2C&amp;can=2&lt;/a&gt;&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; *TAG review* 
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/549"&gt;https://github.com/w3ctag/design-reviews/issues/549&lt;/a&gt; 
-&amp;gt;
-&amp;gt;
-&amp;gt; *TAG review status* 
-&amp;gt;
-&amp;gt; Closed
-&amp;gt;
-&amp;gt;
-&amp;gt; *Risks*
-&amp;gt; *Interoperability and Compatibility* 
-&amp;gt;
-&amp;gt; This is switching to a new code point for the TLS ALPS extension. It won’t 
-&amp;gt; change the design of ALPS and ACCEPT_CH mechanism implementation.  The main 
-&amp;gt; source of compatibility risk is that it causes conflicts with ALPS 
-&amp;gt; negotiation since some clients could still use the old code point while 
-&amp;gt; others are switching to use the new code point.  The ALPS extension could 
-&amp;gt; be ignored if the code point doesn’t match during negotiation, which means 
-&amp;gt; the server's client hints preferences won’t be delivered in the ACCEPT_CH 
-&amp;gt; HTTP/2 and HTTP/3 frame.  We mitigate this by enabling servers to support 
-&amp;gt; both code points, monitoring both code points usage and removing the old 
-&amp;gt; ALPS code point support in a future intent once the usage is low enough. We 
-&amp;gt; also split the rollout into two phases: we first start to enable the new 
-&amp;gt; ALPS code point for ACCEPT_CH  with HTTP/3 frame in a slow rollout, and 
-&amp;gt; then eventually enable the new code point with HTTP/2 frame.
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt; Does the server have an indication if the client in question supports the 
-&amp;gt; newer code point?
-&amp;gt;
-&amp;gt; If not, what would we expect servers that support the newer code point to 
-&amp;gt; do?
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt; *Edge*: No signals
-&amp;gt;
-&amp;gt; *Firefox*: Pending 
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/510"&gt;https://github.com/mozilla/standards-positions/issues/510&lt;/a&gt;
-&amp;gt; *Safari*: Pending 
-&amp;gt; &lt;a  rel="nofollow" href="https://lists.webkit.org/pipermail/webkit-dev/2021-April/031768.html"&gt;https://lists.webkit.org/pipermail/webkit-dev/2021-April/031768.html&lt;/a&gt;
-&amp;gt;
-&amp;gt; *Web/Framework developers*: 
-&amp;gt; &lt;a  rel="nofollow" href="https://twitter.com/Sawtaytoes/status/1369031447940526080"&gt;https://twitter.com/Sawtaytoes/status/1369031447940526080&lt;/a&gt; 
-&amp;gt; &lt;a  rel="nofollow" href="https://twitter.com/_jayphelps/status/1369023028735148032"&gt;https://twitter.com/_jayphelps/status/1369023028735148032&lt;/a&gt;
-&amp;gt;
-&amp;gt;  
-&amp;gt;
-&amp;gt; *Activation*
-&amp;gt;
-&amp;gt; The site’s TLS and HTTP serving application would need to be updated to 
-&amp;gt; support this new code point. We aren’t aware of many sites using this 
-&amp;gt; feature yet, however.
-&amp;gt;
-&amp;gt;
-&amp;gt; *Debuggability* 
-&amp;gt;
-&amp;gt; No special DevTools support needed. The effects of the code point change 
-&amp;gt; of ACCEPT_CH frame will be visible in the DevTools’ network tab. Also, the 
-&amp;gt; NetLog will record the ACCEPT_CH frame value if TLS ALPS extension is 
-&amp;gt; negotiated successfully. 
-&amp;gt;
-&amp;gt;
-&amp;gt; *Will this feature be supported on all six Blink platforms (Windows, Mac, 
-&amp;gt; Linux, Chrome OS, Android, and Android WebView)?* 
-&amp;gt;
-&amp;gt; Yes
-&amp;gt;
-&amp;gt;
-&amp;gt; *Is this feature fully tested by **web-platform-tests* 
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt; *?* 
-&amp;gt;
-&amp;gt; No, this feature is tested with browser-side tests. We can’t test 
-&amp;gt; TLS-adjacent features currently through web-platform-tests. See this issue: 
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/issues/20159"&gt;https://github.com/web-platform-tests/wpt/issues/20159&lt;/a&gt;   
-&amp;gt;
-&amp;gt;
-&amp;gt; *Flag name* 
-&amp;gt;
-&amp;gt; UseNewAlpsCodepointHttp2
-&amp;gt;
-&amp;gt; UseNewAlpsCodepointQUIC
-&amp;gt;
-&amp;gt;
-&amp;gt; *Tracking bug* 
-&amp;gt;
-&amp;gt; b/289087287 
-&amp;gt;
-&amp;gt;
-&amp;gt; *Launch bug* 
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://launch.corp.google.com/launch/4299022"&gt;https://launch.corp.google.com/launch/4299022&lt;/a&gt; 
-&amp;gt;
-&amp;gt;
-&amp;gt; *Link to entry on the Chrome Platform Status*
-&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5149147365900288"&gt;https://chromestatus.com/feature/5149147365900288&lt;/a&gt; 
-&amp;gt;
-&amp;gt; -- 
-&amp;gt;
-&amp;gt; You received this message because you are subscribed to the Google Groups 
-&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an 
-&amp;gt; email to blink-dev+...@chromium.org.
-&amp;gt;
-&amp;gt; To view this discussion on the web visit 
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/c704d985-a5cc-4e5e-99b0-1f78cc4428e6%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/c704d985-a5cc-4e5e-99b0-1f78cc4428e6%40chromium.org&lt;/a&gt;
-&amp;gt;  
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/c704d985-a5cc-4e5e-99b0-1f78cc4428e6%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/c704d985-a5cc-4e5e-99b0-1f78cc4428e6%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt; .
-&amp;gt;
-&amp;gt; -- 
-&amp;gt; You received this message because you are subscribed to the Google Groups 
-&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an 
-&amp;gt; email to blink-dev+...@chromium.org.
-&amp;gt;
-&amp;gt; To view this discussion on the web visit 
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOmohSJQu%2BjtN9hQ302XVW1_Y1b8BUYQUDr4ujMavPU1vU7%2Bzw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOmohSJQu%2BjtN9hQ302XVW1_Y1b8BUYQUDr4ujMavPU1vU7%2Bzw%40mail.gmail.com&lt;/a&gt;
-&amp;gt;  
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOmohSJQu%2BjtN9hQ302XVW1_Y1b8BUYQUDr4ujMavPU1vU7%2Bzw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOmohSJQu%2BjtN9hQ302XVW1_Y1b8BUYQUDr4ujMavPU1vU7%2Bzw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt; .
-&amp;gt;
-&amp;gt; -- 
-&amp;gt; You received this message because you are subscribed to the Google Groups 
-&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an 
-&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt; To view this discussion on the web visit 
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/fbfcefbb-637e-428b-9ca2-3c879e2af1e2n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/fbfcefbb-637e-428b-9ca2-3c879e2af1e2n%40chromium.org&lt;/a&gt;
-&amp;gt;  
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/fbfcefbb-637e-428b-9ca2-3c879e2af1e2n%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/fbfcefbb-637e-428b-9ca2-3c879e2af1e2n%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt; .
-&amp;gt;
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/b0d8c0fd-5e46-4f2c-b594-f83dc4a36bbdn%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/b0d8c0fd-5e46-4f2c-b594-f83dc4a36bbdn%40chromium.org&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
