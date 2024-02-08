@@ -5,6 +5,233 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09190.html</id>
+        <title>[blink-dev] Intent to Prototype: CSS line-clamp property</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09190.html"/>
+        <updated>2024-02-08T17:47:48.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09190.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Prototype%5C%3A+CSS+line%5C-clamp+property%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Prototype: CSS line-clamp property&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Andreu+Botella%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Andreu Botella&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240208" rel="nofollow"&gt;Thu, 08 Feb 2024 09:47:48 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Contact emails
+abote...@igalia.com
+
+Explainer
+&lt;a  rel="nofollow" href="https://github.com/Igalia/explainers/blob/main/css/line-clamp/README.md"&gt;https://github.com/Igalia/explainers/blob/main/css/line-clamp/README.md&lt;/a&gt;&lt;/pre&gt;&lt;pre&gt;
+
+Specification
+None. CSS Overflow Module Level 4 defines a version of the line-clamp 
+property (&lt;a  rel="nofollow" href="https://drafts.csswg.org/css-overflow-4/#line-clamp"&gt;https://drafts.csswg.org/css-overflow-4/#line-clamp&lt;/a&gt;), but that is 
+a different version that we are proposing to prototype. See the explainer 
+and the initial public proposal link for more details.
+
+Summary
+
+Allows clamping a block element to have at most a specific number of text 
+lines, or to have as many lines as will fit in a certain height, showing an 
+ellipsis at the end of the last line. This allows showing a small preview 
+of a longer text, purely in CSS, in a simpler way than was previously 
+possible.
+
+
+Blink component
+Blink&amp;gt;Layout 
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ELayout"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ELayout&lt;/a&gt;&amp;gt;
+
+Motivation
+
+The functionality to clamp a block element to a number of lines and show an 
+ellipsis at the end was previously already available through the 
+-webkit-line-clamp property. This property, however, has a number of 
+shortcomings. For instance, it relies on two other deprecated properties 
+for it to work (display: -webkit-box and -webkit-box-orient: vertical), it 
+requires overflow: hidden to be present so the clamped lines would be 
+hidden, and it also only allows clamping based on a number of lines, not a 
+height. The existing -webkit-line-clamp property seems to be a pain point 
+for web developers (see this blog post 
+&amp;lt;&lt;a  rel="nofollow" href="https://medium.com/mofed/css-line-clamp-the-good-the-bad-and-the-straight-up-broken-865413f16e5"&gt;https://medium.com/mofed/css-line-clamp-the-good-the-bad-and-the-straight-up-broken-865413f16e5&lt;/a&gt;&amp;gt;,
+ 
+for example), and a Chrome use counter shows that its uses without the 
+other properties that are needed for it to work are at 3-4% 
+&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/metrics/feature/timeline/popularity/3327"&gt;https://chromestatus.com/metrics/feature/timeline/popularity/3327&lt;/a&gt;&amp;gt;, 
+showing significant misuse in the wild. Given this, it makes sense to 
+implement a version without these fallbacks.
+
+
+Initial public proposal
+&lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/7708"&gt;https://github.com/w3c/csswg-drafts/issues/7708&lt;/a&gt;
+
+TAG review
+None
+
+TAG review status
+Pending
+
+Risks
+
+
+Interoperability and Compatibility
+
+This feature would change the behavior of the prefixed -webkit-line-clamp 
+property to be based on the implementation of line-clamp. This prefixed 
+property only works in the presence of the properties display: -webkit-box 
+and -webkit-box-orient: vertical, and this will not change (as that change 
+would be web incompatible). However, the requirement of needing overflow: 
+hidden would be lifted. We plan to use this prototyping stage to make sure 
+this does not break sites.
+
+
+Additionally, there is an ongoing discussion in the CSS Working Group on 
+whether line-clamp should be implemented based on hiding lines from paint 
+(“the collapse variant”), or based on fragmentation (“the discard 
+variant”). The CSS Overflow Level 4 spec defines only the discard variant, 
+and while Blink could implement it with LayoutNG, other browser engines 
+will not be able to do so without a similar rearchitecturing effort. That 
+is why we are planning to prototype the collapse variant.
+
+*Gecko*: Was positive on the collapse variant on the CSSWG issue proposing 
+it (&lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/7708"&gt;https://github.com/w3c/csswg-drafts/issues/7708&lt;/a&gt;). Other than that, no 
+signal yet (&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/984"&gt;https://github.com/mozilla/standards-positions/issues/984&lt;/a&gt;).
+
+*WebKit*: No signal yet (
+&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/316"&gt;https://github.com/WebKit/standards-positions/issues/316&lt;/a&gt;).
+
+*Web developers*: No signals
+
+*Other signals*:
+
+WebView application risks
+
+Does this intent deprecate or change behavior of existing APIs, such that 
+it has potentially high risk for Android WebView-based applications?
+
+None
+
+
+Debuggability
+
+None
+
+
+Is this feature fully tested by web-platform-tests 
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+?
+No
+
+Flag name on chrome://flags
+None
+
+Finch feature name
+None
+
+Non-finch justification
+None
+
+Requires code in //chrome?
+False
+
+Estimated milestones
+
+No milestones specified
+
+
+Link to entry on the Chrome Platform Status
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/4885575595458560"&gt;https://chromestatus.com/feature/4885575595458560&lt;/a&gt;
+
+This intent message was generated by Chrome Platform Status 
+&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/330d100b-ac9a-49c7-b4e1-fb5f1cd3e35cn%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/330d100b-ac9a-49c7-b4e1-fb5f1cd3e35cn%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09189.html</id>
+        <title>Re: [blink-dev] Intent to Deprecate And Remove: fetches for script tags with invalid type/language attributes</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09189.html"/>
+        <updated>2024-02-08T17:32:35.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09189.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Deprecate+And+Remove%5C%3A+fetches+for+script+tags+with+invalid+type%5C%2Flanguage+attributes%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Deprecate And Remove: fetches for script tags with invalid type/language attributes&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%D9%85%D8%AD%D9%85%D8%AF%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;محمد&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240208" rel="nofollow"&gt;Thu, 08 Feb 2024 09:32:35 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;
+The `as` values are defined as a Fetch destination. For scripts, the 
+required `as` value is &amp;quot;script&amp;quot;. For XHRs, it's currently the empty 
+destination (so either an empty `as` or a missing one results in an 
+XHR-like fetch).
+فاروش &amp;lt;&lt;a  rel="nofollow" href="https://faroush.com"&gt;https://faroush.com&lt;/a&gt;&amp;gt;
+On Friday, December 23, 2016 at 6:08:28 PM UTC+3:30 PhistucK wrote:&lt;/pre&gt;&lt;pre&gt;
+
+&amp;gt; Yes, I meant an as value for fetch/XMLHttpRequest, not the existence of 
+&amp;gt; the attribute itself in specifications. :)
+&amp;gt;
+&amp;gt;
+&amp;gt; ☆*PhistucK*
+&amp;gt;
+&amp;gt; On Fri, Dec 23, 2016 at 4:14 PM, Yoav Weiss &amp;lt;yo...@yoav.ws&amp;gt; wrote:
+&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; On Fri, Dec 23, 2016 at 10:07 AM PhistucK &amp;lt;phis...@gmail.com&amp;gt; wrote:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Right, thank you for the clarifications, I forgot about the 
+&amp;gt;&amp;gt;&amp;gt; XMLHttpRequest versus script fetch differences for a second.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; I actually search for an as value and could not find it, I guess it is 
+&amp;gt;&amp;gt;&amp;gt; not standardized yet.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; The `as` values are defined as a Fetch destination 
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://fetch.spec.whatwg.org/#concept-request-destination"&gt;https://fetch.spec.whatwg.org/#concept-request-destination&lt;/a&gt;&amp;gt;. For 
+&amp;gt;&amp;gt; scripts, the required `as` value is &amp;quot;script&amp;quot;. For XHRs, it's currently the 
+&amp;gt;&amp;gt; empty destination (so either an empty `as` or a missing one results in an 
+&amp;gt;&amp;gt; XHR-like fetch).
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; We're currently debating &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/preload/issues/80"&gt;https://github.com/w3c/preload/issues/80&lt;/a&gt;&amp;gt; if 
+&amp;gt;&amp;gt; that is the right thing to do, or it'd be better if XHRs/fetch() required 
+&amp;gt;&amp;gt; an explicit value.
+&amp;gt;&amp;gt;
+&amp;gt;
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/8fb92469-fc8b-4e8a-ad2e-167203650689n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/8fb92469-fc8b-4e8a-ad2e-167203650689n%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09188.html</id>
         <title>Re: [blink-dev] Intent to Prototype and Ship: Private network access checks for navigation requests: warning-only mode</title>
         <author>
@@ -12633,353 +12860,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAA6qSUBCNZrYjJA2qQR2EhedR_V70VmzSgTxvWrnZExu7Xmp-A%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAA6qSUBCNZrYjJA2qQR2EhedR_V70VmzSgTxvWrnZExu7Xmp-A%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09140.html</id>
-        <title>[blink-dev] Intent to Prototype: 'pageconceal' event</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09140.html"/>
-        <updated>2024-02-03T00:51:15.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09140.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Prototype%5C%3A+%27pageconceal%27+event%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Prototype: 'pageconceal' event&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Khushal+Sagar%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Khushal Sagar' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240202" rel="nofollow"&gt;Fri, 02 Feb 2024 16:51:15 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Contact emailskhushalsa...@chromium.org, nrosent...@chromium.org
-
-Explainer
-&lt;a  rel="nofollow" href="https://github.com/WICG/view-transitions/blob/main/cross-doc-explainer.md#pageconceal"&gt;https://github.com/WICG/view-transitions/blob/main/cross-doc-explainer.md#pageconceal&lt;/a&gt;&lt;/pre&gt;&lt;pre&gt;
-
-Specification&lt;a  rel="nofollow" href="https://github.com/whatwg/html/pull/10002"&gt;https://github.com/whatwg/html/pull/10002&lt;/a&gt;
-
-Summary
-
-The `pageconceal` event is fired on a Document's window object when a
-navigation will replace this Document with a new Document. The event
-provides activation info about the navigation (type, NavigationHistoryEntry
-for the new Document). If the navigation has a cross-document
-ViewTransition, the event is dispatched before capturing state for the old
-Document. This allows the page-author to configure the old state captured
-for the transition based on the navigation's activation info and the
-current visual state of the old Document. This feature is split out from
-the larger ViewTransition-on-Navigation project.
-
-
-Blink componentBlink&amp;gt;ViewTransitions
-&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EViewTransitions"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EViewTransitions&lt;/a&gt;&amp;gt;
-
-Motivation
-
-Cross-document ViewTransition need an event on the old Document so authors
-can set up view-transition-names (or any other DOM state) to influence how
-the Document is captured. This event needs to be fired: - After the final
-response is received which provides the post redirect URL committed by the
-navigation. - Before the last rendering opportunity for the Document (which
-draws the frame cached by the browser) that runs after the navigation is
-ready to commit. There is no existing event which aligns with the timing
-requirements above. See discussion on
-&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/9702"&gt;https://github.com/whatwg/html/issues/9702&lt;/a&gt; for details. The event fires for
-all cross-document navigation commits, with a nullable ViewTransition. This
-allows authors to detect whether a cross-document navigation had a
-transition.
-
-
-Initial public proposal&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/9702"&gt;https://github.com/whatwg/html/issues/9702&lt;/a&gt;
-
-TAG review
-&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/851#issuecomment-1924730258"&gt;https://github.com/w3ctag/design-reviews/issues/851#issuecomment-1924730258&lt;/a&gt;
-
-TAG review statusPending
-
-Risks
-
-
-Interoperability and Compatibility
-
-None
-
-
-*Gecko*: No signal (
-&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/969"&gt;https://github.com/mozilla/standards-positions/issues/969&lt;/a&gt;)
-
-*WebKit*: No signal (
-&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/313"&gt;https://github.com/WebKit/standards-positions/issues/313&lt;/a&gt;)
-
-*Web developers*: Strongly positive
-
-*Other signals*:
-
-WebView application risks
-
-Does this intent deprecate or change behavior of existing APIs, such that
-it has potentially high risk for Android WebView-based applications?
-
-None
-
-
-Debuggability
-
-None
-
-
-Is this feature fully tested by web-platform-tests
-&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-?No
-
-Flag name on chrome://flagsNone
-
-Finch feature nameNone
-
-Non-finch justificationNone
-
-Requires code in //chrome?False
-
-Estimated milestones
-
-No milestones specified
-
-
-Link to entry on the Chrome Platform Status
-&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5479301497749504"&gt;https://chromestatus.com/feature/5479301497749504&lt;/a&gt;
-
-This intent message was generated by Chrome Platform Status
-&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMLuWUyCjahhiLy_%2B3mXTfF9v8h0T7tuZRa2FujT1qn_%3DXfQpw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMLuWUyCjahhiLy_%2B3mXTfF9v8h0T7tuZRa2FujT1qn_%3DXfQpw%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09139.html</id>
-        <title>Re: [blink-dev] Intent to Ship: Support in Chrome for the VoiceIsolation getUserMedia constraint</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09139.html"/>
-        <updated>2024-02-02T23:15:16.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09139.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Support+in+Chrome+for+the+VoiceIsolation+getUserMedia+constraint%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Support in Chrome for the VoiceIsolation getUserMedia constraint&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Per+%C3%85hgren%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Per Åhgren&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240202" rel="nofollow"&gt;Fri, 02 Feb 2024 15:15:16 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;&amp;gt; TAG review status
-
-Issues addressed
-&amp;gt; This is somewhat at odds with the previous response. :) Did you intend to
-&amp;gt; link a TAG review and forget?
-&amp;gt;
-Sorry, my bad. I did not remove this from the template before sending it.
-The intention was not to add any issues and there is no TAG review to link.&lt;/pre&gt;&lt;pre&gt;
-
-Could we please request signals?
-
-Yes, signals have now been requested
-&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/982"&gt;https://github.com/mozilla/standards-positions/issues/982&lt;/a&gt;
-&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/314"&gt;https://github.com/WebKit/standards-positions/issues/314&lt;/a&gt;
-
-
-&amp;gt; I assume this was added because it would be useful for certain video and
-&amp;gt; voice web applications - are we aware of any signals from developers who
-&amp;gt; have asked for it, or given feedback? You mention specific partners below -
-&amp;gt; anything you can share?
-
-This has been requested by WebRTC developers, partly as a means for Web
-apps to achieve a clean microphone signal in ChromeOS but also
-to allow web apps to utilize voice-isolation effects on ChromeOS in an
-informed manner.
-
-
-
-
-On Fri, Jan 26, 2024 at 11:19 AM Mike Taylor &amp;lt;miketa...@chromium.org&amp;gt; wrote:
-
-&amp;gt; Hi Per,
-&amp;gt; On 1/26/24 8:27 AM, Per Åhgren wrote:
-&amp;gt;
-&amp;gt; Contact emails p...@chromium.org
-&amp;gt;
-&amp;gt; Explainer None
-&amp;gt;
-&amp;gt; Specification
-&amp;gt; &lt;a  rel="nofollow" href="https://w3c.github.io/mediacapture-extensions/#voiceisolation-constraint"&gt;https://w3c.github.io/mediacapture-extensions/#voiceisolation-constraint&lt;/a&gt;
-&amp;gt;
-&amp;gt; Summary
-&amp;gt;
-&amp;gt; This is about adding support in Chrome for the VoiceIsolation getUserMedia
-&amp;gt; constraint (
-&amp;gt; &lt;a  rel="nofollow" href="https://w3c.github.io/mediacapture-extensions/#voiceisolation-constraint"&gt;https://w3c.github.io/mediacapture-extensions/#voiceisolation-constraint&lt;/a&gt;).
-&amp;gt; The constraint only takes effect on platforms where there is low-level
-&amp;gt; support for voice-isolation style denoising. Currently this is limited to a
-&amp;gt; selected number of ChromeOS devices, but further platforms will be added.
-&amp;gt;
-&amp;gt;
-&amp;gt; Blink component Blink&amp;gt;WebRTC
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EWebRTC"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EWebRTC&lt;/a&gt;&amp;gt;
-&amp;gt;
-&amp;gt; TAG review None
-&amp;gt;
-&amp;gt; TAG review status Issues addressed
-&amp;gt;
-&amp;gt; This is somewhat at odds with the previous response. :) Did you intend to
-&amp;gt; link a TAG review and forget?
-&amp;gt;
-&amp;gt;
-&amp;gt; Risks
-&amp;gt;
-&amp;gt;
-&amp;gt; Interoperability and Compatibility
-&amp;gt;
-&amp;gt; None
-&amp;gt;
-&amp;gt;
-&amp;gt; *Gecko*: No signal
-&amp;gt;
-&amp;gt; *WebKit*: No signal
-&amp;gt;
-&amp;gt; Could we please request signals?
-&amp;gt;
-&amp;gt;
-&amp;gt; *Web developers*: No signals
-&amp;gt;
-&amp;gt; I assume this was added because it would be useful for certain video and
-&amp;gt; voice web applications - are we aware of any signals from developers who
-&amp;gt; have asked for it, or given feedback? You mention specific partners below -
-&amp;gt; anything you can share?
-&amp;gt;
-&amp;gt;
-&amp;gt; *Other signals*:
-&amp;gt;
-&amp;gt; Ergonomics
-&amp;gt;
-&amp;gt; This will not have any impact on the performance of Chrome as it control
-&amp;gt; system level effects, which already today are controllable at a system
-&amp;gt; level.
-&amp;gt;
-&amp;gt;
-&amp;gt; Activation
-&amp;gt;
-&amp;gt; No risks percieved.
-&amp;gt;
-&amp;gt;
-&amp;gt; Security
-&amp;gt;
-&amp;gt; No risks percieved.
-&amp;gt;
-&amp;gt;
-&amp;gt; WebView application risks
-&amp;gt;
-&amp;gt; Does this intent deprecate or change behavior of existing APIs, such that
-&amp;gt; it has potentially high risk for Android WebView-based applications?
-&amp;gt;
-&amp;gt; No
-&amp;gt;
-&amp;gt;
-&amp;gt; Debuggability
-&amp;gt;
-&amp;gt; None
-&amp;gt;
-&amp;gt;
-&amp;gt; Will this feature be supported on all six Blink platforms (Windows, Mac,
-&amp;gt; Linux, ChromeOS, Android, and Android WebView)? Yes
-&amp;gt;
-&amp;gt; The constraint is supported on all platforms, but the actual platform
-&amp;gt; support depends on where there are available matching effects at a system
-&amp;gt; level. Initially, the only such platform is ChromeOS, where a subset of the
-&amp;gt; devices
-&amp;gt;
-&amp;gt;
-&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt; ? Yes
-&amp;gt;
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/mediacapture-streams/GUM-non-applicable-constraint.https.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/mediacapture-streams/GUM-non-applicable-constraint.https.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/mediacapture-streams/MediaStreamTrack-getCapabilities.https.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/mediacapture-streams/MediaStreamTrack-getCapabilities.https.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/mediacapture-streams/MediaStreamTrack-getSettings.https.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/mediacapture-streams/MediaStreamTrack-getSettings.https.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/mediacapture-streams/MediaDevices-getSupportedConstraints.https.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/mediacapture-streams/MediaDevices-getSupportedConstraints.https.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; Flag name on chrome://flags None
-&amp;gt;
-&amp;gt; Finch feature name MediaCaptureVoiceIsolation
-&amp;gt;
-&amp;gt; Requires code in //chrome? False
-&amp;gt;
-&amp;gt; Availability expectation Feature is available in ChromeOS in M123
-&amp;gt;
-&amp;gt; Adoption expectation Feature is used by specific partner(s) to provide
-&amp;gt; functionality within 12 months of launch in Chrome.
-&amp;gt;
-&amp;gt; Sample links
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/web_tests/external/wpt/mediacapture-streams/MediaStreamTrack-getSettings.https.html"&gt;https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/web_tests/external/wpt/mediacapture-streams/MediaStreamTrack-getSettings.https.html&lt;/a&gt;
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/web_tests/external/wpt/mediacapture-streams/MediaStreamTrack-getCapabilities.https.html"&gt;https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/web_tests/external/wpt/mediacapture-streams/MediaStreamTrack-getCapabilities.https.html&lt;/a&gt;
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/web_tests/external/wpt/mediacapture-streams/MediaDevices-getSupportedConstraints.https.html"&gt;https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/web_tests/external/wpt/mediacapture-streams/MediaDevices-getSupportedConstraints.https.html&lt;/a&gt;
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/web_tests/external/wpt/mediacapture-streams/GUM-non-applicable-constraint.https.html"&gt;https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/web_tests/external/wpt/mediacapture-streams/GUM-non-applicable-constraint.https.html&lt;/a&gt;
-&amp;gt;
-&amp;gt; Estimated milestones
-&amp;gt; Shipping on desktop 123
-&amp;gt;
-&amp;gt; Anticipated spec changes
-&amp;gt;
-&amp;gt; Open questions about a feature may be a source of future web compat or
-&amp;gt; interop issues. Please list open issues (e.g. links to known github issues
-&amp;gt; in the project for the feature specification) whose resolution may
-&amp;gt; introduce web compat/interop risk (e.g., changing to naming or structure of
-&amp;gt; the API in a non-backward-compatible way).
-&amp;gt; None
-&amp;gt;
-&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5106413661847552"&gt;https://chromestatus.com/feature/5106413661847552&lt;/a&gt;
-&amp;gt;
-&amp;gt; This intent message was generated by Chrome Platform Status
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-&amp;gt; --
-&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt; To view this discussion on the web visit
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPVOPPGnev6WyM%2B9Duv6VLCvkhSHP93KGjNs54A1cU91KrnREQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPVOPPGnev6WyM%2B9Duv6VLCvkhSHP93KGjNs54A1cU91KrnREQ%40mail.gmail.com&lt;/a&gt;
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPVOPPGnev6WyM%2B9Duv6VLCvkhSHP93KGjNs54A1cU91KrnREQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPVOPPGnev6WyM%2B9Duv6VLCvkhSHP93KGjNs54A1cU91KrnREQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt; .
-&amp;gt;
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPVOPPFrS2jd%2BKkEU6Gj8bB_d8D3t83hMU7Ayqsy%3DyYgJUT5sw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPVOPPFrS2jd%2BKkEU6Gj8bB_d8D3t83hMU7Ayqsy%3DyYgJUT5sw%40mail.gmail.com&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
