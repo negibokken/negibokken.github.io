@@ -5,6 +5,164 @@
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
     <updated>2023-04-15T00:14:11.000Z</updated>
     <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09215.html</id>
+        <title>[blink-dev] Web-Facing Change PSA: InputDeviceInfo.getCapabilities() for unavailable devices</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09215.html"/>
+        <updated>2024-02-12T17:08:38.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09215.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Web%5C-Facing+Change+PSA%5C%3A+InputDeviceInfo.getCapabilities%5C%28%5C%29+for+unavailable+devices%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Web-Facing Change PSA: InputDeviceInfo.getCapabilities() for unavailable devices&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Guido+Urdaneta%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Guido Urdaneta&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240212" rel="nofollow"&gt;Mon, 12 Feb 2024 09:08:38 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Contact emailsgui...@chromium.org
+
+Specification
+&lt;a  rel="nofollow" href="https://w3c.github.io/mediacapture-main/#ref-for-dom-inputdeviceinfo-getcapabilities-1"&gt;https://w3c.github.io/mediacapture-main/#ref-for-dom-inputdeviceinfo-getcapabilities-1&lt;/a&gt;&lt;/pre&gt;&lt;pre&gt;
+
+Design docs
+&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1gwAF4qMXvHLQH-Fb6MxOgiSxXzK47AwiVPvnvJIccaE/r/0-T1AP5YsdFksujPUY7rJV1Q/edit?tab=t.0"&gt;https://docs.google.com/document/d/1gwAF4qMXvHLQH-Fb6MxOgiSxXzK47AwiVPvnvJIccaE/r/0-T1AP5YsdFksujPUY7rJV1Q/edit?tab=t.0&lt;/a&gt;
+
+Summary
+
+Make InputDeviceInfo.getCapabilities() return empty for cameras that are
+unavailable to the UA because they are opened in exclusive mode by other
+applications. The only platform affected in practice is Windows, which is
+the only platform that exhibits the issue.
+
+
+Blink componentBlink&amp;gt;MediaStream
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EMediaStream"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EMediaStream&lt;/a&gt;&amp;gt;
+
+TAG reviewNone
+
+TAG review statusNot applicable
+
+Risks
+
+
+Interoperability and Compatibility
+
+The proposed behavior change on Windows has low risk in that this change
+addresses a situation that is rare in practice and applications written to
+spec are not expected to break from this change.
+
+Applications that don't handle the case that a given property in the result
+of getCapabilities() may not be present might experience some minor
+breakage, but this is expected to be very low both in frequency and
+severity. In terms of interoperability with other browsers, Blink is the
+only engine that currently implements InputDeviceInfo.getCapabilities() on
+Windows, so the existing interoperability risk is largely unchanged.
+
+
+*Gecko*: Under consideration (
+&lt;a  rel="nofollow" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1179084"&gt;https://bugzilla.mozilla.org/show_bug.cgi?id=1179084&lt;/a&gt;), but little activity
+in the last 2 years.
+
+*WebKit*: Shipped/Shipping (
+&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/API/InputDeviceInfo/getCapabilities"&gt;https://developer.mozilla.org/en-US/docs/Web/API/InputDeviceInfo/getCapabilities&lt;/a&gt;
+)
+
+*Web developers*: No signals
+
+*Other signals*:
+
+Ergonomics
+
+This feature is part of the larger MediaStreams API and is used together
+with other functions in that API such as enumerateDevices and getUserMedia.
+
+
+Activation
+
+No.
+
+
+Security
+
+No.
+
+WebView application risks
+
+Does this intent deprecate or change behavior of existing APIs, such that
+it has potentially high risk for Android WebView-based applications?
+
+None
+
+
+Debuggability
+
+None
+
+
+Will this feature be supported on all six Blink platforms (Windows, Mac,
+Linux, ChromeOS, Android, and Android WebView)?
+
+The feature is implemented on all platforms. However, the behavior change
+covered by this PSA only applies in practice to Windows because it
+addresses a situation that only occurs on that platform (cameras opened in
+exclusive mode).
+
+
+Is this feature fully tested by web-platform-tests
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+?Yes
+
+&lt;a  rel="nofollow" href="https://wpt.fyi/results/mediacapture-streams/MediaStreamTrack-getCapabilities.https.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/mediacapture-streams/MediaStreamTrack-getCapabilities.https.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
+
+
+Flag name on chrome://flagsNone
+
+Finch feature nameMediaFoundationCameraUsageMonitoring
+
+Requires code in //chrome?False
+
+Tracking bug&lt;a  rel="nofollow" href="https://issues.chromium.org/40946314"&gt;https://issues.chromium.org/40946314&lt;/a&gt;
+
+Launch bug&lt;a  rel="nofollow" href="https://launch.corp.google.com/launch/4294859"&gt;https://launch.corp.google.com/launch/4294859&lt;/a&gt;
+
+Sample links
+&lt;a  rel="nofollow" href="https://guidou.github.io/enumdemo8.html"&gt;https://guidou.github.io/enumdemo8.html&lt;/a&gt;
+
+Estimated milestones
+Shipping on desktop 122
+DevTrial on desktop 121
+
+Anticipated spec changes
+
+Open questions about a feature may be a source of future web compat or
+interop issues. Please list open issues (e.g. links to known github issues
+in the project for the feature specification) whose resolution may
+introduce web compat/interop risk (e.g., changing to naming or structure of
+the API in a non-backward-compatible way).
+None
+
+Link to entry on the Chrome Platform Status
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5846051615670272"&gt;https://chromestatus.com/feature/5846051615670272&lt;/a&gt;
+
+This intent message was generated by Chrome Platform Status
+&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CA%2BBuZxZZsEWsN1svTis3kbdrRariyyAiJ71ngRnY8VxLS17D1w%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CA%2BBuZxZZsEWsN1svTis3kbdrRariyyAiJ71ngRnY8VxLS17D1w%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09214.html</id>
         <title>Re: [blink-dev] Intent to Ship: jitterBufferTarget</title>
         <author>
@@ -13074,212 +13232,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CALEeEUCdqsmmEhBROkinxbzTULFPXnC8goANs6-_O8n3%2B%3D47hQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CALEeEUCdqsmmEhBROkinxbzTULFPXnC8goANs6-_O8n3%2B%3D47hQ%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09165.html</id>
-        <title>[blink-dev] Intent to Ship: WebSocketStream</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09165.html"/>
-        <updated>2024-02-06T21:43:43.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09165.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+WebSocketStream%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Ship: WebSocketStream&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Adam+Rice%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Adam Rice&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240206" rel="nofollow"&gt;Tue, 06 Feb 2024 13:43:43 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Contact emailsri...@chromium.org
-
-Explainer
-&lt;a  rel="nofollow" href="https://github.com/ricea/websocketstream-explainer/blob/master/README.md"&gt;https://github.com/ricea/websocketstream-explainer/blob/master/README.md&lt;/a&gt;
-&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1XuxEshh5VYBYm1qRVKordTamCOsR-uGQBCYFcHXP4L0/edit"&gt;https://docs.google.com/document/d/1XuxEshh5VYBYm1qRVKordTamCOsR-uGQBCYFcHXP4L0/edit&lt;/a&gt;&lt;/pre&gt;&lt;pre&gt;
-
-Specification&lt;a  rel="nofollow" href="https://github.com/whatwg/websockets/pull/48"&gt;https://github.com/whatwg/websockets/pull/48&lt;/a&gt;
-
-Design docs
-&lt;a  rel="nofollow" href="https://web.dev/websocketstream/"&gt;https://web.dev/websocketstream/&lt;/a&gt;
-
-Summary
-
-The WebSocket API provides a JavaScript interface to the RFC6455 WebSocket
-protocol. While it has served well, it is awkward from an ergonomics
-perspective and is missing the important feature of backpressure. The
-intent of the WebSocketStream API is to resolve these deficiencies by
-integrating WHATWG Streams with the WebSocket API.
-
-
-Blink componentBlink&amp;gt;Network&amp;gt;WebSockets
-&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ENetwork%3EWebSockets"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ENetwork%3EWebSockets&lt;/a&gt;&amp;gt;
-
-Search tagsWebSocket &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:WebSocket"&gt;https://chromestatus.com/features#tags:WebSocket&lt;/a&gt;&amp;gt;,
-Streams &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:Streams"&gt;https://chromestatus.com/features#tags:Streams&lt;/a&gt;&amp;gt;, ReadableStream
-&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:ReadableStream"&gt;https://chromestatus.com/features#tags:ReadableStream&lt;/a&gt;&amp;gt;, WritableStream
-&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:WritableStream"&gt;https://chromestatus.com/features#tags:WritableStream&lt;/a&gt;&amp;gt;
-
-TAG review&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/394"&gt;https://github.com/w3ctag/design-reviews/issues/394&lt;/a&gt;
-
-TAG review statusPending
-
-Chromium Trial NameWebSocketStream
-
-Link to origin trial feedback summary
-&lt;a  rel="nofollow" href="https://github.com/ricea/websocketstream-explainer/issues"&gt;https://github.com/ricea/websocketstream-explainer/issues&lt;/a&gt;
-
-Origin Trial documentation link
-&lt;a  rel="nofollow" href="https://github.com/ricea/websocketstream-explainer/blob/master/README.md"&gt;https://github.com/ricea/websocketstream-explainer/blob/master/README.md&lt;/a&gt;
-
-Risks
-
-
-Interoperability and Compatibility
-
-The main risk is that it fails to become an interoperable part of the web
-platform if other browsers do not implement it.
-
-
-*Gecko*: No signal (
-&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/970"&gt;https://github.com/mozilla/standards-positions/issues/970&lt;/a&gt;)
-
-*WebKit*: No signal (
-&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/315"&gt;https://github.com/WebKit/standards-positions/issues/315&lt;/a&gt;)
-
-*Web developers*: No signals
-
-*Other signals*: The Deno runtime has implemented the API:
-&lt;a  rel="nofollow" href="https://github.com/denoland/deno/issues/8831"&gt;https://github.com/denoland/deno/issues/8831&lt;/a&gt;
-
-Ergonomics
-
-A major focus of the new API is improving ergonomics over the existing
-WebSocket API.
-
-
-Activation
-
-Everything except for correct backpressure behaviour can be polyfilled.
-Developers who are sensitive to backpressure may prefer to feature-detect
-and fall back to application-level backpressure if the feature is not
-available.
-
-
-Security
-
-Security posture is the same as the existing WebSocket API. The WebSocket
-mojo IPC layer was designed to support backpressure and didn't need changes
-to support the new API.
-
-
-WebView application risks
-
-Does this intent deprecate or change behavior of existing APIs, such that
-it has potentially high risk for Android WebView-based applications?
-
-No specific risk.
-
-
-Debuggability
-
-The necessary probes are included in the code so that existing WebSocket
-debugging facilities work as-is.
-
-
-Will this feature be supported on all six Blink platforms (Windows, Mac,
-Linux, ChromeOS, Android, and Android WebView)?Yes
-
-The feature is easy to support everywhere existing Blink WebSocket support
-exists. Blink WebSockets are supported on every Blink platform.
-
-
-Is this feature fully tested by web-platform-tests
-&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-?Yes
-
-&lt;a  rel="nofollow" href="https://wpt.fyi/results/websockets/stream/tentative"&gt;https://wpt.fyi/results/websockets/stream/tentative&lt;/a&gt;
-
-
-Flag name on chrome://flags
-about://flags/#enable-experimental-web-platform-features
-
-Finch feature nameWebSocketStream
-
-Requires code in //chrome?False
-
-Tracking bug&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=983030"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=983030&lt;/a&gt;
-
-MeasurementUse counter:
-&lt;a  rel="nofollow" href="https://chromestatus.com/metrics/feature/timeline/popularity/3018"&gt;https://chromestatus.com/metrics/feature/timeline/popularity/3018&lt;/a&gt;
-
-Availability expectationThe feature is relatively straightforward to
-implement, so I would expect it to be available in other browsers within 12
-months.
-
-Adoption expectationWe have a partner who is ready to adopt this as soon as
-it's available as the backpressure feature is critical for them.
-
-Non-OSS dependencies
-
-Does the feature depend on any code or APIs outside the Chromium open
-source repository and its open-source dependencies to function?
-No.
-
-Sample links
-&lt;a  rel="nofollow" href="https://github.com/ricea/websocketstream-explainer/blob/master/README.md"&gt;https://github.com/ricea/websocketstream-explainer/blob/master/README.md&lt;/a&gt;
-
-Estimated milestones
-OriginTrial desktop last 80
-OriginTrial desktop first 78
-DevTrial on desktop 78
-DevTrial on Android 78
-
-Anticipated spec changes
-
-Open questions about a feature may be a source of future web compat or
-interop issues. Please list open issues (e.g. links to known github issues
-in the project for the feature specification) whose resolution may
-introduce web compat/interop risk (e.g., changing to naming or structure of
-the API in a non-backward-compatible way).
-In future it is likely that an option to use byte streams will be added, to
-allow efficient use of BYOB readers. The second parameter to the
-constructor is an option bag, permitting easy extensions.
-&lt;a  rel="nofollow" href="https://github.com/ricea/websocketstream-explainer/issues/15"&gt;https://github.com/ricea/websocketstream-explainer/issues/15&lt;/a&gt; is about an
-interesting case where a clean close is not possible when there is too much
-unread data. A fix for this will not break existing users. Support for
-ping/pong frames, and sending custom request headers with the handshake are
-popular requests for both the WebSocket and WebSocketStream APIs. These can
-be implemented without incompatible changes to the API (though on the
-server side they will cause much trouble). There are other open issues at
-&lt;a  rel="nofollow" href="https://github.com/ricea/websocketstream-explainer/issues"&gt;https://github.com/ricea/websocketstream-explainer/issues&lt;/a&gt; but nothing that
-needs to be addressed urgently.
-
-Link to entry on the Chrome Platform Status
-&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5189728691290112"&gt;https://chromestatus.com/feature/5189728691290112&lt;/a&gt;
-
-Links to previous Intent discussionsIntent to prototype:
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/X7rWpAkMCyg/m/j6K7mEEwAgAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/X7rWpAkMCyg/m/j6K7mEEwAgAJ&lt;/a&gt;
-Intent
-to Experiment:
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msg/blink-dev/SUaSJzLQ1Yc/jmk7A-maAAAJ"&gt;https://groups.google.com/a/chromium.org/d/msg/blink-dev/SUaSJzLQ1Yc/jmk7A-maAAAJ&lt;/a&gt;
-
-
-This intent message was generated by Chrome Platform Status
-&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAC_ixdwofPbTe1DxcHrLik0WCJMszjQNb4KmhFongm3_5T_bbw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAC_ixdwofPbTe1DxcHrLik0WCJMszjQNb4KmhFongm3_5T_bbw%40mail.gmail.com&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
