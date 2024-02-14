@@ -4,7 +4,6 @@ import { AtomEntry, AtomFeed } from '../modules/atom';
 import convert from 'xml-js';
 
 import { request } from 'undici';
-import { parse } from 'node-html-parser';
 import { AtomEntryProps } from '../modules/atom/atom';
 
 // Response from the API contains unnecessary symbols so we need to remove them.
@@ -42,7 +41,7 @@ async function sleep(time: number): Promise<void> {
 
         if (!currentAtom.feed.entry) currentAtom.feed.entry = [];
 
-        const listRes = await fetch("https://issues.chromium.org/action/issues/list", {
+        const listRes = await request("https://issues.chromium.org/action/issues/list", {
             "headers": {
                 "accept": "application/json, text/plain, */*",
                 "accept-language": "en-US,en;q=0.9,ja-JP;q=0.8,ja;q=0.7",
@@ -54,7 +53,7 @@ async function sleep(time: number): Promise<void> {
         });
 
 
-        const formatedResponse = trimPrefix(await listRes.text());
+        const formatedResponse = trimPrefix(await listRes.body.text());
         const json = JSON.parse(formatedResponse)
         const filteredResponses = json[0][1].map((arr: any) => {
             // console.log(JSON.stringify(arr, null, '  '))
@@ -73,7 +72,7 @@ async function sleep(time: number): Promise<void> {
 
         const entries: AtomEntry[] = [];
         for await (const entry of filteredResponses) {
-            const issueRes = await fetch(`https://issues.chromium.org/action/issues/${entry.id}?currentTrackerId=157`, {
+            const issueRes = await request(`https://issues.chromium.org/action/issues/${entry.id}?currentTrackerId=157`, {
                 "headers": {
                     "accept": "application/json, text/plain, */*",
                     "accept-language": "en-US,en;q=0.9,ja-JP;q=0.8,ja;q=0.7",
@@ -82,7 +81,7 @@ async function sleep(time: number): Promise<void> {
                 "method": "GET"
             });
 
-            const formattedIssue = trimPrefix(await issueRes.text());
+            const formattedIssue = trimPrefix(await issueRes.body.text());
             const issueJson = JSON.parse(formattedIssue)
 
             const body = issueJson[0][1][15][19][0];
