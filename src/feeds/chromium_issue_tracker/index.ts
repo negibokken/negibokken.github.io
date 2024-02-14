@@ -41,22 +41,23 @@ async function sleep(time: number): Promise<void> {
 
         if (!currentAtom.feed.entry) currentAtom.feed.entry = [];
 
-        const listRes = await request("https://issues.chromium.org/action/issues/list", {
+
+        console.log('fetching list');
+        const listRes = await fetch("https://issues.chromium.org/action/issues/list", {
             "headers": {
                 "accept": "application/json, text/plain, */*",
                 "accept-language": "en-US,en;q=0.9,ja-JP;q=0.8,ja;q=0.7",
                 "content-type": "application/json",
             },
-            "body": "[\"status:open\",50,\"created_time:desc\",1,null,[\"157\"]]",
-            // "body": "[\"status:open\",1,\"created_time:desc\",1,null,[\"157\"]]",
+            // "body": "[\"status:open\",50,\"created_time:desc\",1,null,[\"157\"]]",
+            "body": "[\"status:open\",2,\"created_time:desc\",1,null,[\"157\"]]",
             "method": "POST"
         });
 
 
-        const formatedResponse = trimPrefix(await listRes.body.text());
+        const formatedResponse = trimPrefix(await listRes.text());
         const json = JSON.parse(formatedResponse)
         const filteredResponses = json[0][1].map((arr: any) => {
-            // console.log(JSON.stringify(arr, null, '  '))
             const id = arr[22][1];
             // Maybe the meaning of numbers are below:
             // 1: Bug
@@ -69,9 +70,10 @@ async function sleep(time: number): Promise<void> {
             }
         });
 
+        console.log('fetching each issue');
         const entries: AtomEntry[] = [];
         for await (const entry of filteredResponses) {
-            const issueRes = await request(`https://issues.chromium.org/action/issues/${entry.id}?currentTrackerId=157`, {
+            const issueRes = await fetch(`https://issues.chromium.org/action/issues/${entry.id}?currentTrackerId=157`, {
                 "headers": {
                     "accept": "application/json, text/plain, */*",
                     "accept-language": "en-US,en;q=0.9,ja-JP;q=0.8,ja;q=0.7",
@@ -80,7 +82,7 @@ async function sleep(time: number): Promise<void> {
                 "method": "GET"
             });
 
-            const formattedIssue = trimPrefix(await issueRes.body.text());
+            const formattedIssue = trimPrefix(await issueRes.text());
             const issueJson = JSON.parse(formattedIssue)
 
             const body = issueJson[0][1][15][19][0];
@@ -88,7 +90,7 @@ async function sleep(time: number): Promise<void> {
             const createdAt = new Date(Number(issueJson[0][1][3][1]) / 1000);
             const atomentry: AtomEntryProps = {
                 author: { name: author },
-                content: Buffer.from(body).toString('base64'),
+                content: body ? Buffer.from(body).toString('base64') : "",
                 id: entry.id,
                 title: entry.title,
                 link: `https://issues.chromium.org/issues/${entry.id}`,
