@@ -71,7 +71,7 @@ function sanitize(str: string) {
 
 
         currentAtom.feed.entry = newAtom.feed.entry.concat(currentAtom.feed.entry).slice(0, 200);
-
+        currentAtom.feed.updated._text = latest.updated;
 
         const newAtomXML = convert.json2xml(currentAtom, { compact: true, spaces: 4 });
 

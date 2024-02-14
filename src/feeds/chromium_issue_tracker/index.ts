@@ -49,8 +49,7 @@ async function sleep(time: number): Promise<void> {
                 "accept-language": "en-US,en;q=0.9,ja-JP;q=0.8,ja;q=0.7",
                 "content-type": "application/json",
             },
-            // "body": "[\"status:open\",50,\"created_time:desc\",1,null,[\"157\"]]",
-            "body": "[\"status:open\",2,\"created_time:desc\",1,null,[\"157\"]]",
+            "body": "[\"status:open\",50,\"created_time:desc\",1,null,[\"157\"]]",
             "method": "POST"
         });
 
@@ -72,6 +71,7 @@ async function sleep(time: number): Promise<void> {
 
         console.log('fetching each issue');
         const entries: AtomEntry[] = [];
+        let flag = true;
         for await (const entry of filteredResponses) {
             const issueRes = await fetch(`https://issues.chromium.org/action/issues/${entry.id}?currentTrackerId=157`, {
                 "headers": {
@@ -90,12 +90,16 @@ async function sleep(time: number): Promise<void> {
             const createdAt = new Date(Number(issueJson[0][1][3][1]) / 1000);
             const atomentry: AtomEntryProps = {
                 author: { name: author },
-                content: body ? Buffer.from(body).toString('base64') : "",
+                content: body ? Buffer.from(body).toString('base64') : "-",
                 id: entry.id,
-                title: entry.title,
+                title: sanitize(entry.title),
                 link: `https://issues.chromium.org/issues/${entry.id}`,
                 updated: createdAt.toISOString(),
-                summary: body.slice(0, 50),
+                summary: '-',
+            }
+            if (!body && flag) {
+                console.log(JSON.stringify(issueJson, null, '  '));
+                flag = false;
             }
             entries.push(new AtomEntry(atomentry));
             await sleep(250);
@@ -109,19 +113,34 @@ async function sleep(time: number): Promise<void> {
         const latest = entries[0];
         const link = 'https://negibokken.github.io/feeds/chromium_issue_tracker/atom.xml'
         const feed = new AtomFeed({ id: link, title: "Chromium issue tracker feed", link, updated: latest.updated, entries });
-        const newAtom = JSON.parse(convert.xml2json(feed.toXML(), { compact: true, spaces: 4 }));
+
+        let newAtom: any;
+        try {
+            newAtom = JSON.parse(convert.xml2json(feed.toXML(), { compact: true, spaces: 4 }));
+        } catch (e) {
+            console.error(e);
+            console.error(JSON.stringify(feed, null, '  '));
+        }
 
         // If the entry is only one, then the entry becomes object. So to use concat method, we need to convert the object to array.
         if (!Array.isArray(newAtom.feed.entry)) {
             newAtom.feed.entry = [newAtom.feed.entry];
         }
+
         newAtom.feed.entry = newAtom.feed.entry.map((entry: any) => {
             return { ...entry, content: { _attributes: { type: 'html' }, _text: Buffer.from(entry.content._text, 'base64').toString('utf8') } };
         });
 
         currentAtom.feed.entry = newAtom.feed.entry.concat(currentAtom.feed.entry).slice(0, 50);
+        currentAtom.feed.updated._text = latest.updated;
 
-        const newAtomXML = convert.json2xml(currentAtom, { compact: true, spaces: 4 });
+        let newAtomXML: any;
+        try {
+            newAtomXML = convert.json2xml(currentAtom, { compact: true, spaces: 4 });
+        } catch (e) {
+            console.error(e);
+            console.log(JSON.stringify(currentAtom, null, '  '));
+        }
 
         console.log(`Contents is written in ${xmlPath}.new`);
         fs.writeFileSync(`${xmlPath}.new`, newAtomXML);
