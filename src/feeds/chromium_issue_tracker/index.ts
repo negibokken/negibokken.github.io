@@ -64,9 +64,8 @@ async function sleep(time: number): Promise<void> {
             // 11: Feature
             const type = arr[22][2][1];
             const title = arr[22][2][5];
-            const component = arr[22][2][14][0][9];
             return {
-                id, title, component
+                id, title
             }
         });
 
