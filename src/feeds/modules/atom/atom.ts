@@ -1,4 +1,4 @@
-interface AtomEntryProps {
+export interface AtomEntryProps {
     id: string;
     title: string;
     author: {

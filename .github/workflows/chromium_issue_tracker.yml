@@ -1,0 +1,28 @@
+name: chromium commits feed
+on:
+  schedule:
+    - cron:  '0 */4 * * *'
+  workflow_dispatch:
+
+jobs:
+  commits_crawler:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 16
+        cache: 'npm'
+    - run: npm ci
+    - run: npm run feed:issues
+      env:
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    - run: |
+        ls feeds/chromium_issue_tracker
+        cp feeds/chromium_issue_tracker/atom.xml.new feeds/chromium_issue_tracker/atom.xml
+    - uses: EndBug/add-and-commit@v9
+      with:
+        add: 'feeds/chromium_commits/atom.xml'
+        author_name: 'github-actions[bot]'
+        author_email: '41898282+github-actions[bot]@users.noreply.github.com'
