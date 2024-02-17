@@ -3,7 +3,363 @@
     <id>https://negibokken.github.io/feeds/intent_to_ship/atom.xml</id>
     <title>intent to ship feed</title>
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
-    <updated>2024-02-16T17:15:06.000Z</updated>
+    <updated>2024-02-16T19:20:05.000Z</updated>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09318.html</id>
+        <title>Re: [blink-dev] Intent to Ship: Remove "window-placement" alias for permission and permission policy "window-management"</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09318.html"/>
+        <updated>2024-02-16T19:20:05.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09318.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Remove+%5C%22window%5C-placement%5C%22+alias+for+permission+and+permission+policy+%5C%22window%5C-management%5C%22%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Remove "window-placement" alias for permission and permission policy "window-management"&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Brad+Triebwasser%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Brad Triebwasser&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240216" rel="nofollow"&gt;Fri, 16 Feb 2024 11:20:05 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Usage for the legacy permission and permission policy are ~0.006
+&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/metrics/feature/timeline/popularity/4448"&gt;https://chromestatus.com/metrics/feature/timeline/popularity/4448&lt;/a&gt;&amp;gt; and
+~0.015 &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/metrics/feature/timeline/popularity/4450"&gt;https://chromestatus.com/metrics/feature/timeline/popularity/4450&lt;/a&gt;&amp;gt; (%
+page loads) while the new variants are ~1.166
+&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/metrics/feature/timeline/popularity/4447"&gt;https://chromestatus.com/metrics/feature/timeline/popularity/4447&lt;/a&gt;&amp;gt; and
+~3.066 &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/metrics/feature/timeline/popularity/4449"&gt;https://chromestatus.com/metrics/feature/timeline/popularity/4449&lt;/a&gt;&amp;gt; (%
+page loads) respectively, so the main metric for potential breakage here is
+0.006% of page loads. 0.006% seems low in my opinion, but I'm curious if
+there is any guidance on a lower target % we should be aiming for prior to
+removing this feature.&lt;/pre&gt;&lt;pre&gt;
+
+I separately calculated that the 200 origins make up about 0.0058% of
+total origins tracked by UKM (if that's what you're asking), which aligns
+with the UMA figures. I also want to note that 50 of those origins are
+likely the same (spam?) website (e.g. &lt;a  rel="nofollow" href="https://aaaa123.com"&gt;https://aaaa123.com&lt;/a&gt;,
+&lt;a  rel="nofollow" href="https://aaaa124.com"&gt;https://aaaa124.com&lt;/a&gt;, &lt;a  rel="nofollow" href="https://aaaa125.com"&gt;https://aaaa125.com&lt;/a&gt;). You can see examples of this in
+the UMA sample data
+&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/metrics/feature/timeline/popularity/4448"&gt;https://chromestatus.com/metrics/feature/timeline/popularity/4448&lt;/a&gt;&amp;gt;.
+
+Regards,
+Brad
+
+On Thu, Feb 15, 2024 at 12:42 AM Yoav Weiss (@Shopify) &amp;lt;
+yoavwe...@chromium.org&amp;gt; wrote:
+
+&amp;gt; 200 origins sounds like a lot. Do you know what %age of page views those
+&amp;gt; origins would represent?
+&amp;gt;
+&amp;gt; On Wed, Feb 14, 2024 at 11:32 PM Brad Triebwasser &amp;lt;btri...@chromium.org&amp;gt;
+&amp;gt; wrote:
+&amp;gt;
+&amp;gt;&amp;gt; *tl;dr:* We expect at most 200 origins could break, and only ~30 of
+&amp;gt;&amp;gt; those may be legitimately using the API.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; We do track UMA/UKM for the primary API entrypoint function (
+&amp;gt;&amp;gt; GetScreenDetails
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.mozilla.org/en-US/docs/Web/API/Window/getScreenDetails"&gt;https://developer.mozilla.org/en-US/docs/Web/API/Window/getScreenDetails&lt;/a&gt;&amp;gt;)
+&amp;gt;&amp;gt; which we expect nearly all legitimate usage of the API to use. We see 60
+&amp;gt;&amp;gt; unique origins invoking GetScreenDetails, dominated by a handful of
+&amp;gt;&amp;gt; origins (which align with the partners we know are using the API).
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; For reference, 2500 unique origins are checking the window-management
+&amp;gt;&amp;gt; permission, and 200 unique origins checking the old window-placement
+&amp;gt;&amp;gt; permission (82% of those origins are *not *logging any GetScreenDetails
+&amp;gt;&amp;gt; calls).
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; As Mike mentioned, the only breakage here would be a site using 
+&amp;gt;&amp;gt; navigator.permissions.query({name:
+&amp;gt;&amp;gt; 'window-placement'}) without error handling which according to UKM data
+&amp;gt;&amp;gt; would be roughly 200 origins (at most 18% of those may be
+&amp;gt;&amp;gt; legitimately using the API).
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; I believe 200 unique origins is a relatively low number of potential
+&amp;gt;&amp;gt; breakages, especially considering our data strongly suggests a majority of
+&amp;gt;&amp;gt; that is fingerprinting.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Regards,
+&amp;gt;&amp;gt; Brad
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; On Mon, Feb 12, 2024 at 6:27 AM Mike Taylor &amp;lt;miketa...@chromium.org&amp;gt;
+&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Agree that the risk feels low... one thing to perhaps check for (if you
+&amp;gt;&amp;gt;&amp;gt; have UKM or use counters) is to see if there is any legit usage on sites of
+&amp;gt;&amp;gt;&amp;gt; `navigator.permissions.query()` that isn't catching errors, since that will
+&amp;gt;&amp;gt;&amp;gt; throw a TypeError and can break a page.
+&amp;gt;&amp;gt;&amp;gt; On 2/12/24 9:16 AM, Rick Byers wrote:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Presumably the risk of legitimate breakage here is bounded by the use of
+&amp;gt;&amp;gt;&amp;gt; the Window Management API, right? Are there any UseCounters for the various
+&amp;gt;&amp;gt;&amp;gt; Window Management operations? I couldn't find any at a quick glance. I
+&amp;gt;&amp;gt;&amp;gt; imagine legitimate usage is dominated by a few sites with an obvious need
+&amp;gt;&amp;gt;&amp;gt; (do we have UKM data?), and such sites should always degrade gracefully
+&amp;gt;&amp;gt;&amp;gt; without window management capabilities, right?
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; My intuition is that the compat risk here should be extremely low, but I
+&amp;gt;&amp;gt;&amp;gt; hope we have some data to validate that which isn't tainted by the
+&amp;gt;&amp;gt;&amp;gt; fingerprinting usage.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Rick
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; On Wed, Feb 7, 2024 at 1:59 PM Brad Triebwasser &amp;lt;btri...@chromium.org&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; +blink-dev@chromium.org &amp;lt;blink-dev@chromium.org&amp;gt; / Reply All
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Thanks for your feedback, Mike! Recipes inline:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Tue, Feb 6, 2024 at 9:36 PM Mike Taylor &amp;lt;miketa...@chromium.org&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Hi Brad,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On 2/6/24 3:49 PM, Brad Triebwasser wrote:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Contact emails
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; btri...@chromium.org
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Explainer
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/window-management/blob/main/EXPLAINER_spec_and_permission_rename.md"&gt;https://github.com/w3c/window-management/blob/main/EXPLAINER_spec_and_permission_rename.md&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Specification
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://w3c.github.io/window-management/#api-permission-api-integration"&gt;https://w3c.github.io/window-management/#api-permission-api-integration&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Summary
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Removes the legacy &amp;quot;window-placement&amp;quot; alias for permission and
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; permission policy &amp;quot;window-management&amp;quot;. This is a follow-up to
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5146352391028736"&gt;https://chromestatus.com/feature/5146352391028736&lt;/a&gt; and corresponding
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; blink-dev PSA
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/Hf2b1-S39Uw/m/YAEC_0DSBQAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/Hf2b1-S39Uw/m/YAEC_0DSBQAJ&lt;/a&gt;&amp;gt;.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; The &amp;quot;window-placement&amp;quot; alias has been showing console deprecation 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; warnings
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; since M113
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src.git/+/13204be718225ae09c8ba7e36b055a369c36c878"&gt;https://chromium.googlesource.com/chromium/src.git/+/13204be718225ae09c8ba7e36b055a369c36c878&lt;/a&gt;&amp;gt;.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; We will disable WindowPlacementPermissionAlias
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/platform/runtime_enabled_features.json5?q=-f:gen%2F%20AND%20-f:out%2F%20WindowPlacementPermissionAlias"&gt;https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/platform/runtime_enabled_features.json5?q=-f:gen%2F%20AND%20-f:out%2F%20WindowPlacementPermissionAlias&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; by default, and remove the flag and legacy code shortly thereafter.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; I'm a little bit confused here - it seems like the PSA of the alias
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; is being treated as the beginning of a deprecation, is that correct? My
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; interpretation of &amp;quot;will lead to a deprecation and removal&amp;quot; from the
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; original message was that it would be followed with an Intent to 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Deprecate
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; and Remove (per
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://www.chromium.org/blink/launching-features/#deprecate"&gt;https://www.chromium.org/blink/launching-features/#deprecate&lt;/a&gt;), but
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; it seems like that step of the process was skipped.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  Yes, I never sent out a separate &amp;quot;Intent to Deprecate&amp;quot; in this case.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; The original PSA
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/Hf2b1-S39Uw/m/YAEC_0DSBQAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/Hf2b1-S39Uw/m/YAEC_0DSBQAJ&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  was
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; intended to be a hybrid of the introduction of the new names and
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; deprecation of the old ones so we also landed deprecation code (DevTools
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; deprecation warnings etc.) during that time. Since these have already been
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;quot;deprecated&amp;quot; since M113, I wasn't sure if a separate &amp;quot;intent to deprecate&amp;quot;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; was appropriate in this case since we already deprecated them and 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; monitored
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; usage to be sufficiently low, but I can back-up and send an I2D if
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; recommended here.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink component
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink&amp;gt;Screen&amp;gt;MultiScreen
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EScreen%3EMultiScreen"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EScreen%3EMultiScreen&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; No feedback was specifically requested for the permission rename,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; however related TAG reviews have been requested with both the old (1
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/413"&gt;https://github.com/w3ctag/design-reviews/issues/413&lt;/a&gt;&amp;gt;, 2
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/602"&gt;https://github.com/w3ctag/design-reviews/issues/602&lt;/a&gt;&amp;gt;) and new
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; terminology (3 &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/840"&gt;https://github.com/w3ctag/design-reviews/issues/840&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ).
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review status
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Not applicable
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Risks
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Interoperability and Compatibility
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; There are low compatibility risks. Usage for the legacy permission
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; and permission policy are ~0.006
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/metrics/feature/timeline/popularity/4448"&gt;https://chromestatus.com/metrics/feature/timeline/popularity/4448&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; and ~0.015
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/metrics/feature/timeline/popularity/4450"&gt;https://chromestatus.com/metrics/feature/timeline/popularity/4450&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (% page loads) while the new variants are ~1.166
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/metrics/feature/timeline/popularity/4447"&gt;https://chromestatus.com/metrics/feature/timeline/popularity/4447&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; and ~3.066
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/metrics/feature/timeline/popularity/4449"&gt;https://chromestatus.com/metrics/feature/timeline/popularity/4449&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (% page loads) respectively, indicating most usage has already migrated.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; These percentages are still relatively high, especially for the
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; permissions policy variant. Besides the obvious fingerprint.js usage 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (which
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; shouldn't break pages... I would hope), can you describe what the failure
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; mode is after the proposed removal is? Have you dug into the remaining
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; usage to verify?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Yes, I dug into the remaining usage quite extensively via Web Archive
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; queries and UKM and couldn't find any usages other than what looked like
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; fingerprinting. After removal, the permission API will produce an error 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; due
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; to an unknown permission, and the permission policy will silently fail
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; (e.g. iframes with allow='window-placement' will not have access to the
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; features). I beleive that the numbers shifting several orders of 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; magnitude
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; in favor of the new strings seems to indicate legitamite usage has
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; migrated, and the remainig usage likely fingerprinting.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Gecko: No signal
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Firefox has not implemented the API and corresponding permission yet.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; The original API signal request is here
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/542"&gt;https://github.com/mozilla/standards-positions/issues/542&lt;/a&gt;&amp;gt;.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; WebKit: No signal
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Safari has not implemented the API and corresponding permission yet.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; The original API signal request is here
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/117"&gt;https://github.com/WebKit/standards-positions/issues/117&lt;/a&gt;&amp;gt;.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Mind linking to the original API position requests here in this
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; thread?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Added links above to the original API signal request. FWIW, we have
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; since filed additional requests for functionality related to window
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; management, not necessarily window *placement* related (hence
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; motivation for renaming the API): eg 1
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/96"&gt;https://github.com/WebKit/standards-positions/issues/96&lt;/a&gt;&amp;gt; 2
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/712"&gt;https://github.com/mozilla/standards-positions/issues/712&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Web developers: We have communicated internally with partners using
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; the API who have expressed commitment to updating the permission strings 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; in
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; their code.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Other signals: Positive comment
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/window-placement/pull/115#pullrequestreview-1159676614"&gt;https://github.com/w3c/window-placement/pull/115#pullrequestreview-1159676614&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; from W3C WG Chair
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; WebView application risks
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; This is considered low risk. It removes an alias without any change
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; in behavior of the underlying API.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Does this permission do anything on WebView? I would have guessed no.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Your correct, this window management API doesn't apply to WebView so
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; there is no impact there.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Debuggability
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Disabling WindowPlacementPermissionAlias
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/platform/runtime_enabled_features.json5?q=-f:gen%2F%20AND%20-f:out%2F%20WindowPlacementPermissionAlias"&gt;https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/platform/runtime_enabled_features.json5?q=-f:gen%2F%20AND%20-f:out%2F%20WindowPlacementPermissionAlias&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; will stop DevTools deprecation warnings for usage of the legacy strings 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; and
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; instead will act as if they did not exist at all (e.g. Permission API 
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; will
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; produce an error when using &amp;quot;window-placement&amp;quot;).
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Mac, Linux, ChromeOS, Android, and Android WebView)?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; No. This feature is not supported on Android.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; ?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Yes. Web Platform tests have already been migrated to the new alias:
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/tree/master/window-management"&gt;https://github.com/web-platform-tests/wpt/tree/master/window-management&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Flag name on chrome://flags
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Finch feature name
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; WindowPlacementPermissionAlias
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Requires code in //chrome?
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; False
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Tracking bug
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1328581"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1328581&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Estimated milestones
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; M123 (flag disable) M125 (flag/code removal)
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Anticipated spec changes
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5137018030391296"&gt;https://chromestatus.com/feature/5137018030391296&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it,
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; send an email to blink-dev+unsubscr...@chromium.org.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CALEeEUCdqsmmEhBROkinxbzTULFPXnC8goANs6-_O8n3%2B%3D47hQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CALEeEUCdqsmmEhBROkinxbzTULFPXnC8goANs6-_O8n3%2B%3D47hQ%40mail.gmail.com&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CALEeEUCdqsmmEhBROkinxbzTULFPXnC8goANs6-_O8n3%2B%3D47hQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CALEeEUCdqsmmEhBROkinxbzTULFPXnC8goANs6-_O8n3%2B%3D47hQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+unsubscr...@chromium.org.
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CALEeEUBYrF50-%3Dp8umAxQLaEttR-jW4WRfWyF5AATV2p29w17w%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CALEeEUBYrF50-%3Dp8umAxQLaEttR-jW4WRfWyF5AATV2p29w17w%40mail.gmail.com&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CALEeEUBYrF50-%3Dp8umAxQLaEttR-jW4WRfWyF5AATV2p29w17w%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CALEeEUBYrF50-%3Dp8umAxQLaEttR-jW4WRfWyF5AATV2p29w17w%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; --
+&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups
+&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&amp;gt;&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt;&amp;gt; To view this discussion on the web visit
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CALEeEUDd9YoriLSXG3h7usjpyJThZ4W3%2BixTCdVK2PhS0p9_Rw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CALEeEUDd9YoriLSXG3h7usjpyJThZ4W3%2BixTCdVK2PhS0p9_Rw%40mail.gmail.com&lt;/a&gt;
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CALEeEUDd9YoriLSXG3h7usjpyJThZ4W3%2BixTCdVK2PhS0p9_Rw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CALEeEUDd9YoriLSXG3h7usjpyJThZ4W3%2BixTCdVK2PhS0p9_Rw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CALEeEUBY%2BjGx1OK77-Q%3DhmrZU14xOVxhf3zbjrtMqYoQO1YG%2Bw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CALEeEUBY%2BjGx1OK77-Q%3DhmrZU14xOVxhf3zbjrtMqYoQO1YG%2Bw%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
     <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09317.html</id>
         <title>Re: [blink-dev] Re: Intent to Ship: setHTMLUnsafe and parseHTMLUnsafe</title>
@@ -13147,90 +13503,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAARdPYcAahY9vaoH3Pzths-fM-quQuynoQTvRHuqVMuTo5cMKQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAARdPYcAahY9vaoH3Pzths-fM-quQuynoQTvRHuqVMuTo5cMKQ%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09268.html</id>
-        <title>Re: [blink-dev] Intent to Ship: Support in Chrome for the VoiceIsolation getUserMedia constraint</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09268.html"/>
-        <updated>2024-02-14T16:54:26.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09268.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Support+in+Chrome+for+the+VoiceIsolation+getUserMedia+constraint%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Support in Chrome for the VoiceIsolation getUserMedia constraint&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Mike+Taylor%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Mike Taylor&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240214" rel="nofollow"&gt;Wed, 14 Feb 2024 08:54:26 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre style="margin: 0em;"&gt;
-LGTM3
-
-On 2/14/24 11:49 AM, Chris Harrelson wrote:
-&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;
-LGTM2&lt;/pre&gt;&lt;pre&gt;&lt;/pre&gt;&lt;tt&gt;On Wed, Feb 14, 2024 at 8:46 AM Philip Jägenstedt 
-&lt;/tt&gt;&lt;tt&gt;&amp;lt;foo...@chromium.org&amp;gt; wrote:
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-
-    LGTM1, some comments inline.
-
-    On Sat, Feb 3, 2024 at 6:15 AM Per Åhgren &amp;lt;p...@chromium.org&amp;gt; wrote:
-    &amp;gt;&amp;gt;
-    &amp;gt;&amp;gt;
-    &amp;gt;&amp;gt; TAG review status
-    &amp;gt;&amp;gt;
-    &amp;gt;&amp;gt; Issues addressed
-    &amp;gt;&amp;gt; This is somewhat at odds with the previous response. :) Did you
-    intend to link a TAG review and forget?
-    &amp;gt;
-    &amp;gt; Sorry, my bad. I did not remove this from the template before
-    sending it.
-    &amp;gt; The intention was not to add any issues and there is no TAG
-    review to link.
-
-    That's OK, this is a very small addition to the platform and doesn't
-    need a TAG review.
-
-    &amp;gt;&amp;gt; Could we please request signals?
-    &amp;gt;
-    &amp;gt; Yes, signals have now been requested
-    &amp;gt; &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/982"&gt;https://github.com/mozilla/standards-positions/issues/982&lt;/a&gt;
-    &amp;gt; &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/314"&gt;https://github.com/WebKit/standards-positions/issues/314&lt;/a&gt;
-
-    No replies on these issues yet, but I see that
-    &lt;a  rel="nofollow" href="https://github.com/w3c/mediacapture-extensions/pull/63"&gt;https://github.com/w3c/mediacapture-extensions/pull/63&lt;/a&gt; was reviewed by
-    someone from WebKit. That doesn't imply a positive standards position,
-    but it does reduce the risk. Let's move forward with this, but please
-    circle back on this thread if there's feedback on the two issues
-    above.
-
-&lt;/pre&gt;&lt;tt&gt;    -- 
-&lt;/tt&gt;&lt;tt&gt;    You received this message because you are subscribed to the Google
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-    Groups &amp;quot;blink-dev&amp;quot; group.
-    To unsubscribe from this group and stop receiving emails from it,
-    send an email to blink-dev+unsubscr...@chromium.org
-    &amp;lt;&lt;a  rel="nofollow" href="mailto:blink-dev%2bunsubscr...@chromium.org"&gt;mailto:blink-dev%2bunsubscr...@chromium.org&lt;/a&gt;&amp;gt;.
-    To view this discussion on the web visit
-    
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAARdPYe2CqrV4ofwfYPSR%3D-F_rzRcEYk2z_OfUFWBb8cwSRBWw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAARdPYe2CqrV4ofwfYPSR%3D-F_rzRcEYk2z_OfUFWBb8cwSRBWw%40mail.gmail.com&lt;/a&gt;.
-
-&lt;/pre&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;
-
---
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/6f8a4545-df7e-4854-b79e-3b9c29f170c7%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/6f8a4545-df7e-4854-b79e-3b9c29f170c7%40chromium.org&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
