@@ -3,38 +3,338 @@
     <id>https://negibokken.github.io/feeds/chromium_issue_tracker/atom.xml</id>
     <title>Chromium issue tracker feed</title>
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
-    <updated>2024-02-19T04:01:58.964Z</updated>
+    <updated>2024-02-19T08:10:26.330Z</updated>
     <entry>
-        <id>325798134</id>
-        <title>CORB/CORS allowlist deprecation in Chrome 87</title>
+        <id>325738873</id>
+        <title>[Blink DOM]: 1 regressions in blink_perf.dom</title>
         <author>
-            <name>ha...@gmail.com</name>
+            <name>ch...@appspot.gserviceaccount.com</name>
         </author>
-        <link href="https://issues.chromium.org/issues/325798134"/>
-        <updated>2024-02-19T04:01:58.964Z</updated>
+        <link href="https://issues.chromium.org/issues/325738873"/>
+        <updated>2024-02-19T08:10:26.330Z</updated>
         <summary>-</summary>
-        <content type="html">Chrome Version       : &lt;Copy from: 'about:version'&gt;
-URLs (if applicable) :
-Other browsers tested:
-  Add OK or FAIL, along with the version, after other browsers where you have tested this issue:
-     Safari:
-    Firefox:
-       Edge:
+        <content type="html">All graphs for this regression group at 1262009:1262082:
 
-What steps will reproduce the problem?
-(1)
-(2)
-(3)
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=5e2ef29f-1042-447c-bd6c-da79208ac195
 
-What is the expected result?
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=5e2ef29f-1042-447c-bd6c-da79208ac195
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/win-11-perf/blink_perf.dom/dom-parts-api-manual-clone/dom-parts-api-manual-clone.html
+       18.90%: 8.657 -&gt; 10.293 ms
+
+Top 1 affected measurements in win-11-perf:
+  - blink_perf.dom/dom-parts-api-manual-clone/dom-parts-api-manual-clone.html
+       18.90%: 8.657 -&gt; 10.293 ms
+
+Regressions grouped by blink_perf.dom includes data from the following benchmarks with listed owners:
+  blink_perf.dom: masonf@chromium.org
+      
+
+Commits in this range:
+  Chromium Commit Position: https://crrev.com/1262008..1262082
+  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/4057969e3c3d77d74a64422aa91f930506f200a4..b022215b896bec8bd80238b5dc321f9cce970bdd
+  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/54d9cd002cef2cc0401831ef22bc79d38f2d7548..600503ae26ae8bd4aed4dc85e39f0b3ba34d36dc</content>
+    </entry>
+    <entry>
+        <id>325798142</id>
+        <title>Assess potential impact of Swap-RFH-at-Commit on FCP &amp; Paint Holding</title>
+        <author>
+            <name>ra...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325798142"/>
+        <updated>2024-02-19T07:57:56.563Z</updated>
+        <summary>-</summary>
+        <content type="html">I'm currently trying to figure out the potential impact for the Swap-RFH-at-Commit project (https://docs.google.com/document/d/1RXGDkrSWTfaeio76joXKWBLGDHAbiB48sHUdcTX6rdc/edit?usp=sharing). The main areas to investigate are its impact (positive/negative) towards FCP time and how long will it extend Paint Holding, as a result of swapping in the new RenderFrameHost earlier (when asking the renderer to commit instead of when hearing back from the renderer that the commit is successful.
+
+From discussions with CSA and compositor people, here are some hypothesis that we want to confirm:
+- Swapping RFH earlier might not affect FCP directly because the time it takes for the renderer to produce the first FCP frame will be greater than the time it takes to send the DidCommit IPC and embed the new RFH (i.e. swapping RFH is not a blocker for FCP). 
+- Paint holding will be used for a longer duration because we swap the RFH earlier, but the time it takes to paint the first frame will be the same. This is a negative for security.
+
+To confirm the above, we have some CLs to gather metrics:
+- crrev.com/c/5192269 records the time it takes between compositor creation to commit and to the current RFH swap time at DidCommit on the browser side. With this, we can see how long the compositor waits for surface embedding (RFH swap) from the browser side, which can be improved with Swap-RFH-at-commit.
+- crrev.com/c/5057424 records the time it takes between the submission of the FCP frame to when the surface gets embedded on the renderer side. With this, we can see how often the FCP frame waits for the surface embed (RFH swap) currently.
+
+What's currently missing:
+- Metrics on current paint holding duration (not sure if this already exists).
+- Measuring the time it takes between navigation commit to FCP frame submission to DidCommit to surface embedding. I might add this in crrev.com/c/5057424 or make it a follow-up. This will help to estimate potential paint holding duration if we swap RFH earlier.
 
 
-What happens instead?
+I'll probably make a doc soon  to try to make the relations between timings and metrics more clear and also gather input to see if there are more things to consider.</content>
+    </entry>
+    <entry>
+        <id>325867011</id>
+        <title>go.chromium.org/luci/grpc/prpc/e2etest.TestEndToEnd</title>
+        <author>
+            <name>uk...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325867011"/>
+        <updated>2024-02-19T07:52:18.365Z</updated>
+        <summary>-</summary>
+        <content type="html">https://ci.chromium.org/ui/p/infra/builders/ci/luci-go-continuous-mac-10.14-64/9302/overview
+
+go.chromium.org/luci/grpc/prpc/e2etest.TestEndToEnd
+
+```
+=== RUN   TestEndToEnd
+=== PAUSE TestEndToEnd
+=== CONT  TestEndToEnd
+--- FAIL: TestEndToEnd (0.84s)
+[W2024-02-18T17:48:51.817004-08:00 70236 0 client.go:357] RPC failed permanently: rpc error: code = DeadlineExceeded desc = prpc: overall deadline exceeded {"host":"127.0.0.1:57372", "method":"Greet", "service":"e2etest.Hello"}
+.[E2024-02-18T17:48:52.430506-08:00 70236 0 encoding.go:249] prpc: responding with DeadlineExceeded error (HTTP 504): internal deadline exceeded
+[W2024-02-18T17:48:52.430850-08:00 70236 0 client.go:312] RPC failed transiently (retry in 1ms): rpc error: code = DeadlineExceeded desc = Request deadline exceeded {"host":"127.0.0.1:57374", "method":"Greet", "service":"e2etest.Hello", "sleepTime":"1ms"}
+[E2024-02-18T17:48:52.436000-08:00 70236 0 encoding.go:249] prpc: responding with DeadlineExceeded error (HTTP 504): internal deadline exceeded
+[W2024-02-18T17:48:52.436389-08:00 70236 0 client.go:312] RPC failed transiently (retry in 2ms): rpc error: code = DeadlineExceeded desc = Request deadline exceeded {"host":"127.0.0.1:57374", "method":"Greet", "service":"e2etest.Hello", "sleepTime":"2ms"}
+[E2024-02-18T17:48:52.440709-08:00 70236 0 encoding.go:249] prpc: responding with DeadlineExceeded error (HTTP 504): internal deadline exceeded
+[W2024-02-18T17:48:52.441035-08:00 70236 0 client.go:312] RPC failed transiently (retry in 4ms): rpc error: code = DeadlineExceeded desc = Request deadline exceeded {"host":"127.0.0.1:57374", "method":"Greet", "service":"e2etest.Hello", "sleepTime":"4ms"}
+[E2024-02-18T17:48:52.446332-08:00 70236 0 encoding.go:249] prpc: responding with DeadlineExceeded error (HTTP 504): internal deadline exceeded
+[W2024-02-18T17:48:52.446752-08:00 70236 0 client.go:312] RPC failed transiently (retry in 8ms): rpc error: code = DeadlineExceeded desc = Request deadline exceeded {"host":"127.0.0.1:57374", "method":"Greet", "service":"e2etest.Hello", "sleepTime":"8ms"}
+[E2024-02-18T17:48:52.455319-08:00 70236 0 encoding.go:249] prpc: responding with DeadlineExceeded error (HTTP 504): internal deadline exceeded
+[W2024-02-18T17:48:52.455645-08:00 70236 0 client.go:312] RPC failed transiently (retry in 16ms): rpc error: code = DeadlineExceeded desc = Request deadline exceeded {"host":"127.0.0.1:57374", "method":"Greet", "service":"e2etest.Hello", "sleepTime":"16ms"}
+[E2024-02-18T17:48:52.479891-08:00 70236 0 encoding.go:249] prpc: responding with DeadlineExceeded error (HTTP 504): internal deadline exceeded
+[W2024-02-18T17:48:52.480225-08:00 70236 0 client.go:357] RPC failed permanently: rpc error: code = DeadlineExceeded desc = Request deadline exceeded {"host":"127.0.0.1:57374", "method":"Greet", "service":"e2etest.Hello"}
+.
+24 total assertions
+```</content>
+    </entry>
+    <entry>
+        <id>325738872</id>
+        <title>[Android System Health Rotation Startup]: 1 regressions in startup.mobile</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325738872"/>
+        <updated>2024-02-19T07:31:50.205Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1261853:1261889:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=57eb19ba-d212-4013-a303-739a6b443e2e
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=57eb19ba-d212-4013-a303-739a6b443e2e
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/android-pixel2-perf/startup.mobile/messageloop_start_time/intent_coldish_bbc
+        3.76%: 483.9135 -&gt; 502.087 
+
+Top 1 affected measurements in android-pixel2-perf:
+  - startup.mobile/messageloop_start_time/intent_coldish_bbc
+        3.76%: 483.9135 -&gt; 502.087 
+
+Regressions grouped by startup.mobile includes data from the following benchmarks with listed owners:
+  startup.mobile: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>325306595</id>
+        <title>[Android System Health Rotation Startup]: 1 regressions in startup.mobile</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325306595"/>
+        <updated>2024-02-19T07:31:47.570Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1261830:1261863:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=5182293c-0a16-43c1-83aa-c39877c30cfd
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=5182293c-0a16-43c1-83aa-c39877c30cfd
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/android-pixel2-perf/startup.mobile/messageloop_start_time/intent_coldish_bbc
+        3.76%: 483.9135 -&gt; 502.087 
+
+Top 1 affected measurements in android-pixel2-perf:
+  - startup.mobile/messageloop_start_time/intent_coldish_bbc
+        3.76%: 483.9135 -&gt; 502.087 
+
+Regressions grouped by startup.mobile includes data from the following benchmarks with listed owners:
+  startup.mobile: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>325826180</id>
+        <title>Wallpaper washes out in tablet mode. OK when keyboard connected. Using Lenovo Duet 5 Chromebook.</title>
+        <author>
+            <name>an...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325826180"/>
+        <updated>2024-02-19T07:28:06.829Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+1. With keyboard connected wallpaper look OK.
+2. Disconnect keyboard to use tablet mode. Wallpaper washed out and faded.
+3. Reconnect keyboard, wallpaper OK again.
+I checked the forums, and the problem was first reported back in 2022. It's now 2024 and the problem hasn't been fixed.
+
+# Problem Description
+As above.
+
+# Summary
+Wallpaper washes out in tablet mode. OK when keyboard connected. Using Lenovo Duet 5 Chromebook.
+
+# Custom Questions
+#### Please select a label to classify your issue:
+Type-Bug-Regression - Used to work, now broken
+
+# Additional Data
+Category: Other \
+Chrome Channel: Not sure \
+Regression: N/A</content>
+    </entry>
+    <entry>
+        <id>325757508</id>
+        <title>Spam</title>
+        <author>
+            <name>le...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325757508"/>
+        <updated>2024-02-19T06:59:39.707Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+1. Spam 
+2. Spam
+3. 
+
+# Problem Description
+Spam
+
+# Summary
+Spam
+
+# Additional Data
+Category: Developer Tools \
+Chrome Channel: Not sure \
+Regression: No</content>
+    </entry>
+    <entry>
+        <id>325826179</id>
+        <title>When src in @font-face is local, it will cause local font files to be repeatedly loaded into memory, which will consume a lot of memory.</title>
+        <author>
+            <name>yu...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325826179"/>
+        <updated>2024-02-19T06:48:33.682Z</updated>
+        <summary>-</summary>
+        <content type="html">When a user installs a large TTC file and opens our webpage, OOM will appear.
+Through debugging, we found that the following method of using @font-face will create an sk_sp&lt;SkTypeface&gt; instance and load the font file once for each size of text, which will consume a lot of virtual memory.
+```
+@font-face {
+       font-family: MyCustomFont;
+       font-weight: 300;
+       src: local("PingFangSC-Light");
+}
+```
+Reproduction steps:
+1. Install PingFang.ttc
+2. Use 32-bit chromium to open font.html
+3. Create a dmp file for the corresponding Render process.
+4. Use a tool similar to windbg to analyze the MEM_MAPPED type of memory in the dmp file.
 
 
-Please provide any additional information below. Attach a screenshot if possible.
+By analyzing the code, we found that `sk_sp&lt;SkTypeface&gt;` in the above demo was created using `AlternateFontName::kLocalUniqueFace`. Can we cache the `sk_sp&lt;SkTypeface&gt;` created through `AlternateFontName::kLocalUniqueFac`e in `FontCache`? This avoids creating the `sk_sp&lt;SkTypeface&gt;` object multiple times.</content>
+    </entry>
+    <entry>
+        <id>325773362</id>
+        <title>[WPT] New failures introduced in external/wpt/css/css-view-transitions by import https://crrev.com/c/5305735</title>
+        <author>
+            <name>wp...@chops-service-accounts.iam.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325773362"/>
+        <updated>2024-02-19T05:09:15.767Z</updated>
+        <summary>-</summary>
+        <content type="html">WPT import https://crrev.com/c/5305735 introduced new failures in external/wpt/css/css-view-transitions:
 
-For graphics-related bugs, please save the contents of the about:gpu page to a text file and attach it to this bug report as an attachment.</content>
+List of new failures:
+virtual/view-transition-mpa-serialization/external/wpt/css/css-view-transitions/pseudo-with-classes-view-transition-image-pair.html [ Failure ]
+
+Expectations or baseline files [0] have been automatically added for the failing results to keep the bots green. Please investigate the new failures and triage as appropriate.
+
+Upstream changes imported:
+https://github.com/web-platform-tests/wpt/compare/32864fa9c0293296e90af926021cf80002abac69...bbc413abeefdbe8de64a08c76a4f5d1315a9dc7d
+Export made from a WebKit repository (#44641): https://github.com/web-platform-tests/wpt/commit/bbc413abeefdbe8de64a08c76a4f5d1315a9dc7d
+
+[0]: https://chromium.googlesource.com/chromium/src/+/HEAD/docs/testing/web_test_expectations.md
+
+This bug was filed automatically due to a new WPT test failure for which you are marked an OWNER. If you do not want to receive these reports, please add "wpt { notify: NO }"  to the relevant DIR_METADATA file.</content>
+    </entry>
+    <entry>
+        <id>325773361</id>
+        <title>[WPT] New failures introduced in external/wpt/css/filter-effects by import https://crrev.com/c/5305735</title>
+        <author>
+            <name>wp...@chops-service-accounts.iam.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325773361"/>
+        <updated>2024-02-19T05:09:15.342Z</updated>
+        <summary>-</summary>
+        <content type="html">WPT import https://crrev.com/c/5305735 introduced new failures in external/wpt/css/filter-effects:
+
+List of new failures:
+external/wpt/css/filter-effects/backdrop-filter-clip-rect-2.html [ Failure ]
+
+Expectations or baseline files [0] have been automatically added for the failing results to keep the bots green. Please investigate the new failures and triage as appropriate.
+
+Upstream changes imported:
+https://github.com/web-platform-tests/wpt/compare/32864fa9c0293296e90af926021cf80002abac69...bbc413abeefdbe8de64a08c76a4f5d1315a9dc7d
+Export made from a WebKit repository (#44641): https://github.com/web-platform-tests/wpt/commit/bbc413abeefdbe8de64a08c76a4f5d1315a9dc7d [affecting this directory]
+
+[0]: https://chromium.googlesource.com/chromium/src/+/HEAD/docs/testing/web_test_expectations.md
+
+This bug was filed automatically due to a new WPT test failure for which you are marked an OWNER. If you do not want to receive these reports, please add "wpt { notify: NO }"  to the relevant DIR_METADATA file.</content>
+    </entry>
+    <entry>
+        <id>325773360</id>
+        <title>[WPT] New failures introduced in external/wpt/fetch by import https://crrev.com/c/5305735</title>
+        <author>
+            <name>wp...@chops-service-accounts.iam.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325773360"/>
+        <updated>2024-02-19T05:09:12.824Z</updated>
+        <summary>-</summary>
+        <content type="html">WPT import https://crrev.com/c/5305735 introduced new failures in external/wpt/fetch:
+
+List of new failures:
+[ Win11-arm64 ] virtual/keepalive-in-browser-migration/external/wpt/fetch/api/response/response-clone.any.html [ Timeout ]
+
+Expectations or baseline files [0] have been automatically added for the failing results to keep the bots green. Please investigate the new failures and triage as appropriate.
+
+Upstream changes imported:
+https://github.com/web-platform-tests/wpt/compare/32864fa9c0293296e90af926021cf80002abac69...bbc413abeefdbe8de64a08c76a4f5d1315a9dc7d
+Export made from a WebKit repository (#44641): https://github.com/web-platform-tests/wpt/commit/bbc413abeefdbe8de64a08c76a4f5d1315a9dc7d
+
+[0]: https://chromium.googlesource.com/chromium/src/+/HEAD/docs/testing/web_test_expectations.md
+
+This bug was filed automatically due to a new WPT test failure for which you are marked an OWNER. If you do not want to receive these reports, please add "wpt { notify: NO }"  to the relevant DIR_METADATA file.</content>
+    </entry>
+    <entry>
+        <id>325738871</id>
+        <title>[WPT] New failures introduced in external/wpt/fenced-frame by import https://crrev.com/c/5305735</title>
+        <author>
+            <name>wp...@chops-service-accounts.iam.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325738871"/>
+        <updated>2024-02-19T05:09:12.089Z</updated>
+        <summary>-</summary>
+        <content type="html">WPT import https://crrev.com/c/5305735 introduced new failures in external/wpt/fenced-frame:
+
+List of new failures:
+[ Win11-arm64 ] virtual/fenced-frame-mparch/external/wpt/fenced-frame/default-enabled-features-allow-all.https.html [ Timeout ]
+
+Expectations or baseline files [0] have been automatically added for the failing results to keep the bots green. Please investigate the new failures and triage as appropriate.
+
+Upstream changes imported:
+https://github.com/web-platform-tests/wpt/compare/32864fa9c0293296e90af926021cf80002abac69...bbc413abeefdbe8de64a08c76a4f5d1315a9dc7d
+Export made from a WebKit repository (#44641): https://github.com/web-platform-tests/wpt/commit/bbc413abeefdbe8de64a08c76a4f5d1315a9dc7d
+
+[0]: https://chromium.googlesource.com/chromium/src/+/HEAD/docs/testing/web_test_expectations.md
+
+This bug was filed automatically due to a new WPT test failure for which you are marked an OWNER. If you do not want to receive these reports, please add "wpt { notify: NO }"  to the relevant DIR_METADATA file.</content>
     </entry>
     <entry>
         <id>325757506</id>
@@ -479,7 +779,7 @@ Screen recordings can also be very helpful - see https://developer.android.com/s
     </entry>
     <entry>
         <id>325827616</id>
-        <title>[Graphics]: 1 regressions in rendering.desktop</title>
+        <title>[Graphics]: 2 regressions in rendering.desktop</title>
         <author>
             <name>ch...@appspot.gserviceaccount.com</name>
         </author>
@@ -1124,327 +1424,5 @@ My reviews get reflected on my device, but are not visible publicly
 Category: UI \
 Chrome Channel: Not sure \
 Regression: Yes</content>
-    </entry>
-    <entry>
-        <id>325724115</id>
-        <title>Using too much RAM crashes Chrome for Android.</title>
-        <author>
-            <name>iv...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325724115"/>
-        <updated>2024-02-18T06:32:43.093Z</updated>
-        <summary>-</summary>
-        <content type="html"># Steps to reproduce the problem
-1. Open https://jsfiddle.net/98tr67qb/ (on Pixel 6a in my case)
-2. The website crashes
-
-# Problem Description
-I am trying to write a webapp which checks the available RAM. There is a "new Uint8Array(...)" inside a try/catch block.
-
-It runs well on all OS / devices except of my Google Pixel 6a Android phone with the latest Android 14. I don't know if it happens on all Android phones.
-
-# Summary
-Using too much RAM crashes Chrome for Android.
-
-# Additional Data
-Category: JavaScript \
-Chrome Channel: Stable \
-Regression: N/A</content>
-    </entry>
-    <entry>
-        <id>325738863</id>
-        <title>[WPT] New failures introduced in external/wpt/css/css-view-transitions by import https://crrev.com/c/5302662</title>
-        <author>
-            <name>wp...@chops-service-accounts.iam.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325738863"/>
-        <updated>2024-02-18T06:18:18.953Z</updated>
-        <summary>-</summary>
-        <content type="html">WPT import https://crrev.com/c/5302662 introduced new failures in external/wpt/css/css-view-transitions:
-
-List of new failures:
-virtual/view-transition-mpa-serialization/external/wpt/css/css-view-transitions/pseudo-with-classes-view-transition-group.html [ Failure ]
-
-Expectations or baseline files [0] have been automatically added for the failing results to keep the bots green. Please investigate the new failures and triage as appropriate.
-
-Upstream changes imported:
-https://github.com/web-platform-tests/wpt/compare/504dbb9401e985461bdc3fb534cb26fd5bb9d9ad...32864fa9c0293296e90af926021cf80002abac69
-[webnn] Add float32 tests for WebNN API l2Pool2d op (#44314): https://github.com/web-platform-tests/wpt/commit/32864fa9c0293296e90af926021cf80002abac69
-[webnn] Add float32 tests for WebNN API triangular op (#43794): https://github.com/web-platform-tests/wpt/commit/a8f1e9c650f78cf3c09d52edb92a82a69798c7c4
-[webnn] Add tests for WebNN API constant (fillSequence) (#43801): https://github.com/web-platform-tests/wpt/commit/155f94acacf87bef59c2e2b5d29d33c1f5489bb2
-
-[0]: https://chromium.googlesource.com/chromium/src/+/HEAD/docs/testing/web_test_expectations.md
-
-This bug was filed automatically due to a new WPT test failure for which you are marked an OWNER. If you do not want to receive these reports, please add "wpt { notify: NO }"  to the relevant DIR_METADATA file.</content>
-    </entry>
-    <entry>
-        <id>325306592</id>
-        <title>[WPT] New failures introduced in external by import https://crrev.com/c/5302662</title>
-        <author>
-            <name>wp...@chops-service-accounts.iam.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325306592"/>
-        <updated>2024-02-18T06:18:18.176Z</updated>
-        <summary>-</summary>
-        <content type="html">WPT import https://crrev.com/c/5302662 introduced new failures in external:
-
-List of new failures:
-external/wpt/webnn/constant.https.any.html new failing tests: https://crrev.com/c/5302662/4/third_party/blink/web_tests/external/wpt/webnn/constant.https.any-expected.txt
-external/wpt/webnn/constant.https.any.worker.html new failing tests: https://crrev.com/c/5302662/4/third_party/blink/web_tests/external/wpt/webnn/constant.https.any.worker-expected.txt
-external/wpt/webnn/pooling.https.any.html new failing tests: https://crrev.com/c/5302662/4/third_party/blink/web_tests/external/wpt/webnn/pooling.https.any-expected.txt
-[ Linux-chrome ] external/wpt/webnn/pooling.https.any.html new failing tests: https://crrev.com/c/5302662/4/third_party/blink/web_tests/platform/linux-chrome/external/wpt/webnn/pooling.https.any-expected.txt
-external/wpt/webnn/pooling.https.any.worker.html new failing tests: https://crrev.com/c/5302662/4/third_party/blink/web_tests/external/wpt/webnn/pooling.https.any.worker-expected.txt
-[ Linux-chrome ] external/wpt/webnn/pooling.https.any.worker.html new failing tests: https://crrev.com/c/5302662/4/third_party/blink/web_tests/platform/linux-chrome/external/wpt/webnn/pooling.https.any.worker-expected.txt
-external/wpt/webnn/triangular.https.any.html new failing tests: https://crrev.com/c/5302662/4/third_party/blink/web_tests/external/wpt/webnn/triangular.https.any-expected.txt
-external/wpt/webnn/triangular.https.any.worker.html new failing tests: https://crrev.com/c/5302662/4/third_party/blink/web_tests/external/wpt/webnn/triangular.https.any.worker-expected.txt
-virtual/webnn-service-enabled/external/wpt/webnn/gpu/constant.https.any.html new failing tests: https://crrev.com/c/5302662/4/third_party/blink/web_tests/virtual/webnn-service-enabled/external/wpt/webnn/gpu/constant.https.any-expected.txt
-virtual/webnn-service-enabled/external/wpt/webnn/gpu/constant.https.any.worker.html new failing tests: https://crrev.com/c/5302662/4/third_party/blink/web_tests/virtual/webnn-service-enabled/external/wpt/webnn/gpu/constant.https.any.worker-expected.txt
-[ Win11-arm64 ] virtual/webnn-service-enabled/external/wpt/webnn/gpu/pooling.https.any.html new failing tests: https://crrev.com/c/5302662/4/third_party/blink/web_tests/platform/win11-arm64/virtual/webnn-service-enabled/external/wpt/webnn/gpu/pooling.https.any-expected.txt
-virtual/webnn-service-enabled/external/wpt/webnn/gpu/pooling.https.any.html new failing tests: https://crrev.com/c/5302662/4/third_party/blink/web_tests/virtual/webnn-service-enabled/external/wpt/webnn/gpu/pooling.https.any-expected.txt
-[ Win11-arm64 ] virtual/webnn-service-enabled/external/wpt/webnn/gpu/pooling.https.any.worker.html new failing tests: https://crrev.com/c/5302662/4/third_party/blink/web_tests/platform/win11-arm64/virtual/webnn-service-enabled/external/wpt/webnn/gpu/pooling.https.any.worker-expected.txt
-virtual/webnn-service-enabled/external/wpt/webnn/gpu/pooling.https.any.worker.html new failing tests: https://crrev.com/c/5302662/4/third_party/blink/web_tests/virtual/webnn-service-enabled/external/wpt/webnn/gpu/pooling.https.any.worker-expected.txt
-virtual/webnn-service-enabled/external/wpt/webnn/gpu/triangular.https.any.html new failing tests: https://crrev.com/c/5302662/4/third_party/blink/web_tests/virtual/webnn-service-enabled/external/wpt/webnn/gpu/triangular.https.any-expected.txt
-virtual/webnn-service-enabled/external/wpt/webnn/gpu/triangular.https.any.worker.html new failing tests: https://crrev.com/c/5302662/4/third_party/blink/web_tests/virtual/webnn-service-enabled/external/wpt/webnn/gpu/triangular.https.any.worker-expected.txt
-
-Expectations or baseline files [0] have been automatically added for the failing results to keep the bots green. Please investigate the new failures and triage as appropriate.
-
-Upstream changes imported:
-https://github.com/web-platform-tests/wpt/compare/504dbb9401e985461bdc3fb534cb26fd5bb9d9ad...32864fa9c0293296e90af926021cf80002abac69
-[webnn] Add float32 tests for WebNN API l2Pool2d op (#44314): https://github.com/web-platform-tests/wpt/commit/32864fa9c0293296e90af926021cf80002abac69
-[webnn] Add float32 tests for WebNN API triangular op (#43794): https://github.com/web-platform-tests/wpt/commit/a8f1e9c650f78cf3c09d52edb92a82a69798c7c4
-[webnn] Add tests for WebNN API constant (fillSequence) (#43801): https://github.com/web-platform-tests/wpt/commit/155f94acacf87bef59c2e2b5d29d33c1f5489bb2
-
-[0]: https://chromium.googlesource.com/chromium/src/+/HEAD/docs/testing/web_test_expectations.md
-
-This bug was filed automatically due to a new WPT test failure for which you are marked an OWNER. If you do not want to receive these reports, please add "wpt { notify: NO }"  to the relevant DIR_METADATA file.</content>
-    </entry>
-    <entry>
-        <id>325650383</id>
-        <title>did a reset and still getting pop up video ads</title>
-        <author>
-            <name>nh...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325650383"/>
-        <updated>2024-02-18T04:46:24.890Z</updated>
-        <summary>-</summary>
-        <content type="html">Chrome Version       : &lt;from chrome://version/&gt;
-OS                   : &lt;OS version&gt;
-
-What steps will reproduce the problem?
-
-
-What is the expected result?
-
-
-What happens instead?
-
-
-You can help us a lot by creating a minimal, reproducible example (https://stackoverflow.com/help/minimal-reproducible-example), e.g. on glitch.com, and/or attaching a screenshot or recording of the issue!</content>
-    </entry>
-    <entry>
-        <id>325697545</id>
-        <title>Owner3</title>
-        <author>
-            <name>er...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325697545"/>
-        <updated>2024-02-18T04:15:50.173Z</updated>
-        <summary>-</summary>
-        <content type="html">I been harrased and had attempts  till this day are being made on me and my kids livew and I need serious help  fro,m these online hackesr.</content>
-    </entry>
-    <entry>
-        <id>325678250</id>
-        <title>All/DumpAccessibilityTreeTest.AccessibilityInputRadioCheckboxLabel/blink fails on ios-blink</title>
-        <author>
-            <name>gy...@igalia.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325678250"/>
-        <updated>2024-02-18T03:05:08.690Z</updated>
-        <summary>-</summary>
-        <content type="html">- The test has been failing since https://crrev.com/c/5282073.
-
-- Example failure: https://ci.chromium.org/ui/p/chromium/builders/ci/ios-blink-dbg-fyi/19023/overview
-
-- Error output:
-
-* Line Expected
-- ---- --------
-     1 rootWebArea
-     2 ++genericContainer ignored
-     3 ++++genericContainer
-     4 ++++++labelText ignored
-     5 ++++++++staticText ignored name='label ignored for radio button '
-     6 ++++++++radioButton name='label ignored for radio button' checkedState=false
-     7 ++++++labelText ignored
-     8 ++++++++staticText ignored name='label ignored for checkbox '
-     9 ++++++++checkBox name='label ignored for checkbox' checkedState=false
-    10 ++++++labelText name='label exposed for radio button '
-    11 ++++++++staticText name='label exposed for radio button '
-    12 ++++++++++inlineTextBox name='label exposed for radio button '
-    13 ++++++++radioButton name='label exposed for radio button' checkedState=false
-    14 ++++++labelText name='label exposed for checkbox '
-    15 ++++++++staticText name='label exposed for checkbox '
-*   16 ++++++++++inlineTextBox name='label exposed for '
-*   17 ++++++++++inlineTextBox name='checkbox '
-*   18 ++++++++checkBox name='label exposed for checkbox' checkedState=false
-
-Actual
-------
-rootWebArea
-++genericContainer ignored
-++++genericContainer
-++++++labelText ignored
-++++++++staticText ignored name='label ignored for radio button '
-++++++++radioButton name='label ignored for radio button' checkedState=false
-++++++labelText ignored
-++++++++staticText ignored name='label ignored for checkbox '
-++++++++checkBox name='label ignored for checkbox' checkedState=false
-++++++labelText name='label exposed for radio button '
-++++++++staticText name='label exposed for radio button '
-++++++++++inlineTextBox name='label exposed for radio button '
-++++++++radioButton name='label exposed for radio button' checkedState=false
-++++++labelText name='label exposed for checkbox '
-++++++++staticText name='label exposed for checkbox '
-++++++++++inlineTextBox name='label exposed for checkbox '
-++++++++checkBox name='label exposed for checkbox' checkedState=false
-&lt;-- End-of-file --&gt;
-
-../../content/browser/accessibility/dump_accessibility_browsertest_base.cc:492: Failure
-Value of: matches_expectation
-  Actual: false
-Expected: true
-</content>
-    </entry>
-    <entry>
-        <id>325650382</id>
-        <title>Can't receive OTP codes through email, phone call or text message</title>
-        <author>
-            <name>br...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325650382"/>
-        <updated>2024-02-18T02:57:35.204Z</updated>
-        <summary>-</summary>
-        <content type="html">Chrome Version: (copy from chrome://version)
-Lacros Version (if applicable): (copy from chrome://version)
-OS: (e.g. Win10, MacOS 10.12, etc...)
-
-What steps will reproduce the problem?
-(1) open applications
-(2) forgotten password 
-(3) send OTP codes
-
-What is the expected result?
-OTP codes to be sent to my phone 
-
-What happens instead?
-No OTP codes sent to email, sms or phone call for any
-
-
-Please use hotlists and text to provide additional information.
-
-If this is a regression (i.e., worked before), please consider using the bisect tool (https://www.chromium.org/developers/bisect-builds-py) to help us identify the root cause and more rapidly triage the issue.
-
-For graphics-related bugs, please copy/paste the contents of the about://gpu page at the end of this report.</content>
-    </entry>
-    <entry>
-        <id>325735471</id>
-        <title>View transition and crashed frames</title>
-        <author>
-            <name>kh...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325735471"/>
-        <updated>2024-02-18T02:27:15.224Z</updated>
-        <summary>-</summary>
-        <content type="html">Don't try to snapshot when navigating away from a crashed frame. Also listen to crash notifications so if the renderer crashes in the middle of snapshotting, we don't keep blocking the navigation.</content>
-    </entry>
-    <entry>
-        <id>325549672</id>
-        <title>[Graphics]: 1 regressions in rasterize_and_record_micro.top_25</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325549672"/>
-        <updated>2024-02-18T00:07:39.661Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1261897:1261971:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=31f0ae6e-654c-434b-bfef-1899716c9c81
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=31f0ae6e-654c-434b-bfef-1899716c9c81
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/lacros-x86-perf/rasterize_and_record_micro.top_25/rasterize_time/file___static_top_25_google.html
-       29.38%: 7.1895 -&gt; 9.3015 ms
-
-Top 1 affected measurements in lacros-x86-perf:
-  - rasterize_and_record_micro.top_25/rasterize_time/file___static_top_25_google.html
-       29.38%: 7.1895 -&gt; 9.3015 ms
-
-Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
-  rasterize_and_record_micro.top_25: pdr@chromium.org, wangxianzhu@chromium.org
-      
-
-Commits in this range:
-  Chromium Git Hash: https://chromium.googlesource.com/chromium/src/+log/23ec781ae8eed19dc1b74081fc85bb4ccf563977..c0e2d68714c51b58f5c56b500651e350cdbb797e
-  Chromium Commit Position: https://crrev.com/1261896..1261971
-  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/141a62aa0b6b744f9efa8d3ab82bf7489a51a8f5..4057969e3c3d77d74a64422aa91f930506f200a4
-  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/54d9cd002cef2cc0401831ef22bc79d38f2d7548..54d9cd002cef2cc0401831ef22bc79d38f2d7548</content>
-    </entry>
-    <entry>
-        <id>325650380</id>
-        <title>Shared zstd vs ZSDCH in Edge</title>
-        <author>
-            <name>ti...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325650380"/>
-        <updated>2024-02-17T23:01:22.111Z</updated>
-        <summary>-</summary>
-        <content type="html">https://chromium-review.googlesource.com/c/chromium/src/+/4664191 added the shared zstd feature, which adds "zstd-d" to the Accept-Encoding header of the Request.
-
-Edge has a very similar functionality however they call the token in the header zsdch see: https://learn.microsoft.com/en-us/deployedge/learnmore-zsdch-compression
-
-The feature itself is pretty similar, the server signals a shared compression dictionary to the client via an header and the client uses this shared dictionary to de-compressed the payload of the response. This dictionary can be re-used over mutliple requests, thereby reducing total transfer volume..
-
-I did not study both implementations in detail, but on the surface they look quite similar / archive the same goal.. To avoid fragmentation wouldn´t it be a good idea to agree on a common token name in the header?</content>
-    </entry>
-    <entry>
-        <id>325667062</id>
-        <title>использование кодов</title>
-        <author>
-            <name>qw...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325667062"/>
-        <updated>2024-02-17T22:51:57.359Z</updated>
-        <summary>-</summary>
-        <content type="html">This template is for filing bugs against Android System WebView. Chrome bugs should be filed at https://crbug.com/wizard.
-
-Android device name:
-
-Android OS version:
-
-Android System WebView version: (Settings &gt; Apps &gt; the 3 dots in the upper right &gt; Show system. On Android N (7.x) through P (9.0), please include Chrome's version. Otherwise, look for "Android System WebView")
-
-Application: (package name or Play Store URL)
-
-Application version:
-
-Steps to reproduce:
-
-1.
-2.
-3.
-
-Expected result:
-
-Actual result:
-
-Did this work before? (last working WebView version, or N/A)
-
----
-
-It's especially helpful if you can capture a bug report right after you experience the bug, and attach it here. See https://developer.android.com/studio/debug/bug-report for instructions.
-
-Screen recordings can also be very helpful - see https://developer.android.com/studio/command-line/adb#screenrecord. Please enable "Show taps" in developer settings.</content>
     </entry>
 </feed>
