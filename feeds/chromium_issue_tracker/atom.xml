@@ -3,7 +3,559 @@
     <id>https://negibokken.github.io/feeds/chromium_issue_tracker/atom.xml</id>
     <title>Chromium issue tracker feed</title>
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
-    <updated>2024-02-19T16:00:03.520Z</updated>
+    <updated>2024-02-19T19:05:44.752Z</updated>
+    <entry>
+        <id>325835007</id>
+        <title>Multiplication leters with "aaa++" Text on Chat</title>
+        <author>
+            <name>st...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325835007"/>
+        <updated>2024-02-19T19:05:44.752Z</updated>
+        <summary>-</summary>
+        <content type="html">I made an error by including the text "aaa+++" in a segment, which was then mistakenly multiplied several times.
+Gif from repro in attachements. Reproduced with Opera and Chrome Web browser.
+
+To reprodce:
+1. go to translate feature. (like in gif)
+2. Switch language polish to english
+3. type  "biegac i podnosci teery, bo to sciaga blocka"
+4. change manualy teery to "aaa
+5 check result should be " run and lift aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaah block!"</content>
+    </entry>
+    <entry>
+        <id>325951384</id>
+        <title>User is unable to scroll through list of saved tab groups</title>
+        <author>
+            <name>se...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325951384"/>
+        <updated>2024-02-19T19:04:34.985Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+Situation:
+The user has a lot of saved tab groups, and just saved a new one.
+
+The problem:
+But, the user isn't able to scroll through the list to find it.   The list doesn't fit on the screen, and its display can't be changed.
+
+# Problem Description
+Screencast of the problem:
+https://screencast.googleplex.com/cast/NTE1NDM1NzA1Mjk2NDg2NHw4ZGY5NWFjZS01Nw
+
+My versions:
+Chrome version: Version 122.0.6261.49 (Official Build) (arm64)
+MacOS version: 14.3.1 (23D60)
+
+# Additional Comments
+My recommended minimal fix:
+The list of saved tab groups should be scrollable.
+
+My recommended bigger fix:
+Improve management of lots of tab groups.  You can either offer the user a way to fully customize it, or you can pick default organization system that is good enough that users don't feel as much need to organizer.  (Or both()
+  - Good default idea: Organize saved tab groups into folders or sections within the drop-down menu of tab groups, organized by recency / use (e.g. tab groups saved in last 1 day, 1 week, 1 month, older).  Make the most recent category automatically be unfolded so user can see actual tab groups as a top-level item (Without needing to navigate through folders in this most-common case).
+  - Customization idea: Let the user customize (like via the bookmarks editing menu), just as they can make a subfolder structure for how bookmarks appear in the bookmarks strip.
+
+A bit more commentary and rationale for my suggestions:
+What I proposed may seem overkill – isn't a simple drop-down with the names of saved tab groups good enough for most people?  After all, you probably have data showing that most users don't make a super large number of tab groups, to the point where they are hard to manage.
+However, some users do tend to keep a ton of tabs open – you can see from my screencast I have 291. (My guess is ADHD people and PKM (Personal Knowledge Management) fans will be overrepresented in this group – and luckily for you, they both have chat groups where you can seek user feedback.)  And it's precisely these users who (a) will benefit most from tab groups being awesome to help manage and triage, (b) are likely to create a ton of tab groups.  In other words, this power-user-of-many-tabs is exactly the user group where you will create the most value and loyalty by developing out the feature (and also where you will learn the most from their expert usage, like how to build AI to triage tabs for others helpfully).
+
+Other materials:
+Similar bug is at https://g-issues.chromium.org/issues/41494513 
+I realized this after writing my report and recommendations, so decided to file (as a private bug) even though it appears to be a dupe of that public one.
+
+# Summary
+User is unable to scroll through list of saved tab groups
+
+# Additional Data
+Category: UI \
+Chrome Channel: Not sure \
+Regression: No</content>
+    </entry>
+    <entry>
+        <id>325954138</id>
+        <title>$0 in console causes document instanceof Node === false</title>
+        <author>
+            <name>zi...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325954138"/>
+        <updated>2024-02-19T18:58:45.566Z</updated>
+        <summary>-</summary>
+        <content type="html">Chrome Version       : 120.0.6099.272 (Official Build) (64-bit) 
+OS                              : ChromeOS 120
+
+What steps will reproduce the problem?
+
+I found two ways to reproduce a similar problem, this simplest way is the following:
+1. Open a page with an iframe that has no JS, e.g. https://buttery-intelligent-phone.glitch.me/
+2. Select the div within the iframe (by either clicking on it in the Elements pane or using the ctrl+shift+c tool).
+3. In the console, select the "top" context and run "$0 instanceof Node" in the console (this will return true).
+4. Now select the iframe context and again run "$0 instanceof Node" (this will return false).
+
+And the second one, which is actually causing issues in our DevTools extension:
+1. Open any page with an iframe.
+2. Inject a content script only in the top frame (many extensions will do this by default - e.g. angular devtools, so you can reuse their context).
+3. Select a div within an iframe.
+4. In the console, select the extension context and run "$0.ownerDocument.defaultView". This will create a new extension context within the iframe.
+5. In the console, select the new extension context (under the iframe) and run "$0 instanceof Node" or "document instanceof Node" (both return false).
+Now if the extension injects a content script into the iframe in the future, this context will always be broken (instanceof will not work correctly).
+
+What is the expected result?
+$0 instanceof Node should return true when executing code in the context of the iframe that contains the selected element.
+document instanceof Node should always return true.
+
+What happens instead?
+$0 instanceof Node returns true in whichever context the code is run first, and false in other contexts. Note that this doesn't just affect the code running in the console, but also any JS on the page.
+document instanceof Node returns false in the second example.
+
+Possible workaround:
+Running some JS in each iframe before using $0. For extensions this means injecting a content script into every iframe.
+
+You can help us a lot by creating a minimal, reproducible example (https://stackoverflow.com/help/minimal-reproducible-example), e.g. on glitch.com, and/or attaching a screenshot or recording of the issue!</content>
+    </entry>
+    <entry>
+        <id>325936474</id>
+        <title>Talkback does not announce the correct progress bar percentage for a webpage when it is loading.</title>
+        <author>
+            <name>ni...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325936474"/>
+        <updated>2024-02-19T18:57:21.573Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+1. Open Chrome
+2. Type in a website
+3. Observe that Talkback mentions 0 percent or the incorrect value.
+
+# Problem Description
+TalkBack will incorrectly announce the loading percentage of the page. Screen readers users are unable to accurately tell if the webpage has fully loaded.
+
+# Summary
+Talkback does not announce the correct progress bar percentage for a webpage when it is loading.
+
+# Custom Questions
+#### Please select a label to classify your issue:
+Type-Bug - Software not working correctly
+
+# Additional Data
+Category: Other \
+Chrome Channel: Stable \
+Regression: N/A</content>
+    </entry>
+    <entry>
+        <id>325934989</id>
+        <title>Stuttering with VideoToolboxVideoDecoder and AV1 content on M3 devices.</title>
+        <author>
+            <name>da...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325934989"/>
+        <updated>2024-02-19T18:30:59.001Z</updated>
+        <summary>-</summary>
+        <content type="html">There are multiple reports of stuttering with AV1 content that --disable-features=VideoToolboxVideoDecoder resolves. Forking this bug from issue 40075992.
+
+We should turn down the experiment for 121 and see if we can get a fix in for M122/M123.</content>
+    </entry>
+    <entry>
+        <id>325808006</id>
+        <title>Referrer-Policy header causes HTTP/3 connections to fail</title>
+        <author>
+            <name>gi...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325808006"/>
+        <updated>2024-02-19T18:20:31.331Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+1. Launch a server that supports HTTP/1, HTTP/2, HTTP/3 on the same port
+2. If the server returns a "Referrer-Policy: strict-origin-when-cross-origin" header (though any value should work) then the URL_REQUEST fails with:
+
++HTTP_TRANSACTION_READ_HEADERS  [dt=39]
+    HTTP_TRANSACTION_RESTART_AFTER_ERROR
+    --&gt; net_error = -356 (ERR_QUIC_PROTOCOL_ERROR)
+-HTTP_TRANSACTION_READ_HEADERS
+
+3. If the server response does not contain this header, the HTTP/3 connection is established just fine
+
+# Problem Description
+Take a look at the attached net-export file, event #2733. Search for net_error = -356 (ERR_QUIC_PROTOCOL_ERROR).
+
+# Summary
+Referrer-Policy header causes HTTP/3 connections to fail
+
+# Custom Questions
+#### Which component does this fall under?
+Not sure - I don't know
+
+#### Does this work in other browsers? 
+Not sure - I don't know
+
+# Additional Data
+Category: API \
+Chrome Channel: Stable \
+Regression: N/A</content>
+    </entry>
+    <entry>
+        <id>325835006</id>
+        <title>Memory leak when using :empty::before after node remove</title>
+        <author>
+            <name>e....@corp.vk.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325835006"/>
+        <updated>2024-02-19T18:10:06.374Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+1. Create page with stylesheet with two selectors: .foo:empty:before {} .literallyAnySelector:empty+.literallyAnySelector {}
+2. Insert some elements with .foo className
+3. Edit innerHTML of .foo
+4. Remove .foo element
+5. Repeat several times.
+5. Force GC and then capture memory dump. There is many detached nodes causing memory leak
+
+# Problem Description
+We have :empty::before selector in our project stylesheet. Removing elements with this selector causing memory leaks. 
+
+# Summary
+Memory leak when using :empty::before after node remove
+
+# Custom Questions
+#### Which component does this fall under?
+Blink&gt;CSS
+
+#### Does this work in other browsers? 
+Yes - This is just a Chrome problem
+
+# Additional Data
+Category: API \
+Chrome Channel: Stable \
+Regression: N/A</content>
+    </entry>
+    <entry>
+        <id>325851787</id>
+        <title>Display does not turn off when idle</title>
+        <author>
+            <name>tk...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325851787"/>
+        <updated>2024-02-19T17:53:39.193Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+1. Under Settings/Power,
+2. Under "When Idle" for both "While charging" and "While on battery",
+3. "Turn off display" is selected.
+
+# Problem Description
+Screen display NEVER turns off. Tested multiple times, even over night. 
+Chrome Version 120.0.6099.272 (Official Build) (64-bit)
+HP Chromebook, model 14a-na1093cl
+
+# Summary
+Display does not turn off when idle
+
+# Additional Data
+Category: Other \
+Chrome Channel: Not sure \
+Regression: No</content>
+    </entry>
+    <entry>
+        <id>325909517</id>
+        <title>Equal sign search failed</title>
+        <author>
+            <name>da...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325909517"/>
+        <updated>2024-02-19T17:44:10.083Z</updated>
+        <summary>-</summary>
+        <content type="html">Chrome Version       : Versão 121.0.6167.185 (Versão oficial) 64 bits
+OS                   : Windows 10 Pro - 22H2 - 19045.3930 - Windows Feature Experience Pack 1000.19053.1000.0
+
+What steps will reproduce the problem?
+
+When searching for the equal sign in Elements, some signs are ignored.
+
+What is the expected result?
+
+Count ALL equal signs
+
+What happens instead?
+
+Some equal signs are ignored and do not appear in search results.
+
+
+You can help us a lot by creating a minimal, reproducible example (https://stackoverflow.com/help/minimal-reproducible-example), e.g. on glitch.com, and/or attaching a screenshot or recording of the issue!
+
+Page example: https://loja.algartelecom.com.br/</content>
+    </entry>
+    <entry>
+        <id>325944593</id>
+        <title>Page Up/Down does not work on the default Chrome homepage</title>
+        <author>
+            <name>hl...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325944593"/>
+        <updated>2024-02-19T17:33:02.705Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+1. Have a keyboard connected to Pixel device, tap Fn + cursor up/down to get page up/down 
+2. 
+3. 
+
+# Problem Description
+Note that when trying to do Page Up/Down, nothing happens. The Chrome web page just stays/gets stuck at the same spot and never reaches the end of the page. Note that I am able to scroll by touching the screen, but not while using my connected keyboard. 
+
+# Additional Comments
+I see it with other sites e.g. BBC News but i don't know if it's all the same issue or not. 
+
+# Summary
+Page Up/Down does not work on the default Chrome homepage
+
+# Custom Questions
+#### Example URL: 
+Don't know
+
+#### Does the problem occur on multiple sites?
+Yes - Please describe below
+
+#### Is it a problem with a plugin?
+Not sure - I don't know
+
+#### Does this work in other browsers? 
+Not sure - I don't know
+
+# Additional Data
+Category: Content \
+Chrome Channel: Stable \
+Regression: N/A</content>
+    </entry>
+    <entry>
+        <id>325942131</id>
+        <title>Improve testing and documentation of embedded page nodes</title>
+        <author>
+            <name>jo...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325942131"/>
+        <updated>2024-02-19T17:15:08.911Z</updated>
+        <summary>-</summary>
+        <content type="html">page_node_impl_unittest.cc doesn't test any embedded page nodes, which means it will be easy to accidentally break their semantics. And I can't find anywhere that clearly defines things like "is the OnIsFocusedChanged notification delivered to embedded page nodes or just the top-level page node". This should be covered in the unit test.
+
+It would also be helpful to add graphs to mock_graphs.h that include embedded page nodes, so that features can easily test those cases.</content>
+    </entry>
+    <entry>
+        <id>325940334</id>
+        <title>Validate-Test-Flakiness: skip for android sync tests</title>
+        <author>
+            <name>dr...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325940334"/>
+        <updated>2024-02-19T17:05:42.004Z</updated>
+        <summary>-</summary>
+        <content type="html">In https://chromium-review.googlesource.com/c/chromium/src/+/5300960, I am renaming some test from sync_integration_test and got rejected from the trybot.
+
+Link to trybot:
+https://ci.chromium.org/ui/p/chromium/builders/try/android-12-x64-rel/693999/overview
+
+The failure seems to have nothing to do with my CL (it's about the compositor being called on the wrong thread).
+Sync tests seem extremely flaky on android in general, and even tests that I did not touch fail a lot on that bot.</content>
+    </entry>
+    <entry>
+        <id>325838112</id>
+        <title>[Chromium GSoC] Request for Feedback</title>
+        <author>
+            <name>nu...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325838112"/>
+        <updated>2024-02-19T16:38:45.310Z</updated>
+        <summary>-</summary>
+        <content type="html">*Instructions:*
+
+*1) Choose if this is a general question about the project (if so choose template 1) or if this is a request for a review of a proposal (if so choose template 2 below)*
+
+*2) Fill in the template completely and delete the instructions and the unused template*
+
+*3) Update the title to reflect your question or "proposal submission for &lt;your name&gt;"*
+
+*4) Submit and wait for the mentors to provide feedback*.
+
+
+*--------------- Template 1 ------------------*
+
+**Question about Project**
+
+*Delete this and the below paragraphs and ask your question here, recall that there is lots of material for routine questions. Please go through the [project list](https://docs.google.com/presentation/d/15tLikPVkKrkz53RVG1ncY-8PpWA4dgZU0-5kl-uB4dg/edit#slide=id.g1f110b421e3_1_95), if you are interested get started on the starter bugs / starter milestone listed on the project doc of each project.*
+
+*If you want a head start or interested in contributing to chromium you can check out the “[Life of a Chromium Developer](https://groups.google.com/a/chromium.org/g/chromium-dev/c/ybLzH8-FoTc/m/YhTe2g9L7CUJ)”, “[contributing](https://chromium.googlesource.com/chromium/src/+/master/docs/contributing.md)”, or “[getting involved](https://www.chromium.org/getting-involved)” for information about getting the code and general flow of making a change to the code base.*
+
+*If you have general questions not about a project you should instead email the mailing list chromium-gsoc@chromium.org and the admins can assist you.*
+
+
+*--------------- Template 2 ------------------*
+
+**Request For Project Proposal Review**
+
+Please use our [template for a proposal](https://docs.google.com/document/d/1IOj4hSdPl8h1-8zYK_Gt3OxA0R44SLbmr-ZH3f9yDXM/edit?usp=sharing)
+
+But we also encourage you to read GSoC's [writing a proposal](https://google.github.io/gsocguides/student/writing-a-proposal) and [example proposal](https://google.github.io/gsocguides/student/proposal-example-1). We suggest you reach out early engage with the starter bug of your project, and submit a proposal soon after you have a handle on the problem.
+
+* Link to Google doc that contains your proposal:
+* Desired Project length (if different from project slide's suggestions):
+* Desired Project size (if different from project slide's suggestions): *Small/Medium/Large*
+* Any additional comments:</content>
+    </entry>
+    <entry>
+        <id>325808003</id>
+        <title>[Chromium GSoC] Request for Feedback</title>
+        <author>
+            <name>nu...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325808003"/>
+        <updated>2024-02-19T16:37:48.315Z</updated>
+        <summary>-</summary>
+        <content type="html">*Instructions:*
+
+*1) Choose if this is a general question about the project (if so choose template 1) or if this is a request for a review of a proposal (if so choose template 2 below)*
+
+*2) Fill in the template completely and delete the instructions and the unused template*
+
+*3) Update the title to reflect your question or "proposal submission for &lt;your name&gt;"*
+
+*4) Submit and wait for the mentors to provide feedback*.
+
+
+*--------------- Template 1 ------------------*
+
+**Question about Project**
+
+*Delete this and the below paragraphs and ask your question here, recall that there is lots of material for routine questions. Please go through the [project list](https://docs.google.com/presentation/d/15tLikPVkKrkz53RVG1ncY-8PpWA4dgZU0-5kl-uB4dg/edit#slide=id.g1f110b421e3_1_95), if you are interested get started on the starter bugs / starter milestone listed on the project doc of each project.*
+
+*If you want a head start or interested in contributing to chromium you can check out the “[Life of a Chromium Developer](https://groups.google.com/a/chromium.org/g/chromium-dev/c/ybLzH8-FoTc/m/YhTe2g9L7CUJ)”, “[contributing](https://chromium.googlesource.com/chromium/src/+/master/docs/contributing.md)”, or “[getting involved](https://www.chromium.org/getting-involved)” for information about getting the code and general flow of making a change to the code base.*
+
+*If you have general questions not about a project you should instead email the mailing list chromium-gsoc@chromium.org and the admins can assist you.*
+
+
+*--------------- Template 2 ------------------*
+
+**Request For Project Proposal Review**
+
+Please use our [template for a proposal](https://docs.google.com/document/d/1IOj4hSdPl8h1-8zYK_Gt3OxA0R44SLbmr-ZH3f9yDXM/edit?usp=sharing)
+
+But we also encourage you to read GSoC's [writing a proposal](https://google.github.io/gsocguides/student/writing-a-proposal) and [example proposal](https://google.github.io/gsocguides/student/proposal-example-1). We suggest you reach out early engage with the starter bug of your project, and submit a proposal soon after you have a handle on the problem.
+
+* Link to Google doc that contains your proposal:
+* Desired Project length (if different from project slide's suggestions):
+* Desired Project size (if different from project slide's suggestions): *Small/Medium/Large*
+* Any additional comments:</content>
+    </entry>
+    <entry>
+        <id>325838111</id>
+        <title>[Chromium GSoC] Request for Feedback</title>
+        <author>
+            <name>nu...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325838111"/>
+        <updated>2024-02-19T16:36:58.089Z</updated>
+        <summary>-</summary>
+        <content type="html">*Instructions:*
+
+*1) Choose if this is a general question about the project (if so choose template 1) or if this is a request for a review of a proposal (if so choose template 2 below)*
+
+*2) Fill in the template completely and delete the instructions and the unused template*
+
+*3) Update the title to reflect your question or "proposal submission for &lt;your name&gt;"*
+
+*4) Submit and wait for the mentors to provide feedback*.
+
+
+*--------------- Template 1 ------------------*
+
+**Question about Project**
+
+*Delete this and the below paragraphs and ask your question here, recall that there is lots of material for routine questions. Please go through the [project list](https://docs.google.com/presentation/d/15tLikPVkKrkz53RVG1ncY-8PpWA4dgZU0-5kl-uB4dg/edit#slide=id.g1f110b421e3_1_95), if you are interested get started on the starter bugs / starter milestone listed on the project doc of each project.*
+
+*If you want a head start or interested in contributing to chromium you can check out the “[Life of a Chromium Developer](https://groups.google.com/a/chromium.org/g/chromium-dev/c/ybLzH8-FoTc/m/YhTe2g9L7CUJ)”, “[contributing](https://chromium.googlesource.com/chromium/src/+/master/docs/contributing.md)”, or “[getting involved](https://www.chromium.org/getting-involved)” for information about getting the code and general flow of making a change to the code base.*
+
+*If you have general questions not about a project you should instead email the mailing list chromium-gsoc@chromium.org and the admins can assist you.*
+
+
+*--------------- Template 2 ------------------*
+
+**Request For Project Proposal Review**
+
+Please use our [template for a proposal](https://docs.google.com/document/d/1IOj4hSdPl8h1-8zYK_Gt3OxA0R44SLbmr-ZH3f9yDXM/edit?usp=sharing)
+
+But we also encourage you to read GSoC's [writing a proposal](https://google.github.io/gsocguides/student/writing-a-proposal) and [example proposal](https://google.github.io/gsocguides/student/proposal-example-1). We suggest you reach out early engage with the starter bug of your project, and submit a proposal soon after you have a handle on the problem.
+
+* Link to Google doc that contains your proposal:
+* Desired Project length (if different from project slide's suggestions):
+* Desired Project size (if different from project slide's suggestions): *Small/Medium/Large*
+* Any additional comments:</content>
+    </entry>
+    <entry>
+        <id>325851786</id>
+        <title>test are failing</title>
+        <author>
+            <name>sa...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325851786"/>
+        <updated>2024-02-19T16:19:51.639Z</updated>
+        <summary>-</summary>
+        <content type="html">Chrome Version: (copy from chrome://version)
+Lacros Version (if applicable): (copy from chrome://version)
+OS: (e.g. Win10, MacOS 10.12, etc...)
+
+What steps will reproduce the problem?
+(1)
+(2)
+(3)
+
+What is the expected result?
+
+
+What happens instead?
+
+
+
+Please use hotlists and text to provide additional information.
+
+If this is a regression (i.e., worked before), please consider using the bisect tool (https://www.chromium.org/developers/bisect-builds-py) to help us identify the root cause and more rapidly triage the issue.
+
+For graphics-related bugs, please copy/paste the contents of the about://gpu page at the end of this report.</content>
+    </entry>
+    <entry>
+        <id>325935573</id>
+        <title>Add field trial config for the ModernTabStrip feature </title>
+        <author>
+            <name>ew...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325935573"/>
+        <updated>2024-02-19T16:17:50.412Z</updated>
+        <summary>-</summary>
+        <content type="html">in order to enable ModernTabStrip, some tests need to be updated/fixed.</content>
+    </entry>
+    <entry>
+        <id>325836823</id>
+        <title>DCHECK failure when printing tall monolithic block in inline in table</title>
+        <author>
+            <name>ms...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325836823"/>
+        <updated>2024-02-19T16:17:10.774Z</updated>
+        <summary>-</summary>
+        <content type="html">This seems to be why external/wpt/css/printing/table-overflow-quirks-frameset-crash-print.html is failing.
+
+[759030:1:0219/171545.121309:FATAL:fragmentation_utils.cc(879)] Check failed: !physical_fragment.IsBox() || To&lt;PhysicalBoxFragment&gt;(physical_fragment).IsFirstForNode(). 
+#7 0x7fd9dff1ff63 blink::BreakBeforeChild()
+#8 0x7fd9dff207ce blink::AttemptSoftBreak()
+#9 0x7fd9dfeabf11 blink::BlockLayoutAlgorithm::BreakBeforeChildIfNeeded()</content>
+    </entry>
+    <entry>
+        <id>325934140</id>
+        <title>Add a UUID to ChromeBrowserState</title>
+        <author>
+            <name>fe...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325934140"/>
+        <updated>2024-02-19T16:17:06.384Z</updated>
+        <summary>-</summary>
+        <content type="html"></content>
+    </entry>
     <entry>
         <id>325838110</id>
         <title>Drops cronjob without requiring cron</title>
@@ -482,36 +1034,6 @@ This CL: https://chromium-review.googlesource.com/c/chromium/src/+/5111159 expos
 
 
 </content>
-    </entry>
-    <entry>
-        <id>325773365</id>
-        <title>[V8 Perf Sheriff]: 1 regressions in v8.browsing_mobile-future</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325773365"/>
-        <updated>2024-02-19T15:38:45.470Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1262240:1262254:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=c35a04e3-8d1e-4f79-ad0e-274c62969f5e
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=c35a04e3-8d1e-4f79-ad0e-274c62969f5e
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/android-pixel4-perf/v8.browsing_mobile-future/Parse-Background:duration_avg/browse_shopping/browse_shopping_flipkart_2019
-       29.63%: 244.0825 -&gt; 316.402 
-
-Top 1 affected measurements in android-pixel4-perf:
-  - v8.browsing_mobile-future/Parse-Background:duration_avg/browse_shopping/browse_shopping_flipkart_2019
-       29.63%: 244.0825 -&gt; 316.402 
-
-Regressions grouped by v8.browsing_mobile-future includes data from the following benchmarks with listed owners:
-  v8.browsing_mobile-future: 
-      None
-
-Commits in this range:</content>
     </entry>
     <entry>
         <id>325836820</id>
@@ -1027,570 +1549,5 @@ https://logs.chromium.org/logs/chrome/buildbucket/cr-buildbucket/875568384767017
 During a code review, bsazonov@ pointed out that this may not be the desired end state.
 
 This bug is about reconsidering this decision and possibly coming up with a better replacement to fully disabling scope access validation.</content>
-    </entry>
-    <entry>
-        <id>325738876</id>
-        <title>v8_wasm_code_fuzzer: Timeout in v8_wasm_code_fuzzer</title>
-        <author>
-            <name>cl...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325738876"/>
-        <updated>2024-02-19T11:52:36.766Z</updated>
-        <summary>-</summary>
-        <content type="html">Detailed Report: https://clusterfuzz.com/testcase?key=6291015247265792
-
-Fuzzing Engine: libFuzzer
-Fuzz Target: v8_wasm_code_fuzzer
-Job Type: libfuzzer_chrome_asan
-Platform Id: linux
-
-Crash Type: Timeout (exceeds 60 secs)
-Crash Address: 
-Crash State:
-  v8_wasm_code_fuzzer
-  
-Sanitizer: address (ASAN)
-
-Regressed: https://clusterfuzz.com/revisions?job=libfuzzer_chrome_asan&amp;range=1167707:1167720
-
-Reproducer Testcase: https://clusterfuzz.com/download?testcase_id=6291015247265792
-
-Issue manually filed by: clemensb
-
-See https://chromium.googlesource.com/chromium/src/+/master/testing/libfuzzer/reproducing.md for instructions on reproducing this bug locally.</content>
-    </entry>
-    <entry>
-        <id>325904082</id>
-        <title>Constant mat2x2[2] in glsl breaks metal backend</title>
-        <author>
-            <name>po...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325904082"/>
-        <updated>2024-02-19T11:51:10.280Z</updated>
-        <summary>-</summary>
-        <content type="html">Chrome Version: 122.0.6261.49 (Official Build) (arm64) 
-OS: MacOS 13.6.4
-
-What steps will reproduce the problem?
-
-(1) Set "Choose ANGLE graphics backend" to "Metal" in chrome://flags/ 
-(2) Open attached mat2x2[2].html
-
-What is the expected result?
-
-* A blue rectangle should be shown
-
-What happens instead?
-
-* Nothing is shown.
-
-* The following error is shown in the Developer Console
-
-   [.WebGL-0x13400c27000] GL_INVALID_OPERATION: Error: 0x00000502, in 
-   ../../third_party/angle/src/libANGLE/renderer/metal/mtl_utils.mm, CreateMslShader:1810. 
-   Metal backend encountered an error</content>
-    </entry>
-    <entry>
-        <id>325902084</id>
-        <title>Latest Canary#123.0.6310.0 win-clang builds are stucked at signing.</title>
-        <author>
-            <name>sa...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325902084"/>
-        <updated>2024-02-19T11:42:36.234Z</updated>
-        <summary>-</summary>
-        <content type="html">Filing this issue for tracking purposes.
-
-https://chrome-internal-review.googlesource.com/c/infradata/signing/+/6984328
-https://chrome-internal-review.googlesource.com/c/infradata/signing/+/6984472
-https://chrome-internal-review.googlesource.com/c/infradata/signing/+/6984471
-
-Link for builder page:
-
-https://pantheon.corp.google.com/storage/browser/chrome-signed/desktop-5c0tCh/123.0.6310.0/win-clang;tab=objects?pageState=(%22StorageObjectListTable%22:(%22f%22:%22%255B%255D%22))&amp;prefix=&amp;forceOnObjectsSortingFiltering=false
-
-Note: Unsigned builds for 121.0.6167.76 Win clang builds are available.
-
-Thanks!</content>
-    </entry>
-    <entry>
-        <id>325826188</id>
-        <title>Unable to share screen in Google meet after leaving share pop-up idle for about 3 minutes</title>
-        <author>
-            <name>ys...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325826188"/>
-        <updated>2024-02-19T11:30:09.738Z</updated>
-        <summary>-</summary>
-        <content type="html">Chrome Version: 123.0.6310.0 (Official Build) canary (arm64)  
-98320a8d4b6a12a0f142eeaffa98831bc0e7a487-refs/branch-heads/6310@{#1}
-
-OS : Mac,Win(10,11),Linux
-
-Preconditions:
-None
-
-Steps to reproduce:
-1. Launch Chrome and join any Google meet
-2. Click on Share icon
-3. Leave the system idle for about 3 minutes
-4. Click on any option to share: tab, window or entire screen
-5. Observe the error message: Can’t share your screen - Sorry, an error has occurred when screen sharing
-
-Actual Result: “Can’t share your screen - Sorry, an error has occurred when screen sharing” message is observed
-
-Expected Result: Screen sharing must happen
-
-This issue exists from M-111 onwards .So, raising it as a NR issue.
-
-Please refer to the screenshot below:
-https://drive.google.com/file/d/1ysYDzYktaC2tLC-u8lxmH5fwxQRq8TfI/view?usp=drive_link
-
-Notes:
-1)This issue able to repro on Beta #122.0.6261.49, Dev #123.0.6300.3 and Stable #122.0.6261.49
-2)As this is a Non-Regression issue, changing the status to Untriaged so that the issue would get addressed.
-
-Thanks..!!</content>
-    </entry>
-    <entry>
-        <id>325851777</id>
-        <title>hacking</title>
-        <author>
-            <name>ku...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325851777"/>
-        <updated>2024-02-19T11:17:43.184Z</updated>
-        <summary>-</summary>
-        <content type="html"># Steps to reproduce the problem
-1. hacking
-2. virus
-3. 
-
-# Problem Description
-virus
-
-# Summary
-hacking
-
-# Additional Data
-Category: Developer Tools \
-Chrome Channel: Not sure \
-Regression: N/A</content>
-    </entry>
-    <entry>
-        <id>325836814</id>
-        <title>Recalculate layout with rule.style change while opened devtools</title>
-        <author>
-            <name>hu...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325836814"/>
-        <updated>2024-02-19T11:16:07.698Z</updated>
-        <summary>-</summary>
-        <content type="html"># Steps to reproduce the problem
-1. open rule.style.html in google chrome or another chromium browser
-2. open devtools
-3. click the button (one or many times)
-
-# Problem Description
-You'll see that the text positioned on left: 150px, not 999px. That happens because in for loop construction we read the offsetLeft of the element, and therefore layout was calculated on this position. But after exiting the loop, we can see that the layout not recalculated, even css styles show that left is 999px, but getComputedStyle().left will show 150px.
-
-Line `$div.style.cssText = $div.style.cssText;` will fix layout recalculation. Any change on element.style will force recalculate layout.
-Properties that usually triggers recalculate layout like offsetLeft, offsetHeight or method getBoundingClientRect will not force recalculate layout.
-Closed devtools will fix layout recalculation.
-Starting Performance record will force recalculate.
-
-# Additional Comments
-I noticed that the CSSStyleDeclaration from CSSStyleRule will not works properly with opened devtools, but CSSStyleDeclaration from element.style works properly.
-
-# Summary
-Recalculate layout with rule.style change while opened devtools
-
-# Additional Data
-Category: Developer Tools \
-Chrome Channel: Stable \
-Regression: No</content>
-    </entry>
-    <entry>
-        <id>325897117</id>
-        <title>[Chromium GSoC] Request for Feedback</title>
-        <author>
-            <name>nu...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325897117"/>
-        <updated>2024-02-19T11:09:44.985Z</updated>
-        <summary>-</summary>
-        <content type="html">*Instructions:*
-
-*1) Choose if this is a general question about the project (if so choose template 1) or if this is a request for a review of a proposal (if so choose template 2 below)*
-
-*2) Fill in the template completely and delete the instructions and the unused template*
-
-*3) Update the title to reflect your question or "proposal submission for &lt;your name&gt;"*
-
-*4) Submit and wait for the mentors to provide feedback*.
-
-
-*--------------- Template 1 ------------------*
-
-**Question about Project**
-
-*Delete this and the below paragraphs and ask your question here, recall that there is lots of material for routine questions. Please go through the [project list](https://docs.google.com/presentation/d/15tLikPVkKrkz53RVG1ncY-8PpWA4dgZU0-5kl-uB4dg/edit#slide=id.g1f110b421e3_1_95), if you are interested get started on the starter bugs / starter milestone listed on the project doc of each project.*
-
-*If you want a head start or interested in contributing to chromium you can check out the “[Life of a Chromium Developer](https://groups.google.com/a/chromium.org/g/chromium-dev/c/ybLzH8-FoTc/m/YhTe2g9L7CUJ)”, “[contributing](https://chromium.googlesource.com/chromium/src/+/master/docs/contributing.md)”, or “[getting involved](https://www.chromium.org/getting-involved)” for information about getting the code and general flow of making a change to the code base.*
-
-*If you have general questions not about a project you should instead email the mailing list chromium-gsoc@chromium.org and the admins can assist you.*
-
-
-*--------------- Template 2 ------------------*
-
-**Request For Project Proposal Review**
-
-Please use our [template for a proposal](https://docs.google.com/document/d/1IOj4hSdPl8h1-8zYK_Gt3OxA0R44SLbmr-ZH3f9yDXM/edit?usp=sharing)
-
-But we also encourage you to read GSoC's [writing a proposal](https://google.github.io/gsocguides/student/writing-a-proposal) and [example proposal](https://google.github.io/gsocguides/student/proposal-example-1). We suggest you reach out early engage with the starter bug of your project, and submit a proposal soon after you have a handle on the problem.
-
-* Link to Google doc that contains your proposal:
-* Desired Project length (if different from project slide's suggestions):
-* Desired Project size (if different from project slide's suggestions): *Small/Medium/Large*
-* Any additional comments:
-
-</content>
-    </entry>
-    <entry>
-        <id>325897165</id>
-        <title>Tests are failing: androidx.test.espresso.AmbiguousViewMatcherException: 'with id: org.chromium.chrome.tests:id/large_message_card_item' matches multiple views in the...</title>
-        <author>
-            <name>bi...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325897165"/>
-        <updated>2024-02-19T10:55:17.091Z</updated>
-        <summary>-</summary>
-        <content type="html">This bug is for all test failures where the primary error message is similiar to the following (ignoring numbers and hexadecimal values):
-androidx.test.espresso.AmbiguousViewMatcherException: 'with id: org.chromium.chrome.tests:id/large_message_card_item' matches multiple views in the hierarchy.\nProblem views are marked with '****MATCHES****' below.\n\nView Hierarchy:\n+&gt;DecorView{id=-1, visibility=VISIBLE, width=1080, height=1920, has-focus=true, has-focusable=true, has-window-focus=true, is-clickable=false, is-enabled=true, is-focused=false, is-focusable=false, is-layout-requested=false, is-selected=false, root-is-layout-requested=false, has-input-connection=false, x=0.0, y=0.0, child-count=3} \n|\n+-&gt;LinearLayout{id=-1, visibility=VISIBLE, width=1080, height=1794, has-focus=true, has-focusable=true, has-window-focus=true, is-clickable=false, is-enabled=true, is-focused=false, is-focusable=false, is-layout-requested=false, is-selected=false, root-is-layout-requested=false, has-input-connection=false, x=0.0, y=0.0, child-count=2} \n|\n+--&gt;ViewStub{id=16908682, res-name=action_mode_bar_stub, visibility=GONE, width=0, height=0, has-focus=false, has-...
-
-The following test(s) were observed to have matching failures at this time (at most five examples listed):
-- ninja://chrome/android:chrome_public_test_apk/org.chromium.chrome.browser.tasks.tab_management.PriceAlertsMessageCardTest#testMessageCardShowing
-- ninja://chrome/android:chrome_public_test_apk/org.chromium.chrome.browser.tasks.tab_management.IncognitoReauthPromoCardRenderTest#testRenderReauthPromoMessageCard_Portrait
-- ninja://chrome/android:chrome_public_test_apk/org.chromium.chrome.browser.tasks.tab_management.PriceAlertsMessageCardTest#testReviewMessage_AppNotificationsEnabled
-- ninja://chrome/android:chrome_public_test_apk/org.chromium.chrome.browser.tasks.tab_management.PriceAlertsMessageCardTest#testReviewMessage_AppNotificationsDisabled
-- ninja://chrome/android:chrome_public_test_apk/org.chromium.chrome.browser.tasks.tab_management.PriceAlertsMessageCardTest#testSwipeMessage
-
-
-These test failures are causing problem(s) which require your attention, including:
-- many gardened builders are failing
-
-See current problems, failure examples and more in LUCI Analysis at: https://luci-analysis.appspot.com/p/chromium/rules/4f5e87a6728adaf87bcff904daf05201
-
-How to action this bug: https://luci-analysis.appspot.com/help#new-bug-filed
-Provide feedback: https://luci-analysis.appspot.com/help#feedback
-Was this bug filed in the wrong component? See: https://luci-analysis.appspot.com/help#component-selection</content>
-    </entry>
-    <entry>
-        <id>325773363</id>
-        <title>[Graphics]: 2 regressions in rasterize_and_record_micro.top_25</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325773363"/>
-        <updated>2024-02-19T10:48:02.462Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1262167:1262176:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=801db8a1-4d2c-423a-b9aa-4e3e360a9e1b
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=801db8a1-4d2c-423a-b9aa-4e3e360a9e1b
-
-Top 2 regressions (out of 2, with 0 improvements) in this group:
-  - ChromiumPerf/lacros-x86-perf/rasterize_and_record_micro.top_25/rasterize_time/file___static_top_25_pinterest.html
-       21.10%: 0.666 -&gt; 0.8065 ms
-  - ChromiumPerf/lacros-x86-perf/rasterize_and_record_micro.top_25/rasterize_time/file___static_top_25_yahoonews.html
-       15.18%: 2.957 -&gt; 3.4059999999999997 ms
-
-Top 2 affected measurements in lacros-x86-perf:
-  - rasterize_and_record_micro.top_25/rasterize_time/file___static_top_25_pinterest.html
-       21.10%: 0.666 -&gt; 0.8065 ms
-  - rasterize_and_record_micro.top_25/rasterize_time/file___static_top_25_yahoonews.html
-       15.18%: 2.957 -&gt; 3.4059999999999997 ms
-
-Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
-  rasterize_and_record_micro.top_25: pdr@chromium.org, wangxianzhu@chromium.org
-      
-
-Commits in this range:
-  Chromium Git Hash: https://chromium.googlesource.com/chromium/src/+log/01cee0793707f8be0bd34c099a54b8be32d65d81..bbb32f62818b107957b4393155133a39588bc1cc
-  Chromium Commit Position: https://crrev.com/1262166..1262176
-  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/b1e4a6c922ae3557374ae8f201dbc13c3d4835c6..b1e4a6c922ae3557374ae8f201dbc13c3d4835c6
-  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/c49da7a58be7a9e96dbb61805b3bfa7cb7387fbd..c49da7a58be7a9e96dbb61805b3bfa7cb7387fbd</content>
-    </entry>
-    <entry>
-        <id>325814596</id>
-        <title>Dynamic video 'scrubbing' with JS and currentTime not working since last update.</title>
-        <author>
-            <name>ca...@greensock.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325814596"/>
-        <updated>2024-02-19T10:37:04.060Z</updated>
-        <summary>-</summary>
-        <content type="html"># Steps to reproduce the problem
-1. Open codepen in chrome and scroll down, video should scrub through - it doesn't 
-2. Open codepen in safari and scroll down, video scrubs through the progress smoothly
-
-# Problem Description
-Hi there - 
-
-This codepen ties the scroll progress to the video progress by tapping into currentTime. In the latest version of chrome this video doesn't scrub smoothly, it takes a few seconds to catch up and then "jumps" to the new time stamp.
-
-# Additional Comments
-Here's a codepen demostrating the issue. Thanks!
-
-https://codepen.io/GreenSock/pen/WNmmaBd
-
-# Summary
-Dynamic video 'scrubbing' with JS and currentTime not working since last update.
-
-# Custom Questions
-#### Which component does this fall under?
-Blink&gt;Media
-
-#### Does this work in other browsers? 
-Yes - This is just a Chrome problem
-
-# Additional Data
-Category: API \
-Chrome Channel: Stable \
-Regression: Yes</content>
-    </entry>
-    <entry>
-        <id>325777568</id>
-        <title>my inspect box was not zoom out.it was stack in zoom in </title>
-        <author>
-            <name>va...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325777568"/>
-        <updated>2024-02-19T10:32:37.974Z</updated>
-        <summary>-</summary>
-        <content type="html">Chrome Version       : &lt;from chrome://version/&gt;
-OS                   : &lt;OS version&gt;
-
-What steps will reproduce the problem?
-
-i don't know how to zoom in my inspect browser
-What is the expected result?
-
-
-What happens instead?
-
-
-You can help us a lot by creating a minimal, reproducible example (https://stackoverflow.com/help/minimal-reproducible-example), e.g. on glitch.com, and/or attaching a screenshot or recording of the issue!</content>
-    </entry>
-    <entry>
-        <id>325893191</id>
-        <title>Tests are failing: worker_browsertest.cc(1165): Expected equality of these values:\n kNoCookie\n Which is: \"None\"\n GetReceivedCookie(\"/workers/empty.html\")\n Whi...</title>
-        <author>
-            <name>bi...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325893191"/>
-        <updated>2024-02-19T10:25:18.350Z</updated>
-        <summary>-</summary>
-        <content type="html">This bug is for all test failures where the primary error message is similiar to the following (ignoring numbers and hexadecimal values):
-worker_browsertest.cc(1165): Expected equality of these values:\n  kNoCookie\n    Which is: \"None\"\n  GetReceivedCookie(\"/workers/empty.html\")\n    Which is: \"path requested multiple times\"
-
-The following test(s) were observed to have matching failures at this time (at most five examples listed):
-- ninja://content/test:content_browsertests/WorkerTest.SameSiteCookiesSharedWorkerCrossAl/All.0
-- ninja://content/test:content_browsertests/WorkerTest.SameSiteCookiesSharedWorkerCrossAll/All.1
-- ninja://content/test:content_browsertests/WorkerTest.SameSiteCookiesSharedWorkerCrossAll/All.2
-- ninja://content/test:content_browsertests/WorkerTest.SameSiteCookiesSharedWorkerCrossAl/All.1
-- ninja://content/test:content_browsertests/WorkerTest.SameSiteCookiesSharedWorkerCrossAll/All.0
-
-
-These test failures are causing problem(s) which require your attention, including:
-- many gardened builders are failing
-
-See current problems, failure examples and more in LUCI Analysis at: https://luci-analysis.appspot.com/p/chromium/rules/b792b41f01cbdfc38c00c16d91a17c2d
-
-How to action this bug: https://luci-analysis.appspot.com/help#new-bug-filed
-Provide feedback: https://luci-analysis.appspot.com/help#feedback
-Was this bug filed in the wrong component? See: https://luci-analysis.appspot.com/help#component-selection</content>
-    </entry>
-    <entry>
-        <id>325814595</id>
-        <title>The Updated version 121.0.6167.185 is not getting initialized in selenium automation</title>
-        <author>
-            <name>ya...@tookitaki.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325814595"/>
-        <updated>2024-02-19T10:21:26.568Z</updated>
-        <summary>-</summary>
-        <content type="html"># Steps to reproduce the problem
-1. Create a test script using selenium java with the latest chromedriver updated
-2. Run the script
-3. Check if the browser is getting initialized
-
-# Problem Description
-The Updated version 121.0.6167.185 is not getting initialized in selenium automation, blocking me on running my test cases in chrome.
-
-# Summary
-The Updated version 121.0.6167.185 is not getting initialized in selenium automation
-
-# Custom Questions
-#### Please select a label to classify your issue:
-Type-Bug-Regression - Used to work, now broken
-
-# Additional Data
-Category: Other \
-Chrome Channel: Stable \
-Regression: Yes</content>
-    </entry>
-    <entry>
-        <id>325821293</id>
-        <title>requestVideoFrameCallback does not contain captureTimestamp when abs-capture-time header extension is negotiated</title>
-        <author>
-            <name>se...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325821293"/>
-        <updated>2024-02-19T10:16:45.092Z</updated>
-        <summary>-</summary>
-        <content type="html">For remote sources the  requestVideoFrameCallback  metadata should contain an captureTime metadata
-
-https://wicg.github.io/video-rvfc/#dom-videoframecallbackmetadata-capturetime
-
-Which is not present even when using the abs-capture-header extension, while the captureTimestamp is correctly populated (https://w3c.github.io/webrtc-extensions/#dom-rtcrtpcontributingsource-capturetimestamp)
-
-Here is a js fiddle for the issue:
-https://jsfiddle.net/6zsyqjge/9/
-
-You can see that the output of the rvfc and the contribution sources:
-```js
-function vraf() {
-	remoteVideo.requestVideoFrameCallback((now, metadata)=&gt;{
-    const receiver = pc2.getReceivers()[0];
-    const csrc = receiver.getSynchronizationSources()[0];
-  	console.log(now,metadata, csrc);
-    vraf();
-  });
-}
-```
-```
-15229.9, {
-  expectedDisplayTime: 15246.6,
-  height: 360,
-  mediaTime: 11.562,
-  presentationTime: 15230.1,
-  presentedFrames: 347,
-  processingDuration: 0.0007,
-  receiveTime: 15204.9,
-  rtpTimestamp: 2922712185,
-  width: 480
-}, {
-  captureTimestamp: 3917326063768,
-  rtpTimestamp: 2922712185,
-  senderCaptureTimeOffset: 0,
-  source: 2351230002,
-  timestamp: 1708337263789
-}
-```</content>
-    </entry>
-    <entry>
-        <id>325821290</id>
-        <title>Do something with CSS*InterpolationTypes that use double only InterpolableNumber</title>
-        <author>
-            <name>sa...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325821290"/>
-        <updated>2024-02-19T09:49:52.323Z</updated>
-        <summary>-</summary>
-        <content type="html">Some CSS*InterpolationTypes use InterpolableNumber as double-only storage (no css math expression),  so, calls to InterpolableNumber::Value(length_resolver) look as an overkill as a use of InterpolableNumber itself.
-
-Think about what to do with it later. Maybe reintroduce InterpolableDouble?</content>
-    </entry>
-    <entry>
-        <id>325834996</id>
-        <title>Memory consumption is increasing after every page reload if developer tools are open.</title>
-        <author>
-            <name>ad...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325834996"/>
-        <updated>2024-02-19T09:45:03.026Z</updated>
-        <summary>-</summary>
-        <content type="html"># Steps to reproduce the problem
-1. Open any website - for example https://google.com
-2. Open developer tools and Memory tab
-3. Reload page.
-4. As result memory consumed by main thread is increasing after every reload.
-
-# Problem Description
-Reproduced on 3 out of 4MacBooks Pro (M1 and M2 processors).
-"Preserve log" options in Network and Console tabs are turned off.
-
-# Summary
-Memory consumption is increasing after every page reload if developer tools are open.
-
-# Additional Data
-Category: Developer Tools \
-Chrome Channel: Stable \
-Regression: N/A</content>
-    </entry>
-    <entry>
-        <id>325838099</id>
-        <title>Print does not respect bottom margin</title>
-        <author>
-            <name>pa...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325838099"/>
-        <updated>2024-02-19T09:36:13.230Z</updated>
-        <summary>-</summary>
-        <content type="html"># Steps to reproduce the problem
-1. Open the attached HTML
-2. Open Print Preview
-3. Choose Paper size A5 and Custom margins (0.39'' all, bottom 1.6'')
-
-# Problem Description
-The bottom margin in HTML on the body is not respected. It's large enough to fit the footer however the footer overlaps the content. See the attached bad.png. Setting paper margin to e.g. 1.18'' renders correctly, see attached ok.png
-
-It used to work fine e.g. in Chrome 84
-
-# Summary
-Print does not respect bottom margin
-
-# Custom Questions
-#### Does the problem occur on multiple sites?
-Yes - Please describe below
-
-#### Is it a problem with a plugin?
-No - It's the browser itself
-
-#### Does this feature work correctly in other browsers?
-No - I can reproduce the problem in another browser
-
-#### Which other browsers (including versions) also have the problem?
-Firefox prints footer on the first page, it should be on the second page.
-
-# Additional Data
-Category: Content \
-Chrome Channel: Stable \
-Regression: Yes</content>
-    </entry>
-    <entry>
-        <id>325798144</id>
-        <title>[iOS] check_static_initializer.py has no effect on Chromium.app</title>
-        <author>
-            <name>do...@microsoft.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325798144"/>
-        <updated>2024-02-19T09:31:53.347Z</updated>
-        <summary>-</summary>
-        <content type="html">Hi team,
-
-Based on previous 'check_static_initializer.py' has supported for ios (https://chromium-review.googlesource.com/c/chromium/src/+/4233899):
-
-I find some static initializers in Chromium by xcode instruments (picture 1).
-I try to use 'check_static_initializer.py' to check the 'Chromium.app' but it can't detect any static initializer (picture 2). I debugged and found that the variable 'rc' detected was 0.
-I try to commit a cl 'https://chromium-review.googlesource.com/c/chromium/src/+/5302978' to test check_static_initializers.py is or not worked. Theoretically it should not pass the CQ DRY RUN, but it passed.
-
-My question is why the script has no effect on 'Chromium.app'. Is there any special reason or the script has been not worked?
-
-Thanks!
-</content>
     </entry>
 </feed>
