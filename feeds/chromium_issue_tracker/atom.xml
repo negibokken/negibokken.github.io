@@ -3,7 +3,520 @@
     <id>https://negibokken.github.io/feeds/chromium_issue_tracker/atom.xml</id>
     <title>Chromium issue tracker feed</title>
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
-    <updated>2024-02-19T19:05:44.752Z</updated>
+    <updated>2024-02-20T00:19:16.476Z</updated>
+    <entry>
+        <id>325976303</id>
+        <title>"Add bookmark" action appear when bookmark exists in the account model</title>
+        <author>
+            <name>ar...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325976303"/>
+        <updated>2024-02-20T00:19:16.476Z</updated>
+        <summary>-</summary>
+        <content type="html">How to reproduce:
+* be signed-in with an account
+* have a bookmark in your account 
+* open the bookmark folder containing a bookmark in the account section.
+* long press a bookmark
+* tap share
+
+Expected result:
+* Seeing an entry named "Edit bookmark"
+
+Actual result:
+* "Add bookmark"
+
+This is because, to decide whether the entry is "add" or "edit" it only consider the locals bookmarks.</content>
+    </entry>
+    <entry>
+        <id>325934997</id>
+        <title>Passkey creation with largeBlob "preferred" fails if authenticator doesn't support large blob</title>
+        <author>
+            <name>co...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325934997"/>
+        <updated>2024-02-19T23:41:10.729Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+1. Call navigator.credentials.create(), requesting the `largeBlob` extension with a value of `preferred`
+2. Follow the browser/OS UI prompts and create a passkey using an authenticator that does not support `largeBlob` (eg any Android device; Windows Hello; *not* Chrome's Virtual Authenticator Environment)
+3. Despite passkey creation succeeding _at the OS level_ (because `largeBlob` is not set to `required`), the call to `navigator.credentials.create` will throw a `DOMException`
+
+# Problem Description
+When calling `navigator.credentials.create()` with an `extensions` property that requests (but _does not require_) `largeBlob` (that is, by setting `extensions.largeBlob.support` to `preferred`), a DOMException with message `The operation either timed out or was not allowed. See: https://www.w3.org/TR/webauthn-2/#sctn-privacy-considerations-client.` will be emitted, despite passkey creation succeeding at the OS / authenticator level.
+
+If I remove the `largeBlob` extension from the credential creation request, passkey creation succeeds as normal -- I have narrowed this down to the presence of this field.
+
+*NOTE:* This does not apply if using the Virtual Authenticator Environment in Chromium's WebAuthn dev tools. Everything functions as expected when using the VAE. It is only when attempting to use an _actual_ authenticator -- platform or hybrid -- which does not support large blob that the issue occurs.
+
+I have tested the following scenarios, all initiated by calling `navigator.credentials.create()` with `largeBlob` set to `preferred` on a Windows laptop running the latest version of Chrome:
+
+- Create Passkey on Platform Authenticator (Windows Hello)
+    - Windows Hello's UI indicates that passkey creation succeeded; DOMException thrown in Chrome
+    - Expected result: Passkey creation succeeds in Chrome, but `largeBlob` has a value of `{supported: false}` in the client extension output of the created credential
+- Create Passkey on Hybrid Authenticator (Android Device)
+    - Android's UI indicates that passkey creation succeeded; DOMException thrown in Chrome
+- Create Passkey on Chrome's Virtual Authenticator Environment
+    - Passkey creation succeeds. Large blob's support is accurately reported, based on whether or not "Supports large blob" is ticked when creating a virtual authenticator.
+- Create Passkey on Hybrid Authenticator (iOS Device)
+    - Passkey creation succeeds. Large blob is reported as enabled and is fully functional.
+
+Expected Behavior: The call to `navigator.credentials.create()` should succeed, but the value of `largeBlob` in the client extension output of the returned credential should be `{supported: false}`. 
+
+# Summary
+Passkey creation with largeBlob "preferred" fails if authenticator doesn't support large blob
+
+# Custom Questions
+#### Which component does this fall under?
+Not sure - I don't know
+
+#### Does this work in other browsers? 
+Yes - This is just a Chrome problem
+
+# Additional Data
+Category: API \
+Chrome Channel: Stable \
+Regression: N/A</content>
+    </entry>
+    <entry>
+        <id>325302611</id>
+        <title>[Blink Parser]: 1 regressions in blink_perf.parser</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325302611"/>
+        <updated>2024-02-19T23:38:15.562Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1262393:1262407:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=5e8e695f-cd05-454a-bd9f-37c1a1d670bd
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=5e8e695f-cd05-454a-bd9f-37c1a1d670bd
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/android-pixel2_webview-perf/blink_perf.parser/simple-url/simple-url.html
+       12.72%: 12.75075 -&gt; 11.1283 unitless
+
+Top 1 affected measurements in android-pixel2_webview-perf:
+  - blink_perf.parser/simple-url/simple-url.html
+       12.72%: 12.75075 -&gt; 11.1283 unitless
+
+Regressions grouped by blink_perf.parser includes data from the following benchmarks with listed owners:
+  blink_perf.parser: masonf@chromium.org
+      
+
+Commits in this range:
+  Chromium Commit Position: https://crrev.com/1262392..1262407
+  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/a86e1971579f4165123467fa6ad378e552536b43..a86e1971579f4165123467fa6ad378e552536b43
+  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/c49da7a58be7a9e96dbb61805b3bfa7cb7387fbd..c49da7a58be7a9e96dbb61805b3bfa7cb7387fbd</content>
+    </entry>
+    <entry>
+        <id>325977041</id>
+        <title>Tests are failing: ninja://:blink_wpt_tests/external/wpt/document-picture-in-picture/focus-opener.https.html</title>
+        <author>
+            <name>bi...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325977041"/>
+        <updated>2024-02-19T23:25:02.015Z</updated>
+        <summary>-</summary>
+        <content type="html">This bug is for all test failures with the test name: ninja://:blink_wpt_tests/external/wpt/document-picture-in-picture/focus-opener.https.html
+
+These test failures are causing problem(s) which require your attention, including:
+- many gardened builders are failing
+
+See current problems, failure examples and more in LUCI Analysis at: https://luci-analysis.appspot.com/p/chromium/rules/bfe1cdba94981cd403a53119c46b3eb8
+
+How to action this bug: https://luci-analysis.appspot.com/help#new-bug-filed
+Provide feedback: https://luci-analysis.appspot.com/help#feedback
+Was this bug filed in the wrong component? See: https://luci-analysis.appspot.com/help#component-selection</content>
+    </entry>
+    <entry>
+        <id>325893565</id>
+        <title>Tahoe 2007 Lte</title>
+        <author>
+            <name>aa...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325893565"/>
+        <updated>2024-02-19T23:17:05.768Z</updated>
+        <summary>-</summary>
+        <content type="html">Want to file a bug on the Chrome browser?  If so, you're in the wrong place. Change the above from ""Build Infrastructure"" to ""Defect report from user"". Thanks!
+
+Describe infrastructure request/issue:
+
+
+If this is a new LUCI builder:
+Example LUCI builder: an existing working LUCI builder name(s), if any
+OS:
+Version:
+Bitness:
+Waterfall:
+En El Camino
+Around Art 🎭
+If you need to contact the on-duty trooper, see: g.co/bugatrooper</content>
+    </entry>
+    <entry>
+        <id>325773367</id>
+        <title>blink_webp_decoder_fuzzer: CHECK failure: WebPGetFeatures(consolidated_data_-&amp;gt;bytes(), consolidated_data_-&amp;gt;size(), &amp;featur</title>
+        <author>
+            <name>24...@project.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325773367"/>
+        <updated>2024-02-19T22:59:15.728Z</updated>
+        <summary>-</summary>
+        <content type="html">Detailed Report: https://clusterfuzz.com/testcase?key=5914540880887808
+
+Fuzzing Engine: libFuzzer
+Fuzz Target: blink_webp_decoder_fuzzer
+Job Type: windows_libfuzzer_chrome_asan
+Platform Id: windows
+
+Crash Type: CHECK failure
+Crash Address: 
+Crash State:
+  WebPGetFeatures(consolidated_data_-&gt;bytes(), consolidated_data_-&gt;size(), &amp;featur
+  logging::CheckLogMessage::~CheckLogMessage
+  blink::WEBPImageDecoder::UpdateDemuxer
+  
+Sanitizer: address (ASAN)
+
+Regressed: https://clusterfuzz.com/revisions?job=windows_libfuzzer_chrome_asan&amp;range=1256924:1257096
+
+Reproducer Testcase: https://clusterfuzz.com/download?testcase_id=5914540880887808
+
+Issue filed automatically.
+
+See https://chromium.googlesource.com/chromium/src/+/master/testing/libfuzzer/reproducing.md for instructions on reproducing this bug locally.</content>
+    </entry>
+    <entry>
+        <id>325974501</id>
+        <title>Disabling V8 optimiser in site settings disables wasm</title>
+        <author>
+            <name>aw...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325974501"/>
+        <updated>2024-02-19T22:53:59.265Z</updated>
+        <summary>-</summary>
+        <content type="html">Setting the "V8 optimizer" setting in Site Settings to "block" breaks wasm.
+
+Google Chrome: 122.0.6261.49 (Official Build) beta (x86_64)
+OS: macOS Version 14.3.1 (Build 23D60)
+JavaScript: V8 12.2.281.15
+
+Steps to reproduce:
+* Check configuration is default: go to chrome://settings/content/v8 and ensure "Sites can use the V8 optimizer" is selected, and there are no sites added to the "Not allowed" nor "Always allowed" lists
+* Go to a site that uses wasm. The attached sample page is hosted https://arw.me/testing/misc/wasmdetect.html
+* Note that test page says "WebAssembly appears to be supported 🎉"
+* Go to the site settings for the page, find "V8 optimizer" and change the setting to "Block"
+* Reload the test page (which should have a "Reload this page to apply your updated settings on this site" banner)
+
+What should happen:
+* Page still says: "WebAssembly appears to be supported 🎉"
+
+What actually happens:
+* Page says "WebAssembly appears to NOT be supported 🥺"
+
+This setting should have the same behaviour as --no-turbofan and --no-maglev. Starting Chrome with these options (--js-flags="--no-turbofan --no-maglev") does not cause wasm to break.
+</content>
+    </entry>
+    <entry>
+        <id>325969457</id>
+        <title>showing minimized window triggers minimize  animation</title>
+        <author>
+            <name>os...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325969457"/>
+        <updated>2024-02-19T21:33:14.848Z</updated>
+        <summary>-</summary>
+        <content type="html">Showing a widget in minimize state first show it normally then minimize it. [1], which runs minimize animation during restore. It's a bit hard to notice because it's very short and restore process is often heavy enough that you'll not see any animation. [2]
+
+
+[1] https://source.chromium.org/chromium/chromium/src/+/main:ui/views/widget/native_widget_aura.cc;drc=133b2d903fa57cfda1317bc589b349cf4c284b7c;l=740
+[2] https://photos.app.goo.gl/RQVwxoUbx8KCnUiL8</content>
+    </entry>
+    <entry>
+        <id>325821306</id>
+        <title>Race condition when using HTTP/3</title>
+        <author>
+            <name>co...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325821306"/>
+        <updated>2024-02-19T21:23:42.618Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+1. Open Incognito mode
+2. Hit a website that offers HTTP/2 and HTTP/3 endpoints.
+3. The first request will use HTTP/2.
+4. Hit F5 to reload the page. The second request will use HTTP/3.
+5. This bug is intermittent but when it occurs Chrome will send invalid request headers over HTTP/3.
+
+I have never seen this bug when using Chrome with HTTP/2, nor with Firefox using either HTTP/2 or HTTP/3.
+
+When I say "invalid request headers" I mean that:
+
+  sec-fetch-site: same-origin
+  sec-fetch-mode: cors
+  sec-fetch-dest: script
+
+(from a good request) is replaced by:
+
+  sec-gpc: same-origin
+  sec-gpc: cors
+  accept: script
+
+(in a bad request). Sometimes I get:
+
+  accept: no-cors
+  accept: style
+
+which is obviously invalid.
+
+Another clue... bad requests also contain:
+
+  pragma: no-cache
+  cache-control: no-cache
+
+which good requests do not.
+
+# Problem Description
+See https://github.com/jetty/jetty.project/issues/11420 for more information and debug logs
+
+# Additional Comments
+See the attached DEBUG log from Jetty server, showing the invalid headers that are received.
+
+# Summary
+Race condition when using HTTP/3
+
+# Additional Data
+Category: Developer Tools \
+Chrome Channel: Stable \
+Regression: N/A</content>
+    </entry>
+    <entry>
+        <id>325969034</id>
+        <title>[Test Reviver] Passing in selected builders: ninja://chrome/android:chrome_public_test_apk/org.chromium.chrome.browser.banners.AppBannerManagerTest#testBlockedModalNativeAppBannerResolveUserChoice </title>
+        <author>
+            <name>ch...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325969034"/>
+        <updated>2024-02-19T21:19:06.910Z</updated>
+        <summary>-</summary>
+        <content type="html">Based on following past run history:
+ninja://chrome/android:chrome_public_test_apk/org.chromium.chrome.browser.banners.AppBannerManagerTest#testBlockedModalNativeAppBannerResolveUserChoice would pass in these builders if reenabled.
+
+Builder: android-12l-x64-dbg-tests(CI)
+History: P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P 
+
+Builder: android-oreo-x86-rel(CI)
+History: P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P 
+
+Builder: android-pie-arm64-rel(CI)
+History: P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P 
+
+Builder: android-pie-x86-rel(CI)
+History: P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P P 
+
+Test History View:
+REVIVER history:
+https://ci.chromium.org/ui/test/chromium%3Areviver/ninja%3A%2F%2Fchrome%2Fandroid%3Achrome_public_test_apk%2Forg.chromium.chrome.browser.banners.AppBannerManagerTest%23testBlockedModalNativeAppBannerResolveUserChoice
+CI history:
+https://ci.chromium.org/ui/test/chromium%3Aci/ninja%3A%2F%2Fchrome%2Fandroid%3Achrome_public_test_apk%2Forg.chromium.chrome.browser.banners.AppBannerManagerTest%23testBlockedModalNativeAppBannerResolveUserChoice
+TRY history:
+https://ci.chromium.org/ui/test/chromium%3Atry/ninja%3A%2F%2Fchrome%2Fandroid%3Achrome_public_test_apk%2Forg.chromium.chrome.browser.banners.AppBannerManagerTest%23testBlockedModalNativeAppBannerResolveUserChoice
+
+==========================================
+* We are limited to running the disabled test in only above reviver builders, but not all testing variants. If this test was disabled due to failing in one of the builders above, it can be reenabled. If it was failing due to other builders, the bug should be closed as WontFix.
+==========================================
+</content>
+    </entry>
+    <entry>
+        <id>325969366</id>
+        <title>[Test Reviver] Consistently failing: ninja://chrome/android:chrome_public_test_apk/org.chromium.chrome.browser.contextualsearch.ContextualSearchRelatedSearchesTest#testRelatedSearchesDismissDuringAnimation </title>
+        <author>
+            <name>ch...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325969366"/>
+        <updated>2024-02-19T21:19:04.134Z</updated>
+        <summary>-</summary>
+        <content type="html">Based on following past run history:
+ninja://chrome/android:chrome_public_test_apk/org.chromium.chrome.browser.contextualsearch.ContextualSearchRelatedSearchesTest#testRelatedSearchesDismissDuringAnimation is consistently failing in the builders below, and the failure should be reliably reproducible in those builders. Please decide what action to take for this test:
+1. Reduce the scope of the test if it can still cover bugs adequately (e.g. making an integration test into a unit test)
+2. Delete the test if not useful or feasible to fix
+3. Fix the test
+
+Builder: android-12l-x64-dbg-tests(CI)
+History: F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F 
+
+Builder: android-oreo-x86-rel(CI)
+History: F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F 
+
+Builder: android-pie-arm64-rel(CI)
+History: F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F 
+
+Builder: android-pie-x86-rel(CI)
+History: F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F 
+
+Test History View:
+REVIVER history:
+https://ci.chromium.org/ui/test/chromium%3Areviver/ninja%3A%2F%2Fchrome%2Fandroid%3Achrome_public_test_apk%2Forg.chromium.chrome.browser.contextualsearch.ContextualSearchRelatedSearchesTest%23testRelatedSearchesDismissDuringAnimation
+CI history:
+https://ci.chromium.org/ui/test/chromium%3Aci/ninja%3A%2F%2Fchrome%2Fandroid%3Achrome_public_test_apk%2Forg.chromium.chrome.browser.contextualsearch.ContextualSearchRelatedSearchesTest%23testRelatedSearchesDismissDuringAnimation
+TRY history:
+https://ci.chromium.org/ui/test/chromium%3Atry/ninja%3A%2F%2Fchrome%2Fandroid%3Achrome_public_test_apk%2Forg.chromium.chrome.browser.contextualsearch.ContextualSearchRelatedSearchesTest%23testRelatedSearchesDismissDuringAnimation
+
+</content>
+    </entry>
+    <entry>
+        <id>325934993</id>
+        <title>FIDReC</title>
+        <author>
+            <name>op...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325934993"/>
+        <updated>2024-02-19T21:03:58.286Z</updated>
+        <summary>-</summary>
+        <content type="html">Chrome Version: (copy from chrome://version)
+Lacros Version (if applicable): (copy from chrome://version)
+OS: (e.g. Win10, MacOS 10.12, etc...)
+
+What steps will reproduce the problem?
+(1)
+(2)
+(3)
+
+What is the expected result?
+
+
+What happens instead?
+
+
+
+Please use hotlists and text to provide additional information.
+
+If this is a regression (i.e., worked before), please consider using the bisect tool (https://www.chromium.org/developers/bisect-builds-py) to help us identify the root cause and more rapidly triage the issue.
+
+For graphics-related bugs, please copy/paste the contents of the about://gpu page at the end of this report.</content>
+    </entry>
+    <entry>
+        <id>325962334</id>
+        <title>16ms startup regression on pixel2-perf (messageloop_start_time)</title>
+        <author>
+            <name>pa...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325962334"/>
+        <updated>2024-02-19T21:01:44.831Z</updated>
+        <summary>-</summary>
+        <content type="html">I was randomly looking at the new (unfamiliar) replacement for the chromeperf dashboard (the Skia dashboard something), and started a bisect on a timeline where navigation_commit_time seemed to have a regression (30ms or so). I could not save the link to the graph, sorry, it was too complex for me to succeed on this task.
+
+The [bisect](https://pinpoint-dot-chromeperf.appspot.com/job/16aba7551e0000) concluded and pointed at [crrev.com/1261843](http://crrev.com/1261843). It indeed shows significant differences, and the biggest % change is actually on `messageloop_start_time` (this fact I think would be useful when working on a fix).
+
+Commit description:
+```
+Create empty TabGroupPane.
+
+Bug: b/322852781
+Change-Id: I4c0a91b1f609e6eca2e4c96ef6574774c91cbb4e
+Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/5299870
+Reviewed-by: Calder Kitagawa &lt;ckitagawa@chromium.org&gt;
+Commit-Queue: Sky Malice &lt;skym@chromium.org&gt;
+Cr-Commit-Position: refs/heads/main@{#1261843}
+```
+
+Sky, can you please take a look?
+
+The Pinpoint results are best viewed by clicking on the "Analyze benchmark results" link at the top-left. There will be a comparison between the two runs (with/without the suspected commit). On that deprecated legacy unloved page you will hopefully be able to find the impact on the metrics, with deltas and p-values. You can find links to traces on the Pinpoint page too. I click on those links reachable from Pinpoint jobs quite often - helps refreshing it in memory. If there is something you forgot or did not know about Pinpoint, let me know.
+
+Oh, of course this is not a launch-blocking of a magnitude, but it's still worth a day to look for a fix ;)</content>
+    </entry>
+    <entry>
+        <id>325893563</id>
+        <title>multi-column layout shifts content to the left when long text is pasted into input field</title>
+        <author>
+            <name>ri...@veeva.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325893563"/>
+        <updated>2024-02-19T20:55:58.018Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+1. Create a &lt;div&gt; with 2 columns layout using "column-count: 2" css
+2. Add inputboxes within this &lt;div&gt; container, adding "break-before: column" style on the 2nd inputbox to break the column
+3. Add a &lt;div&gt; after the last inputbox (but still within the outer 2 columns container div) with "break-before: column" styling
+4. Copy a big chunk of text (can be the page HTML code itself) and paste into any of the inputboxes
+
+This will make the 2-columns container to shift to the left, hiding the content of the 1st colum
+
+# Problem Description
+When there is a container with multi-column layout ("column-count: 2+") and there are more column breaks than the # of columns -1 ("break-before: column" or "break-after: column"), and there are inputboxes in those columns, if you paste a big chunk of text in any of those inputboxes, the whole container moves to the left, hiding part of the content.
+The issue only happens if you paste the content, if you just type a lot of content the issue doesn't happen.
+
+# Additional Comments
+The problem doesn't happen in Firefox or Safari, but it happens in Chrome (including Canary), Brave and MS Edge.
+Tested on MacOS and Ubuntu, both has same issue.
+
+# Summary
+multi-column layout shifts content to the left when long text is pasted into input field
+
+# Custom Questions
+#### Does the problem occur on multiple sites?
+Yes - Please describe below
+
+#### Is it a problem with a plugin?
+No - It's the browser itself
+
+#### Does this work in other browsers? 
+Yes - This is just a Chromium problem
+
+# Additional Data
+Category: Content \
+Chrome Channel: Canary \
+Regression: No</content>
+    </entry>
+    <entry>
+        <id>325925118</id>
+        <title>"Oh Snap" when loading Google Sheets</title>
+        <author>
+            <name>lu...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325925118"/>
+        <updated>2024-02-19T20:33:48.248Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+1. Open any Google Sheet that contains large amount of data and has scripts (Apps Script).
+2.
+3. 
+
+# Problem Description
+My team and I have developed an automation tool named Automated Programming Sheet (APS) that employs Google Sheets as its user interface. APS combines Google Sheet formulas and Apps Script to automate tasks for users. Typically, a user could open a completed APS Google Sheet and resume working on it. However, in the past month, we have received numerous user complaints regarding the "Oh snap" error encountered when launching the Google Sheet. This error occurs regardless of whether the user attempts to open an older or newer version of our APS Google Sheet. Interestingly, when users open the APS Google Sheet in Firefox, this issue does not arise. My corp laptop does not replicate this issue so troubleshooting this issue has been difficult, but I have witnessed users display this issue. 
+
+# Summary
+"Oh Snap" when loading Google Sheets
+
+# Custom Questions
+#### Crashed report ID: 
+n/a
+
+#### How much crashed? 
+The whole browser
+
+#### Is it a problem with a plugin?
+Not sure - I don't know
+
+# Additional Data
+Category: Crashes \
+Chrome Channel: Not sure \
+Regression: Yes</content>
+    </entry>
+    <entry>
+        <id>325821302</id>
+        <title>API to download weekly users CSV from Webstore Dashboard?</title>
+        <author>
+            <name>ls...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/325821302"/>
+        <updated>2024-02-19T20:14:10.957Z</updated>
+        <summary>-</summary>
+        <content type="html">On the Chrome Web Store Developer Dashboard it gives you an option to view the weekly users for your extension and export that data as a CSV file. Is there any way to do this from an API? If not, is this something that could be added, especially as there's already a publishing API for web extensions?</content>
+    </entry>
     <entry>
         <id>325835007</id>
         <title>Multiplication leters with "aaa++" Text on Chat</title>
@@ -1122,432 +1635,5 @@ But we also encourage you to read GSoC's [writing a proposal](https://google.git
 * Desired Project length (if different from project slide's suggestions):
 * Desired Project size (if different from project slide's suggestions): *Small/Medium/Large*
 * Any additional comments:</content>
-    </entry>
-    <entry>
-        <id>325838105</id>
-        <title>[Chromium GSoC] Request for Feedback</title>
-        <author>
-            <name>nu...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325838105"/>
-        <updated>2024-02-19T15:23:47.687Z</updated>
-        <summary>-</summary>
-        <content type="html">*Instructions:*
-
-*1) Choose if this is a general question about the project (if so choose template 1) or if this is a request for a review of a proposal (if so choose template 2 below)*
-
-*2) Fill in the template completely and delete the instructions and the unused template*
-
-*3) Update the title to reflect your question or "proposal submission for &lt;your name&gt;"*
-
-*4) Submit and wait for the mentors to provide feedback*.
-
-
-*--------------- Template 1 ------------------*
-
-**Question about Project**
-
-*Delete this and the below paragraphs and ask your question here, recall that there is lots of material for routine questions. Please go through the [project list](https://docs.google.com/presentation/d/15tLikPVkKrkz53RVG1ncY-8PpWA4dgZU0-5kl-uB4dg/edit#slide=id.g1f110b421e3_1_95), if you are interested get started on the starter bugs / starter milestone listed on the project doc of each project.*
-
-*If you want a head start or interested in contributing to chromium you can check out the “[Life of a Chromium Developer](https://groups.google.com/a/chromium.org/g/chromium-dev/c/ybLzH8-FoTc/m/YhTe2g9L7CUJ)”, “[contributing](https://chromium.googlesource.com/chromium/src/+/master/docs/contributing.md)”, or “[getting involved](https://www.chromium.org/getting-involved)” for information about getting the code and general flow of making a change to the code base.*
-
-*If you have general questions not about a project you should instead email the mailing list chromium-gsoc@chromium.org and the admins can assist you.*
-
-
-*--------------- Template 2 ------------------*
-
-**Request For Project Proposal Review**
-
-Please use our [template for a proposal](https://docs.google.com/document/d/1IOj4hSdPl8h1-8zYK_Gt3OxA0R44SLbmr-ZH3f9yDXM/edit?usp=sharing)
-
-But we also encourage you to read GSoC's [writing a proposal](https://google.github.io/gsocguides/student/writing-a-proposal) and [example proposal](https://google.github.io/gsocguides/student/proposal-example-1). We suggest you reach out early engage with the starter bug of your project, and submit a proposal soon after you have a handle on the problem.
-
-* Link to Google doc that contains your proposal:
-* Desired Project length (if different from project slide's suggestions):
-* Desired Project size (if different from project slide's suggestions): *Small/Medium/Large*
-* Any additional comments:</content>
-    </entry>
-    <entry>
-        <id>325927927</id>
-        <title>Remove GetLastUsedBrowserState() from ChromeBrowserStateManagerImpl</title>
-        <author>
-            <name>fe...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325927927"/>
-        <updated>2024-02-19T15:17:32.980Z</updated>
-        <summary>-</summary>
-        <content type="html"></content>
-    </entry>
-    <entry>
-        <id>325834999</id>
-        <title>[Chromium GSoC] Request for Feedback</title>
-        <author>
-            <name>nu...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325834999"/>
-        <updated>2024-02-19T15:14:36.579Z</updated>
-        <summary>-</summary>
-        <content type="html">*Instructions:*
-
-*1) Choose if this is a general question about the project (if so choose template 1) or if this is a request for a review of a proposal (if so choose template 2 below)*
-
-*2) Fill in the template completely and delete the instructions and the unused template*
-
-*3) Update the title to reflect your question or "proposal submission for &lt;your name&gt;"*
-
-*4) Submit and wait for the mentors to provide feedback*.
-
-
-*--------------- Template 1 ------------------*
-
-**Question about Project**
-
-*Delete this and the below paragraphs and ask your question here, recall that there is lots of material for routine questions. Please go through the [project list](https://docs.google.com/presentation/d/15tLikPVkKrkz53RVG1ncY-8PpWA4dgZU0-5kl-uB4dg/edit#slide=id.g1f110b421e3_1_95), if you are interested get started on the starter bugs / starter milestone listed on the project doc of each project.*
-
-*If you want a head start or interested in contributing to chromium you can check out the “[Life of a Chromium Developer](https://groups.google.com/a/chromium.org/g/chromium-dev/c/ybLzH8-FoTc/m/YhTe2g9L7CUJ)”, “[contributing](https://chromium.googlesource.com/chromium/src/+/master/docs/contributing.md)”, or “[getting involved](https://www.chromium.org/getting-involved)” for information about getting the code and general flow of making a change to the code base.*
-
-*If you have general questions not about a project you should instead email the mailing list chromium-gsoc@chromium.org and the admins can assist you.*
-
-
-*--------------- Template 2 ------------------*
-
-**Request For Project Proposal Review**
-
-Please use our [template for a proposal](https://docs.google.com/document/d/1IOj4hSdPl8h1-8zYK_Gt3OxA0R44SLbmr-ZH3f9yDXM/edit?usp=sharing)
-
-But we also encourage you to read GSoC's [writing a proposal](https://google.github.io/gsocguides/student/writing-a-proposal) and [example proposal](https://google.github.io/gsocguides/student/proposal-example-1). We suggest you reach out early engage with the starter bug of your project, and submit a proposal soon after you have a handle on the problem.
-
-* Link to Google doc that contains your proposal:
-* Desired Project length (if different from project slide's suggestions):
-* Desired Project size (if different from project slide's suggestions): *Small/Medium/Large*
-* Any additional comments:</content>
-    </entry>
-    <entry>
-        <id>325814604</id>
-        <title>[Chromium GSoC] Request for Feedback</title>
-        <author>
-            <name>nu...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325814604"/>
-        <updated>2024-02-19T15:11:52.203Z</updated>
-        <summary>-</summary>
-        <content type="html">*Instructions:*
-
-*1) Choose if this is a general question about the project (if so choose template 1) or if this is a request for a review of a proposal (if so choose template 2 below)*
-
-*2) Fill in the template completely and delete the instructions and the unused template*
-
-*3) Update the title to reflect your question or "proposal submission for &lt;your name&gt;"*
-
-*4) Submit and wait for the mentors to provide feedback*.
-
-
-*--------------- Template 1 ------------------*
-
-**Question about Project**
-
-*Delete this and the below paragraphs and ask your question here, recall that there is lots of material for routine questions. Please go through the [project list](https://docs.google.com/presentation/d/15tLikPVkKrkz53RVG1ncY-8PpWA4dgZU0-5kl-uB4dg/edit#slide=id.g1f110b421e3_1_95), if you are interested get started on the starter bugs / starter milestone listed on the project doc of each project.*
-
-*If you want a head start or interested in contributing to chromium you can check out the “[Life of a Chromium Developer](https://groups.google.com/a/chromium.org/g/chromium-dev/c/ybLzH8-FoTc/m/YhTe2g9L7CUJ)”, “[contributing](https://chromium.googlesource.com/chromium/src/+/master/docs/contributing.md)”, or “[getting involved](https://www.chromium.org/getting-involved)” for information about getting the code and general flow of making a change to the code base.*
-
-*If you have general questions not about a project you should instead email the mailing list chromium-gsoc@chromium.org and the admins can assist you.*
-
-
-*--------------- Template 2 ------------------*
-
-**Request For Project Proposal Review**
-
-Please use our [template for a proposal](https://docs.google.com/document/d/1IOj4hSdPl8h1-8zYK_Gt3OxA0R44SLbmr-ZH3f9yDXM/edit?usp=sharing)
-
-But we also encourage you to read GSoC's [writing a proposal](https://google.github.io/gsocguides/student/writing-a-proposal) and [example proposal](https://google.github.io/gsocguides/student/proposal-example-1). We suggest you reach out early engage with the starter bug of your project, and submit a proposal soon after you have a handle on the problem.
-
-* Link to Google doc that contains your proposal:
-* Desired Project length (if different from project slide's suggestions):
-* Desired Project size (if different from project slide's suggestions): *Small/Medium/Large*
-* Any additional comments:</content>
-    </entry>
-    <entry>
-        <id>325807998</id>
-        <title>[Chromium GSoC] Request for Feedback</title>
-        <author>
-            <name>nu...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325807998"/>
-        <updated>2024-02-19T15:06:40.914Z</updated>
-        <summary>-</summary>
-        <content type="html">*Instructions:*
-
-*1) Choose if this is a general question about the project (if so choose template 1) or if this is a request for a review of a proposal (if so choose template 2 below)*
-
-*2) Fill in the template completely and delete the instructions and the unused template*
-
-*3) Update the title to reflect your question or "proposal request for review for &lt;your name&gt;"*
-
-*4) Submit and wait for the mentors to provide feedback*.
-
-
-*--------------- Template 1 ------------------*
-
-**Question about Project**
-
-*Delete this and the below paragraphs and ask your question here, recall that there is lots of material for routine questions. Please go through the [project list](https://docs.google.com/presentation/d/15tLikPVkKrkz53RVG1ncY-8PpWA4dgZU0-5kl-uB4dg/edit#slide=id.g1f110b421e3_1_95), if you are interested get started on the starter bugs / starter milestone listed on the project doc of each project.*
-
-*If you want a head start or interested in contributing to chromium you can check out the “[Life of a Chromium Developer](https://groups.google.com/a/chromium.org/g/chromium-dev/c/ybLzH8-FoTc/m/YhTe2g9L7CUJ)”, “[contributing](https://chromium.googlesource.com/chromium/src/+/master/docs/contributing.md)”, or “[getting involved](https://www.chromium.org/getting-involved)” for information about getting the code and general flow of making a change to the code base.*
-
-*If you have general questions not about a project you should instead email the mailing list chromium-gsoc@chromium.org and the admins can assist you.*
-
-
-*--------------- Template 2 ------------------*
-
-**Request For Project Proposal Review**
-
-Please use our [template for a proposal](https://docs.google.com/document/d/1IOj4hSdPl8h1-8zYK_Gt3OxA0R44SLbmr-ZH3f9yDXM/edit?usp=sharing)
-
-But we also encourage you to read GSoC's [writing a proposal](https://google.github.io/gsocguides/student/writing-a-proposal) and [example proposal](https://google.github.io/gsocguides/student/proposal-example-1). We suggest you reach out early engage with the starter bug of your project, and submit a proposal soon after you have a handle on the problem.
-
-* Link to Google doc that contains your proposal:
-* Desired Project length (if different from project slide's suggestions):
-* Desired Project size (if different from project slide's suggestions): *Small/Medium/Large*
-* Any additional comments:
-
-</content>
-    </entry>
-    <entry>
-        <id>325923177</id>
-        <title>Correctly use key kBrowserStatesLastActive (at the moment it's never used)</title>
-        <author>
-            <name>fe...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325923177"/>
-        <updated>2024-02-19T14:58:59.628Z</updated>
-        <summary>-</summary>
-        <content type="html"></content>
-    </entry>
-    <entry>
-        <id>325814603</id>
-        <title>Don't send empty priority header</title>
-        <author>
-            <name>pm...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325814603"/>
-        <updated>2024-02-19T14:14:53.294Z</updated>
-        <summary>-</summary>
-        <content type="html">Chrome currently sends an empty value for the priority header when all values are the default. The header should be omitted in that case per RFC 8941 https://www.rfc-editor.org/rfc/rfc8941.html#section-3.2-15</content>
-    </entry>
-    <entry>
-        <id>325814602</id>
-        <title>Emoji presentation scanner maintains two UTF16RagelIterators leading to duplicate calls per codepoint</title>
-        <author>
-            <name>dr...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325814602"/>
-        <updated>2024-02-19T14:08:27.757Z</updated>
-        <summary>-</summary>
-        <content type="html">The Ragel generated emoji presentation scanner is mapped to working on top of `UTF16RagelIterator`. Increment, decrement and assign operations in the Ragel scanner (which usually access `chars` directly) are mapped to overloaded operator implementations. A change of cursor position leads to updating the internally stored emoji presentation category. 
-
-Because the scanner internally performs assignments, which may include copy assignments, in some situations two `UTF16RagelIterator` instances are active at the same time. Due to the order in which the scanner increments them, it looks like we perform multiple emoji category lookup per cursor position in the input text run.
-</content>
-    </entry>
-    <entry>
-        <id>325814599</id>
-        <title>Not able to search xpath located elements from inspector console (DevTools - Elements tab)</title>
-        <author>
-            <name>w....@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325814599"/>
-        <updated>2024-02-19T13:39:29.460Z</updated>
-        <summary>-</summary>
-        <content type="html">Chrome Version       : 121.0.6167.185 (Oficjalna wersja) (64-bitowa) (cohort: Stable) 
-OS                   :  Wersja	Windows 11 Enterprise, 23H2,	22631.3155, Windows Feature Experience Pack 1000.22684.1000.0
-
-What steps will reproduce the problem?
-1. Go to prepared demo Service Now instance -&gt; https://dev203607.service-now.com
-
-2. Login as demo user 
-user_name: chrome.dev
-user_password: Demo_password1
-*if needed i may reset pwd - just let me know
-
-3. After login with mentioned user creds go to demo created incident 
--&gt; https://dev203607.service-now.com/now/nav/ui/classic/params/target/incident.do%3Fsys_id%3Da83820b58f723300e7e16c7827bdeed2%26sysparm_view%3Dess%26sysparm_record_target%3Dincident%26sysparm_record_row%3D1%26sysparm_record_rows%3D1%26sysparm_record_list%3Dcaller_id%253Djavascript%253Ags.getUserID%2528%2529%255Eactive%253Dtrue%255Euniversal_requestISEMPTY%255EORDERBYDESCnumber
-
-Open page inspector (DevTools Elements) and try to find 2 locators with ctrl+f option.
-1st. el. is inside gsft_main iframe, 
-2nd. el is outside gsft_main frame.
-
-eg. xpath locators for tests:
-1) inside gsft_main iframe (expected) -&gt;  //*[@id="sys_readonly.incident.number"]
-2) outside gsft_main iframe (unexpected) - &gt; //div[@id="1b682fe1c3133010cbd77096e940dd18"]
-
-What is the expected result?
-Inside gsft_main frame we're able to search for xpath locators as expected.
-Expected results is that we will be able to find mentioned elements inside and outside gsft_main iframe from DevTools Elements tab
-
-What happens instead?
-Expected elements from outside gsft_main iframe are not visible in  (DevTools Elements not show any element which is in page source).
-Outside gsft_main frame we're not able to find elements. (see screenshots below)
-eg. xpath locator to "Favourites" button - &gt; //div[@id="1b682fe1c3133010cbd77096e940dd18"]
-
-If any more details needed please let me know, i can prep live hands on demo to show an issue.
-
-</content>
-    </entry>
-    <entry>
-        <id>325913030</id>
-        <title>Update the chromium-chrome-current-releases bucket for Quickoffice</title>
-        <author>
-            <name>dh...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325913030"/>
-        <updated>2024-02-19T13:29:17.699Z</updated>
-        <summary>-</summary>
-        <content type="html">deleted</content>
-    </entry>
-    <entry>
-        <id>325756565</id>
-        <title>snowboy.com</title>
-        <author>
-            <name>sn...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325756565"/>
-        <updated>2024-02-19T13:04:22.808Z</updated>
-        <summary>-</summary>
-        <content type="html">Chrome Version: &lt;From about:version: Google Chrome x.x.x.x&gt;
-Chrome OS Version: &lt;From about:version: Platform x.x.x.x&gt;
-Chrome OS Platform: &lt;Make/model of computer running Chrome OS&gt;
-Lacros Version (if applicable): &lt;From about:version: Google Chrome x.x.x.x&gt;
-Network info: &lt;network, encryption type, router model (if known)&gt;
-
-Please specify Cr-* of the system to which this bug/feature applies (add the label below).
-
-Steps To Reproduce:
-(1)
-(2)
-(3)
-
-Expected Result:
-
-Actual Result:
-
-How frequently does this problem reproduce? (Always, sometimes, hard to reproduce?)
-
-What is the impact to the user, and is there a workaround? If so, what is it?
-
-Please provide any additional information below. Attach a screen shot or log if possible.
-
-For graphics-related bugs, please copy/paste the contents of the about:gpu page at the end of this report.</content>
-    </entry>
-    <entry>
-        <id>325909610</id>
-        <title>Chrome DEET components</title>
-        <author>
-            <name>ti...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325909610"/>
-        <updated>2024-02-19T13:01:28.670Z</updated>
-        <summary>-</summary>
-        <content type="html">This request covers multiple components that needed to be created or migrated. See https://docs.google.com/document/d/1mcUYq7EJcsrVOOonbl0HBBvBZyWqzZ0JwfRAJPREGqg/edit?resourcekey=0-eFPjYK-EaNnyxMqsE3HiZw&amp;tab=t.0#heading=h.n1u999infmj
-
-Justification (Why do you need this component): The existing components do not cover all of our work.</content>
-    </entry>
-    <entry>
-        <id>325826191</id>
-        <title>Unknown parcel tracking popup shown in the Discover view </title>
-        <author>
-            <name>km...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325826191"/>
-        <updated>2024-02-19T12:50:48.555Z</updated>
-        <summary>-</summary>
-        <content type="html"># Steps to reproduce the problem
-1. Open Discover view in iOS Chrome
-
-# Problem Description
-Sorry I didn't provide the Chrome version. I'm filing this on behalf of my friend (hope I can pass this to the friend and he can add more info). When he opened up the Discover view in iOS Chrome, it showed multiple parcel tracking (Fedex specifically) popups in the view. He has no idea what those parcels are. One of the parcels even had a tracking number looking like a test data (no.: 123456789012).
-
-# Summary
-Unknown parcel tracking popup shown in the Discover view 
-
-# Additional Data
-Category: UI \
-Chrome Channel: Stable \
-Regression: Yes</content>
-    </entry>
-    <entry>
-        <id>325908456</id>
-        <title>LocationBarEditStateTestCase failing on builder "chrome/ci/ipad-device"</title>
-        <author>
-            <name>my...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325908456"/>
-        <updated>2024-02-19T12:32:12.446Z</updated>
-        <summary>-</summary>
-        <content type="html">Step "ios_chrome_ui_eg2tests_module iPad 7th Gen 16.7.1 or 16.7.5 on iOS-16.7.1 or iOS-16.7.5" failing on builder "chrome/ci/ipad-device"
-
-Failing tests:
-LocationBarEditStateTestCase/testEmptyOmnibox
-LocationBarEditStateTestCase/testNoDefaultMatch
-LocationBarEditStateTestCase/testSelection
-
-List of failed builders:
-
-Builder: ipad-device
-https://ci.chromium.org/p/chrome/builders/ci/ipad-device
-First failing build:
-https://ci.chromium.org/p/chrome/builders/ci/ipad-device/b8755902975646775473
-
-----
-Maybe linked to http://b/325112257 or http://b/324867042 given the similar error messages.</content>
-    </entry>
-    <entry>
-        <id>325907291</id>
-        <title>"CdmRegistrationTest.ChooseBundledCdm" unit test failure seen on linux64-tests of the build #123.0.6310.0 on Official-Desktop Builders</title>
-        <author>
-            <name>sa...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325907291"/>
-        <updated>2024-02-19T12:17:47.951Z</updated>
-        <summary>-</summary>
-        <content type="html">"CdmRegistrationTest.ChooseBundledCdm" unit test failure seen on linux64-tests of the build #123.0.6310.0 on Official-Desktop Builders
-
-3 Test Suite(s) failed.
-browser_tests failed because of:
-All/PDFExtensionPrerenderAndFencedFrameTest.LoadEmbeddedPdfInFencedFrame/1
-ExtensionWindowCreateIwaTest.CreateWindowForIwa/https_and_iwa_and_https
-ExtensionWindowCreateIwaTest.CreateWindowForIwa/invalid_iwa_url
-ExtensionWindowCreateIwaTest.CreateWindowForIwa/iwa
-...4 more failure(s) (8 total)...
-
-interactive_ui_tests failed because of:
-WallpaperSearchInteractiveTest.CustomizeButtonsWorkTogether
-WallpaperSearchInteractiveTest.FeedbackDialogShowsOnThumbsDown
-WallpaperSearchInteractiveTest.SearchesAndSetsNewAndHistoricalResults
-
-unit_tests failed because of:
-CdmRegistrationTest.ChooseBundledCdm
-CdmRegistrationTest.ChooseCorrectCdm
-CdmRegistrationTest.ChooseDowngradedCdm
-...3 more failure(s) (6 total)...
-
-Build URLs:
-https://ci.chromium.org/ui/p/chrome/builders/ci/linux64-tests/3564/overview
-
-Error-Log URLs:
-https://logs.chromium.org/logs/chrome/buildbucket/cr-buildbucket/8755683847670179281/+/u/unit_tests_on_Ubuntu-22.04/stdout</content>
-    </entry>
-    <entry>
-        <id>325904258</id>
-        <title>Reconsider whether IdentityManager completely disabling scope checking is the right approach</title>
-        <author>
-            <name>ma...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/325904258"/>
-        <updated>2024-02-19T11:53:39.540Z</updated>
-        <summary>-</summary>
-        <content type="html">As part of crbug.com/40066882, https://crrev.com/c/4786107 introduced a parameter to bypass scope access validation on iOS, with TODOs to do the same on other platforms.
-
-During a code review, bsazonov@ pointed out that this may not be the desired end state.
-
-This bug is about reconsidering this decision and possibly coming up with a better replacement to fully disabling scope access validation.</content>
     </entry>
 </feed>
