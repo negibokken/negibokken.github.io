@@ -3,7 +3,518 @@
     <id>https://negibokken.github.io/feeds/chromium_issue_tracker/atom.xml</id>
     <title>Chromium issue tracker feed</title>
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
-    <updated>2024-02-25T20:09:59.752Z</updated>
+    <updated>2024-02-26T00:01:25.064Z</updated>
+    <entry>
+        <id>326517432</id>
+        <title>[Graphics]: 1 regressions in rendering.mobile</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/326517432"/>
+        <updated>2024-02-26T00:01:25.064Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1264924:1264938:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=cc88769b-5461-4170-a9fc-062bf8c2f8f9
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=cc88769b-5461-4170-a9fc-062bf8c2f8f9
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/android-pixel2_webview-perf/rendering.mobile/thread_total_rendering_cpu_time_per_frame/css_animations_staggered_inline_style
+        3.75%: 14.3025 -&gt; 14.8386 
+
+Top 1 affected measurements in android-pixel2_webview-perf:
+  - rendering.mobile/thread_total_rendering_cpu_time_per_frame/css_animations_staggered_inline_style
+        3.75%: 14.3025 -&gt; 14.8386 
+
+Regressions grouped by rendering.mobile includes data from the following benchmarks with listed owners:
+  rendering.mobile: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>326770129</id>
+        <title>GoogleTest roll breaks deterministic builder</title>
+        <author>
+            <name>dc...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/326770129"/>
+        <updated>2024-02-25T23:34:28.067Z</updated>
+        <summary>-</summary>
+        <content type="html">Once again, the GoogleTest roll is broken :)
+
+https://chromium-review.googlesource.com/c/chromium/src/+/5322074 landed with the following roll:
+https://chromium.googlesource.com/external/github.com/google/googletest.git/+log/76bb2afb8b52..9d43b27f7a87
+
+This appears to have broken the deterministic builder: https://ci.chromium.org/ui/p/chromium/builders/ci/Deterministic%20Linux
+
+First failing build is https://ci.chromium.org/ui/p/chromium/builders/ci/Deterministic%20Linux/45890/overview
+And it went green after I landed a revert: https://ci.chromium.org/ui/p/chromium/builders/ci/Deterministic%20Linux/45892/blamelist
+
+https://chromium.googlesource.com/chromium/src/+/HEAD/docs/deterministic_builds.md#handling-failures-on-the-deterministic-bots has some info about the deterministic builders, and I've attached the failure log so it doesn't get lost.
+
+The only real interesting thing I can see is that the tests in question involve the `UNSAFE_BUFFER()` macro in some way or another, but I can't see how that would actually cause the non-determinism in question when GoogleTest is involved.</content>
+    </entry>
+    <entry>
+        <id>326817386</id>
+        <title>Saving password doesn't work in emulator</title>
+        <author>
+            <name>sc...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/326817386"/>
+        <updated>2024-02-25T23:28:01.499Z</updated>
+        <summary>-</summary>
+        <content type="html">In the following scenario, the Password Manager offered to save a password but didn't actually save it. Also, Settings --&gt; Password Manager had no effect.
+
+I guess there's a simple explanation (maybe wrong build config), but maybe it's a real bug.
+
+Steps ([screencast](https://screencast.googleplex.com/cast/NjQwOTE2MzE1NTQzOTYxNnw2Y2Y0NzA1Ny04MQ)):
+1. Build Chrome with the `args.gn` from the bottom of the bug.
+2. Run the APK in the emulator.
+3. Select "Use without an account".
+4. Navigate to `https://rsolomakhin.github.io/autofill/`.
+5. Fill and submit the password form. (The load time is long in the screencast.)
+6. Select "Save" when prompted to save the password.
+7. Navigate to `https://rsolomakhin.github.io/autofill/`.
+8. Try to fill the form.
+   - Expected behaviour: bottom sheet or keyboard accessory fills the password.
+   - Actual behaviour: looks like Autocomplete saved the username and fills it. It's certainly `AutofillExternalDelegate` where this comes from. I stumbled on this in [this bug](https://g-issues.chromium.org/issues/325726832#comment8).
+9. Go to Settings --&gt; Password Manager.
+   - Expected behaviour: settings open up.
+   - Actual behaviour: nothing happens, terminal prints the error below.
+
+The error when opening Settings --&gt; Password Manager:
+```
+02-25 15:11:32.451 31276 31324 E GoogleApiManager: Failed to get service from broker. 
+02-25 15:11:32.451 31276 31324 E GoogleApiManager: java.lang.SecurityException: PackageVerificationRslt: not allowed: pkg=com.google.android.apps.chrome, sha256=[32a2fc74d731105859e5a85df16d95f102d85b22099b8064c5d8915c61dad1e0], atk=true, ver=240315025.true
+02-25 15:11:32.451 31276 31324 E GoogleApiManager: at android.os.Parcel.createException(Parcel.java:1942)
+02-25 15:11:32.451 31276 31324 E GoogleApiManager: at android.os.Parcel.readException(Parcel.java:1910)
+02-25 15:11:32.451 31276 31324 E GoogleApiManager: at android.os.Parcel.readException(Parcel.java:1860)
+02-25 15:11:32.451 31276 31324 E GoogleApiManager: at com.google.android.gms.common.internal.IGmsServiceBroker$Stub$Proxy.getService(IGmsServiceBroker.java:292)
+02-25 15:11:32.451 31276 31324 E GoogleApiManager: at com.google.android.gms.common.internal.GmsClientTracer.getService(GmsClientTracer.java:51)
+02-25 15:11:32.451 31276 31324 E GoogleApiManager: at com.google.android.gms.common.internal.BaseGmsClient.getRemoteService(BaseGmsClient.java:1683)
+02-25 15:11:32.451 31276 31324 E GoogleApiManager: at com.google.android.gms.common.api.internal.GoogleApiManager$GoogleApiProgressCallbacks$1.run(GoogleApiManager.java:1872)
+02-25 15:11:32.451 31276 31324 E GoogleApiManager: at android.os.Handler.handleCallback(Handler.java:873)
+02-25 15:11:32.451 31276 31324 E GoogleApiManager: at android.os.Handler.dispatchMessage(Handler.java:99)
+02-25 15:11:32.451 31276 31324 E GoogleApiManager: at com.google.android.gms.libs.punchclock.threads.TracingHandler.dispatchMessageTraced(TracingHandler.java:257)
+02-25 15:11:32.451 31276 31324 E GoogleApiManager: at com.google.android.gms.libs.punchclock.threads.TracingHandler.dispatchMessage(TracingHandler.java:214)
+02-25 15:11:32.451 31276 31324 E GoogleApiManager: at android.os.Looper.loop(Looper.java:193)
+02-25 15:11:32.451 31276 31324 E GoogleApiManager: at android.os.HandlerThread.run(HandlerThread.java:65)
+```
+
+My `args.gn`:
+```
+enable_nacl = false
+is_asan = false
+target_cpu = "x86"
+use_official_google_api_keys = true
+is_debug = false
+blink_symbol_level = 0
+use_internal_autofill_patterns = true
+v8_symbol_level = 0
+symbol_level = 0
+use_remoteexec = true
+target_os = "android"
+is_chrome_branded = false
+is_tsan = false
+dcheck_always_on = false
+is_component_build = true
+enable_expensive_dchecks = false
+is_java_debug = false
+system_webview_package_name = "com.google.android.apps.chrome"
+system_webview_shell_package_name = "org.chromium.my_webview_shell"
+```
+
+My emulator command is `/google/bin/releases/mobile-devx-platform/crow/crow.par --device pixel_3 --api_level 28 --arch x86` and the build target is `chrome_apk`.</content>
+    </entry>
+    <entry>
+        <id>326518779</id>
+        <title>[V8 Memory Perf Sheriff]: 1 regressions in v8.browsing_desktop</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/326518779"/>
+        <updated>2024-02-25T23:03:14.054Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1263588:1263839:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=8277a553-0f09-4866-9458-0efca7dd329b
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=8277a553-0f09-4866-9458-0efca7dd329b
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/win-10_laptop_low_end-perf/v8.browsing_desktop/memory:chrome:renderer_processes:reported_by_chrome:blink_gc:allocated_objects_size_max/browse_tools/browse_tools_docs_scrolling
+       10.22%: 26679096.0 -&gt; 29404392.0 sizeInBytes
+
+Top 1 affected measurements in win-10_laptop_low_end-perf:
+  - v8.browsing_desktop/memory:chrome:renderer_processes:reported_by_chrome:blink_gc:allocated_objects_size_max/browse_tools/browse_tools_docs_scrolling
+       10.22%: 26679096.0 -&gt; 29404392.0 sizeInBytes
+
+Regressions grouped by v8.browsing_desktop includes data from the following benchmarks with listed owners:
+  v8.browsing_desktop: almuthanna@chromium.org, cbruni@chromium.org, vahl@chromium.org
+      
+
+Commits in this range:
+  Chromium Commit Position: https://crrev.com/1263587..1263839
+  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/142a0614a468d2b4fb29227410c31ea8d0243dbe..6c1aaab0e427536e116b3face24cec49826a9a82
+  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/efea7bb8ccb67db20bc6c3cf85996ef1edcb895f..efea7bb8ccb67db20bc6c3cf85996ef1edcb895f</content>
+    </entry>
+    <entry>
+        <id>326681252</id>
+        <title>5</title>
+        <author>
+            <name>h....@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/326681252"/>
+        <updated>2024-02-25T22:44:19.119Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+1. 
+2. 5
+3. 
+
+# Problem Description
+5
+
+# Additional Comments
+G
+
+# Summary
+5
+
+# Additional Data
+Category: Network / Downloading \
+Chrome Channel: Not sure \
+Regression: N/A</content>
+    </entry>
+    <entry>
+        <id>326791397</id>
+        <title>44</title>
+        <author>
+            <name>h....@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/326791397"/>
+        <updated>2024-02-25T22:40:11.586Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+1. 
+2. 3777
+3. 
+
+# Problem Description
+653
+
+# Additional Comments
+Very bug
+
+# Summary
+44
+
+# Additional Data
+Category: JavaScript \
+Chrome Channel: Not sure \
+Regression: Yes</content>
+    </entry>
+    <entry>
+        <id>326802539</id>
+        <title>T</title>
+        <author>
+            <name>h....@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/326802539"/>
+        <updated>2024-02-25T22:35:20.410Z</updated>
+        <summary>-</summary>
+        <content type="html">G</content>
+    </entry>
+    <entry>
+        <id>326752460</id>
+        <title>hacked FB Account</title>
+        <author>
+            <name>fr...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/326752460"/>
+        <updated>2024-02-25T22:28:42.953Z</updated>
+        <summary>-</summary>
+        <content type="html">Chrome Version       : &lt;from chrome://version/&gt;
+OS                   : &lt;OS version&gt;
+
+What steps will reproduce the problem?
+
+
+What is the expected result?
+
+
+What happens instead?
+
+
+You can help us a lot by creating a minimal, reproducible example (https://stackoverflow.com/help/minimal-reproducible-example), e.g. on glitch.com, and/or attaching a screenshot or recording of the issue!
+Facebook account hacked with inappropriate photos.</content>
+    </entry>
+    <entry>
+        <id>326768435</id>
+        <title>My Bluetooth speaker not working </title>
+        <author>
+            <name>jh...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/326768435"/>
+        <updated>2024-02-25T22:22:07.987Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+1. Hsuahs
+2. Dhssh
+3. 
+
+# Problem Description
+My Bluetooth speaker not working 
+
+# Summary
+My Bluetooth speaker not working 
+
+# Custom Questions
+#### Does this work in other browsers?
+
+Yes - This is just a Chromium problem
+
+# Additional Data
+Category: Audio / Video \
+Chrome Channel: Not sure \
+Regression: No</content>
+    </entry>
+    <entry>
+        <id>326755444</id>
+        <title>بالخطاء </title>
+        <author>
+            <name>so...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/326755444"/>
+        <updated>2024-02-25T21:35:58.302Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+1. فريق قوقل المساعدة 
+2. 
+3. 
+
+# Problem Description
+وساعدتموني شكراجزيلا
+
+# Summary
+بالخطاء 
+
+# Custom Questions
+#### Does the problem occur on multiple sites?
+No - Just that one URL
+
+#### Is it a problem with a plugin?
+No - It's the browser itself
+
+#### Does this work in other browsers? 
+Not sure - I don't know
+
+# Additional Data
+Category: Content \
+Chrome Channel: Not sure \
+Regression: Yes</content>
+    </entry>
+    <entry>
+        <id>326771972</id>
+        <title>Chrome unexpectedly shows red screen and crashes. Since October 2023. </title>
+        <author>
+            <name>fl...@rwrhealth.co.nz</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/326771972"/>
+        <updated>2024-02-25T21:21:19.488Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+1. Cleared caches, cookies, and history
+2. Updated Chrome and Mac IOS softwares
+3. Restarted computer
+4. Ensured the programme was up to date
+5. Uninstalled and reinstalled Chrome
+
+# Problem Description
+Chrome shows a red screen and then crashes unexpectedly, up to 5x per day. Used to be only when using Google Calendar, I would try to add an event and it immediately crashed, but now it happens when I use other applications too. Extremely disruptive for my work.
+
+# Summary
+Chrome unexpectedly shows red screen and crashes. Since October 2023. 
+
+# Custom Questions
+#### How much crashed? 
+The whole browser
+
+#### Is it a problem with a plugin?
+No - It's the browser itself
+
+# Additional Data
+Category: Crashes \
+Chrome Channel: Not sure \
+Regression: Yes</content>
+    </entry>
+    <entry>
+        <id>326517430</id>
+        <title>[V8 Perf Sheriff]: 1 regressions in v8.browsing_mobile</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/326517430"/>
+        <updated>2024-02-25T21:02:33.781Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1264938:1264949:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=b76adf5e-176a-4d93-aa84-da77927c2bbb
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=b76adf5e-176a-4d93-aa84-da77927c2bbb
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/android-pixel4_webview-perf/v8.browsing_mobile/total:500ms_window:renderer_eqt:v8:compile:optimize_rcs_max/browse_news/browse_news_reddit_2019
+       10.98%: 0.2595 -&gt; 0.288 
+
+Top 1 affected measurements in android-pixel4_webview-perf:
+  - v8.browsing_mobile/total:500ms_window:renderer_eqt:v8:compile:optimize_rcs_max/browse_news/browse_news_reddit_2019
+       10.98%: 0.2595 -&gt; 0.288 
+
+Regressions grouped by v8.browsing_mobile includes data from the following benchmarks with listed owners:
+  v8.browsing_mobile: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>326791395</id>
+        <title>Drag and drop across frames in a frameset no longer working</title>
+        <author>
+            <name>en...@bfcsoftware.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/326791395"/>
+        <updated>2024-02-25T21:01:32.818Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+1. This is a proprietary application that runs on my company's intranet. It has a left and right frame in a frameset and supports dragging items from the left to the right frame and back. This no longer works as of the chrome version above
+2. 
+3. 
+
+# Problem Description
+In an application with an html frameset and left and right frames when you try to drag an item from the left frame to the right, the bounds of the frame are no longer respected. Instead of leaving the left frame and entering the right frame, the left frame scrolls horizontally forever.
+
+# Additional Comments
+Attached video shows the issue. There is nothing new emitted to the console.
+
+# Summary
+Drag and drop across frames in a frameset no longer working
+
+# Additional Data
+Category: JavaScript \
+Chrome Channel: Stable \
+Regression: Yes</content>
+    </entry>
+    <entry>
+        <id>326714477</id>
+        <title>KAD PENGA MALAY DENTT 960203-09-5053 MOHD SHAZALI BIN HAMD NO 60 JALAN SUNGAI BEREMBANG 02700 SIMPANG AMPAT PERLIS Thugh MyKad KETUA PENGARAH PENDAFTARAN NEGARA WARGANEGARA ISLAM 960203-09-5053-06-01 80K chip LELAKI SN: D10o76064A</title>
+        <author>
+            <name>sh...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/326714477"/>
+        <updated>2024-02-25T20:55:40.685Z</updated>
+        <summary>-</summary>
+        <content type="html">Version: 15180-ed15d92
+From Link: https://ci.chromium.org/ui/labs/tree-status/v8
+Error Message:
+code: 7 (PERMISSION_DENIED) desc: please log in for access
+
+Stacktrace:
+Error: code: 7 (PERMISSION_DENIED) desc: please log in for access
+
+    at b.request (https://ci.chromium.org/ui/immutable/use_prpc_service_client-bccff5a7.js:1:1527)
+Please enter a description of the problem, with repro steps if applicable.</content>
+    </entry>
+    <entry>
+        <id>326761068</id>
+        <title>KAD PENGA MALAY DENTT 960203-09-5053 MOHD SHAZALI BIN HAMD NO 60 JALAN SUNGAI BEREMBANG 02700 SIMPANG AMPAT PERLIS Thugh MyKad KETUA PENGARAH PENDAFTARAN NEGARA WARGANEGARA ISLAM 960203-09-5053-06-01 80K chip LELAKI SN: D10o76064A</title>
+        <author>
+            <name>sh...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/326761068"/>
+        <updated>2024-02-25T20:48:53.182Z</updated>
+        <summary>-</summary>
+        <content type="html">Version: 15180-ed15d92
+From Link: https://ci.chromium.org/ui/labs/tree-status/v8
+Error Message:
+code: 7 (PERMISSION_DENIED) desc: please log in for access
+
+Stacktrace:
+Error: code: 7 (PERMISSION_DENIED) desc: please log in for access
+
+    at b.request (https://ci.chromium.org/ui/immutable/use_prpc_service_client-bccff5a7.js:1:1527)
+Please enter a description of the problem, with repro steps if applicable.</content>
+    </entry>
+    <entry>
+        <id>326761067</id>
+        <title>[Chromium GSoC] Request for Feedback (analysis-tool)</title>
+        <author>
+            <name>an...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/326761067"/>
+        <updated>2024-02-25T20:32:35.657Z</updated>
+        <summary>-</summary>
+        <content type="html">
+For the Analysis tool, should I be looking forward in the direction of a CLI,  something built inside the manage extensions page, or a Chrome Dev Tool integration? Also, i'd like to know if we are trying to analyze the extension based on the current website of only a list of a few famous websites.
+
+For now, I have been thinking of a way for it to be implemented inside the extensions tab or make an option to analyze each extension
+
+I think this would also let general extension users to analyze the extensions they have installed unlike CLI or a DevTool which might be complicated for them to access.
+
+Thanks,
+Ananay
+
+
+</content>
+    </entry>
+    <entry>
+        <id>326665129</id>
+        <title>InsecureDownloadWarnings, disable-download-protection, disable-extension-blacklist not respected</title>
+        <author>
+            <name>mz...@mdsol.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/326665129"/>
+        <updated>2024-02-25T20:29:45.796Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+1. using Webdriver on windows, in c#, init a chromedriver with the following options:
+                var chromeOptions = new ChromeOptions();
+                chromeOptions.AddArguments("start-maximized");
+                chromeOptions.AddArguments("enable-automation"); 
+                chromeOptions.AddArguments("--no-sandbox"); 
+                chromeOptions.AddArguments("--disable-dev-shm-usage"); 
+                chromeOptions.AddArguments("--disable-browser-side-navigation"); 
+                chromeOptions.AddArguments("--disable-gpu"); 
+                chromeOptions.AddArguments("--safebrowsing-disable-download-protection");
+                chromeOptions.AddArguments("--safebrowsing-disable-extension-blacklist");
+                chromeOptions.AddArguments("--disable-features=InsecureDownloadWarnings");
+                chromeOptions.BinaryLocation = WtfConfiguration.Default.BrowserPath;
+                chromeOptions.AddUserProfilePreference("download.default_directory", "c:\downloadDir");
+                chromeOptions.AddUserProfilePreference("download.extensions_to_open", "application/xml");
+                chromeOptions.AddUserProfilePreference("safebrowsing.enabled", false);
+                driver = new ChromeDriver(ChromeDriverService.CreateDefaultService(), 
+                                          chromeOptions, 
+                                          TimeSpan.FromSeconds(WtfConfiguration.Default.DriverCommandTimeout));
+
+2. Using webdriver navigate to a page with a download link, that will download an xml file. Clicking this link will get a popup with the message "unverified download blocked"
+3. 
+
+# Problem Description
+I need to be able to download an XML file as part of an automated test, against a web application. previous versions had safebrowsing.enabled set to true, but with chrome version 122, a new popup concerning data breach passwords comes up when I log into this test application with a fixed test password. I set safebrowsing.enabled to false to get around this issue, but then run into the download issue. Any help would be appreciated.
+
+# Summary
+InsecureDownloadWarnings, disable-download-protection, disable-extension-blacklist not respected
+
+# Additional Data
+Category: Developer Tools \
+Chrome Channel: Stable \
+Regression: Yes</content>
+    </entry>
     <entry>
         <id>326665125</id>
         <title>[WebIDL]</title>
@@ -36,36 +547,6 @@ If this is a regression (i.e., worked before), please consider using the bisect 
 For graphics-related bugs, please copy/paste the contents of the about://gpu page at the end of this report.</content>
     </entry>
     <entry>
-        <id>326816310</id>
-        <title>[Loading Perf Sheriff]: 1 regressions in system_health.common_desktop</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/326816310"/>
-        <updated>2024-02-25T20:04:44.239Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1264935:1264946:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=1de91f40-a022-4602-a8b0-461a9dc4998a
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=1de91f40-a022-4602-a8b0-461a9dc4998a
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/mac-laptop_low_end-perf/system_health.common_desktop/cwv:cumulative_layout_shift_avg/browse_media/browse_media_imgur
-      108.41%: 0.18015 -&gt; 0.37545002 
-
-Top 1 affected measurements in mac-laptop_low_end-perf:
-  - system_health.common_desktop/cwv:cumulative_layout_shift_avg/browse_media/browse_media_imgur
-      108.41%: 0.18015 -&gt; 0.37545002 
-
-Regressions grouped by system_health.common_desktop includes data from the following benchmarks with listed owners:
-  system_health.common_desktop: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
         <id>326771969</id>
         <title>100</title>
         <author>
@@ -91,66 +572,6 @@ Chrome Channel: Canary \
 Regression: Yes</content>
     </entry>
     <entry>
-        <id>326816309</id>
-        <title>[Blink Layout]: 1 regressions in blink_perf.layout</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/326816309"/>
-        <updated>2024-02-25T19:40:04.595Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1264935:1264946:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=961705f8-722f-4592-9062-3d371caaad4f
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=961705f8-722f-4592-9062-3d371caaad4f
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/mac-laptop_low_end-perf/blink_perf.layout/multicol_lots-of-text-autofill/multicol_lots-of-text-autofill.html
-        0.41%: 9343.426 -&gt; 9304.78 
-
-Top 1 affected measurements in mac-laptop_low_end-perf:
-  - blink_perf.layout/multicol_lots-of-text-autofill/multicol_lots-of-text-autofill.html
-        0.41%: 9343.426 -&gt; 9304.78 
-
-Regressions grouped by blink_perf.layout includes data from the following benchmarks with listed owners:
-  blink_perf.layout: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>326816308</id>
-        <title>[Skia Desktop Memory Sheriff]: 1 regressions in system_health.memory_desktop</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/326816308"/>
-        <updated>2024-02-25T19:39:48.181Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1264932:1264945:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=8226f687-63ba-442e-9e98-1e694b09de9e
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=8226f687-63ba-442e-9e98-1e694b09de9e
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/mac-laptop_low_end-perf/system_health.memory_desktop/memory:chrome:all_processes:reported_by_chrome:skia:effective_size_avg/load_search/load_search_taobao_2018
-        8.69%: 5698021.5 -&gt; 6193326.5 
-
-Top 1 affected measurements in mac-laptop_low_end-perf:
-  - system_health.memory_desktop/memory:chrome:all_processes:reported_by_chrome:skia:effective_size_avg/load_search/load_search_taobao_2018
-        8.69%: 5698021.5 -&gt; 6193326.5 
-
-Regressions grouped by system_health.memory_desktop includes data from the following benchmarks with listed owners:
-  system_health.memory_desktop: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
         <id>326517428</id>
         <title>[Blink Layout]: 1 regressions in blink_perf.layout</title>
         <author>
@@ -172,218 +593,6 @@ Top 1 regressions (out of 1, with 0 improvements) in this group:
 
 Top 1 affected measurements in mac-laptop_low_end-perf:
   - blink_perf.layout/multicol_lots-of-text-autofill/multicol_lots-of-text-autofill.html
-        0.41%: 9343.426 -&gt; 9304.78 
-
-Regressions grouped by blink_perf.layout includes data from the following benchmarks with listed owners:
-  blink_perf.layout: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>326513554</id>
-        <title>[Blink Bindings Perf Regressions]: 1 regressions in blink_perf.bindings</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/326513554"/>
-        <updated>2024-02-25T19:38:27.701Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1264916:1264931:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=9ec66254-d770-4f38-acf2-0b0d266921ea
-
-  Public Reports:
-    - Chromium: https://perf.luci.app/_/alertgroup?group_id=9ec66254-d770-4f38-acf2-0b0d266921ea
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=9ec66254-d770-4f38-acf2-0b0d266921ea
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/linux-perf/blink_perf.bindings/gc-forest/gc-forest.html
-       10.28%: 308.26 -&gt; 339.96002 
-
-Top 1 affected measurements in linux-perf:
-  - blink_perf.bindings/gc-forest/gc-forest.html
-       10.28%: 308.26 -&gt; 339.96002 
-
-Regressions grouped by blink_perf.bindings includes data from the following benchmarks with listed owners:
-  blink_perf.bindings: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>326513553</id>
-        <title>[Blink DOM]: 1 regressions in blink_perf.dom</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/326513553"/>
-        <updated>2024-02-25T19:38:03.741Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1264935:1264946:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=8360aae4-dbce-48a1-8476-8ecb0d57932b
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=8360aae4-dbce-48a1-8476-8ecb0d57932b
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/mac-m1_mini_2020-perf/blink_perf.dom/dom-parts-api-manual-append/dom-parts-api-manual-append.html
-        4.88%: 1.23 -&gt; 1.29 
-
-Top 1 affected measurements in mac-m1_mini_2020-perf:
-  - blink_perf.dom/dom-parts-api-manual-append/dom-parts-api-manual-append.html
-        4.88%: 1.23 -&gt; 1.29 
-
-Regressions grouped by blink_perf.dom includes data from the following benchmarks with listed owners:
-  blink_perf.dom: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>326507633</id>
-        <title>[V8 Perf Sheriff]: 1 regressions in v8.browsing_desktop-future</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/326507633"/>
-        <updated>2024-02-25T19:37:45.684Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1264935:1264946:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=4b33523e-4661-4a2b-91a9-1f679c5e8345
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=4b33523e-4661-4a2b-91a9-1f679c5e8345
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/mac-laptop_high_end-perf/v8.browsing_desktop-future/V8-Only:duration_avg/browse_social/browse_social_tumblr_infinite_scroll_2018
-        4.49%: 2085.9712 -&gt; 2179.5513 
-
-Top 1 affected measurements in mac-laptop_high_end-perf:
-  - v8.browsing_desktop-future/V8-Only:duration_avg/browse_social/browse_social_tumblr_infinite_scroll_2018
-        4.49%: 2085.9712 -&gt; 2179.5513 
-
-Regressions grouped by v8.browsing_desktop-future includes data from the following benchmarks with listed owners:
-  v8.browsing_desktop-future: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>326517427</id>
-        <title>[Blink Layout]: 1 regressions in blink_perf.layout</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/326517427"/>
-        <updated>2024-02-25T19:37:39.041Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1264932:1264945:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=4d4aff8f-64ff-4cd7-a03d-a59dd454d669
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=4d4aff8f-64ff-4cd7-a03d-a59dd454d669
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/mac-laptop_high_end-perf/blink_perf.layout/latin-ebook-french/latin-ebook-french.html
-        2.51%: 171.24 -&gt; 175.54 
-
-Top 1 affected measurements in mac-laptop_high_end-perf:
-  - blink_perf.layout/latin-ebook-french/latin-ebook-french.html
-        2.51%: 171.24 -&gt; 175.54 
-
-Regressions grouped by blink_perf.layout includes data from the following benchmarks with listed owners:
-  blink_perf.layout: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>326749276</id>
-        <title>[Blink Layout]: 1 regressions in blink_perf.layout</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/326749276"/>
-        <updated>2024-02-25T19:34:47.500Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1264931:1264942:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=30f3db60-2309-446a-9b1c-785cbf14e057
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=30f3db60-2309-446a-9b1c-785cbf14e057
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/mac-m1_mini_2020-perf/blink_perf.layout/nested-grid-lots-of-tracks/nested-grid-lots-of-tracks.html
-        0.34%: 9346.551 -&gt; 9314.729 
-
-Top 1 affected measurements in mac-m1_mini_2020-perf:
-  - blink_perf.layout/nested-grid-lots-of-tracks/nested-grid-lots-of-tracks.html
-        0.34%: 9346.551 -&gt; 9314.729 
-
-Regressions grouped by blink_perf.layout includes data from the following benchmarks with listed owners:
-  blink_perf.layout: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>326513552</id>
-        <title>[Graphics]: 1 regressions in rendering.desktop</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/326513552"/>
-        <updated>2024-02-25T19:34:36.745Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1264931:1264942:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=c88ad51b-3c7b-461b-8078-e054a7ee2d6c
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=c88ad51b-3c7b-461b-8078-e054a7ee2d6c
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/mac-m1_mini_2020-perf/rendering.desktop/thread_total_rendering_cpu_time_per_frame/css_transitions_inline_style
-        2.66%: 5.2259 -&gt; 5.36515 
-
-Top 1 affected measurements in mac-m1_mini_2020-perf:
-  - rendering.desktop/thread_total_rendering_cpu_time_per_frame/css_transitions_inline_style
-        2.66%: 5.2259 -&gt; 5.36515 
-
-Regressions grouped by rendering.desktop includes data from the following benchmarks with listed owners:
-  rendering.desktop: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>326517426</id>
-        <title>[Blink Layout]: 1 regressions in blink_perf.layout</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/326517426"/>
-        <updated>2024-02-25T19:34:33.658Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1264935:1264946:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=e1855938-48d1-4c0d-8c53-d4efe487e570
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=e1855938-48d1-4c0d-8c53-d4efe487e570
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/mac-m1_mini_2020-perf/blink_perf.layout/nested-grid-lots-of-tracks/nested-grid-lots-of-tracks.html
-        0.41%: 9343.426 -&gt; 9304.78 
-
-Top 1 affected measurements in mac-m1_mini_2020-perf:
-  - blink_perf.layout/nested-grid-lots-of-tracks/nested-grid-lots-of-tracks.html
         0.41%: 9343.426 -&gt; 9304.78 
 
 Regressions grouped by blink_perf.layout includes data from the following benchmarks with listed owners:
@@ -1318,212 +1527,5 @@ fake
 Category: UI \
 Chrome Channel: Not sure \
 Regression: N/A</content>
-    </entry>
-    <entry>
-        <id>326769312</id>
-        <title>Tests are failing: tts_extension_apitest.cc(625): Value of: RunExtensionTest(\"tts_engine/update_voices_api\")\n Actual: false\nExpected: true\nFailed 2 of 3 tests</title>
-        <author>
-            <name>bi...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/326769312"/>
-        <updated>2024-02-25T05:26:25.247Z</updated>
-        <summary>-</summary>
-        <content type="html">This bug is for all test failures where the primary error message is similiar to the following (ignoring numbers and hexadecimal values):
-tts_extension_apitest.cc(625): Value of: RunExtensionTest(\"tts_engine/update_voices_api\")\n  Actual: false\nExpected: true\nFailed 2 of 3 tests
-
-The following test(s) were observed to have matching failures at this time (at most five examples listed):
-- ninja://chrome/test:browser_tests/TtsApiTest.UpdateVoicesApi/ServiceWorker.0
-
-
-These test failures are causing problem(s) which require your attention, including:
-- many gardened builders are failing
-
-See current problems, failure examples and more in LUCI Analysis at: https://luci-analysis.appspot.com/p/chromium/rules/0848341b103cf76930f0c9a6396e25d5
-
-How to action this bug: https://luci-analysis.appspot.com/help#new-bug-filed
-Provide feedback: https://luci-analysis.appspot.com/help#feedback
-Was this bug filed in the wrong component? See: https://luci-analysis.appspot.com/help#component-selection</content>
-    </entry>
-    <entry>
-        <id>326695622</id>
-        <title>Missing pen tablet input on ozone-wayland backend</title>
-        <author>
-            <name>zh...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/326695622"/>
-        <updated>2024-02-25T05:04:39.714Z</updated>
-        <summary>-</summary>
-        <content type="html"># Steps to reproduce the problem
-1. Run chrome with ozone-wayland backend on a wayland compositor
-2. use pen tablet on chrome window
-3. pen input missing
-
-# Problem Description
-It would seem that chrome's ozone-wayland backend does not handle pen tablet input, so apps that has drawing capabilities can't be used to it's fullest
-
-# Additional Comments
-The following attachements are the WAYLAND_DEBUG logs for ozone-wayland when a pen tablet hovers over it
-
-# Summary
-Missing pen tablet input on ozone-wayland backend
-
-# Custom Questions
-#### Please select a label to classify your issue:
-Type-Bug - Software not working correctly
-
-# Additional Data
-Category: Other \
-Chrome Channel: Stable \
-Regression: No</content>
-    </entry>
-    <entry>
-        <id>326490088</id>
-        <title>[Graphics]: 1 regressions in rendering.desktop</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/326490088"/>
-        <updated>2024-02-25T04:52:03.046Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1252139:1252799:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=e01d0aca-3cfc-4855-8a1b-979d0c9f727e
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=e01d0aca-3cfc-4855-8a1b-979d0c9f727e
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/lacros-x86-perf/rendering.desktop/Graphics.Smoothness.PercentDroppedFrames3.AllSequences/ebay_pinch_2018
-       43.48%: 46.0 -&gt; 66.0 unitless
-
-Top 1 affected measurements in lacros-x86-perf:
-  - rendering.desktop/Graphics.Smoothness.PercentDroppedFrames3.AllSequences/ebay_pinch_2018
-       43.48%: 46.0 -&gt; 66.0 unitless
-
-Regressions grouped by rendering.desktop includes data from the following benchmarks with listed owners:
-  rendering.desktop: chrome-gpu-metrics@google.com, jonross@chromium.org
-      
-
-Commits in this range:
-  Chromium Git Hash: https://chromium.googlesource.com/chromium/src/+log/e84b97f933fab294c0ad4a6c98d6015eff7cf5f9..19a1ed57fe886f7e6d73ea774c42d2569c97135b
-  Chromium Commit Position: https://crrev.com/1252138..1252799
-  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/aacf1e1b503a77d4c030a42a6f8dd8323e4dcecb..28c4744132eab54fb2c70beab1efd1acd6a4c08f
-  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/cc70a6d1748cd28a9d62fb234ab3f0b48cbebb1e..9c6874607aec46ed9c8ebe2af130a35f1ca36fb6</content>
-    </entry>
-    <entry>
-        <id>326657584</id>
-        <title>Low fps</title>
-        <author>
-            <name>se...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/326657584"/>
-        <updated>2024-02-25T04:45:32.169Z</updated>
-        <summary>-</summary>
-        <content type="html"># Steps to reproduce the problem
-1. Idk
-2. Idk
-3. 
-
-# Problem Description
-Loww fps
-
-# Summary
-Low fps
-
-# Additional Data
-Category: Developer Tools \
-Chrome Channel: Beta \
-Regression: No</content>
-    </entry>
-    <entry>
-        <id>326721286</id>
-        <title>[Blink Layout]: 1 regressions in blink_perf.layout</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/326721286"/>
-        <updated>2024-02-25T04:35:07.306Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1264922:1264933:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=c391f308-f369-4690-bb8d-2b8244b2ee52
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=c391f308-f369-4690-bb8d-2b8244b2ee52
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/mac-laptop_high_end-perf/blink_perf.layout/many-block-children-auto-inline-size/many-block-children-auto-inline-size.html
-        4.21%: 417.91772 -&gt; 400.3323 
-
-Top 1 affected measurements in mac-laptop_high_end-perf:
-  - blink_perf.layout/many-block-children-auto-inline-size/many-block-children-auto-inline-size.html
-        4.21%: 417.91772 -&gt; 400.3323 
-
-Regressions grouped by blink_perf.layout includes data from the following benchmarks with listed owners:
-  blink_perf.layout: 
-      None
-
-Commits in this range:
-  Chromium Commit Position: https://crrev.com/1264921..1264933
-  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/5e19fe32b37703bca2453cc8f4d73636360ed784..5e19fe32b37703bca2453cc8f4d73636360ed784
-  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/3f0d399c0700f4a4019c2cfb03e849db06ca02d7..3f0d399c0700f4a4019c2cfb03e849db06ca02d7</content>
-    </entry>
-    <entry>
-        <id>326622804</id>
-        <title>at times smooth scroll enabled elements do not scroll to correct position using scrollto </title>
-        <author>
-            <name>m....@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/326622804"/>
-        <updated>2024-02-25T04:20:55.879Z</updated>
-        <summary>-</summary>
-        <content type="html"># Steps to reproduce the problem
-1. set behavior to smooth scroll
-2. enter exact location to scroll to
-3. scrollTop differes from provided position
-
-# Problem Description
-works with firefox, works most of the time for chrome, not always
-
-# Summary
-at times smooth scroll enabled elements do not scroll to correct position using scrollto 
-
-# Additional Data
-Category: JavaScript \
-Chrome Channel: Stable \
-Regression: N/A</content>
-    </entry>
-    <entry>
-        <id>326507629</id>
-        <title>[V8 Perf Sheriff]: 1 regressions in v8.browsing_desktop</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/326507629"/>
-        <updated>2024-02-25T04:19:03.123Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1264846:1264850:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=4ff09660-8cc1-4802-bf44-f8dabe1eccfe
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=4ff09660-8cc1-4802-bf44-f8dabe1eccfe
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/mac-laptop_low_end-perf/v8.browsing_desktop/V8 C++:duration_avg/browse_news/browse_news_flipboard_2020
-       23.95%: 361.346 -&gt; 447.888 ms
-
-Top 1 affected measurements in mac-laptop_low_end-perf:
-  - v8.browsing_desktop/V8 C++:duration_avg/browse_news/browse_news_flipboard_2020
-       23.95%: 361.346 -&gt; 447.888 ms
-
-Regressions grouped by v8.browsing_desktop includes data from the following benchmarks with listed owners:
-  v8.browsing_desktop: almuthanna@chromium.org, cbruni@chromium.org, vahl@chromium.org
-      
-
-Commits in this range:
-  Chromium Commit Position: https://crrev.com/1264845..1264850
-  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/c582ec924d4ac7a1b09c604f1cdff508881d311e..902c5a0fe95d268d6e71c5634432a2961fa6eb57
-  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/ff0c960ee791fe1c816994c29f6b6d173690fd08..ff0c960ee791fe1c816994c29f6b6d173690fd08</content>
     </entry>
 </feed>
