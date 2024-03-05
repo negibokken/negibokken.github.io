@@ -3,7 +3,418 @@
     <id>https://negibokken.github.io/feeds/intent_to_ship/atom.xml</id>
     <title>intent to ship feed</title>
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
-    <updated>2024-03-05T00:06:10.000Z</updated>
+    <updated>2024-03-05T01:05:46.000Z</updated>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09502.html</id>
+        <title>[blink-dev] Web-Facing Change PSA: Stop modifying author-defined selection colors</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09502.html"/>
+        <updated>2024-03-05T01:05:46.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09502.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Web%5C-Facing+Change+PSA%5C%3A+Stop+modifying+author%5C-defined+selection+colors%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Web-Facing Change PSA: Stop modifying author-defined selection colors&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Stephen+Chenney%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Stephen Chenney&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240304" rel="nofollow"&gt;Mon, 04 Mar 2024 17:05:46 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Contact emailsschen...@chromium.org
+
+Specification&lt;a  rel="nofollow" href="https://www.w3.org/TR/css-pseudo-4/#selectordef-selection"&gt;https://www.w3.org/TR/css-pseudo-4/#selectordef-selection&lt;/a&gt;&lt;/pre&gt;&lt;pre&gt;
+
+Summary
+
+Chromium currently checks all selection highlight colors against the text
+color and inverts the highlight color if it matches the text. Hence,
+author-defined ::selection CSS properties may be modified by the browser
+despite explicit author intent. For example, a CSS rule &amp;quot;::selection {
+color: cyan; background: cyan; }&amp;quot; the background is inverted and red color
+is used. In &lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/6150"&gt;https://github.com/w3c/csswg-drafts/issues/6150&lt;/a&gt; the CSS working
+Group resolved to disallow the chromium behavior. We propose to implement
+this spec change and bring chromium into compatibility with other browsers.
+
+Note this is re-starting a previous intent process from a while back.
+
+Blink componentBlink&amp;gt;CSS
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS&lt;/a&gt;&amp;gt;
+
+Search tagsselection &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:selection"&gt;https://chromestatus.com/features#tags:selection&lt;/a&gt;&amp;gt;
+
+TAG reviewN/A This is bringing chrome into compat with other browsers'
+existing behavior.
+
+TAG review statusNot applicable
+
+Risks
+
+
+Interoperability and Compatibility
+
+The current Chromium behavior comes from WebKit (
+trac.webkit.org/changeset/52548/webkit). WebKit has changed this behavior
+in the past and is no longer doing this. Firefox has never done this. This
+will align Chromium with the other browsers. Use counter is around 0.0003% (
+&lt;a  rel="nofollow" href="https://chromestatus.com/metrics/feature/timeline/popularity/3934"&gt;https://chromestatus.com/metrics/feature/timeline/popularity/3934&lt;/a&gt;), this
+will make selected content impossible to read in some web pages (but that's
+already happening in Safari and Firefox). Or maybe this is making some
+webpages work as expected, if they were using selection colors to hide some
+content.
+
+
+*Gecko*: Shipped/Shipping
+
+*WebKit*: Shipped/Shipping
+
+*Web developers*: Probably Positive (
+&lt;a  rel="nofollow" href="https://stackoverflow.com/questions/14970891/css-selection-color-behaving-strangely-on-chrome"&gt;https://stackoverflow.com/questions/14970891/css-selection-color-behaving-strangely-on-chrome&lt;/a&gt;)
+There are 5000 views of the Stack Overflow question linked above,
+suggesting many developers have been confused by this behavior.
+
+*Other signals*:
+
+WebView application risks
+
+Does this intent deprecate or change behavior of existing APIs, such that
+it has potentially high risk for Android WebView-based applications?
+
+None
+
+
+Debuggability
+
+N/A
+
+
+Will this feature be supported on all six Blink platforms (Windows, Mac,
+Linux, ChromeOS, Android, and Android WebView)?Yes
+
+Is this feature fully tested by web-platform-tests
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+?Yes
+
+We'll add a new test specifically verifying this behavior. Apart from that,
+css/css-pseudo/active-selection-018.html fails due to this issue if you
+enable the HighlightInheritance runtime flag.
+
+
+Flag name on chrome://flagsExperimental Web Platform Features
+
+Finch feature nameSelectionRespectsColors
+
+Requires code in //chrome?False
+
+Tracking bug&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1217745"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1217745&lt;/a&gt;
+
+Estimated milestones
+Shipping on desktop 125
+DevTrial on desktop 124
+Shipping on Android 125
+DevTrial on Android 124
+Shipping on WebView 125
+
+Anticipated spec changes
+
+Open questions about a feature may be a source of future web compat or
+interop issues. Please list open issues (e.g. links to known github issues
+in the project for the feature specification) whose resolution may
+introduce web compat/interop risk (e.g., changing to naming or structure of
+the API in a non-backward-compatible way).
+None
+
+Link to entry on the Chrome Platform Status
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5657973985640448"&gt;https://chromestatus.com/feature/5657973985640448&lt;/a&gt;
+
+Links to previous Intent discussions
+
+This intent message was generated by Chrome Platform Status
+&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGsbWzSmHXxzC37iDesPNsybLWF0hHjQm6uJD8hhmPZZqez%3Dww%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGsbWzSmHXxzC37iDesPNsybLWF0hHjQm6uJD8hhmPZZqez%3Dww%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09501.html</id>
+        <title>[blink-dev] Re: [EXTERNAL] Re: Intent to Prototype: ARIA Notify API</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09501.html"/>
+        <updated>2024-03-05T00:34:40.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09501.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+%5C%5BEXTERNAL%5C%5D+Re%5C%3A+Intent+to+Prototype%5C%3A+ARIA+Notify+API%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Re: [EXTERNAL] Re: Intent to Prototype: ARIA Notify API&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Ethan+Jimenez%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Ethan Jimenez' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240304" rel="nofollow"&gt;Mon, 04 Mar 2024 16:34:40 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Updating Chrome status entry and subject of this thread.
+
+--Ethan&lt;/pre&gt;&lt;pre&gt;
+
+On Friday, December 1, 2023 at 9:57:14 AM UTC-8 Sara Tang wrote:
+
+&amp;gt; Hi all!
+&amp;gt;
+&amp;gt; Letting everyone know that we are picking up this initiative again :) 
+&amp;gt; Please find an updated explainer here:  
+&amp;gt; MSEdgeExplainers/Accessibility/AriaNotify/explainer.md 
+&amp;gt; at main · MicrosoftEdge/MSEdgeExplainers (github.com) 
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/MicrosoftEdge/MSEdgeExplainers/blob/main/Accessibility/AriaNotify/explainer.md"&gt;https://github.com/MicrosoftEdge/MSEdgeExplainers/blob/main/Accessibility/AriaNotify/explainer.md&lt;/a&gt;&amp;gt;.
+&amp;gt;  
+&amp;gt; I've already updated the ChromeStatus.
+&amp;gt;
+&amp;gt; There is also an updated design doc in the works, but still waiting on 
+&amp;gt; reviews from third parties.
+&amp;gt;
+&amp;gt; Thanks!
+&amp;gt; Sara
+&amp;gt;
+&amp;gt; On Wednesday, June 1, 2022 at 9:23:04 PM UTC-7 David Tseng wrote:
+&amp;gt;
+&amp;gt;&amp;gt; Thanks for the responses here and sorry for the late reply.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; IIUC, this looks mostly like syntactic sugar. The imperitiveness of the 
+&amp;gt;&amp;gt; api is somewhat of an illusion since this takes the same code path as 
+&amp;gt;&amp;gt; ordinary live regions and for most platforms and even most clients on 
+&amp;gt;&amp;gt; Windows, it re-uses the same mechanics of delivering the announcement as a 
+&amp;gt;&amp;gt; live region.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; So, we are basically reduced to the two lines:
+&amp;gt;&amp;gt; someElement.textContent = 'foo';
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; vs
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; document.ariaNotify('foo');
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; (assuming someElement is a live region).
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; The key diff is some number of queueing modes to reorder the 
+&amp;gt;&amp;gt; announcements for the current callstack and the aforementioned syntax 
+&amp;gt;&amp;gt; cleanup. The other diff is not having to add a DOM element which is 
+&amp;gt;&amp;gt; somewhat negligible if it is positioned offscreen.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Is that a fair assessment of the difference? If so, could we consider 
+&amp;gt;&amp;gt; introducing additions to live regions to get the queueing behaviors 
+&amp;gt;&amp;gt; introduced?
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; On Fri, Mar 18, 2022 at 1:05 PM Sara Tang &amp;lt;sara...@microsoft.com&amp;gt; wrote:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; + Cynthia Shelly
+&amp;gt;&amp;gt;&amp;gt; ------------------------------
+&amp;gt;&amp;gt;&amp;gt; *From:* Sara Tang &amp;lt;sara...@microsoft.com&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; *Sent:* Wednesday, March 9, 2022 3:32 PM
+&amp;gt;&amp;gt;&amp;gt; *To:* David Tseng &amp;lt;dts...@google.com&amp;gt;; blink-dev &amp;lt;blin...@chromium.org&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; *Subject:* Re: [EXTERNAL] Re: Intent to Prototype: Confirmation of 
+&amp;gt;&amp;gt;&amp;gt; Action API 
+&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt; Hi David,
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Responses inline 🙂. I've also linked the design doc if you'd like to 
+&amp;gt;&amp;gt;&amp;gt; take a further look: 
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://docs.google.com/document/d/1pz7KQUgd3zjjH7aTWFTFBEps_GrxXF3pZjaV8H76WjA/edit?usp=sharing"&gt;https://docs.google.com/document/d/1pz7KQUgd3zjjH7aTWFTFBEps_GrxXF3pZjaV8H76WjA/edit?usp=sharing&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Cheers,
+&amp;gt;&amp;gt;&amp;gt; Sara
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; ------------------------------
+&amp;gt;&amp;gt;&amp;gt; *From:* David Tseng &amp;lt;dts...@google.com&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; *Sent:* Monday, March 7, 2022 4:44 PM
+&amp;gt;&amp;gt;&amp;gt; *To:* blink-dev &amp;lt;blin...@chromium.org&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; *Cc:* Sara Tang &amp;lt;sara...@microsoft.com&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; *Subject:* [EXTERNAL] Re: Intent to Prototype: Confirmation of Action 
+&amp;gt;&amp;gt;&amp;gt; API 
+&amp;gt;&amp;gt;&amp;gt;  
+&amp;gt;&amp;gt;&amp;gt; Hi there,
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; A few additional questions/comments:
+&amp;gt;&amp;gt;&amp;gt; - this api will be a separate channel from ordinary live regions. If we 
+&amp;gt;&amp;gt;&amp;gt; mix the two techniques, wouldn't the output be interleave? For example, an 
+&amp;gt;&amp;gt;&amp;gt; iframe with a live region, and another iframe wherein we call 
+&amp;gt;&amp;gt;&amp;gt; document.ariaNotify?
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; In the Windows implementation, we are indeed using a different channel 
+&amp;gt;&amp;gt;&amp;gt; than live regions. However, the final invocation out of Chromium for both 
+&amp;gt;&amp;gt;&amp;gt; this API and live regions is into UIA, which has its own queuing mechanism. 
+&amp;gt;&amp;gt;&amp;gt; While it is possible for notifications to interleave, they will never 
+&amp;gt;&amp;gt;&amp;gt; interrupt each other (unless specifically intended)
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; The plan for other systems is to hook our API into the existing ARIA 
+&amp;gt;&amp;gt;&amp;gt; live region machinery. It will have a similar outcome as above, where 
+&amp;gt;&amp;gt;&amp;gt; ariaNotify notifications may interleave with live ARIA region ones, but 
+&amp;gt;&amp;gt;&amp;gt; they won't interrupt or interfere with each other.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; - the way Chrome (at least) works is based on the serialization of a 
+&amp;gt;&amp;gt;&amp;gt; tree structure. This api appears to be a imperitive call, making it seem 
+&amp;gt;&amp;gt;&amp;gt; like the call gets honored immediately. However, the a11y tree gets pushed 
+&amp;gt;&amp;gt;&amp;gt; only on layout clean.
+&amp;gt;&amp;gt;&amp;gt; - what happens if I repeatedly call document.ariaNotify? Would these 
+&amp;gt;&amp;gt;&amp;gt; announcements queue up? Would they flush tts? Would it trigger a refresh of 
+&amp;gt;&amp;gt;&amp;gt; the accessibility tree?
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; This is a good point! We mark the a11y tree as dirty whenever 
+&amp;gt;&amp;gt;&amp;gt; document.ariaNotify is called and store unqueued notifications on 
+&amp;gt;&amp;gt;&amp;gt; AXTreeData.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; - live regions have the aria-live polite|assertive properties which 
+&amp;gt;&amp;gt;&amp;gt; roughly (though not really for all screen readers) map to queue vs flushing 
+&amp;gt;&amp;gt;&amp;gt; tts. Is there something equivalent for this api?
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Yes! One of the goals for this API was to have more indicative 
+&amp;gt;&amp;gt;&amp;gt; properties to describe how notification behave. Currently, we have any 
+&amp;gt;&amp;gt;&amp;gt; combination of the following two properties (naming tbd):
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;    - PlaceInQueue: (front | back | newest-only)
+&amp;gt;&amp;gt;&amp;gt;       - front: place the notification in the front of the queue
+&amp;gt;&amp;gt;&amp;gt;       - back: place the notification in the back of the queue
+&amp;gt;&amp;gt;&amp;gt;       - newest-only: place the notification in the back of the queue, 
+&amp;gt;&amp;gt;&amp;gt;       but also drop all existing notifications from the same element (good 
+&amp;gt;&amp;gt;&amp;gt; for 
+&amp;gt;&amp;gt;&amp;gt;       progress bars, latest status, etc.)
+&amp;gt;&amp;gt;&amp;gt;    - Interrupt: (true | false)
+&amp;gt;&amp;gt;&amp;gt;       - true: if a notification is currently speaking and shares the 
+&amp;gt;&amp;gt;&amp;gt;       same source as the one being queued, interrupt it and move to the 
+&amp;gt;&amp;gt;&amp;gt; next 
+&amp;gt;&amp;gt;&amp;gt;       notification in the queue
+&amp;gt;&amp;gt;&amp;gt;       - false: let the current notification speak to completion
+&amp;gt;&amp;gt;&amp;gt;    
+&amp;gt;&amp;gt;&amp;gt; - many screen readers actually suppress live regions (e.g. NVDA) or give 
+&amp;gt;&amp;gt;&amp;gt; users a way to turn them off. This api might reduce the ability for screen 
+&amp;gt;&amp;gt;&amp;gt; readers to do this depending on how it gets implemented.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Another good point! I think it makes sense that if live regions are 
+&amp;gt;&amp;gt;&amp;gt; suppressed, we would want this API to also be suppressed.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; On non-Windows systems, since we will be hooking directly into the 
+&amp;gt;&amp;gt;&amp;gt; existing ARIA live regions implementation, we will share the same behavior 
+&amp;gt;&amp;gt;&amp;gt; as ARIA live regions (aka. suppress live regions =&amp;gt; suppress JS API).
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; I'm not so sure in the Windows implementation, I'll do more research on 
+&amp;gt;&amp;gt;&amp;gt; how live regions are suppressed in screen readers.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; - at least via the current proposed change, it looks like notify is 
+&amp;gt;&amp;gt;&amp;gt; trying hard to be a direct tts channel to the screen reader. It has very 
+&amp;gt;&amp;gt;&amp;gt; little to do with ARIA?
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; That is correct, but we decided to keep the ARIA-naming because many web 
+&amp;gt;&amp;gt;&amp;gt; authors associate accessibility with ARIA. Thus, this naming most 
+&amp;gt;&amp;gt;&amp;gt; succinctly expresses the intention of the API.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; On Friday, January 28, 2022 at 4:26:36 PM UTC-8 Sara Tang wrote:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Contact emails sar...@microsoft.com
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Explainer &lt;a  rel="nofollow" href="https://github.com/WICG/aom/blob/gh-pages/notification-api.md"&gt;https://github.com/WICG/aom/blob/gh-pages/notification-api.md&lt;/a&gt; 
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://nam06.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgithub.com%2FWICG%2Faom%2Fblob%2Fgh-pages%2Fnotification-api.md&amp;data=04%7C01%7CSara.Tang%40microsoft.com%7C773383cd75244918a82508da009cc969%7C72f988bf86f141af91ab2d7cd011db47%7C0%7C0%7C637822970663462541%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000&amp;sdata=bmDurw1dfMcZzwWxl0WSOyQl8ox6TdHm77wlXE%2FWXGY%3D&amp;reserved=0"&gt;https://nam06.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgithub.com%2FWICG%2Faom%2Fblob%2Fgh-pages%2Fnotification-api.md&amp;data=04%7C01%7CSara.Tang%40microsoft.com%7C773383cd75244918a82508da009cc969%7C72f988bf86f141af91ab2d7cd011db47%7C0%7C0%7C637822970663462541%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000&amp;sdata=bmDurw1dfMcZzwWxl0WSOyQl8ox6TdHm77wlXE%2FWXGY%3D&amp;reserved=0&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Specification 
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Summary 
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; This effort aims to create a JavaScript API so that developers can 
+&amp;gt;&amp;gt;&amp;gt; better notify AT users of actions/changes to a webpage not necessarily tied 
+&amp;gt;&amp;gt;&amp;gt; to UI elements.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Blink component Blink&amp;gt;Accessibility 
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://nam06.safelinks.protection.outlook.com/?url=https%3A%2F%2Fbugs.chromium.org%2Fp%2Fchromium%2Fissues%2Flist%3Fq%3Dcomponent%3ABlink%253EAccessibility&amp;data=04%7C01%7CSara.Tang%40microsoft.com%7C773383cd75244918a82508da009cc969%7C72f988bf86f141af91ab2d7cd011db47%7C0%7C0%7C637822970663462541%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000&amp;sdata=%2B7teELybGISEmodZGVNnWE4zMLn5aVigsfcoO5%2Fco8Y%3D&amp;reserved=0"&gt;https://nam06.safelinks.protection.outlook.com/?url=https%3A%2F%2Fbugs.chromium.org%2Fp%2Fchromium%2Fissues%2Flist%3Fq%3Dcomponent%3ABlink%253EAccessibility&amp;data=04%7C01%7CSara.Tang%40microsoft.com%7C773383cd75244918a82508da009cc969%7C72f988bf86f141af91ab2d7cd011db47%7C0%7C0%7C637822970663462541%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000&amp;sdata=%2B7teELybGISEmodZGVNnWE4zMLn5aVigsfcoO5%2Fco8Y%3D&amp;reserved=0&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Motivation 
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Currently the only mechanism available today that communicates content 
+&amp;gt;&amp;gt;&amp;gt; changes in a web app down to the accessibility layer is via ARIA live 
+&amp;gt;&amp;gt;&amp;gt; regions. One major limitation to ARIA live regions is that they assume the 
+&amp;gt;&amp;gt;&amp;gt; change to a webpage is tied to a DOM element. This leads to content authors 
+&amp;gt;&amp;gt;&amp;gt; employing various inefficient or inconsistent tricks and hacks to notify of 
+&amp;gt;&amp;gt;&amp;gt; changes that are not associated with the DOM. We propose a separate 
+&amp;gt;&amp;gt;&amp;gt; notification API to address these scenarios, called Confirmation of Action.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Initial public proposal 
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/aom/blob/gh-pages/notification-api.md"&gt;https://github.com/WICG/aom/blob/gh-pages/notification-api.md&lt;/a&gt; 
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://nam06.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgithub.com%2FWICG%2Faom%2Fblob%2Fgh-pages%2Fnotification-api.md&amp;data=04%7C01%7CSara.Tang%40microsoft.com%7C773383cd75244918a82508da009cc969%7C72f988bf86f141af91ab2d7cd011db47%7C0%7C0%7C637822970663462541%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000&amp;sdata=bmDurw1dfMcZzwWxl0WSOyQl8ox6TdHm77wlXE%2FWXGY%3D&amp;reserved=0"&gt;https://nam06.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgithub.com%2FWICG%2Faom%2Fblob%2Fgh-pages%2Fnotification-api.md&amp;data=04%7C01%7CSara.Tang%40microsoft.com%7C773383cd75244918a82508da009cc969%7C72f988bf86f141af91ab2d7cd011db47%7C0%7C0%7C637822970663462541%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000&amp;sdata=bmDurw1dfMcZzwWxl0WSOyQl8ox6TdHm77wlXE%2FWXGY%3D&amp;reserved=0&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; TAG review 
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; TAG review status Pending
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Risks 
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Interoperability and Compatibility 
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; *Gecko*: No signal
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; *WebKit*: No signal
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; *Web developers*: Positive (&lt;a  rel="nofollow" href="https://github.com/w3c/aria/issues/832"&gt;https://github.com/w3c/aria/issues/832&lt;/a&gt; 
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://nam06.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgithub.com%2Fw3c%2Faria%2Fissues%2F832&amp;data=04%7C01%7CSara.Tang%40microsoft.com%7C773383cd75244918a82508da009cc969%7C72f988bf86f141af91ab2d7cd011db47%7C0%7C0%7C637822970663462541%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000&amp;sdata=W0%2FAsv6K%2F5CeT6GxPW6HHqCziXXWGMK9Nll%2BVHggQAU%3D&amp;reserved=0"&gt;https://nam06.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgithub.com%2Fw3c%2Faria%2Fissues%2F832&amp;data=04%7C01%7CSara.Tang%40microsoft.com%7C773383cd75244918a82508da009cc969%7C72f988bf86f141af91ab2d7cd011db47%7C0%7C0%7C637822970663462541%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000&amp;sdata=W0%2FAsv6K%2F5CeT6GxPW6HHqCziXXWGMK9Nll%2BVHggQAU%3D&amp;reserved=0&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; )
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; *Other signals*:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Debuggability 
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; TBD
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests 
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://nam06.safelinks.protection.outlook.com/?url=https%3A%2F%2Fchromium.googlesource.com%2Fchromium%2Fsrc%2F%2B%2Fmaster%2Fdocs%2Ftesting%2Fweb_platform_tests.md&amp;data=04%7C01%7CSara.Tang%40microsoft.com%7C773383cd75244918a82508da009cc969%7C72f988bf86f141af91ab2d7cd011db47%7C0%7C0%7C637822970663462541%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000&amp;sdata=akUlWNqeA4RHrn6mQZIiW1LoAr1pkKJFdVhrvWNWSaQ%3D&amp;reserved=0"&gt;https://nam06.safelinks.protection.outlook.com/?url=https%3A%2F%2Fchromium.googlesource.com%2Fchromium%2Fsrc%2F%2B%2Fmaster%2Fdocs%2Ftesting%2Fweb_platform_tests.md&amp;data=04%7C01%7CSara.Tang%40microsoft.com%7C773383cd75244918a82508da009cc969%7C72f988bf86f141af91ab2d7cd011db47%7C0%7C0%7C637822970663462541%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000&amp;sdata=akUlWNqeA4RHrn6mQZIiW1LoAr1pkKJFdVhrvWNWSaQ%3D&amp;reserved=0&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; ? No
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Flag name --enable-blink-features=ConfirmationOfAction
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Requires code in //chrome? False
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Tracking bug 
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1291098"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1291098&lt;/a&gt; 
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://nam06.safelinks.protection.outlook.com/?url=https%3A%2F%2Fbugs.chromium.org%2Fp%2Fchromium%2Fissues%2Fdetail%3Fid%3D1291098&amp;data=04%7C01%7CSara.Tang%40microsoft.com%7C773383cd75244918a82508da009cc969%7C72f988bf86f141af91ab2d7cd011db47%7C0%7C0%7C637822970663462541%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000&amp;sdata=BQUfSHBw3XVqZs6wSTImhJQd25aU%2Bc%2F5Y89lElQ6yAE%3D&amp;reserved=0"&gt;https://nam06.safelinks.protection.outlook.com/?url=https%3A%2F%2Fbugs.chromium.org%2Fp%2Fchromium%2Fissues%2Fdetail%3Fid%3D1291098&amp;data=04%7C01%7CSara.Tang%40microsoft.com%7C773383cd75244918a82508da009cc969%7C72f988bf86f141af91ab2d7cd011db47%7C0%7C0%7C637822970663462541%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000&amp;sdata=BQUfSHBw3XVqZs6wSTImhJQd25aU%2Bc%2F5Y89lElQ6yAE%3D&amp;reserved=0&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Estimated milestones 
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; No milestones specified
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status 
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5745430754230272"&gt;https://chromestatus.com/feature/5745430754230272&lt;/a&gt; 
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://nam06.safelinks.protection.outlook.com/?url=https%3A%2F%2Fchromestatus.com%2Ffeature%2F5745430754230272&amp;data=04%7C01%7CSara.Tang%40microsoft.com%7C773383cd75244918a82508da009cc969%7C72f988bf86f141af91ab2d7cd011db47%7C0%7C0%7C637822970663462541%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000&amp;sdata=7nj2NaJ%2FGA9kC8wyOm0R4%2F5Qaoo6eE0nNupUWdErYvQ%3D&amp;reserved=0"&gt;https://nam06.safelinks.protection.outlook.com/?url=https%3A%2F%2Fchromestatus.com%2Ffeature%2F5745430754230272&amp;data=04%7C01%7CSara.Tang%40microsoft.com%7C773383cd75244918a82508da009cc969%7C72f988bf86f141af91ab2d7cd011db47%7C0%7C0%7C637822970663462541%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000&amp;sdata=7nj2NaJ%2FGA9kC8wyOm0R4%2F5Qaoo6eE0nNupUWdErYvQ%3D&amp;reserved=0&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status 
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://nam06.safelinks.protection.outlook.com/?url=https%3A%2F%2Fchromestatus.com%2F&amp;data=04%7C01%7CSara.Tang%40microsoft.com%7C773383cd75244918a82508da009cc969%7C72f988bf86f141af91ab2d7cd011db47%7C0%7C0%7C637822970663513114%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000&amp;sdata=LHugQqUWNGi2bSoWLBEnNpFbx4oF2SMSTJ2MvvlgFTI%3D&amp;reserved=0"&gt;https://nam06.safelinks.protection.outlook.com/?url=https%3A%2F%2Fchromestatus.com%2F&amp;data=04%7C01%7CSara.Tang%40microsoft.com%7C773383cd75244918a82508da009cc969%7C72f988bf86f141af91ab2d7cd011db47%7C0%7C0%7C637822970663513114%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000&amp;sdata=LHugQqUWNGi2bSoWLBEnNpFbx4oF2SMSTJ2MvvlgFTI%3D&amp;reserved=0&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/ac3fa3cc-fea6-4c95-b0e7-e88549f6e084n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/ac3fa3cc-fea6-4c95-b0e7-e88549f6e084n%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
     <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09500.html</id>
         <title>Re: [blink-dev] Intent to Experiment: Add JavaScript timer wake up alignment for unimportant cross-origin frames</title>
@@ -11478,376 +11889,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/dc2463e3-ef73-46ff-888e-23c8a9e446b1n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/dc2463e3-ef73-46ff-888e-23c8a9e446b1n%40chromium.org&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09452.html</id>
-        <title>[blink-dev] Re: Intent to Extend Origin Trial: Compression Dictionary Transport</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09452.html"/>
-        <updated>2024-02-29T00:13:24.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09452.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Extend+Origin+Trial%5C%3A+Compression+Dictionary+Transport%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Re: Intent to Extend Origin Trial: Compression Dictionary Transport&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Tsuyoshi+Horo%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Tsuyoshi Horo&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240228" rel="nofollow"&gt;Wed, 28 Feb 2024 16:13:24 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Gentle ping. (Am I missing something?)
-&lt;/pre&gt;&lt;pre&gt;
-
-On Wed, Feb 21, 2024 at 10:57 AM Tsuyoshi Horo &amp;lt;h...@chromium.org&amp;gt; wrote:
-
-&amp;gt; Contact emails
-&amp;gt;
-&amp;gt; h...@chromium.org, pmee...@chromium.org, yoavwe...@chromium.org,
-&amp;gt; kenjibah...@chromium.org
-&amp;gt;
-&amp;gt;
-&amp;gt; Explainer
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/compression-dictionary-transport"&gt;https://github.com/WICG/compression-dictionary-transport&lt;/a&gt;
-&amp;gt;
-&amp;gt; Specification
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://datatracker.ietf.org/doc/draft-ietf-httpbis-compression-dictionary/"&gt;https://datatracker.ietf.org/doc/draft-ietf-httpbis-compression-dictionary/&lt;/a&gt;
-&amp;gt;
-&amp;gt; Design docs
-&amp;gt;
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://docs.google.com/document/d/1IcRHLv-e9boECgPA5J4t8NDv9FPHDGgn0C12kfBgANg/edit"&gt;https://docs.google.com/document/d/1IcRHLv-e9boECgPA5J4t8NDv9FPHDGgn0C12kfBgANg/edit&lt;/a&gt;
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/compression-dictionary-transport"&gt;https://github.com/WICG/compression-dictionary-transport&lt;/a&gt;
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://datatracker.ietf.org/doc/draft-ietf-httpbis-compression-dictionary/"&gt;https://datatracker.ietf.org/doc/draft-ietf-httpbis-compression-dictionary/&lt;/a&gt;
-&amp;gt;
-&amp;gt; Summary
-&amp;gt;
-&amp;gt; An Origin Trial for Compression Dictionary Transport was scheduled to
-&amp;gt; start in Chrome 117 and end in Chrome 122. But due to a critical issue, we 
-&amp;gt; could
-&amp;gt; not start
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/NgH-BeYO72E/m/G8fasgKdAQAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/NgH-BeYO72E/m/G8fasgKdAQAJ&lt;/a&gt;&amp;gt;
-&amp;gt; the Origin Trial until Chrome 119. The design of the feature has also
-&amp;gt; evolved during the origin trial and RFC process. We’d like to continue the
-&amp;gt; Origin Trial to get more feedback on the updated
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/40d4e43a01431f680d5e682aaa2c4a543c8f0200/docs/experiments/compression-dictionary-transport.md#changes-in-m123"&gt;https://chromium.googlesource.com/chromium/src/+/40d4e43a01431f680d5e682aaa2c4a543c8f0200/docs/experiments/compression-dictionary-transport.md#changes-in-m123&lt;/a&gt;&amp;gt;
-&amp;gt; feature.
-&amp;gt;
-&amp;gt; Blink component
-&amp;gt;
-&amp;gt; Blink&amp;gt;Network
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ENetwork"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ENetwork&lt;/a&gt;&amp;gt;
-&amp;gt;
-&amp;gt; TAG review
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/877"&gt;https://github.com/w3ctag/design-reviews/issues/877&lt;/a&gt;
-&amp;gt; TAG review status
-&amp;gt;
-&amp;gt; Closed
-&amp;gt; RisksInteroperability and Compatibility
-&amp;gt;
-&amp;gt; Interoperability and Compatibility risk are low. This feature introduces a
-&amp;gt; new compression method for transporting resources over HTTP. Web sites can
-&amp;gt; know the browser support for the new feature by checking
-&amp;gt; `document.createElement('link').relList.supports('dictionary')`. Also web
-&amp;gt; servers can know the browser support by checking the `Accept-Encoding`
-&amp;gt; request header and the new `Use-As-Dictionary` request header.
-&amp;gt;
-&amp;gt; This feature is an opt-in feature. And the dictionary storage is isolated
-&amp;gt; using the top level site and the frame origin as the key. That means, if
-&amp;gt; there is no dictionary registered for the site, the behavior of Chrome will
-&amp;gt; not change while browsing the site. Also this feature is only usable within
-&amp;gt; a secure-context so this feature will not increase the risk of having
-&amp;gt; network proxies meddle with the content’s encoding. For enterprises that
-&amp;gt; have deployed HTTPS-intercepting proxies that do not properly handle
-&amp;gt; unknown encodings there is an enterprise policy exposed to disable the
-&amp;gt; feature.
-&amp;gt;
-&amp;gt; Gecko: Positive (&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/771"&gt;https://github.com/mozilla/standards-positions/issues/771&lt;/a&gt;
-&amp;gt; )
-&amp;gt;
-&amp;gt; WebKit: No signal (
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/160"&gt;https://github.com/WebKit/standards-positions/issues/160&lt;/a&gt;)
-&amp;gt;
-&amp;gt; Web developers: Positive
-&amp;gt;
-&amp;gt; Other signals:
-&amp;gt;
-&amp;gt; Ergonomics
-&amp;gt;
-&amp;gt; To reduce memory usage in network services, dictionary metadata is stored
-&amp;gt; in a database on disk. And to avoid performance degradation for normal
-&amp;gt; requests that do not use a dictionary, the reading of this metadata is
-&amp;gt; designed not to block network requests. In other words, if the reading of
-&amp;gt; metadata from the database is not completed before the request header is
-&amp;gt; ready to be sent to the server, the dictionary may not be used even if it
-&amp;gt; is already registered in the database.
-&amp;gt;
-&amp;gt;
-&amp;gt; Activation
-&amp;gt;
-&amp;gt; To adopt this feature, web developers need to make changes in their web
-&amp;gt; servers or build processes for static resources. Currently there is no
-&amp;gt; major server software which supports compression dictionaries. Some CDNs
-&amp;gt; have shared interest in supporting shared dictionary compression (e.g.
-&amp;gt; publicly mentioned
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://blog.cloudflare.com/this-is-brotli-from-origin/#:~:text=One%20development%20that%20we%27re%20particularly%20focused%20on%20is%20shared%20dictionaries%20with%20Brotli"&gt;https://blog.cloudflare.com/this-is-brotli-from-origin/#:~:text=One%20development%20that%20we%27re%20particularly%20focused%20on%20is%20shared%20dictionaries%20with%20Brotli&lt;/a&gt;.&amp;gt;
-&amp;gt; in a blog post by Cloudflare).
-&amp;gt;
-&amp;gt;
-&amp;gt; Security
-&amp;gt;
-&amp;gt; Chrome registers the response as a dictionary only when the response is
-&amp;gt; CORS-readable from the document origin. Also we use a registered dictionary
-&amp;gt; to decompress the response only when the response is CORS-readable from the
-&amp;gt; document origin. Additionally, the dictionary and the compressed resource
-&amp;gt; are required to be from the same origin as each other. So this should not
-&amp;gt; introduce any new attack vector of information leaks.
-&amp;gt;
-&amp;gt; The dictionaries are partitioned with the storage cache and are cleared
-&amp;gt; whenever cookies or cache is cleared to ensure that the dictionaries can
-&amp;gt; not be abused as a tracking vector.
-&amp;gt;
-&amp;gt;
-&amp;gt; WebView application risks
-&amp;gt;
-&amp;gt; Does this intent deprecate or change behavior of existing APIs, such that
-&amp;gt; it has potentially high risk for Android WebView-based applications?
-&amp;gt;
-&amp;gt; No
-&amp;gt;
-&amp;gt; Goals for experimentation
-&amp;gt;
-&amp;gt; We would like to collect feedback on the updated API design of Compression
-&amp;gt; Dictionary Transport feature. Also, we would like to continue some
-&amp;gt; experiments using this feature to measure its performance impact.
-&amp;gt;
-&amp;gt; Ongoing technical constraints
-&amp;gt;
-&amp;gt; None
-&amp;gt;
-&amp;gt;
-&amp;gt; Debuggability
-&amp;gt;
-&amp;gt; We have introduced chrome://net-internals/#sharedDictionary. Using it, web
-&amp;gt; developers can manage the registered dictionaries. Also web developers can
-&amp;gt; check the related HTTP request and response headers (Use-As-Dictionary,
-&amp;gt; Sec-Available-Dictionary, Accept-Encoding, Content-Encoding).
-&amp;gt;
-&amp;gt;
-&amp;gt; Will this feature be supported on all six Blink platforms (Windows, Mac,
-&amp;gt; Linux, Chrome OS, Android, and Android WebView)?
-&amp;gt;
-&amp;gt; Yes
-&amp;gt;
-&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt; ?
-&amp;gt;
-&amp;gt; No. We will rewrite some browser_tests to WPT.
-&amp;gt;
-&amp;gt; Flag name on chrome://flags
-&amp;gt;
-&amp;gt; chrome://flags/#enable-compression-dictionary-transport-backend
-&amp;gt; chrome://flags/#enable-compression-dictionary-transport
-&amp;gt;
-&amp;gt; Finch feature name
-&amp;gt;
-&amp;gt; CompressionDictionaryTransportBackend CompressionDictionaryTransport
-&amp;gt;
-&amp;gt; Requires code in //chrome?
-&amp;gt;
-&amp;gt; True
-&amp;gt;
-&amp;gt; Tracking bug
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://crbug.com/1413922"&gt;https://crbug.com/1413922&lt;/a&gt;
-&amp;gt;
-&amp;gt; Launch bug
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://launch.corp.google.com/launch/4266286"&gt;https://launch.corp.google.com/launch/4266286&lt;/a&gt;
-&amp;gt;
-&amp;gt; Estimated milestones
-&amp;gt;
-&amp;gt; OriginTrial desktop last
-&amp;gt;
-&amp;gt; 125
-&amp;gt;
-&amp;gt; OriginTrial desktop first
-&amp;gt;
-&amp;gt; 123
-&amp;gt;
-&amp;gt; OriginTrial Android last
-&amp;gt;
-&amp;gt; 125
-&amp;gt;
-&amp;gt; OriginTrial Android first
-&amp;gt;
-&amp;gt; 123
-&amp;gt;
-&amp;gt;
-&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt;
-&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5124977788977152"&gt;https://chromestatus.com/feature/5124977788977152&lt;/a&gt;
-&amp;gt;
-&amp;gt; Links to previous Intent discussions
-&amp;gt;
-&amp;gt; Intent to prototype:
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/-qYpLo9DTjw/m/JX6kbUOtBQAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/-qYpLo9DTjw/m/JX6kbUOtBQAJ&lt;/a&gt;
-&amp;gt;
-&amp;gt; Intent to experiment:
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/NgH-BeYO72E/m/oup5DpbxAAAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/NgH-BeYO72E/m/oup5DpbxAAAJ&lt;/a&gt;
-&amp;gt;
-&amp;gt;
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADk0S-VPyLaum9rma1cpFZhUSF8FuBy3DBJFcwDUmabWE8VC5g%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADk0S-VPyLaum9rma1cpFZhUSF8FuBy3DBJFcwDUmabWE8VC5g%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09451.html</id>
-        <title>Re: [blink-dev] Intent to Ship: Form Controls Support Vertical Writing Mode Direction Support</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09451.html"/>
-        <updated>2024-02-28T23:13:35.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09451.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Form+Controls+Support+Vertical+Writing+Mode+Direction+Support%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Form Controls Support Vertical Writing Mode Direction Support&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Di+Zhang%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Di Zhang&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240228" rel="nofollow"&gt;Wed, 28 Feb 2024 15:13:35 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Based on the release note, the Webkit implementation is already implemented 
-and currently shipping. Everything vertical writing-mode related is 
-shipping, including the changes included in this feature.
-&lt;a  rel="nofollow" href="https://developer.apple.com/documentation/safari-release-notes/safari-17_4-release-notes"&gt;https://developer.apple.com/documentation/safari-release-notes/safari-17_4-release-notes&lt;/a&gt;&lt;/pre&gt;&lt;pre&gt;
-
-For Gecko, there has been no update. The bug has been open for a year.
-&lt;a  rel="nofollow" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1801791"&gt;https://bugzilla.mozilla.org/show_bug.cgi?id=1801791&lt;/a&gt;
-
-This feature is adding a few new WPT tests (listed in the HTML spec PR 
-description [1], specifically [2]).
-
-&amp;gt; How far is this from being merged?
-The comments are addressed and I am pinging the HTML reviewers to take a 
-final look.
-
-[1] &lt;a  rel="nofollow" href="https://github.com/whatwg/html/pull/10096"&gt;https://github.com/whatwg/html/pull/10096&lt;/a&gt;
-[2] 
-&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/commit/7f56feea538b986d5681532c0dcba8c9773cd6c4"&gt;https://github.com/web-platform-tests/wpt/commit/7f56feea538b986d5681532c0dcba8c9773cd6c4&lt;/a&gt;
- 
-&amp;lt;&lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/5241236"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/5241236&lt;/a&gt;&amp;gt;
-
-
-
-On Wednesday, February 28, 2024 at 5:17:47 AM UTC-8 Manuel Rego wrote:
-
-&amp;gt;
-&amp;gt;
-&amp;gt; On 23/02/2024 21:42, Di Zhang wrote:
-&amp;gt; &amp;gt; Specification
-&amp;gt; &amp;gt; 
-&amp;gt; &amp;gt; &lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/8413"&gt;https://github.com/whatwg/html/issues/8413&lt;/a&gt; 
-&amp;gt; &amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/8413"&gt;https://github.com/whatwg/html/issues/8413&lt;/a&gt;&amp;gt;
-&amp;gt;
-&amp;gt; What's the status of this issue? Is there any spec text that needs to 
-&amp;gt; change?
-&amp;gt;
-&amp;gt; &amp;gt; Interoperability and Compatibility
-&amp;gt; &amp;gt; 
-&amp;gt; &amp;gt; Chrome: implemented behind flag Safari: implemented behind flag Firefox: 
-&amp;gt; &amp;gt; implemented for &amp;lt;input type=range&amp;gt; in stable, issue created for 
-&amp;gt; &amp;gt; meter/progress.
-&amp;gt; &amp;gt; 
-&amp;gt; &amp;gt; 
-&amp;gt; &amp;gt; 
-&amp;gt; &amp;gt; /Gecko/: No signal
-&amp;gt;
-&amp;gt; It seems something is implemented already and you mention there's a bug 
-&amp;gt; for some other things, could you link that bug? Are they currently 
-&amp;gt; working on it?
-&amp;gt;
-&amp;gt; &amp;gt; /WebKit/: In development 
-&amp;gt; &amp;gt; (
-&amp;gt; &lt;a  rel="nofollow" href="https://developer.apple.com/documentation/safari-release-notes/safari-17_4-release-notes"&gt;https://developer.apple.com/documentation/safari-release-notes/safari-17_4-release-notes&lt;/a&gt;
-&amp;gt;  
-&amp;gt; &amp;lt;
-&amp;gt; &lt;a  rel="nofollow" href="https://developer.apple.com/documentation/safari-release-notes/safari-17_4-release-notes"&gt;https://developer.apple.com/documentation/safari-release-notes/safari-17_4-release-notes&lt;/a&gt;&amp;gt;)
-&amp;gt;  
-&amp;gt; Added support for vertical writing mode support for form controls. 
-&amp;gt; (12072686)
-&amp;gt;
-&amp;gt; Has this actually shipped in WebKit or is &amp;quot;in development&amp;quot;?
-&amp;gt;
-&amp;gt; You first mentioned &amp;quot;Safari: implemented behind flag&amp;quot;, but you're 
-&amp;gt; linking to some release notes.
-&amp;gt;
-&amp;gt; Which parts are shipped in Safari and which are not yet?
-&amp;gt;
-&amp;gt; &amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt; &amp;gt; &amp;lt;
-&amp;gt; &lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;
-&amp;gt; &amp;gt;?
-&amp;gt; &amp;gt; 
-&amp;gt; &amp;gt; Yes
-&amp;gt; &amp;gt; 
-&amp;gt; &amp;gt; 
-&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/css/css-writing-modes/forms?label=master&amp;label=experimental&amp;product=chrome&amp;product=firefox&amp;product=safari&amp;aligned&amp;view=interop&amp;q=label%3Ainterop-2022-forms%20or%20label%3Ainterop-2023-forms"&gt;https://wpt.fyi/results/css/css-writing-modes/forms?label=master&amp;label=experimental&amp;product=chrome&amp;product=firefox&amp;product=safari&amp;aligned&amp;view=interop&amp;q=label%3Ainterop-2022-forms%20or%20label%3Ainterop-2023-forms&lt;/a&gt;
-&amp;gt;  
-&amp;gt; &amp;lt;
-&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/css/css-writing-modes/forms?label=master&amp;label=experimental&amp;product=chrome&amp;product=firefox&amp;product=safari&amp;aligned&amp;view=interop&amp;q=label%3Ainterop-2022-forms%20or%20label%3Ainterop-2023-forms"&gt;https://wpt.fyi/results/css/css-writing-modes/forms?label=master&amp;label=experimental&amp;product=chrome&amp;product=firefox&amp;product=safari&amp;aligned&amp;view=interop&amp;q=label%3Ainterop-2022-forms%20or%20label%3Ainterop-2023-forms&lt;/a&gt;
-&amp;gt; &amp;gt;
-&amp;gt;
-&amp;gt; These tests are all passing in Chrome and Safari (only 3 failing in 
-&amp;gt; Firefox). Is this feature adding new tests?
-&amp;gt;
-&amp;gt; &amp;gt; Open questions about a feature may be a source of future web compat or 
-&amp;gt; &amp;gt; interop issues. Please list open issues (e.g. links to known github 
-&amp;gt; &amp;gt; issues in the project for the feature specification) whose resolution 
-&amp;gt; &amp;gt; may introduce web compat/interop risk (e.g., changing to naming or 
-&amp;gt; &amp;gt; structure of the API in a non-backward-compatible way).
-&amp;gt; &amp;gt; 
-&amp;gt; &amp;gt; HTML spec currently under review: 
-&amp;gt; &amp;gt; &lt;a  rel="nofollow" href="https://github.com/whatwg/html/pull/10096"&gt;https://github.com/whatwg/html/pull/10096&lt;/a&gt; 
-&amp;gt; &amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/whatwg/html/pull/10096"&gt;https://github.com/whatwg/html/pull/10096&lt;/a&gt;&amp;gt;
-&amp;gt;
-&amp;gt; Ok, answering my own question on the Spec link, there's indeed a PR 
-&amp;gt; here. How far is this from being merged?
-&amp;gt;
-&amp;gt; Thanks,
-&amp;gt; Rego
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/fb0208e3-06e4-4d8f-8095-7b2d9e7d32f6n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/fb0208e3-06e4-4d8f-8095-7b2d9e7d32f6n%40chromium.org&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
