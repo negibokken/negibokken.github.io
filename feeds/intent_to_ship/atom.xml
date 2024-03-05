@@ -3,7 +3,150 @@
     <id>https://negibokken.github.io/feeds/intent_to_ship/atom.xml</id>
     <title>intent to ship feed</title>
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
-    <updated>2024-03-05T01:05:46.000Z</updated>
+    <updated>2024-03-05T04:01:20.000Z</updated>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09503.html</id>
+        <title>[blink-dev] Web-Facing Change PSA: SharedWorker script inherit controller for blob script URL</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09503.html"/>
+        <updated>2024-03-05T04:01:20.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09503.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Web%5C-Facing+Change+PSA%5C%3A+SharedWorker+script+inherit+controller+for+blob+script+URL%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Web-Facing Change PSA: SharedWorker script inherit controller for blob script URL&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Yoshisato+Yanagisawa%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Yoshisato Yanagisawa&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240304" rel="nofollow"&gt;Mon, 04 Mar 2024 20:01:20 -0800&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Contact emailsyyanagis...@google.com
+
+Specification
+&lt;a  rel="nofollow" href="https://w3c.github.io/ServiceWorker/#control-and-use-worker-client"&gt;https://w3c.github.io/ServiceWorker/#control-and-use-worker-client&lt;/a&gt;&lt;/pre&gt;&lt;pre&gt;
+
+Summary
+
+According to
+&lt;a  rel="nofollow" href="https://w3c.github.io/ServiceWorker/#control-and-use-worker-client"&gt;https://w3c.github.io/ServiceWorker/#control-and-use-worker-client&lt;/a&gt;, workers
+should inherit controllers for the blob URL. However, existing code allows
+only dedicated workers to inherit the controller, and shared workers do not
+inherit the controller. This is the fix to make Chromium behavior adjust to
+the specification.
+
+
+Blink componentBlink&amp;gt;Workers
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EWorkers"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EWorkers&lt;/a&gt;&amp;gt;
+
+TAG reviewNone
+
+TAG review statusNot applicable
+
+Risks
+
+
+Interoperability and Compatibility
+
+This is a change to make the Chromium behavior aligned with the
+specification, there should not be an interoperability issue. However,
+there is a compatibility issue from the past Chromium. If a blob URL is
+used for a SharedWorker script and a controller for the URL is mattered,
+there is a behavior change because this change makes a controller inherited.
+
+
+*Gecko*: No signal
+
+*WebKit*: Shipped/Shipping
+
+*Web developers*: No signals
+
+*Other signals*:
+
+Ergonomics
+
+n/a
+
+
+Security
+
+Since this is adjusting Chromium behavior to specification, there should
+not be a security risk from a specification perspective. From the
+implementation perspective, this change simply inherits existing
+controller. There should not be any additional security risks with this
+change.
+
+
+WebView application risks
+
+Does this intent deprecate or change behavior of existing APIs, such that
+it has potentially high risk for Android WebView-based applications?
+
+None
+
+
+Debuggability
+
+n/a
+
+
+Will this feature be supported on all six Blink platforms (Windows, Mac,
+Linux, ChromeOS, Android, and Android WebView)?No
+
+Since SharedWorker is not supported in Android yet, the feature also does
+not affect to Android.
+
+
+Is this feature fully tested by web-platform-tests
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+?Yes
+
+&lt;a  rel="nofollow" href="https://wpt.fyi/results/service-workers/service-worker/local-url-inherit-controller.https.html"&gt;https://wpt.fyi/results/service-workers/service-worker/local-url-inherit-controller.https.html&lt;/a&gt;
+Same-origin blob URL sharedworker should inherit service worker controller.
+Same-origin blob URL sharedworker should intercept fetch(). The tests
+ensure a ServiceWorkerController is inherited. Due to crbug.com/40364838,
+Chromium does not pass the former test.
+
+
+Flag name on chrome://flagsn/a
+
+Finch feature nameSharedWorkerBlobURLFix
+
+Requires code in //chrome?False
+
+Tracking bug&lt;a  rel="nofollow" href="https://issues.chromium.org/issues/324939068"&gt;https://issues.chromium.org/issues/324939068&lt;/a&gt;
+
+Estimated milestones
+Shipping on desktop 124
+
+Anticipated spec changes
+
+Open questions about a feature may be a source of future web compat or
+interop issues. Please list open issues (e.g. links to known github issues
+in the project for the feature specification) whose resolution may
+introduce web compat/interop risk (e.g., changing to naming or structure of
+the API in a non-backward-compatible way).
+None
+
+Link to entry on the Chrome Platform Status
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/6401033384493056"&gt;https://chromestatus.com/feature/6401033384493056&lt;/a&gt;
+
+This intent message was generated by Chrome Platform Status
+&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPNB-6XQqR4S-wtpBkMT6CSADHGV2nvw2irn3jwd5CyZHcMftw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPNB-6XQqR4S-wtpBkMT6CSADHGV2nvw2irn3jwd5CyZHcMftw%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
     <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09502.html</id>
         <title>[blink-dev] Web-Facing Change PSA: Stop modifying author-defined selection colors</title>
@@ -11718,177 +11861,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/SA2PR00MB0985586033CA0B04CB250F50CF5F2%40SA2PR00MB0985.namprd00.prod.outlook.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/SA2PR00MB0985586033CA0B04CB250F50CF5F2%40SA2PR00MB0985.namprd00.prod.outlook.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09453.html</id>
-        <title>Re: [blink-dev] Intent to ship: MP4 container support for MediaRecorder</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09453.html"/>
-        <updated>2024-02-29T00:46:40.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09453.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+ship%5C%3A+MP4+container+support+for+MediaRecorder%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to ship: MP4 container support for MediaRecorder&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Sunggook+Chue%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Sunggook Chue' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240228" rel="nofollow"&gt;Wed, 28 Feb 2024 16:46:40 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;Here is an explainer, summary only.
-
-&lt;a  rel="nofollow" href="https://docs.google.com/document/d/1WV795DHY3Jf2p_htuAKZ9DXUefiGdQs29mCb8vRiHt8/edit?usp=sharing"&gt;https://docs.google.com/document/d/1WV795DHY3Jf2p_htuAKZ9DXUefiGdQs29mCb8vRiHt8/edit?usp=sharing&lt;/a&gt;&lt;/pre&gt;&lt;pre&gt;
-
-On Wednesday, February 28, 2024 at 7:53:29 AM UTC-8 yoav...@chromium.org 
-wrote:
-
-&amp;gt; On Tue, Feb 27, 2024 at 1:45 AM Mike Taylor &amp;lt;mike...@chromium.org&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On 2/22/24 9:21 PM, 'Sunggook Chue' via blink-dev wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Contact emails 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; sun...@microsoft.com 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; dalec...@chromium.com (reviewer and mentor).
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Explainer 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://www.w3.org/TR/mediastream-recording/"&gt;https://www.w3.org/TR/mediastream-recording/&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; That's not an explainer..
-&amp;gt; Could you maybe write a short (inline?) explainer that outlines what it is 
-&amp;gt; that we want to ship, what it would help developers achieve, how we 
-&amp;gt; envision them using this feature, etc.?
-&amp;gt;  
-&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Specification 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://www.w3.org/TR/mediastream-recording/"&gt;https://www.w3.org/TR/mediastream-recording/&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Summary 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Adds support for muxing audio/video into MP4 containers with 
-&amp;gt;&amp;gt; MediaRecorder.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Developers can record media format, container, with MP4 of H264 video and 
-&amp;gt;&amp;gt; AAC audio codecs in the MediaRecorder API.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Blink component 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Blink::MediaRecording
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; TAG review
-&amp;gt;&amp;gt; TAG review status
-&amp;gt;&amp;gt; Risks 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; No Additional risks on existing containers such as webm.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Interoperability and Compatibility
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; This is missing vendor and developer signals - can you add (or request) 
-&amp;gt;&amp;gt; them please?
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Ergonomics 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; N/A
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Activation 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Unchallenging to use.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Security 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; N/A
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; WebView Application Risks 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; N/A
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Debuggability 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Developers can see the API failure on DevTools.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests 
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/master/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; ? 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Yes
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Flag name 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; MediaRecorderEnableMp4Muxer
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Tracking bug 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://issues.chromium.org/issues/40127044"&gt;https://issues.chromium.org/issues/40127044&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Launch bug 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://issues.chromium.org/issues/40127044"&gt;https://issues.chromium.org/issues/40127044&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Sample links 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://webrtc.github.io/samples/src/content/getusermedia/record/"&gt;https://webrtc.github.io/samples/src/content/getusermedia/record/&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Estimated milestones 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Dev Trial on Desktop: 120
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status 
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5163469011943424"&gt;https://chromestatus.com/feature/5163469011943424&lt;/a&gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; Links to previous Intent discussions
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status 
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt; -- 
-&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups 
-&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an 
-&amp;gt;&amp;gt; email to blink-dev+...@chromium.org.
-&amp;gt;&amp;gt; To view this discussion on the web visit 
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/1dd6d89b-34f4-4f18-b3e8-c1309d479530n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/1dd6d89b-34f4-4f18-b3e8-c1309d479530n%40chromium.org&lt;/a&gt;
-&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/1dd6d89b-34f4-4f18-b3e8-c1309d479530n%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/1dd6d89b-34f4-4f18-b3e8-c1309d479530n%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; -- 
-&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups 
-&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an 
-&amp;gt;&amp;gt; email to blink-dev+...@chromium.org.
-&amp;gt;&amp;gt;
-&amp;gt; To view this discussion on the web visit 
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/8119a014-24b2-487e-bbbd-324c1bf77081%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/8119a014-24b2-487e-bbbd-324c1bf77081%40chromium.org&lt;/a&gt;
-&amp;gt;&amp;gt;  
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/8119a014-24b2-487e-bbbd-324c1bf77081%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/8119a014-24b2-487e-bbbd-324c1bf77081%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/dc2463e3-ef73-46ff-888e-23c8a9e446b1n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/dc2463e3-ef73-46ff-888e-23c8a9e446b1n%40chromium.org&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
