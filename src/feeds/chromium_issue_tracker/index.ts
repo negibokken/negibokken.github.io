@@ -73,35 +73,39 @@ async function sleep(time: number): Promise<void> {
         const entries: AtomEntry[] = [];
         let flag = true;
         for await (const entry of filteredResponses) {
-            const issueRes = await fetch(`https://issues.chromium.org/action/issues/${entry.id}?currentTrackerId=157`, {
-                "headers": {
-                    "accept": "application/json, text/plain, */*",
-                    "accept-language": "en-US,en;q=0.9,ja-JP;q=0.8,ja;q=0.7",
-                },
-                "body": null,
-                "method": "GET"
-            });
-
-            const formattedIssue = trimPrefix(await issueRes.text());
-            const issueJson = JSON.parse(formattedIssue)
-
-            const body = issueJson[0][1][15][19][0];
-            const author = issueJson[0][1][21][6][1];
-            const createdAt = new Date(Number(issueJson[0][1][3][1]) / 1000);
-            const atomentry: AtomEntryProps = {
-                author: { name: author },
-                content: body ? Buffer.from(body).toString('base64') : "-",
-                id: entry.id,
-                title: sanitize(entry.title),
-                link: `https://issues.chromium.org/issues/${entry.id}`,
-                updated: createdAt.toISOString(),
-                summary: '-',
+            try {
+                const issueRes = await fetch(`https://issues.chromium.org/action/issues/${entry.id}?currentTrackerId=157`, {
+                    "headers": {
+                        "accept": "application/json, text/plain, */*",
+                        "accept-language": "en-US,en;q=0.9,ja-JP;q=0.8,ja;q=0.7",
+                    },
+                    "body": null,
+                    "method": "GET"
+                });
+    
+                const formattedIssue = trimPrefix(await issueRes.text());
+                const issueJson = JSON.parse(formattedIssue)
+    
+                const body = issueJson[0][1][15][19][0];
+                const author = issueJson[0][1][21][6][1];
+                const createdAt = new Date(Number(issueJson[0][1][3][1]) / 1000);
+                const atomentry: AtomEntryProps = {
+                    author: { name: author },
+                    content: body ? Buffer.from(body).toString('base64') : "-",
+                    id: entry.id,
+                    title: sanitize(entry.title),
+                    link: `https://issues.chromium.org/issues/${entry.id}`,
+                    updated: createdAt.toISOString(),
+                    summary: '-',
+                }
+                if (!body && flag) {
+                    console.log(JSON.stringify(issueJson, null, '  '));
+                    flag = false;
+                }
+                entries.push(new AtomEntry(atomentry));
+            } catch(e) {
+                console.error(e);
             }
-            if (!body && flag) {
-                console.log(JSON.stringify(issueJson, null, '  '));
-                flag = false;
-            }
-            entries.push(new AtomEntry(atomentry));
             await sleep(250);
         }
 
