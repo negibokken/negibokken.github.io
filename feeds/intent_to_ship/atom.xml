@@ -3,7 +3,973 @@
     <id>https://negibokken.github.io/feeds/intent_to_ship/atom.xml</id>
     <title>intent to ship feed</title>
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
-    <updated>2024-03-11T10:49:48.000Z</updated>
+    <updated>2024-03-11T17:42:40.000Z</updated>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09620.html</id>
+        <title>[blink-dev] Intent to Ship: Adding Cross-site Ancestor Chain Bit to CHIPS Partition Key</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09620.html"/>
+        <updated>2024-03-11T17:42:40.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09620.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Adding+Cross%5C-site+Ancestor+Chain+Bit+to+CHIPS+Partition+Key%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Ship: Adding Cross-site Ancestor Chain Bit to CHIPS Partition Key&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Aaron+Selya%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Aaron Selya&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240311" rel="nofollow"&gt;Mon, 11 Mar 2024 10:42:40 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Contact emails
+
+se...@chromium.org, dylancut...@chromium.org, kaustub...@chromium.org&lt;/pre&gt;&lt;pre&gt;
+
+
+Explainer
+
+Keying of &amp;quot;CHIPS&amp;quot; cookies should align with other state:
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/privacycg/CHIPS/issues/40#issuecomment-1883726735"&gt;https://github.com/privacycg/CHIPS/issues/40#issuecomment-1883726735&lt;/a&gt;&amp;gt;
+
+
+Specification
+
+Add cross-site ancestor chain bit to spec:
+&lt;a  rel="nofollow" href="https://github.com/explainers-by-googlers/CHIPS-spec/pull/13"&gt;https://github.com/explainers-by-googlers/CHIPS-spec/pull/13&lt;/a&gt;
+
+
+
+Summary
+
+We are looking to align the partition key
+&amp;lt;&lt;a  rel="nofollow" href="https://developers.google.com/privacy-sandbox/3pcd/chips#:~:text=A%20cookie%27s%20partition%20key%20is%20the%20site%20"&gt;https://developers.google.com/privacy-sandbox/3pcd/chips#:~:text=A%20cookie%27s%20partition%20key%20is%20the%20site%20&lt;/a&gt;(scheme%20and%20registrable%20domain)%20of%20the%20top%2Dlevel%20URL%20the%20browser%20was%20visiting%20at%20the%20start%20of%20the%20request%20to%20the%20endpoint%20that%20set%20the%20cookie.&amp;gt;
+in CHIPS (Cookies Having Independent Partitioned State, aka partitioned
+cookies) with the existing implementation of StorageKey.
+
+
+The only sites that would experience different behavior, would be when a
+top-level site “A” embeds an iframe to a cross-site document on site “B”,
+and then the iframe B embeds an iframe that loads a document from site “A”
+(shorthand: A1-&amp;gt;B-&amp;gt;A2). Previously, partitioned cookies sent or received in
+the inner iframe A2 would be the same partitioned cookies sent or received
+in the outer frame A1. This is no longer true.
+
+
+This change is privacy neutral, but will have improved security
+characteristics, because it prevents cross-site iframes from embedding
+arbitrary endpoints of the top-level site with credentials, without first
+being granted permission to do so through the Storage Access API (SAA) or
+Cross-Origin Resource Sharing (CORS).
+
+
+
+The impact of this change is expected to be small as our metrics indicate
+that only 0.2% of CHIPS (partitioned cookies) set by the first party are
+currently being used in A1-&amp;gt;B-&amp;gt;A2 contexts. This constitutes 0.032% of all
+page loads (calculated using the usage of PartitionedCookie
+&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/metrics/feature/timeline/popularity/4177"&gt;https://chromestatus.com/metrics/feature/timeline/popularity/4177&lt;/a&gt;&amp;gt;). For
+websites that do need access to the same cookies across A1 and A2 (in the
+A1-&amp;gt;B-&amp;gt;A2 configuration), we recommend using SameSite=None cookies
+*without* the Partitioned attribute, and invoking the Storage Access API
+(SAA) or using the Cross-Origin Resource Sharing (CORS).
+
+
+
+Blink component
+
+Internals&amp;gt;Network&amp;gt;Cookies&amp;gt;PartitionedCookies
+&amp;lt;&lt;a  rel="nofollow" href="https://issues.chromium.org/issues?q=customfield1222907:%22Internals%3ENetwork%3ECookies%3EPartitionedCookies%22"&gt;https://issues.chromium.org/issues?q=customfield1222907:%22Internals%3ENetwork%3ECookies%3EPartitionedCookies%22&lt;/a&gt;&amp;gt;
+
+
+
+
+TAG review
+
+Not requested, as this does not differ in any significant way from the
+original CHIPS design that was already reviewed by TAG
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/779"&gt;https://github.com/w3ctag/design-reviews/issues/779&lt;/a&gt;&amp;gt;.
+
+
+TAG review status
+
+N/A
+
+
+Risks
+
+
+Interoperability and Compatibility
+
+The inclusion of a new element in the partition key will mean that
+partitioned cookies (CHIPS) created after the launch of this change will
+not be compatible with the partitioned cookies that already exist in users
+cookie jars. To address this, existing partitioned cookies will be migrated
+(without any need for developer action) to include the new cross-site
+ancestor chain bit value, which will be set with a value of true if the
+existing partition key does not match the host key (indicating a cross site
+ancestor is present) and false if the partition key does match the host
+key. This will ensure that most existing CHIPS have the same scope as they
+did prior to the change.
+
+
+Only 0.2% of partitioned cookies are utilized from within A1-&amp;gt;B-&amp;gt;A2
+scenarios, but developers who need to be able to access cookies in
+A1-&amp;gt;B-&amp;gt;A2 scenarios will be able to use SAA, and CORS to gain access to
+those cookies, after transitioning to SameSite=None cookies without the
+Partitioned attribute.
+
+
+To limit the impact of any significant breakages that may occur when this
+is deployed, the new feature will be gated by a flag allowing for it to be
+turned off easily. Additionally metrics are being gathered to proactively
+identify the sites that are going to be impacted by this change, so that we
+can do outreach to potentially impacted sites. As this feature gets
+deployed, we will monitor the bug and breakage reports to help identify
+issues and assist developers in transitioning to one of the other
+mechanisms that will allow their sites to work in an A1-&amp;gt;B-&amp;gt;A2 context.
+
+
+As this does not differ in any significant way from the original partitioned
+cookies design that has been reviewed in the past, we are not seeking the
+various browsers to take official positions in their standards position
+repos.
+
+
+There is support for the adoption of CHIPS
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/678#issuecomment-1241916316"&gt;https://github.com/mozilla/standards-positions/issues/678#issuecomment-1241916316&lt;/a&gt;&amp;gt;
+from Firefox as well as support from them for adding the cross-site
+ancestor chain bit
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/privacycg/meetings/blob/main/2023/telcons/10-12-minutes.md#keying-of-chips-cookies-should-align-with-other-state"&gt;https://github.com/privacycg/meetings/blob/main/2023/telcons/10-12-minutes.md#keying-of-chips-cookies-should-align-with-other-state&lt;/a&gt;&amp;gt;
+.
+
+
+Webkit is still considering adopting CHIPS
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/50#issuecomment-1768040057"&gt;https://github.com/WebKit/standards-positions/issues/50#issuecomment-1768040057&lt;/a&gt;&amp;gt;
+as we work through their concerns
+&amp;lt;&lt;a  rel="nofollow" href="https://github.com/privacycg/CHIPS/issues/74"&gt;https://github.com/privacycg/CHIPS/issues/74&lt;/a&gt;&amp;gt; regarding partition size
+limitations. This will not be impacted by the addition of a cross-site
+ancestor chain bit. We updated the WebKit standards positions issue with a
+note regarding this change to the proposal.
+
+
+
+
+
+Debuggability
+
+DevTools will need to be updated
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1516984"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1516984&lt;/a&gt;&amp;gt; to show the
+cross-site ancestor chain bit but otherwise it should be able to be
+debugged like other API calls.
+
+
+Will this feature be supported on all six Blink platforms (Windows, Mac,
+Linux, Chrome OS, Android, and Android WebView)?
+
+All platforms listed.
+
+
+Is this feature fully tested by web-platform-tests
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+?
+
+We plan to land web-platform-tests shortly
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1521791"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1521791&lt;/a&gt;&amp;gt;.
+
+
+Flag name on chrome://flags
+
+CookiePartitionKeyIncludesCrossSiteAncestorChainBit
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/detail?id=1521841"&gt;https://bugs.chromium.org/p/chromium/issues/detail?id=1521841&lt;/a&gt;&amp;gt;
+
+
+Finch feature name
+
+None
+
+
+Requires code in //chrome?
+
+False
+
+
+Estimated milestones
+
+Targeted shipping on desktop and Android in M125.
+
+
+Anticipated spec changes
+
+None
+
+
+Link to entry on the Chrome Platform Status
+
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5144832583663616"&gt;https://chromestatus.com/feature/5144832583663616&lt;/a&gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPSgjYROtVMp%3DmfBLFdW5KiRYkcFx0NG3U%3DT_vtbm2b7UEzm0w%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAPSgjYROtVMp%3DmfBLFdW5KiRYkcFx0NG3U%3DT_vtbm2b7UEzm0w%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09619.html</id>
+        <title>Re: [blink-dev] Intent to Ship: RegExp duplicate named capture groups</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09619.html"/>
+        <updated>2024-03-11T16:17:08.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09619.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+RegExp+duplicate+named+capture+groups%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: RegExp duplicate named capture groups&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Yoav+Weiss+%5C%28%40Shopify%5C%29%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Yoav Weiss (@Shopify)&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240311" rel="nofollow"&gt;Mon, 11 Mar 2024 09:17:08 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;LGTM2
+
+On Mon, Mar 11, 2024 at 5:00 PM Shu-yu Guo &amp;lt;s...@chromium.org&amp;gt; wrote:&lt;/pre&gt;&lt;pre&gt;
+
+&amp;gt; On Mon, Mar 11, 2024 at 8:26 AM Mike Taylor &amp;lt;miketa...@chromium.org&amp;gt;
+&amp;gt; wrote:
+&amp;gt;
+&amp;gt;&amp;gt; On 3/11/24 6:49 AM, Yoav Weiss (@Shopify) wrote:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; On Fri, Mar 8, 2024 at 4:26 PM Mike Taylor &amp;lt;miketa...@chromium.org&amp;gt;
+&amp;gt;&amp;gt; wrote:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; LGTM1
+&amp;gt;&amp;gt;&amp;gt; On 3/7/24 6:22 PM, Shu-yu Guo wrote:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Contact emails pth...@chromium.org, s...@chromium.org
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Explainer None
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Specification &lt;a  rel="nofollow" href="https://github.com/tc39/ecma262/pull/2721"&gt;https://github.com/tc39/ecma262/pull/2721&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; What are the implications of this on regexes that already have duplicate
+&amp;gt;&amp;gt; named capture groups? Would their behavior change?
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Shu can confirm, but my understanding is any regexes in the wild that
+&amp;gt;&amp;gt; have duplicate named capture groups today are just busted (they should
+&amp;gt;&amp;gt; throw a SyntaxError - and those are pretty hard to miss). If they do exist
+&amp;gt;&amp;gt; in the wild, they should start working, which in theory would match author
+&amp;gt;&amp;gt; intent. The risk seems very low IMHO, if it exists at all.
+&amp;gt;&amp;gt;
+&amp;gt;
+&amp;gt; Exactly right. This is a case of going from a SyntaxError to working, so
+&amp;gt; there should be no back compat issues.
+&amp;gt;
+
+Makes sense, thanks for clarifying! :)
+
+
+&amp;gt;
+&amp;gt; The concrete example from the explainer currently throws a SyntaxError:
+&amp;gt;
+&amp;gt; ```
+&amp;gt; /(?&amp;lt;year&amp;gt;[0-9]{4})-[0-9]{2}|[0-9]{2}-(?&amp;lt;year&amp;gt;[0-9]{4})/
+&amp;gt; ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&amp;gt; SyntaxError: Invalid regular expression:
+&amp;gt; /(?&amp;lt;year&amp;gt;[0-9]{4})-[0-9]{2}|[0-9]{2}-(?&amp;lt;year&amp;gt;[0-9]{4})/: Duplicate capture
+&amp;gt; group name
+&amp;gt; ```
+&amp;gt;
+&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Summary
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/tc39/proposal-duplicate-named-capturing-groups"&gt;https://github.com/tc39/proposal-duplicate-named-capturing-groups&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Blink component Blink&amp;gt;JavaScript&amp;gt;Regexp
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EJavaScript%3ERegexp"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EJavaScript%3ERegexp&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; TAG review None
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; TAG review status Not applicable
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Risks
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Interoperability and Compatibility
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; This is a Stage 3 TC39 proposal. No known interop risk. No known web
+&amp;gt;&amp;gt;&amp;gt; incompatibility risk.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; *Gecko*: Positive Firefox uses V8's regexp engine, so it is not
+&amp;gt;&amp;gt;&amp;gt; actually an independent implementation here.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; *WebKit*: Shipped/Shipping (
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.webkit.org/show_bug.cgi?id=252553"&gt;https://bugs.webkit.org/show_bug.cgi?id=252553&lt;/a&gt;) Stage 3 TC39 proposal.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; *Web developers*: No signals
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; *Other signals*:
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Ergonomics
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; No known ergonomics risks.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Activation
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; This is unlikely to be polyfillable since it's adding a new kind of
+&amp;gt;&amp;gt;&amp;gt; RegExp syntax.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Security
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; No known security risks.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; WebView application risks
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Does this intent deprecate or change behavior of existing APIs, such
+&amp;gt;&amp;gt;&amp;gt; that it has potentially high risk for Android WebView-based applications?
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Debuggability
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Debuggable like any other JS RegExp.
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows, Mac,
+&amp;gt;&amp;gt;&amp;gt; Linux, ChromeOS, Android, and Android WebView)? Yes
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; ? Yes
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Tested in test262. &lt;a  rel="nofollow" href="https://github.com/tc39/test262/pull/3625"&gt;https://github.com/tc39/test262/pull/3625&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/tc39/test262/pull/3706"&gt;https://github.com/tc39/test262/pull/3706&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/tc39/test262/pull/3709"&gt;https://github.com/tc39/test262/pull/3709&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Flag name on chrome://flags --js-regexp-duplicate-named-groups
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Finch feature name None
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Non-finch justification None
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Requires code in //chrome? False
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Estimated milestones
+&amp;gt;&amp;gt;&amp;gt; DevTrial on desktop 123
+&amp;gt;&amp;gt;&amp;gt; DevTrial on Android 123
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Anticipated spec changes
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Open questions about a feature may be a source of future web compat or
+&amp;gt;&amp;gt;&amp;gt; interop issues. Please list open issues (e.g. links to known github issues
+&amp;gt;&amp;gt;&amp;gt; in the project for the feature specification) whose resolution may
+&amp;gt;&amp;gt;&amp;gt; introduce web compat/interop risk (e.g., changing to naming or structure of
+&amp;gt;&amp;gt;&amp;gt; the API in a non-backward-compatible way).
+&amp;gt;&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5149208388829184"&gt;https://chromestatus.com/feature/5149208388829184&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+&amp;gt;&amp;gt;&amp;gt; --
+&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
+&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send
+&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+unsubscr...@chromium.org.
+&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAN-e9e_1DaU400sEcpB6RGv3pZg_382WduoF9MPZvK8QTPfdSQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAN-e9e_1DaU400sEcpB6RGv3pZg_382WduoF9MPZvK8QTPfdSQ%40mail.gmail.com&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAN-e9e_1DaU400sEcpB6RGv3pZg_382WduoF9MPZvK8QTPfdSQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAN-e9e_1DaU400sEcpB6RGv3pZg_382WduoF9MPZvK8QTPfdSQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; --
+&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
+&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send
+&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+unsubscr...@chromium.org.
+&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
+&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/09ed7eb2-94f7-435b-a8fe-9271a5feb76c%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/09ed7eb2-94f7-435b-a8fe-9271a5feb76c%40chromium.org&lt;/a&gt;
+&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/09ed7eb2-94f7-435b-a8fe-9271a5feb76c%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/09ed7eb2-94f7-435b-a8fe-9271a5feb76c%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOmohS%2BYMv5xFjsTH5%3DOYPQ0tWtivg3-pyq%3DWxHY%3DmHS0CuByg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOmohS%2BYMv5xFjsTH5%3DOYPQ0tWtivg3-pyq%3DWxHY%3DmHS0CuByg%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09618.html</id>
+        <title>Re: [blink-dev] Intent to Ship: RegExp duplicate named capture groups</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09618.html"/>
+        <updated>2024-03-11T16:00:58.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09618.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+RegExp+duplicate+named+capture+groups%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: RegExp duplicate named capture groups&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Shu%5C-yu+Guo%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Shu-yu Guo&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240311" rel="nofollow"&gt;Mon, 11 Mar 2024 09:00:58 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;On Mon, Mar 11, 2024 at 8:26 AM Mike Taylor &amp;lt;miketa...@chromium.org&amp;gt; wrote:&lt;/pre&gt;&lt;pre&gt;
+
+&amp;gt; On 3/11/24 6:49 AM, Yoav Weiss (@Shopify) wrote:
+&amp;gt;
+&amp;gt;
+&amp;gt;
+&amp;gt; On Fri, Mar 8, 2024 at 4:26 PM Mike Taylor &amp;lt;miketa...@chromium.org&amp;gt; wrote:
+&amp;gt;
+&amp;gt;&amp;gt; LGTM1
+&amp;gt;&amp;gt; On 3/7/24 6:22 PM, Shu-yu Guo wrote:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Contact emails pth...@chromium.org, s...@chromium.org
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Explainer None
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Specification &lt;a  rel="nofollow" href="https://github.com/tc39/ecma262/pull/2721"&gt;https://github.com/tc39/ecma262/pull/2721&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt; What are the implications of this on regexes that already have duplicate
+&amp;gt; named capture groups? Would their behavior change?
+&amp;gt;
+&amp;gt; Shu can confirm, but my understanding is any regexes in the wild that have
+&amp;gt; duplicate named capture groups today are just busted (they should throw a
+&amp;gt; SyntaxError - and those are pretty hard to miss). If they do exist in the
+&amp;gt; wild, they should start working, which in theory would match author intent.
+&amp;gt; The risk seems very low IMHO, if it exists at all.
+&amp;gt;
+
+Exactly right. This is a case of going from a SyntaxError to working, so
+there should be no back compat issues.
+
+The concrete example from the explainer currently throws a SyntaxError:
+
+```
+/(?&amp;lt;year&amp;gt;[0-9]{4})-[0-9]{2}|[0-9]{2}-(?&amp;lt;year&amp;gt;[0-9]{4})/
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SyntaxError: Invalid regular expression:
+/(?&amp;lt;year&amp;gt;[0-9]{4})-[0-9]{2}|[0-9]{2}-(?&amp;lt;year&amp;gt;[0-9]{4})/: Duplicate capture
+group name
+```
+
+
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Summary
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/tc39/proposal-duplicate-named-capturing-groups"&gt;https://github.com/tc39/proposal-duplicate-named-capturing-groups&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Blink component Blink&amp;gt;JavaScript&amp;gt;Regexp
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EJavaScript%3ERegexp"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EJavaScript%3ERegexp&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; TAG review None
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; TAG review status Not applicable
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Risks
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Interoperability and Compatibility
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; This is a Stage 3 TC39 proposal. No known interop risk. No known web
+&amp;gt;&amp;gt; incompatibility risk.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *Gecko*: Positive Firefox uses V8's regexp engine, so it is not actually
+&amp;gt;&amp;gt; an independent implementation here.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *WebKit*: Shipped/Shipping (
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://bugs.webkit.org/show_bug.cgi?id=252553"&gt;https://bugs.webkit.org/show_bug.cgi?id=252553&lt;/a&gt;) Stage 3 TC39 proposal.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *Web developers*: No signals
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; *Other signals*:
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Ergonomics
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; No known ergonomics risks.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Activation
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; This is unlikely to be polyfillable since it's adding a new kind of
+&amp;gt;&amp;gt; RegExp syntax.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Security
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; No known security risks.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; WebView application risks
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Does this intent deprecate or change behavior of existing APIs, such that
+&amp;gt;&amp;gt; it has potentially high risk for Android WebView-based applications?
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Debuggability
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Debuggable like any other JS RegExp.
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows, Mac,
+&amp;gt;&amp;gt; Linux, ChromeOS, Android, and Android WebView)? Yes
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt; ? Yes
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Tested in test262. &lt;a  rel="nofollow" href="https://github.com/tc39/test262/pull/3625"&gt;https://github.com/tc39/test262/pull/3625&lt;/a&gt;
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/tc39/test262/pull/3706"&gt;https://github.com/tc39/test262/pull/3706&lt;/a&gt;
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/tc39/test262/pull/3709"&gt;https://github.com/tc39/test262/pull/3709&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Flag name on chrome://flags --js-regexp-duplicate-named-groups
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Finch feature name None
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Non-finch justification None
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Requires code in //chrome? False
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Estimated milestones
+&amp;gt;&amp;gt; DevTrial on desktop 123
+&amp;gt;&amp;gt; DevTrial on Android 123
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Anticipated spec changes
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Open questions about a feature may be a source of future web compat or
+&amp;gt;&amp;gt; interop issues. Please list open issues (e.g. links to known github issues
+&amp;gt;&amp;gt; in the project for the feature specification) whose resolution may
+&amp;gt;&amp;gt; introduce web compat/interop risk (e.g., changing to naming or structure of
+&amp;gt;&amp;gt; the API in a non-backward-compatible way).
+&amp;gt;&amp;gt; None
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5149208388829184"&gt;https://chromestatus.com/feature/5149208388829184&lt;/a&gt;
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+&amp;gt;&amp;gt; --
+&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups
+&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&amp;gt;&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt;&amp;gt; To view this discussion on the web visit
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAN-e9e_1DaU400sEcpB6RGv3pZg_382WduoF9MPZvK8QTPfdSQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAN-e9e_1DaU400sEcpB6RGv3pZg_382WduoF9MPZvK8QTPfdSQ%40mail.gmail.com&lt;/a&gt;
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAN-e9e_1DaU400sEcpB6RGv3pZg_382WduoF9MPZvK8QTPfdSQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAN-e9e_1DaU400sEcpB6RGv3pZg_382WduoF9MPZvK8QTPfdSQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;
+&amp;gt;&amp;gt; --
+&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups
+&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&amp;gt;&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt;&amp;gt; To view this discussion on the web visit
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/09ed7eb2-94f7-435b-a8fe-9271a5feb76c%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/09ed7eb2-94f7-435b-a8fe-9271a5feb76c%40chromium.org&lt;/a&gt;
+&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/09ed7eb2-94f7-435b-a8fe-9271a5feb76c%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/09ed7eb2-94f7-435b-a8fe-9271a5feb76c%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt;&amp;gt; .
+&amp;gt;&amp;gt;
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAN-e9e_EWZPoUHJMd0_vMFm04q3UW%3DD2u-RpkCegCX_Q35MogA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAN-e9e_EWZPoUHJMd0_vMFm04q3UW%3DD2u-RpkCegCX_Q35MogA%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09617.html</id>
+        <title>Re: [blink-dev] Intent to Ship: RegExp duplicate named capture groups</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09617.html"/>
+        <updated>2024-03-11T15:26:12.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09617.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+RegExp+duplicate+named+capture+groups%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: RegExp duplicate named capture groups&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Mike+Taylor%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Mike Taylor&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240311" rel="nofollow"&gt;Mon, 11 Mar 2024 08:26:12 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre style="margin: 0em;"&gt;
+On 3/11/24 6:49 AM, Yoav Weiss (@Shopify) wrote:
+
+&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;pre&gt;
+
+
+On Fri, Mar 8, 2024 at 4:26 PM Mike Taylor &amp;lt;miketa...@chromium.org&amp;gt; wrote:
+
+    LGTM1
+
+    On 3/7/24 6:22 PM, Shu-yu Guo wrote:
+&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;
+
+
+            Contact emails
+
+    pth...@chromium.org, s...@chromium.org
+
+
+            Explainer
+
+    None
+
+
+            Specification
+
+    &lt;a  rel="nofollow" href="https://github.com/tc39/ecma262/pull/2721"&gt;https://github.com/tc39/ecma262/pull/2721&lt;/a&gt;
+&lt;/pre&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;tt&gt;What are the implications of this on regexes that already have 
+&lt;/tt&gt;&lt;tt&gt;duplicate named capture groups? Would their behavior change?
+&lt;/tt&gt;&lt;/blockquote&gt;&lt;tt&gt;Shu can confirm, but my understanding is any regexes in the wild that 
+&lt;/tt&gt;&lt;tt&gt;have duplicate named capture groups today are just busted (they should 
+&lt;/tt&gt;&lt;tt&gt;throw a SyntaxError - and those are pretty hard to miss). If they do 
+&lt;/tt&gt;&lt;tt&gt;exist in the wild, they should start working, which in theory would 
+&lt;/tt&gt;&lt;tt&gt;match author intent. The risk seems very low IMHO, if it exists at all.
+&lt;/tt&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;
+
+
+            Summary
+
+    &lt;a  rel="nofollow" href="https://github.com/tc39/proposal-duplicate-named-capturing-groups"&gt;https://github.com/tc39/proposal-duplicate-named-capturing-groups&lt;/a&gt;
+
+
+
+            Blink component
+
+    Blink&amp;gt;JavaScript&amp;gt;Regexp
+    
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EJavaScript%3ERegexp"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EJavaScript%3ERegexp&lt;/a&gt;&amp;gt;
+
+
+            TAG review
+
+    None
+
+
+            TAG review status
+
+    Not applicable
+
+
+            Risks
+
+
+
+            Interoperability and Compatibility
+
+    This is a Stage 3 TC39 proposal. No known interop risk. No known
+    web incompatibility risk.
+
+
+
+    /Gecko/: Positive Firefox uses V8's regexp engine, so it is not
+    actually an independent implementation here.
+
+    /WebKit/: Shipped/Shipping
+    (&lt;a  rel="nofollow" href="https://bugs.webkit.org/show_bug.cgi?id=252553"&gt;https://bugs.webkit.org/show_bug.cgi?id=252553&lt;/a&gt;) Stage 3 TC39
+    proposal.
+
+    /Web developers/: No signals
+
+    /Other signals/:
+
+
+            Ergonomics
+
+    No known ergonomics risks.
+
+
+
+            Activation
+
+    This is unlikely to be polyfillable since it's adding a new kind
+    of RegExp syntax.
+
+
+
+            Security
+
+    No known security risks.
+
+
+
+            WebView application risks
+
+    Does this intent deprecate or change behavior of existing APIs,
+    such that it has potentially high risk for Android WebView-based
+    applications?
+
+    None
+
+
+
+            Debuggability
+
+    Debuggable like any other JS RegExp.
+
+
+
+            Will this feature be supported on all six Blink platforms
+            (Windows, Mac, Linux, ChromeOS, Android, and Android
+            WebView)?
+
+    Yes
+
+
+            Is this feature fully tested by web-platform-tests
+            
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;?
+
+    Yes
+
+    Tested in test262. &lt;a  rel="nofollow" href="https://github.com/tc39/test262/pull/3625"&gt;https://github.com/tc39/test262/pull/3625&lt;/a&gt;
+    &lt;a  rel="nofollow" href="https://github.com/tc39/test262/pull/3706"&gt;https://github.com/tc39/test262/pull/3706&lt;/a&gt;
+    &lt;a  rel="nofollow" href="https://github.com/tc39/test262/pull/3709"&gt;https://github.com/tc39/test262/pull/3709&lt;/a&gt;
+
+
+
+            Flag name on chrome://flags
+
+    --js-regexp-duplicate-named-groups
+
+
+            Finch feature name
+
+    None
+
+
+            Non-finch justification
+
+    None
+
+
+            Requires code in //chrome?
+
+    False
+
+
+            Estimated milestones
+
+    DevTrial on desktop         123
+
+    DevTrial on Android         123
+
+
+
+            Anticipated spec changes
+
+    Open questions about a feature may be a source of future web
+    compat or interop issues. Please list open issues (e.g. links to
+    known github issues in the project for the feature specification)
+    whose resolution may introduce web compat/interop risk (e.g.,
+    changing to naming or structure of the API in a
+    non-backward-compatible way).
+
+    None
+
+
+            Link to entry on the Chrome Platform Status
+
+    &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5149208388829184"&gt;https://chromestatus.com/feature/5149208388829184&lt;/a&gt;
+
+    This intent message was generated by Chrome Platform Status
+    &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+&lt;/pre&gt;&lt;tt&gt;    -- 
+&lt;/tt&gt;&lt;tt&gt;    You received this message because you are subscribed to the
+&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
+    Google Groups &amp;quot;blink-dev&amp;quot; group.
+    To unsubscribe from this group and stop receiving emails from it,
+    send an email to blink-dev+unsubscr...@chromium.org.
+    To view this discussion on the web visit
+    
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAN-e9e_1DaU400sEcpB6RGv3pZg_382WduoF9MPZvK8QTPfdSQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAN-e9e_1DaU400sEcpB6RGv3pZg_382WduoF9MPZvK8QTPfdSQ%40mail.gmail.com&lt;/a&gt;
+    
+&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAN-e9e_1DaU400sEcpB6RGv3pZg_382WduoF9MPZvK8QTPfdSQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAN-e9e_1DaU400sEcpB6RGv3pZg_382WduoF9MPZvK8QTPfdSQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
+&lt;/pre&gt;&lt;/blockquote&gt;&lt;tt&gt;    -- 
+&lt;/tt&gt;&lt;tt&gt;    You received this message because you are subscribed to the Google
+&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
+    Groups &amp;quot;blink-dev&amp;quot; group.
+    To unsubscribe from this group and stop receiving emails from it,
+    send an email to blink-dev+unsubscr...@chromium.org.
+    To view this discussion on the web visit
+    
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/09ed7eb2-94f7-435b-a8fe-9271a5feb76c%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/09ed7eb2-94f7-435b-a8fe-9271a5feb76c%40chromium.org&lt;/a&gt;
+    
+&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/09ed7eb2-94f7-435b-a8fe-9271a5feb76c%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/09ed7eb2-94f7-435b-a8fe-9271a5feb76c%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
+
+&lt;/pre&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;
+
+--
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/ca5cec79-f329-4e81-93e6-9091dda332db%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/ca5cec79-f329-4e81-93e6-9091dda332db%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09616.html</id>
+        <title>[blink-dev] Intent to Prototype: Playout Statistics API for WebAudio</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09616.html"/>
+        <updated>2024-03-11T15:20:07.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09616.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Prototype%5C%3A+Playout+Statistics+API+for+WebAudio%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;[blink-dev] Intent to Prototype: Playout Statistics API for WebAudio&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Fredrik+Hernqvist%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Fredrik Hernqvist' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240311" rel="nofollow"&gt;Mon, 11 Mar 2024 08:20:07 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Contact emailsfhernqv...@google.com, o...@google.com, hongc...@google.com,
+agpa...@google.com, gui...@google.com&lt;/pre&gt;&lt;pre&gt;
+
+Explainer&lt;a  rel="nofollow" href="https://github.com/WICG/web_audio_playout"&gt;https://github.com/WICG/web_audio_playout&lt;/a&gt;
+
+Specification&lt;a  rel="nofollow" href="https://wicg.github.io/web_audio_playout"&gt;https://wicg.github.io/web_audio_playout&lt;/a&gt;
+
+Summary
+
+The AudioContext.playoutStats API allows an application to measure the
+quality and latency of audio playout using WebAudio.
+
+
+Blink componentBlink&amp;gt;WebAudio
+&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EWebAudio"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EWebAudio&lt;/a&gt;&amp;gt;
+
+Motivation
+
+There is currently no way to detect whether WebAudio playout has glitches
+(gaps in the played audio, which typically happens due to underperformance
+in the audio pipeline). There is an existing way to measure the
+instantaneous playout latency using AudioContext.outputLatency, but no
+simple way to measure average/minimum/maximum latency over time. With this
+API, we want to propose a way to be able to measure the delay of that audio
+and the glitchiness of the audio.
+
+
+Initial public proposal&lt;a  rel="nofollow" href="https://github.com/WICG/proposals/issues/142"&gt;https://github.com/WICG/proposals/issues/142&lt;/a&gt;
+
+TAG reviewNone
+
+TAG review statusPending
+
+Risks
+
+
+Interoperability and Compatibility
+
+None
+
+
+*Gecko*: No signal
+
+*WebKit*: No signal
+
+*Web developers*: No signals
+
+*Other signals*:
+
+WebView application risks
+
+Does this intent deprecate or change behavior of existing APIs, such that
+it has potentially high risk for Android WebView-based applications?
+
+None
+
+
+Debuggability
+
+None
+
+
+Is this feature fully tested by web-platform-tests
+&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
+?No
+
+Flag name on chrome://flagsNone
+
+Finch feature nameNone
+
+Non-finch justificationNone
+
+Requires code in //chrome?False
+
+Estimated milestones
+
+No milestones specified
+
+
+Link to entry on the Chrome Platform Status
+&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5172818344148992"&gt;https://chromestatus.com/feature/5172818344148992&lt;/a&gt;
+
+This intent message was generated by Chrome Platform Status
+&amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CACazmWW4MYVa_iGjN%3DK4O9B1DE3rt4_2Vkqnq6sKswHFjn6BzQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CACazmWW4MYVa_iGjN%3DK4O9B1DE3rt4_2Vkqnq6sKswHFjn6BzQ%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
     <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09615.html</id>
         <title>Re: [blink-dev] Intent to Ship: RegExp duplicate named capture groups</title>
@@ -10798,1178 +11764,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/dbb6e5d9-1688-4e3e-b939-8a5dc903d471n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/dbb6e5d9-1688-4e3e-b939-8a5dc903d471n%40chromium.org&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09570.html</id>
-        <title>Re: [blink-dev] Intent to Ship: Compute Pressure</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09570.html"/>
-        <updated>2024-03-06T18:53:38.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09570.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Compute+Pressure%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Compute Pressure&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Reilly+Grant%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Reilly Grant&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240306" rel="nofollow"&gt;Wed, 06 Mar 2024 10:53:38 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;In &lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/issues/14"&gt;https://github.com/w3c/compute-pressure/issues/14&lt;/a&gt; an engineer from Zoom
-expressed interest in this feature. Do you know if Zoom or any of the other
-developers mentioned in the TAG review
-&amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/795#issuecomment-1691188175"&gt;https://github.com/w3ctag/design-reviews/issues/795#issuecomment-1691188175&lt;/a&gt;&amp;gt;
-have
-deployed an experiment using this Origin Trial and if so have they been
-able to confirm the expected improvement?&lt;/pre&gt;&lt;pre&gt;
-
-WebKit's position expresses skepticism that applications responding to
-these signals will actually result in an overall improvement in user
-experience. I would like to see feedback from the developers who have
-tested this API disproving that position. The OT survey responses
-that developers will continue to use the API is an indirect signal that
-that is true but it would be much more convincing to have direct evidence.
-Reilly Grant | Software Engineer | reil...@chromium.org | Google Chrome
-&amp;lt;&lt;a  rel="nofollow" href="https://www.google.com/chrome"&gt;https://www.google.com/chrome&lt;/a&gt;&amp;gt;
-
-
-On Wed, Mar 6, 2024 at 8:31 AM Ajay Rahatekar &amp;lt;ajayrahate...@google.com&amp;gt;
-wrote:
-
-&amp;gt; Please see below for aggregated and manually vetted OT feedback that was
-&amp;gt; shared as per Google's policy:
-&amp;gt;
-&amp;gt;
-&amp;gt;    - 100% of the respondents are extremely likely to continue
-&amp;gt;    using the API.
-&amp;gt;    - 43% of the respondents found the API 'Extremely easy', 43% found it
-&amp;gt;    'Neither easy nor difficult' and 14% found it 'Moderately easy' to use.
-&amp;gt;    - 7% of the respondents mentioned that they would prefer to
-&amp;gt;    give the callback frequency in time units (secs, milliseconds), similar to
-&amp;gt;    other APIs such as setInterval in place of Hz as currently designed. A
-&amp;gt;    number scale along with labels would be more useful e.g. { pressure: 2,
-&amp;gt;    label: 'nominal' }.
-&amp;gt;    - 2% of the respondents suggested adjusting thresholds or combining
-&amp;gt;    states to reduce &amp;quot;flapping&amp;quot; between fair and nominal
-&amp;gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; -Ajay
-&amp;gt; On Wednesday, March 6, 2024 at 7:22:39 AM UTC-8 yoav...@chromium.org
-&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; On Wed, Mar 6, 2024 at 4:00 PM 'Ajay Rahatekar' via blink-dev &amp;lt;
-&amp;gt;&amp;gt; blin...@chromium.org&amp;gt; wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; As Kenneth mentioned, the aggregated/anonymized feedback (largely
-&amp;gt;&amp;gt;&amp;gt; positive) was shared with the Intel team in consultation with the Google
-&amp;gt;&amp;gt;&amp;gt; Privacy team. Internal copy is available as needed.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; While a Google-internal copy is great, a public summary of that feedback
-&amp;gt;&amp;gt; would be useful for non-Google API owners and the broader community alike,
-&amp;gt;&amp;gt; and help us get a better understanding of the benefits of shipping this.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; On Wednesday, March 6, 2024 at 5:57:47 AM UTC-8 kenneth.ch...@gmail.com
-&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Tue, Mar 5, 2024 at 7:14 PM Reilly Grant &amp;lt;rei...@chromium.org&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; On Tue, Mar 5, 2024 at 5:56 AM Mike Taylor &amp;lt;mike...@chromium.org&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; During this origin trial we realized that the full capacity of the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; API couldn’t be tested due to a lack of support for third-party tokens. 
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; An Origin
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Trial extension
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/s83S7wXxa6E/m/AjvsIJxmAQAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/s83S7wXxa6E/m/AjvsIJxmAQAJ&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;  was
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; necessary until M123.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is there any developer feedback that can be shared from the origin
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; trials? I'm looking for signals that developers have been able to improve
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; user experiences by using the new signals.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Though we cannot share the exact feedback from the origin trial due to
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; confidentiality (we also only got a summary ourselves as non-Googlers), the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; feedback was quite positive with all respondents extremely likely to
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; continue using the API. None of the respondents found the API hard to use,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; but we received some minor feedback on the API shape and feature requests
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; that we have adopted or at least filed issues for.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Ajay (cc'ed), might be able to share more.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Kenneth
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt;&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send
-&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+...@chromium.org.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; To view this discussion on the web visit
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/143ee50c-9ff4-4dfb-860c-700155bcd065n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/143ee50c-9ff4-4dfb-860c-700155bcd065n%40chromium.org&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/143ee50c-9ff4-4dfb-860c-700155bcd065n%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/143ee50c-9ff4-4dfb-860c-700155bcd065n%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAEmk%3DMbO4gTG_h7iG94iqBF-sQwrRO%2BYLY-yDCZVvK975ADkSw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAEmk%3DMbO4gTG_h7iG94iqBF-sQwrRO%2BYLY-yDCZVvK975ADkSw%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09569.html</id>
-        <title>Re: [blink-dev] Re: Intent to Ship: Document Render-Blocking</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09569.html"/>
-        <updated>2024-03-06T18:35:55.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09569.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Ship%5C%3A+Document+Render%5C-Blocking%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Re: Intent to Ship: Document Render-Blocking&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Yoav+Weiss+%5C%28%40Shopify%5C%29%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Yoav Weiss (@Shopify)&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240306" rel="nofollow"&gt;Wed, 06 Mar 2024 10:35:55 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;LGTM2
-
-On Wed, Mar 6, 2024 at 7:23 PM Mike Taylor &amp;lt;miketa...@chromium.org&amp;gt; wrote:&lt;/pre&gt;&lt;pre&gt;
-
-&amp;gt; LGTM1
-&amp;gt; On 3/6/24 11:00 AM, Vladimir Levin wrote:
-&amp;gt;
-&amp;gt; Re failing tests:
-&amp;gt; The flag is currently in &amp;quot;test&amp;quot; status
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/platform/runtime_enabled_features.json5;l=1420;drc=3690cd7872423e81e74dc66f9886e355a7c1b659"&gt;https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/platform/runtime_enabled_features.json5;l=1420;drc=3690cd7872423e81e74dc66f9886e355a7c1b659&lt;/a&gt;&amp;gt;
-&amp;gt;  which
-&amp;gt; I don't believe would be picked up by wpt.fyi experimental run.
-&amp;gt;
-&amp;gt; Re explainer for non-vt cases:
-&amp;gt; We added several other examples
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/view-transitions/blob/main/document-render-blocking.md#other-use-cases"&gt;https://github.com/WICG/view-transitions/blob/main/document-render-blocking.md#other-use-cases&lt;/a&gt;&amp;gt;
-&amp;gt; to the explainer (thanks Noam!)
-&amp;gt;
-&amp;gt; Re console warning:
-&amp;gt; Good catch indeed. We'll make sure to address
-&amp;gt; &lt;a  rel="nofollow" href="https://issues.chromium.org/issues/328279707"&gt;https://issues.chromium.org/issues/328279707&lt;/a&gt; in a timely manner.
-&amp;gt;
-&amp;gt; &amp;lt;webperfwg hat on&amp;gt;
-I'd also strongly encourage y'all to also add some reporting on that front.
-+Ian Clelland &amp;lt;iclell...@google.com&amp;gt; FYI
-
-&amp;gt;
-&amp;gt;
-&amp;gt; On Wed, Mar 6, 2024 at 10:18 AM Jake Archibald &amp;lt;jaffathec...@gmail.com&amp;gt;
-&amp;gt; wrote:
-&amp;gt;
-&amp;gt;&amp;gt; The design of this looks great. Filed a couple of very minor spec nuts
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/10180"&gt;https://github.com/whatwg/html/issues/10180&lt;/a&gt;
-&amp;gt;
-&amp;gt;
-&amp;gt; Thanks! 🔩
-&amp;gt;
-&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Monday 4 March 2024 at 16:36:43 UTC vmp...@chromium.org wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Contact emails vmp...@chromium.org, nrose...@chromium.org
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Explainer
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WICG/view-transitions/blob/main/document-render-blocking.md#blocking-element-id"&gt;https://github.com/WICG/view-transitions/blob/main/document-render-blocking.md#blocking-element-id&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Specification
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://html.spec.whatwg.org/multipage/links.html#link-type-expect"&gt;https://html.spec.whatwg.org/multipage/links.html#link-type-expect&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Summary
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; This feature enables authors to block rendering of a Document until the
-&amp;gt;&amp;gt;&amp;gt; critical content has been parsed, ensuring a consistent first paint across
-&amp;gt;&amp;gt;&amp;gt; all browsers. Without this feature, the first paint's state depends on the
-&amp;gt;&amp;gt;&amp;gt; heuristics for parser yielding which can vary across browsers. This is
-&amp;gt;&amp;gt;&amp;gt; particularly important for View Transitions where the parsed DOM state on
-&amp;gt;&amp;gt;&amp;gt; the first frame can drastically change the transition created. Note that
-&amp;gt;&amp;gt;&amp;gt; this feature specifically implements a `&amp;lt;link rel=expect href=&amp;quot;#id&amp;quot;&amp;gt;`
-&amp;gt;&amp;gt;&amp;gt; syntax that allows a link element to reference another expected element on
-&amp;gt;&amp;gt;&amp;gt; the page. The rendering is then blocked until the expected element is fully
-&amp;gt;&amp;gt;&amp;gt; parsed. This supersedes previous implementation of html attribute that
-&amp;gt;&amp;gt;&amp;gt; allows the whole document to be render blocked.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Blink component Blink&amp;gt;ViewTransitions&amp;gt;MPA
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EViewTransitions%3EMPA"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EViewTransitions%3EMPA&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; TAG review &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/886"&gt;https://github.com/w3ctag/design-reviews/issues/886&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; TAG review status Issues addressed
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Risks
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Interoperability and Compatibility
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; *Gecko*: Positive (
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/875"&gt;https://github.com/mozilla/standards-positions/issues/875&lt;/a&gt;)
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; *WebKit*: No signal (
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/245"&gt;https://github.com/WebKit/standards-positions/issues/245&lt;/a&gt;)
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; *Web developers*: Positive (&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/9332"&gt;https://github.com/whatwg/html/issues/9332&lt;/a&gt;)
-&amp;gt;&amp;gt;&amp;gt; There are some discussions between implementors and developers on this
-&amp;gt;&amp;gt;&amp;gt; issue. This feature is also a requisite feature for cross-document View
-&amp;gt;&amp;gt;&amp;gt; Transition adoption, which has strong positive signals (
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://daverupert.com/2023/05/getting-started-view-transitions/"&gt;https://daverupert.com/2023/05/getting-started-view-transitions/&lt;/a&gt;).
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; *Other signals*:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Ergonomics
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; This feature would be used frequently with cross-document View
-&amp;gt;&amp;gt;&amp;gt; Transitions, because it allows the browser to wait for necessary content to
-&amp;gt;&amp;gt;&amp;gt; be parsed.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Activation
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; This feature can be used directly.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; WebView application risks
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Does this intent deprecate or change behavior of existing APIs, such
-&amp;gt;&amp;gt;&amp;gt; that it has potentially high risk for Android WebView-based applications?
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; There are no WebView application risks
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Debuggability
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows, Mac,
-&amp;gt;&amp;gt;&amp;gt; Linux, ChromeOS, Android, and Android WebView)? Yes
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; ? Yes
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/html/dom/render-blocking?label=master&amp;label=experimental&amp;aligned&amp;q=element-render-blocking"&gt;https://wpt.fyi/results/html/dom/render-blocking?label=master&amp;label=experimental&amp;aligned&amp;q=element-render-blocking&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt; Note that we will be renaming these from .tentative shortly
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Flag name on chrome://flags None
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Finch feature name DocumentRenderBlocking
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Requires code in //chrome? False
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Adoption expectation This feature is expected to be adopted by
-&amp;gt;&amp;gt;&amp;gt; developers using cross-document View Transitions
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Estimated milestones
-&amp;gt;&amp;gt;&amp;gt; Shipping on desktop 124
-&amp;gt;&amp;gt;&amp;gt; Shipping on Android 124
-&amp;gt;&amp;gt;&amp;gt; Shipping on WebView 124
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Anticipated spec changes
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Open questions about a feature may be a source of future web compat or
-&amp;gt;&amp;gt;&amp;gt; interop issues. Please list open issues (e.g. links to known github issues
-&amp;gt;&amp;gt;&amp;gt; in the project for the feature specification) whose resolution may
-&amp;gt;&amp;gt;&amp;gt; introduce web compat/interop risk (e.g., changing to naming or structure of
-&amp;gt;&amp;gt;&amp;gt; the API in a non-backward-compatible way).
-&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5113053598711808"&gt;https://chromestatus.com/feature/5113053598711808&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Links to previous Intent discussions Intent to prototype:
-&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMLuWUzNfD4MRk0bR1yTZ5F6NzcpETrUU3Vy9GmANZRQd7%3DE4A%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMLuWUzNfD4MRk0bR1yTZ5F6NzcpETrUU3Vy9GmANZRQd7%3DE4A%40mail.gmail.com&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status
-&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; --
-&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt; To view this discussion on the web visit
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADsXd2N7%3D1bHWub6UwxgfvSVdrukfhNTDbWaniW88a4rxxd%2BJw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADsXd2N7%3D1bHWub6UwxgfvSVdrukfhNTDbWaniW88a4rxxd%2BJw%40mail.gmail.com&lt;/a&gt;
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADsXd2N7%3D1bHWub6UwxgfvSVdrukfhNTDbWaniW88a4rxxd%2BJw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADsXd2N7%3D1bHWub6UwxgfvSVdrukfhNTDbWaniW88a4rxxd%2BJw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt; .
-&amp;gt;
-&amp;gt; --
-&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt; To view this discussion on the web visit
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/03e4d6cc-b1f5-43f2-825c-f6c8eb28f006%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/03e4d6cc-b1f5-43f2-825c-f6c8eb28f006%40chromium.org&lt;/a&gt;
-&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/03e4d6cc-b1f5-43f2-825c-f6c8eb28f006%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/03e4d6cc-b1f5-43f2-825c-f6c8eb28f006%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt; .
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOmohSLfsS7ZDG3Pe%2B4DDCqT%3DZaRicOvzD5Pwmm544tcFwWP9A%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOmohSLfsS7ZDG3Pe%2B4DDCqT%3DZaRicOvzD5Pwmm544tcFwWP9A%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09568.html</id>
-        <title>Re: [blink-dev] Re: Intent to Ship: Document Render-Blocking</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09568.html"/>
-        <updated>2024-03-06T18:23:21.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09568.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Ship%5C%3A+Document+Render%5C-Blocking%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Re: Intent to Ship: Document Render-Blocking&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Mike+Taylor%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Mike Taylor&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240306" rel="nofollow"&gt;Wed, 06 Mar 2024 10:23:21 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre style="margin: 0em;"&gt;
-LGTM1
-
-On 3/6/24 11:00 AM, Vladimir Levin wrote:
-&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;
-Re failing tests:
-&lt;/pre&gt;&lt;tt&gt;The flag is currently in &amp;quot;test&amp;quot; status 
-&lt;/tt&gt;&lt;tt&gt;&amp;lt;&lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/platform/runtime_enabled_features.json5;l=1420;drc=3690cd7872423e81e74dc66f9886e355a7c1b659"&gt;https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/platform/runtime_enabled_features.json5;l=1420;drc=3690cd7872423e81e74dc66f9886e355a7c1b659&lt;/a&gt;&amp;gt; which 
-&lt;/tt&gt;&lt;tt&gt;I don't believe would be picked up by wpt.fyi experimental run.
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;pre&gt;
-
-Re explainer for non-vt cases:
-&lt;/pre&gt;&lt;tt&gt;We added several other examples 
-&lt;/tt&gt;&lt;tt&gt;&amp;lt;&lt;a  rel="nofollow" href="https://github.com/WICG/view-transitions/blob/main/document-render-blocking.md#other-use-cases"&gt;https://github.com/WICG/view-transitions/blob/main/document-render-blocking.md#other-use-cases&lt;/a&gt;&amp;gt; 
-&lt;/tt&gt;&lt;tt&gt;to the explainer (thanks Noam!)
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-
-Re console warning:
-&lt;/pre&gt;&lt;tt&gt;Good catch indeed. We'll make sure to address 
-&lt;/tt&gt;&lt;tt&gt;&lt;a  rel="nofollow" href="https://issues.chromium.org/issues/328279707"&gt;https://issues.chromium.org/issues/328279707&lt;/a&gt; in a timely manner.
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;tt&gt;On Wed, Mar 6, 2024 at 10:18 AM Jake Archibald 
-&lt;/tt&gt;&lt;tt&gt;&amp;lt;jaffathec...@gmail.com&amp;gt; wrote:
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-
-    The design of this looks great. Filed a couple of very minor spec
-    nuts &lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/10180"&gt;https://github.com/whatwg/html/issues/10180&lt;/a&gt;
-
-
-Thanks! 🔩
-
-
-
-    On Monday 4 March 2024 at 16:36:43 UTC vmp...@chromium.org wrote:
-
-
-                Contact emails
-
-        vmp...@chromium.org, nrose...@chromium.org
-
-
-                Explainer
-
-        
-&lt;a  rel="nofollow" href="https://github.com/WICG/view-transitions/blob/main/document-render-blocking.md#blocking-element-id"&gt;https://github.com/WICG/view-transitions/blob/main/document-render-blocking.md#blocking-element-id&lt;/a&gt;
-
-
-                Specification
-
-        &lt;a  rel="nofollow" href="https://html.spec.whatwg.org/multipage/links.html#link-type-expect"&gt;https://html.spec.whatwg.org/multipage/links.html#link-type-expect&lt;/a&gt;
-
-
-                Summary
-
-        This feature enables authors to block rendering of a Document
-        until the critical content has been parsed, ensuring a
-        consistent first paint across all browsers. Without this
-        feature, the first paint's state depends on the heuristics for
-        parser yielding which can vary across browsers. This is
-        particularly important for View Transitions where the parsed
-        DOM state on the first frame can drastically change the
-        transition created. Note that this feature specifically
-        implements a `&amp;lt;link rel=expect href=&amp;quot;#id&amp;quot;&amp;gt;` syntax that allows
-        a link element to reference another expected element on the
-        page. The rendering is then blocked until the expected element
-        is fully parsed. This supersedes previous implementation of
-        html attribute that allows the whole document to be render
-        blocked.
-
-
-
-                Blink component
-
-        Blink&amp;gt;ViewTransitions&amp;gt;MPA
-        
-&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EViewTransitions%3EMPA"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EViewTransitions%3EMPA&lt;/a&gt;&amp;gt;
-
-
-                TAG review
-
-        &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/886"&gt;https://github.com/w3ctag/design-reviews/issues/886&lt;/a&gt;
-
-
-                TAG review status
-
-        Issues addressed
-
-
-                Risks
-
-
-
-                Interoperability and Compatibility
-
-        None
-
-
-
-        /Gecko/: Positive
-        (&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/875"&gt;https://github.com/mozilla/standards-positions/issues/875&lt;/a&gt;)
-
-        /WebKit/: No signal
-        (&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/245"&gt;https://github.com/WebKit/standards-positions/issues/245&lt;/a&gt;)
-
-        /Web developers/: Positive
-        (&lt;a  rel="nofollow" href="https://github.com/whatwg/html/issues/9332"&gt;https://github.com/whatwg/html/issues/9332&lt;/a&gt;) There are some
-        discussions between implementors and developers on this issue.
-        This feature is also a requisite feature for cross-document
-        View Transition adoption, which has strong positive signals
-        (&lt;a  rel="nofollow" href="https://daverupert.com/2023/05/getting-started-view-transitions/"&gt;https://daverupert.com/2023/05/getting-started-view-transitions/&lt;/a&gt;).
-
-        /Other signals/:
-
-
-                Ergonomics
-
-        This feature would be used frequently with cross-document View
-        Transitions, because it allows the browser to wait for
-        necessary content to be parsed.
-
-
-
-                Activation
-
-        This feature can be used directly.
-
-
-
-                WebView application risks
-
-        Does this intent deprecate or change behavior of existing
-        APIs, such that it has potentially high risk for Android
-        WebView-based applications?
-
-        There are no WebView application risks
-
-
-
-                Debuggability
-
-        None
-
-
-
-                Will this feature be supported on all six Blink
-                platforms (Windows, Mac, Linux, ChromeOS, Android, and
-                Android WebView)?
-
-        Yes
-
-
-                Is this feature fully tested by web-platform-tests
-                
-&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;?
-
-        Yes
-
-        
-&lt;a  rel="nofollow" href="https://wpt.fyi/results/html/dom/render-blocking?label=master&amp;label=experimental&amp;aligned&amp;q=element-render-blocking"&gt;https://wpt.fyi/results/html/dom/render-blocking?label=master&amp;label=experimental&amp;aligned&amp;q=element-render-blocking&lt;/a&gt;
-        
-&amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/html/dom/render-blocking?label=master&amp;label=experimental&amp;aligned&amp;q=element-render-blocking"&gt;https://wpt.fyi/results/html/dom/render-blocking?label=master&amp;label=experimental&amp;aligned&amp;q=element-render-blocking&lt;/a&gt;&amp;gt;
-        Note that we will be renaming these from .tentative shortly
-
-
-
-                Flag name on chrome://flags
-
-        None
-
-
-                Finch feature name
-
-        DocumentRenderBlocking
-
-
-                Requires code in //chrome?
-
-        False
-
-
-                Adoption expectation
-
-        This feature is expected to be adopted by developers using
-        cross-document View Transitions
-
-
-                Estimated milestones
-
-        Shipping on desktop     124
-
-        Shipping on Android     124
-
-        Shipping on WebView     124
-
-
-
-                Anticipated spec changes
-
-        Open questions about a feature may be a source of future web
-        compat or interop issues. Please list open issues (e.g. links
-        to known github issues in the project for the feature
-        specification) whose resolution may introduce web
-        compat/interop risk (e.g., changing to naming or structure of
-        the API in a non-backward-compatible way).
-
-        None
-
-
-                Link to entry on the Chrome Platform Status
-
-        &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5113053598711808"&gt;https://chromestatus.com/feature/5113053598711808&lt;/a&gt;
-
-
-                Links to previous Intent discussions
-
-        Intent to prototype:
-        
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMLuWUzNfD4MRk0bR1yTZ5F6NzcpETrUU3Vy9GmANZRQd7%3DE4A%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAMLuWUzNfD4MRk0bR1yTZ5F6NzcpETrUU3Vy9GmANZRQd7%3DE4A%40mail.gmail.com&lt;/a&gt;
-
-        This intent message was generated by Chrome Platform Status
-        &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-
---
-&lt;/pre&gt;&lt;tt&gt;You received this message because you are subscribed to the Google 
-&lt;/tt&gt;&lt;tt&gt;Groups &amp;quot;blink-dev&amp;quot; group.
-&lt;/tt&gt;&lt;tt&gt;To unsubscribe from this group and stop receiving emails from it, send 
-&lt;/tt&gt;&lt;tt&gt;an email to blink-dev+unsubscr...@chromium.org.
-&lt;/tt&gt;&lt;tt&gt;To view this discussion on the web visit 
-&lt;/tt&gt;&lt;tt&gt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADsXd2N7%3D1bHWub6UwxgfvSVdrukfhNTDbWaniW88a4rxxd%2BJw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADsXd2N7%3D1bHWub6UwxgfvSVdrukfhNTDbWaniW88a4rxxd%2BJw%40mail.gmail.com&lt;/a&gt; 
-&lt;/tt&gt;&lt;tt&gt;&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADsXd2N7%3D1bHWub6UwxgfvSVdrukfhNTDbWaniW88a4rxxd%2BJw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADsXd2N7%3D1bHWub6UwxgfvSVdrukfhNTDbWaniW88a4rxxd%2BJw%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-&lt;/tt&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;
-
---
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/03e4d6cc-b1f5-43f2-825c-f6c8eb28f006%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/03e4d6cc-b1f5-43f2-825c-f6c8eb28f006%40chromium.org&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09567.html</id>
-        <title>Re: [blink-dev] Intent to Experiment: Add JavaScript timer wake up alignment for unimportant cross-origin frames</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09567.html"/>
-        <updated>2024-03-06T17:48:05.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09567.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Experiment%5C%3A+Add+JavaScript+timer+wake+up+alignment+for+unimportant+cross%5C-origin+frames%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Experiment: Add JavaScript timer wake up alignment for unimportant cross-origin frames&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22%27Etienne+Pierre%5C-doray%27+via+blink%5C-dev%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;'Etienne Pierre-doray' via blink-dev&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240306" rel="nofollow"&gt;Wed, 06 Mar 2024 09:48:05 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;I'm working with Zheda and Francois to get this feature out, chiming in
-
-In general, I think it's best to file a formal Intent to Ship if you want
-&amp;gt; to go to 50% stable.
-&amp;gt;
-I agree, I'd consider this feature ready to ship, we have enough confidence
-from previous stable experiments to roll it out.
-The main reason for doing a 50/50 experiment first is to more accurately
-measure impact on CWV.
-There aren't clear guidelines from finch otherwise on the exact % when
-ramping up from 1% to 100%, or when intermediate steps are needed at all;
-our team has been following a 1/50/100 pattern (we received feedback for
-other features that fewer intermediate steps was desirable for web devs).
-For blink purpose, I'd suggest we switch this to an 'Intent to ship'.&lt;/pre&gt;&lt;pre&gt;
-
-On Mon, Mar 4, 2024 at 5:06 PM Domenic Denicola &amp;lt;dome...@chromium.org&amp;gt;
-wrote:
-
-&amp;gt; In general, I think it's best to file a formal Intent to Ship if you want
-&amp;gt; to go to 50% stable. To me it sounds like that might be reasonable here?
-&amp;gt; I.e. you're fairly confident that the feature is a good idea to ship, but
-&amp;gt; you want to do a more cautious rollout. I think many Intent to Ships go
-&amp;gt; through this sort of cautious rollout; they just don't necessarily discuss
-&amp;gt; the details of it on blink-dev.
-&amp;gt;
-&amp;gt; 2024年3月5日(火) 5:19 Mike Taylor &amp;lt;miketa...@chromium.org&amp;gt;:
-&amp;gt;
-&amp;gt;&amp;gt; My concern is going from 1% to 50% on stable - if something does go
-&amp;gt;&amp;gt; wrong, that's a _lot_ of folks who will experience it. Are you open to
-&amp;gt;&amp;gt; something smaller like 5%? If not, why not?
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; thx
-&amp;gt;&amp;gt; On 2/29/24 12:34 AM, Zheda Chen wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; The volume of data on Beta is too low to draw any conclusion. Although
-&amp;gt;&amp;gt; the experiment on 1% stable shows some promising result, the data are not
-&amp;gt;&amp;gt; enough and we'd like to gather more data via experiment on higher
-&amp;gt;&amp;gt; percentage of stable.
-&amp;gt;&amp;gt; After that, based on large volume of data, we can draw the conclusion and
-&amp;gt;&amp;gt; decide next step (whether to ship the feature).
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; I contribute the idea and CL source code of this feature, Francois
-&amp;gt;&amp;gt; (fdoray@) is the main reviewer and the trial is planned by him. Let us
-&amp;gt;&amp;gt; know if you have any concerns and we can discuss with fdoray@ together.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; &amp;quot;Unimportant&amp;quot; frames means they are cross-origin, visible but use
-&amp;gt;&amp;gt; non-large proportion (&amp;lt;75%) of page's visible area and have not received a
-&amp;gt;&amp;gt; user gesture. All 3 conditions should be met.
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; On Thursday, February 29, 2024 at 10:26:22 AM UTC+8 mike...@chromium.org
-&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Could you say more why you would like to experiment on 50% of stable, vs
-&amp;gt;&amp;gt;&amp;gt; requesting permission to ship? That's quite a leap from 1% - and it seems
-&amp;gt;&amp;gt;&amp;gt; you already have results demonstrating performance improvements.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Also, mind answering the question of specifying &amp;quot;unimportant frames&amp;quot;?
-&amp;gt;&amp;gt;&amp;gt; On 2/27/24 5:54 AM, Zheda Chen wrote:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; fdoray@ launched this trial since Nov 2023, at first canary/dev, and
-&amp;gt;&amp;gt;&amp;gt; then beta, 1% stable. The experiments show statistically improvements to
-&amp;gt;&amp;gt;&amp;gt; CPU time on navigation, page load time and input delay.
-&amp;gt;&amp;gt;&amp;gt; So we are requesting to experiment on 50% stable as next step.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; Actually the feature should be in origin trial stage now. But I don't
-&amp;gt;&amp;gt;&amp;gt; have the permission to add origin trial stage. I have to use dev trial
-&amp;gt;&amp;gt;&amp;gt; instead. Need some help from webstatus-request@ to grant me the
-&amp;gt;&amp;gt;&amp;gt; permission.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; On Tuesday, February 27, 2024 at 8:53:34 AM UTC+8 mike...@chromium.org
-&amp;gt;&amp;gt;&amp;gt; wrote:
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Hello,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; To clarify: is this intended to be an I2E, or a Developer Trial?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; According to &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5106220399853568"&gt;https://chromestatus.com/feature/5106220399853568&lt;/a&gt;, it
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; appears you are in the dev trial stage. But you mention stable experiment
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; below... so perhaps that's a process mistake?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Can you give more info on the experiment timelines and what stable
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; percentages you are requesting permission to experiment on?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; On 2/22/24 2:30 AM, Zheda Chen wrote:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Contact emails
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; zheda...@intel.com, fdo...@chromium.org
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Specification
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://html.spec.whatwg.org/multipage/timers-and-user-prompts.html"&gt;https://html.spec.whatwg.org/multipage/timers-and-user-prompts.html&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Summary
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Align wake ups of JavaScript timers for unimportant cross-origin
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; frames. Currently, DOM timers &amp;lt;32ms are all opt-out from AlignWakeUps [1]
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; due to performance concerns. This is very conservative and actually some
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; unimportant frames are eligible to use JS timer alignment. WebKit uses the
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; policy to align DOM timer of non-interacted cross origin frames to 30ms.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; This feature adds JavaScript timer wake up alignment for unimportant frames
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; on foreground pages. Unimportant frames means they are cross origin,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; visible but have small proportion of page’s visible area, and have no user
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; interaction. [1]
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/4589092"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/4589092&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Do you have plans to specify this concept of &amp;quot;unimportant frames&amp;quot;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; somewhere?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink component
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Blink&amp;gt;PerformanceAPIs&amp;gt;Timers
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EPerformanceAPIs%3ETimers"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EPerformanceAPIs%3ETimers&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; TAG review status
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Not applicable
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Risks
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Interoperability and Compatibility
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Gecko*: No signal
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; *WebKit*: No signal
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Web developers*: No signals
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; *Other signals*:
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; WebView application risks
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Does this intent deprecate or change behavior of existing APIs, such
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; that it has potentially high risk for Android WebView-based applications?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Goals for experimentationWe plan to experiment on stable to confirm
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; whether we observe same performance improvement as on lower channels and
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; similar power benefit as in the lab. We will decide whether this feature
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; ships based on the experiment data.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Ongoing technical constraints
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Debuggability
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Will this feature be supported on all six Blink platforms (Windows,
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Mac, Linux, ChromeOS, Android, and Android WebView)?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Yes
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Is this feature fully tested by web-platform-tests
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; ?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; No
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Flag name on chrome://flags
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; None
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Finch feature name
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; ThrottleUnimportantFrameTimers
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Requires code in //chrome?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; False
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Tracking bug
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://issues.chromium.org/issues/40942028"&gt;https://issues.chromium.org/issues/40942028&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Estimated milestones
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; DevTrial on desktop
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; 122
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; DevTrial on Android
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; 122
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Link to entry on the Chrome Platform Status
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5106220399853568"&gt;https://chromestatus.com/feature/5106220399853568&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; This intent message was generated by Chrome Platform Status
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; You received this message because you are subscribed to the Google
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; an email to blink-dev+...@chromium.org.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; To view this discussion on the web visit
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/38855cfe-3bf3-4a04-b96a-81adaa5ba72fn%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/38855cfe-3bf3-4a04-b96a-81adaa5ba72fn%40chromium.org&lt;/a&gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/38855cfe-3bf3-4a04-b96a-81adaa5ba72fn%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/38855cfe-3bf3-4a04-b96a-81adaa5ba72fn%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; --
-&amp;gt;&amp;gt; You received this message because you are subscribed to the Google Groups
-&amp;gt;&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt;&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
-&amp;gt;&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt;&amp;gt; To view this discussion on the web visit
-&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/1996ccec-101e-4738-99d9-56855c8d33ec%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/1996ccec-101e-4738-99d9-56855c8d33ec%40chromium.org&lt;/a&gt;
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/1996ccec-101e-4738-99d9-56855c8d33ec%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/1996ccec-101e-4738-99d9-56855c8d33ec%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; .
-&amp;gt;&amp;gt;
-&amp;gt;
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CALoDvsZ%3DZOXSV5qm5Mk-G24L7XRxkLm_FmQSmPhh2h%3DLq8en9Q%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CALoDvsZ%3DZOXSV5qm5Mk-G24L7XRxkLm_FmQSmPhh2h%3DLq8en9Q%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09566.html</id>
-        <title>Re: [blink-dev] Intent to Ship: CSSImportRule.styleSheet</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09566.html"/>
-        <updated>2024-03-06T17:12:19.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09566.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+CSSImportRule.styleSheet%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: CSSImportRule.styleSheet&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Daniel+Bratell%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Daniel Bratell&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240306" rel="nofollow"&gt;Wed, 06 Mar 2024 09:12:19 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre style="margin: 0em;"&gt;
-(resending to list since I accidentally dropped it)
-
-Hi,&lt;/pre&gt;&lt;pre&gt;&lt;/pre&gt;&lt;tt&gt;We discussed this intent in the API Owner meeting, and I ended up with 
-&lt;/tt&gt;&lt;tt&gt;some questions.
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;tt&gt;Question 1: What is the current behaviour in the case where the 
-&lt;/tt&gt;&lt;tt&gt;specification wants us to return null?
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;tt&gt;Question 2: I understand that Gecko currently follows the specification 
-&lt;/tt&gt;&lt;tt&gt;as it is written, but if this change has a web compat risk, maybe it is 
-&lt;/tt&gt;&lt;tt&gt;the specification that should change. Was that something you considered?
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;tt&gt;Question 3: What is the web compatibility risk? Do you have any 
-&lt;/tt&gt;&lt;tt&gt;information about how many pages that would be affected (possibly 
-&lt;/tt&gt;&lt;tt&gt;negatively)? We want to have an idea of how impactful a change will be 
-&lt;/tt&gt;&lt;tt&gt;before shipping it, and at least I don't know if this is used by one 
-&lt;/tt&gt;&lt;tt&gt;page in a billion or half the web.
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-
-/Daniel
-
-
-On 2024-03-06 15:48, eui-sa...@samsung.com wrote:
-&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;
-Sorry for the delay.
-
-&lt;/pre&gt;&lt;tt&gt;I am not sure if there is any interest from developers. The spec was 
-&lt;/tt&gt;&lt;tt&gt;updated last April [1]. I started this from the spec change and the 
-&lt;/tt&gt;&lt;tt&gt;related crbug.
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;tt&gt;I filed an issue[2] last week and got a comment[3] in WebKit. The 
-&lt;/tt&gt;&lt;tt&gt;reviewer's worry would be that the lifetime of these objects is not 
-&lt;/tt&gt;&lt;tt&gt;carefully defined and as such when they return null and non-null can 
-&lt;/tt&gt;&lt;tt&gt;end up varying in edge cases.
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;tt&gt;I thought this was very clear to be changed in spec that CSSOM was not 
-&lt;/tt&gt;&lt;tt&gt;matched with at-rule behavior and it has low compat risk.
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-
-[1] &lt;a  rel="nofollow" href="https://github.com/w3c/csswg-drafts/issues/8608"&gt;https://github.com/w3c/csswg-drafts/issues/8608&lt;/a&gt;
-[2] &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/325"&gt;https://github.com/WebKit/standards-positions/issues/325&lt;/a&gt;
-&lt;/pre&gt;&lt;tt&gt;[3] 
-&lt;/tt&gt;&lt;tt&gt;&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/325#issuecomment-1966698090"&gt;https://github.com/WebKit/standards-positions/issues/325#issuecomment-1966698090&lt;/a&gt;
-&lt;/tt&gt;&lt;tt&gt;On Wednesday, March 6, 2024 at 7:28:32 PM UTC+9 yoav...@chromium.org 
-&lt;/tt&gt;&lt;tt&gt;wrote:
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-
-    Friendly ping on the above questions! :)
-
-    On Wed, Feb 28, 2024 at 6:18 PM Yoav Weiss (@Shopify)
-    &amp;lt;yoav...@chromium.org&amp;gt; wrote:
-
-        Do I understand correctly that this would partially align us
-        with Firefox (modulo the crash), and take us away from WebKit
-        interoperability?
-
-        If so, it'd be good to understand if:
-        * There is interest from developers in this
-        * WebKit is planning to follow
-        * This has low compat risk (in terms of current sites relying
-        on this value not being null somehow)
-
-
-        On Tue, Feb 27, 2024 at 2:52 AM eui-sa...@samsung.com
-        &amp;lt;eui-sa...@samsung.com&amp;gt; wrote:
-
-            &amp;gt; Would you mind explaining why this is a useful addition
-            for developers? Or is the motivation improved spec
-            compliance?
-
-            In both perspectives. The CSS OM spec was fixed because it
-            was not matched with the spec of @import in css-cascade.
-            The behaviour of CSSImportRule is not following @import.
-
-
-            &amp;gt; Can you request a signal?
-            &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions"&gt;https://github.com/WebKit/standards-positions&lt;/a&gt;
-
-            Sure, I filed an issue.
-            &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/325"&gt;https://github.com/WebKit/standards-positions/issues/325&lt;/a&gt;
-
-
-            &amp;gt; All of these tests are passing right now - will you be
-            adding new tests?Yes, I will add new tests in
-            
-&lt;a  rel="nofollow" href="https://wpt.fyi/results/css/cssom/cssimportrule.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/css/cssom/cssimportrule.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
-            
-&amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/css/cssom/cssimportrule.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/css/cssom/cssimportrule.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;&amp;gt;
-            I am working on it.
-            
-&lt;a  rel="nofollow" href="https://chromium-review.googlesource.com/c/chromium/src/+/5065830/8/third_party/blink/web_tests/external/wpt/css/cssom/cssimportrule.html"&gt;https://chromium-review.googlesource.com/c/chromium/src/+/5065830/8/third_party/blink/web_tests/external/wpt/css/cssom/cssimportrule.html&lt;/a&gt;
-
-            On Sunday, February 25, 2024 at 7:14:59 AM UTC+9
-            mike...@chromium.org wrote:
-
-                On 2/23/24 8:31 AM, Amos Lim wrote:
-
-&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;
-
-                        Contact emails
-
-                eui-sa...@samsung.com
-
-
-                        Explainer
-
-                None
-&lt;/pre&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;
-                Would you mind explaining why this is a useful
-                addition for developers? Or is the motivation improved
-                spec compliance?
-
-&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;
-
-                        Specification
-
-                &lt;a  rel="nofollow" href="https://drafts.csswg.org/cssom/#the-cssimportrule-interface"&gt;https://drafts.csswg.org/cssom/#the-cssimportrule-interface&lt;/a&gt;
-
-
-                        Summary
-
-                Allow CSSImportRule.styleSheet to be nullable. The
-                styleSheet attribute in CSSImportRule can be null if
-                there is no associated CSS style sheet.
-
-
-
-                        Blink component
-
-                Blink&amp;gt;CSS
-                
-&amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS&lt;/a&gt;&amp;gt;
-
-
-                        TAG review
-
-                None
-
-
-                        TAG review status
-
-                Not applicable
-
-
-                        Risks
-
-
-
-                        Interoperability and Compatibility
-
-                None
-
-
-
-                /Gecko/: Shipped/Shipping
-
-                /WebKit/: No signal
-&lt;/pre&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;
-                Can you request a signal?
-                &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions"&gt;https://github.com/WebKit/standards-positions&lt;/a&gt;
-
-&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;
-
-                /Web developers/: No signals
-
-                /Other signals/:
-
-
-                        WebView application risks
-
-                Does this intent deprecate or change behavior of
-                existing APIs, such that it has potentially high risk
-                for Android WebView-based applications?
-
-                None
-
-
-
-                        Debuggability
-
-                None
-
-
-
-                        Will this feature be supported on all six
-                        Blink platforms (Windows, Mac, Linux,
-                        ChromeOS, Android, and Android WebView)?
-
-                No
-
-
-                        Is this feature fully tested by
-                        web-platform-tests
-                        
-&amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;?
-
-                Yes
-
-                
-&lt;a  rel="nofollow" href="https://wpt.fyi/results/css/cssom/cssimportrule.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/css/cssom/cssimportrule.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;
-                
-&amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/css/cssom/cssimportrule.html?label=experimental&amp;label=master&amp;aligned"&gt;https://wpt.fyi/results/css/cssom/cssimportrule.html?label=experimental&amp;label=master&amp;aligned&lt;/a&gt;&amp;gt;
-
-&lt;/pre&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;
-                All of these tests are passing right now - will you be
-                adding new tests?
-&lt;/pre&gt;&lt;blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"&gt;&lt;pre style="margin: 0em;"&gt;
-
-
-                        Flag name on chrome://flags
-
-
-
-                        Finch feature name
-
-                CSSImportRuleStyleSheetNullable
-
-
-                        Requires code in //chrome?
-
-                False
-
-
-                        Tracking bug
-
-                &lt;a  rel="nofollow" href="https://issues.chromium.org/issues/40266154"&gt;https://issues.chromium.org/issues/40266154&lt;/a&gt;
-
-
-                        Estimated milestones
-
-                Shipping on desktop     124
-
-                Shipping on Android     124
-
-                Shipping on WebView     124
-
-
-
-                        Anticipated spec changes
-
-                Open questions about a feature may be a source of
-                future web compat or interop issues. Please list open
-                issues (e.g. links to known github issues in the
-                project for the feature specification) whose
-                resolution may introduce web compat/interop risk
-                (e.g., changing to naming or structure of the API in
-                a non-backward-compatible way).
-
-                None
-
-
-                        Link to entry on the Chrome Platform Status
-
-                &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5123480866783232"&gt;https://chromestatus.com/feature/5123480866783232&lt;/a&gt;
-
-                This intent message was generated by Chrome Platform
-                Status &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-&lt;/pre&gt;&lt;tt&gt;                -- 
-&lt;/tt&gt;&lt;tt&gt;                You received this message because you are subscribed
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-                to the Google Groups &amp;quot;blink-dev&amp;quot; group.
-                To unsubscribe from this group and stop receiving
-                emails from it, send an email to
-                blink-dev+...@chromium.org.
-                To view this discussion on the web visit
-                
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOGEg03EdbMR2-x-7taf692_FmX4%2BwBMgFW%2BwaZiM7gs1Zo5-Q%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOGEg03EdbMR2-x-7taf692_FmX4%2BwBMgFW%2BwaZiM7gs1Zo5-Q%40mail.gmail.com&lt;/a&gt;
-                
-&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOGEg03EdbMR2-x-7taf692_FmX4%2BwBMgFW%2BwaZiM7gs1Zo5-Q%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOGEg03EdbMR2-x-7taf692_FmX4%2BwBMgFW%2BwaZiM7gs1Zo5-Q%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-&lt;/pre&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;&lt;/pre&gt;&lt;tt&gt;            -- 
-&lt;/tt&gt;&lt;tt&gt;            You received this message because you are subscribed to
-&lt;/tt&gt;&lt;pre style="margin: 0em;"&gt;
-            the Google Groups &amp;quot;blink-dev&amp;quot; group.
-            To unsubscribe from this group and stop receiving emails
-            from it, send an email to blink-dev+...@chromium.org.
-            To view this discussion on the web visit
-            
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/bc77a62d-a28b-4111-91a7-aea76bc5a135n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/bc77a62d-a28b-4111-91a7-aea76bc5a135n%40chromium.org&lt;/a&gt;
-            
-&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/bc77a62d-a28b-4111-91a7-aea76bc5a135n%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/bc77a62d-a28b-4111-91a7-aea76bc5a135n%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-
---
-&lt;/pre&gt;&lt;tt&gt;You received this message because you are subscribed to the Google 
-&lt;/tt&gt;&lt;tt&gt;Groups &amp;quot;blink-dev&amp;quot; group.
-&lt;/tt&gt;&lt;tt&gt;To unsubscribe from this group and stop receiving emails from it, send 
-&lt;/tt&gt;&lt;tt&gt;an email to blink-dev+unsubscr...@chromium.org.
-&lt;/tt&gt;&lt;tt&gt;To view this discussion on the web visit 
-&lt;/tt&gt;&lt;tt&gt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/f06f0374-76bd-45a1-abe3-8b007d1eca89n%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/f06f0374-76bd-45a1-abe3-8b007d1eca89n%40chromium.org&lt;/a&gt; 
-&lt;/tt&gt;&lt;tt&gt;&amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/f06f0374-76bd-45a1-abe3-8b007d1eca89n%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/f06f0374-76bd-45a1-abe3-8b007d1eca89n%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-&lt;/tt&gt;&lt;/blockquote&gt;&lt;pre style="margin: 0em;"&gt;
-
---
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/437bff89-6ed3-4990-b554-f488e49267b2%40gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/437bff89-6ed3-4990-b554-f488e49267b2%40gmail.com&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
