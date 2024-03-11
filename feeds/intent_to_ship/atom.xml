@@ -3,7 +3,255 @@
     <id>https://negibokken.github.io/feeds/intent_to_ship/atom.xml</id>
     <title>intent to ship feed</title>
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
-    <updated>2024-03-10T21:25:08.000Z</updated>
+    <updated>2024-03-11T05:57:45.000Z</updated>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09610.html</id>
+        <title>Re: [blink-dev] Re: Intent to Ship: Standard-compliant pseudo-element argument for getComputedStyle &amp; KeyframeEffect</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09610.html"/>
+        <updated>2024-03-11T05:57:45.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09610.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Re%5C%3A+Intent+to+Ship%5C%3A+Standard%5C-compliant+pseudo%5C-element+argument+for+getComputedStyle+%5C%26+KeyframeEffect%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Re: Intent to Ship: Standard-compliant pseudo-element argument for getComputedStyle &amp; KeyframeEffect&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Domenic+Denicola%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Domenic Denicola&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240310" rel="nofollow"&gt;Sun, 10 Mar 2024 22:57:45 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;Thanks Dan for raising the compat concerns here. It seems like a mistake
+that the original Intent says &amp;quot;None&amp;quot; for that, and I think we need to get
+that section of the Chrome Status entry fleshed out before considering
+approvals here.&lt;/pre&gt;&lt;pre&gt;
+
+What I'm hearing so far is that we think the compat risks might be small
+because Gecko and WebKit are already using strict parsing. That's
+something, but can we do better? For example:
+
+   - Is there any upper bound on the potential number of broken page views?
+   Ideally we'd have a use counter for how many times the lenient parsing is
+   triggered, but for an upper bound even just a use counter for how many
+   times these arguments are supplied to getComputedStyle()/new
+   KeyframeEffect() would help.
+   - Can we do an HTTP archive analysis of some sort?
+
+
+On Sun, Mar 10, 2024 at 5:55 PM Noam Rosenthal &amp;lt;nrosent...@chromium.org&amp;gt;
+wrote:
+
+&amp;gt;
+&amp;gt;
+&amp;gt; On Fri, Mar 8, 2024 at 11:56 PM 'Dan Clark' via blink-dev &amp;lt;
+&amp;gt; blink-dev@chromium.org&amp;gt; wrote:
+&amp;gt;
+&amp;gt;&amp;gt; Am I correct in understanding that Gecko already mostly matches the
+&amp;gt;&amp;gt; behavior in the spec? I see that Firefox also fails most of the WPTs at
+&amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/css/cssom/getComputedStyle-pseudo-with-argument.html?label=master&amp;label=experimental&amp;aligned"&gt;https://wpt.fyi/results/css/cssom/getComputedStyle-pseudo-with-argument.html?label=master&amp;label=experimental&amp;aligned&lt;/a&gt;,
+&amp;gt;&amp;gt; but I guess that's because they haven't shipped ::highlight() pseudos.
+&amp;gt;
+&amp;gt; Correct, it's because of ::highlight. It passes most of the tests in
+&amp;gt; &lt;a  rel="nofollow" href="https://wpt.fyi/results/css/cssom/getComputedStyle-pseudo.html?label=master&amp;label=experimental&amp;aligned"&gt;https://wpt.fyi/results/css/cssom/getComputedStyle-pseudo.html?label=master&amp;label=experimental&amp;aligned&lt;/a&gt;
+&amp;gt; .
+&amp;gt;
+&amp;gt;
+&amp;gt;&amp;gt; How are you thinking about the compatibility risk? If we're making the
+&amp;gt;&amp;gt; parsing stricter in certain ways, presumably sites depending on that
+&amp;gt;&amp;gt; behavior could break. Omitting the &amp;quot;:&amp;quot; seems like it could be a
+&amp;gt;&amp;gt; particularly easy mistake to make. On the other hand the fact that WebKit
+&amp;gt;&amp;gt; (and I guess Gecko) already did it is an encouraging signal.
+&amp;gt;&amp;gt;
+&amp;gt;
+&amp;gt; Correct. Also, intending to keep current behavior for old pseudos that
+&amp;gt; support single-colon in regular CSS (before, after, first-line,
+&amp;gt; first-letter). If there are other exceptions with a lot of existing code we
+&amp;gt; can consider adding them here.
+&amp;gt;
+&amp;gt; The way I'm thinking about this from a compat perspective is that if we
+&amp;gt; keep supporting single-colon/no-colon for all pseudos, there would be more
+&amp;gt; non-spec-compliant code written with those, that would seem to work in
+&amp;gt; chrome while developing and then not work in other browsers. So aligning
+&amp;gt; with the spec now is hopefully cleaner.
+&amp;gt;
+&amp;gt; However, if there are reasons to keep some of the parsing more lenient
+&amp;gt; here I'm happy to hear and find the best solution for the web platform.
+&amp;gt;
+&amp;gt;
+&amp;gt;
+&amp;gt; --
+&amp;gt; You received this message because you are subscribed to the Google Groups
+&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt; To view this discussion on the web visit
+&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAJn%3DMYbLLqWEjSNYnt6Pw%2BcV75%3DryQ%3DbsDM%3DAXtktKW6C__kkQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAJn%3DMYbLLqWEjSNYnt6Pw%2BcV75%3DryQ%3DbsDM%3DAXtktKW6C__kkQ%40mail.gmail.com&lt;/a&gt;
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAJn%3DMYbLLqWEjSNYnt6Pw%2BcV75%3DryQ%3DbsDM%3DAXtktKW6C__kkQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAJn%3DMYbLLqWEjSNYnt6Pw%2BcV75%3DryQ%3DbsDM%3DAXtktKW6C__kkQ%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt; .
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAM0wra_Q9TN8H2OwyJazYmyUk0SF2c4dVacHW0_hEEnEW7eOZA%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAM0wra_Q9TN8H2OwyJazYmyUk0SF2c4dVacHW0_hEEnEW7eOZA%40mail.gmail.com&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
+    <entry>
+        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09609.html</id>
+        <title>Re: [blink-dev] Intent to Extend Experiment: Extending Storage Access API (SAA) to non-cookie storage</title>
+        <author>
+            <name>Intent to Ship</name>
+        </author>
+        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09609.html"/>
+        <updated>2024-03-11T04:32:48.000Z</updated>
+        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09609.html summary</summary>
+        <content type="html">&lt;div class="msgHead"&gt;
+&lt;h1&gt;
+&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Extend+Experiment%5C%3A+Extending+Storage+Access+API+%5C%28SAA%5C%29+to+non%5C-cookie+storage%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Extend Experiment: Extending Storage Access API (SAA) to non-cookie storage&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;/h1&gt;
+&lt;p class="darkgray font13"&gt;
+&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Yoav+Weiss+%5C%28%40Shopify%5C%29%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Yoav Weiss (@Shopify)&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240310" rel="nofollow"&gt;Sun, 10 Mar 2024 21:32:48 -0700&lt;/a&gt;&lt;/span&gt;
+&lt;/p&gt;
+&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
+
+&lt;pre&gt;LGTM to extend to M125 (inclusive)
+
+On Friday, March 8, 2024 at 11:06:16 PM UTC+1 Mike Taylor wrote:&lt;/pre&gt;&lt;pre&gt;
+
+&amp;gt; I'm recused on this one, but even with the extension to 125, you're still 
+&amp;gt; not going beyond the default 6 milestones for an OT (the original request 
+&amp;gt; was for 120 to 124) - so the approval should be fairly trivial.
+&amp;gt; On 3/6/24 11:31 AM, Ari Chivukula wrote:
+&amp;gt;
+&amp;gt; Contact emails
+&amp;gt;
+&amp;gt; aric...@chromium.org, wanderv...@chromium.org, johann...@chromium.org, 
+&amp;gt; cfred...@chromium.org, kaustub...@chromium.org
+&amp;gt;
+&amp;gt; Specification
+&amp;gt;
+&amp;gt; &lt;a  rel="nofollow" href="https://privacycg.github.io/saa-non-cookie-storage/"&gt;https://privacycg.github.io/saa-non-cookie-storage/&lt;/a&gt;
+&amp;gt;
+&amp;gt; Feedback
+&amp;gt;
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/privacycg/saa-non-cookie-storage/issues"&gt;https://github.com/privacycg/saa-non-cookie-storage/issues&lt;/a&gt;
+&amp;gt;
+&amp;gt; Design Doc
+&amp;gt;
+&amp;gt;
+&amp;gt; &lt;a  rel="nofollow" href="https://docs.google.com/document/d/19qCGb4qwOcGiNrQM3ptWvRmB4JtpaTFgFVlWLXNOQ6c/edit"&gt;https://docs.google.com/document/d/19qCGb4qwOcGiNrQM3ptWvRmB4JtpaTFgFVlWLXNOQ6c/edit&lt;/a&gt;
+&amp;gt;
+&amp;gt; Intent to Prototype
+&amp;gt;
+&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/inRN8tI49O0"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/inRN8tI49O0&lt;/a&gt;
+&amp;gt;
+&amp;gt; Intent to Experiment
+&amp;gt;
+&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/SEL7N-xIE5s/"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/SEL7N-xIE5s/&lt;/a&gt;
+&amp;gt;
+&amp;gt; Origin Trial
+&amp;gt;
+&amp;gt; &lt;a  rel="nofollow" href="https://developer.chrome.com/origintrials/#/view_trial/577023702256844801"&gt;https://developer.chrome.com/origintrials/#/view_trial/577023702256844801&lt;/a&gt;
+&amp;gt;
+&amp;gt; Summary
+&amp;gt;
+&amp;gt; We propose extending the StorageAccessAPIBeyondCookies origin trial, which 
+&amp;gt; allows developers to test extensions to the Storage Access API that expose 
+&amp;gt; first-party communication/storage mechanisms beyond just cookies. We 
+&amp;gt; decided to extend the experiment based on a need for greater ecosystem 
+&amp;gt; feedback before shipping the proposed API.  We would like to request 
+&amp;gt; extending the end date from June 24, 2024 (M124) to August 6, 2024 (M125). 
+&amp;gt; We estimate that we will send the intent to ship for this API for M125 
+&amp;gt; (pending feedback gathered from this extension).
+&amp;gt;
+&amp;gt; Blink component 
+&amp;gt;
+&amp;gt; Blink&amp;gt;StorageAccessAPI 
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EStorageAccessAPI"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EStorageAccessAPI&lt;/a&gt;&amp;gt;
+&amp;gt;
+&amp;gt; Motivation 
+&amp;gt;
+&amp;gt; Developers have indicated the extensions to the Storage Access API in this 
+&amp;gt; experiment are crucial to site functionality given Storage Partitioning has 
+&amp;gt; launched and the Storage Partitioning Deprecation Trial is currently slated 
+&amp;gt; to end in M126. We want to be sure to ship the right API, but some 
+&amp;gt; components were late to arrive (Shared Worker support was only added in 
+&amp;gt; M123). Given the increasing volume of interest in this API in the past 
+&amp;gt; month we should be as sure as possible what we are shipping is what’s 
+&amp;gt; needed, especially given the lack of adoption by other vendors to date.
+&amp;gt;
+&amp;gt; TAG review
+&amp;gt;
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/906"&gt;https://github.com/w3ctag/design-reviews/issues/906&lt;/a&gt; (closed)
+&amp;gt;
+&amp;gt; Compatibility
+&amp;gt;
+&amp;gt; The Storage Access API is already implemented in Safari, Firefox, and 
+&amp;gt; Chrome &amp;lt;&lt;a  rel="nofollow" href="https://caniuse.com/mdn-api_document_requeststorageaccess"&gt;https://caniuse.com/mdn-api_document_requeststorageaccess&lt;/a&gt;&amp;gt;, but 
+&amp;gt; the proposed API shape would not change existing behavior without new 
+&amp;gt; arguments added.
+&amp;gt;
+&amp;gt;
+&amp;gt; Interoperability 
+&amp;gt;
+&amp;gt; Gecko: No Position Yet 
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/898"&gt;https://github.com/mozilla/standards-positions/issues/898&lt;/a&gt;
+&amp;gt;
+&amp;gt; WebKit: No Position Yet 
+&amp;gt; &lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/262"&gt;https://github.com/WebKit/standards-positions/issues/262&lt;/a&gt;
+&amp;gt;
+&amp;gt; Web developers: Positive 
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/GoogleChromeLabs/privacy-sandbox-dev-support/issues/124"&gt;https://github.com/GoogleChromeLabs/privacy-sandbox-dev-support/issues/124&lt;/a&gt;&amp;gt;
+&amp;gt;
+&amp;gt; Debuggability 
+&amp;gt;
+&amp;gt; Storage written can be examined in devtools.
+&amp;gt;
+&amp;gt; Is this feature fully tested by web-platform-tests?
+&amp;gt;
+&amp;gt; Yes 
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/web_tests/external/wpt/storage-access-api/"&gt;https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/web_tests/external/wpt/storage-access-api/&lt;/a&gt;&amp;gt;
+&amp;gt;
+&amp;gt; Tracking bug
+&amp;gt;
+&amp;gt; &lt;a  rel="nofollow" href="https://issues.chromium.org/40282415"&gt;https://issues.chromium.org/40282415&lt;/a&gt;
+&amp;gt;
+&amp;gt; Link to entry on the Chrome Platform Status
+&amp;gt;
+&amp;gt; &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5175585823522816"&gt;https://chromestatus.com/feature/5175585823522816&lt;/a&gt;
+&amp;gt;
+&amp;gt; -- 
+&amp;gt; You received this message because you are subscribed to the Google Groups 
+&amp;gt; &amp;quot;blink-dev&amp;quot; group.
+&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an 
+&amp;gt; email to blink-dev+unsubscr...@chromium.org.
+&amp;gt; To view this discussion on the web visit 
+&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5DL7W60fWez8v7-%2BfkvYN-nr3iqN7hsdpuULJ_%3DL%2Brw4%3Dg%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5DL7W60fWez8v7-%2BfkvYN-nr3iqN7hsdpuULJ_%3DL%2Brw4%3Dg%40mail.gmail.com&lt;/a&gt;
+&amp;gt;  
+&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5DL7W60fWez8v7-%2BfkvYN-nr3iqN7hsdpuULJ_%3DL%2Brw4%3Dg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5DL7W60fWez8v7-%2BfkvYN-nr3iqN7hsdpuULJ_%3DL%2Brw4%3Dg%40mail.gmail.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;
+&amp;gt; .
+&amp;gt;
+&amp;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&amp;quot;blink-dev&amp;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/d1226fb8-b900-487f-9ad8-faa9687fb36cn%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/d1226fb8-b900-487f-9ad8-faa9687fb36cn%40chromium.org&lt;/a&gt;.
+&lt;/pre&gt;
+
+&lt;/div&gt;</content>
+    </entry>
     <entry>
         <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09608.html</id>
         <title>Re: [blink-dev] Re: Intent to Experiment: IP Protection Phase 0</title>
@@ -11479,491 +11727,6 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAEC208uBG9u4_RF2jwRTn3JK6Tpr2Uc%2BbbRhg7kd6G2G_rWj4w%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAEC208uBG9u4_RF2jwRTn3JK6Tpr2Uc%2BbbRhg7kd6G2G_rWj4w%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09541.html</id>
-        <title>Re: [blink-dev] Intent to Ship: Compute Pressure</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09541.html"/>
-        <updated>2024-03-06T13:42:20.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09541.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Compute+Pressure%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Compute Pressure&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Kenneth+Rohde+Christiansen%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Kenneth Rohde Christiansen&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240306" rel="nofollow"&gt;Wed, 06 Mar 2024 05:42:20 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;We will update the TAG issue. Thanks for pointing that out.
-
-There is already an entry for WebKit:
-&lt;a  rel="nofollow" href="https://github.com/WebKit/standards-positions/issues/255"&gt;https://github.com/WebKit/standards-positions/issues/255&lt;/a&gt; and Jeffrey
-made them aware of the mitigations we put in place.&lt;/pre&gt;&lt;pre&gt;
-
-Kenneth
-
-On Wed, Mar 6, 2024 at 12:11 PM Manuel Rego Casasnovas &amp;lt;r...@igalia.com&amp;gt; wrote:
-&amp;gt;
-&amp;gt; The TAG asked to be updated after the experimental phase, but the issue
-&amp;gt; hasn't been updated yet:
-&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/795#issuecomment-1691188175"&gt;https://github.com/w3ctag/design-reviews/issues/795#issuecomment-1691188175&lt;/a&gt;
-&amp;gt;
-&amp;gt; Also for WebKit position, we might want to fill a new issue in the new
-&amp;gt; place: &lt;a  rel="nofollow" href="https://github.com/webkit/standards-positions/"&gt;https://github.com/webkit/standards-positions/&lt;/a&gt;
-&amp;gt; And explain what has changed from the email in 2021.
-&amp;gt;
-&amp;gt; Cheers,
-&amp;gt;    Rego
-&amp;gt;
-&amp;gt; On 06/03/2024 09:14, Arnaud Mandy wrote:
-&amp;gt; &amp;gt; Reilly,
-&amp;gt; &amp;gt;
-&amp;gt; &amp;gt; We do not have direct access (non-googlers) to the OT feedback
-&amp;gt; &amp;gt; unfortunately.
-&amp;gt; &amp;gt; We are working with our google contact to publish a summary.
-&amp;gt; &amp;gt;
-&amp;gt; &amp;gt; On Tuesday, March 5, 2024 at 8:14:45 PM UTC+2 rei...@chromium.org wrote:
-&amp;gt; &amp;gt;
-&amp;gt; &amp;gt;     On Tue, Mar 5, 2024 at 5:56 AM Mike Taylor &amp;lt;mike...@chromium.org&amp;gt; wrote:
-&amp;gt; &amp;gt;
-&amp;gt; &amp;gt;         __
-&amp;gt; &amp;gt;
-&amp;gt; &amp;gt;
-&amp;gt; &amp;gt;         On 3/5/24 6:57 AM, Mandy, Arnaud wrote:
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;                 Contact emails
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         kenneth.r.c...@intel.com, arnaud...@intel.com,
-&amp;gt; &amp;gt;&amp;gt;         wei4...@intel.com, raphael.ku...@intel.com
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;                 Explainer
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         &lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/blob/main/README.md"&gt;https://github.com/w3c/compute-pressure/blob/main/README.md&lt;/a&gt;
-&amp;gt; &amp;gt;&amp;gt;         &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/blob/main/README.md"&gt;https://github.com/w3c/compute-pressure/blob/main/README.md&lt;/a&gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;                 Specification
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         &lt;a  rel="nofollow" href="https://www.w3.org/TR/compute-pressure"&gt;https://www.w3.org/TR/compute-pressure&lt;/a&gt;
-&amp;gt; &amp;gt;&amp;gt;         &amp;lt;&lt;a  rel="nofollow" href="https://www.w3.org/TR/compute-pressure"&gt;https://www.w3.org/TR/compute-pressure&lt;/a&gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;                 Summary
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         The Compute Pressure API offers high-level states that
-&amp;gt; &amp;gt;&amp;gt;         represent the pressure on the system. It allows the
-&amp;gt; &amp;gt;&amp;gt;         implementation to use underlying hardware/platform metrics to
-&amp;gt; &amp;gt;&amp;gt;         inform the API users of possible stress (high CPU load at the
-&amp;gt; &amp;gt;&amp;gt;         moment) on the system and consequently take the corrective
-&amp;gt; &amp;gt;&amp;gt;         actions needed.
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         “Pressure” is a generic term by design – at the moment it is
-&amp;gt; &amp;gt;&amp;gt;         calculated based on CPU load, but future plans include using
-&amp;gt; &amp;gt;&amp;gt;         signals from temperature and battery status, for example.
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         &lt;a  rel="nofollow" href="https://developer.chrome.com/docs/web-platform/compute-pressure/"&gt;https://developer.chrome.com/docs/web-platform/compute-pressure/&lt;/a&gt; 
-&amp;gt; &amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.chrome.com/docs/web-platform/compute-pressure/"&gt;https://developer.chrome.com/docs/web-platform/compute-pressure/&lt;/a&gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;                 Blink component
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         Blink&amp;gt;PerformanceAPIs&amp;gt;ComputePressure
-&amp;gt; &amp;gt;&amp;gt;         
-&amp;gt; &amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EPerformanceAPIs%3EComputePressure"&gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EPerformanceAPIs%3EComputePressure&lt;/a&gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;                 Search tags
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         compute pressure
-&amp;gt; &amp;gt;&amp;gt;         &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/features#tags:compute%20pressure"&gt;https://chromestatus.com/features#tags:compute%20pressure&lt;/a&gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;                 TAG review
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         spec review:
-&amp;gt; &amp;gt;&amp;gt;         &lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/795"&gt;https://github.com/w3ctag/design-reviews/issues/795&lt;/a&gt;
-&amp;gt; &amp;gt;&amp;gt;         &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3ctag/design-reviews/issues/795"&gt;https://github.com/w3ctag/design-reviews/issues/795&lt;/a&gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         wide review tracker:
-&amp;gt; &amp;gt;&amp;gt;         &lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/issues/177"&gt;https://github.com/w3c/compute-pressure/issues/177&lt;/a&gt;
-&amp;gt; &amp;gt;&amp;gt;         &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/issues/177"&gt;https://github.com/w3c/compute-pressure/issues/177&lt;/a&gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;                 TAG review status
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         Issues addressed
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;                 Chromium Trial Name
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         ComputePressure
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;                 Origin Trial documentation link
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         &lt;a  rel="nofollow" href="https://developer.chrome.com/docs/web-platform/compute-pressure/"&gt;https://developer.chrome.com/docs/web-platform/compute-pressure/&lt;/a&gt; 
-&amp;gt; &amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://developer.chrome.com/docs/web-platform/compute-pressure/"&gt;https://developer.chrome.com/docs/web-platform/compute-pressure/&lt;/a&gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         Origin Trials history
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         The first Origin Trial
-&amp;gt; &amp;gt;&amp;gt;         
-&amp;gt; &amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/u/1/a/chromium.org/g/blink-dev/c/HzVV-sM97T0/m/3pQ311KHAAAJ"&gt;https://groups.google.com/u/1/a/chromium.org/g/blink-dev/c/HzVV-sM97T0/m/3pQ311KHAAAJ&lt;/a&gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;  was run between M92-94.
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         The Compute Pressure API was widely redesigned after this OT
-&amp;gt; &amp;gt;&amp;gt;         to resemble existing observer-based web APIs and also to
-&amp;gt; &amp;gt;&amp;gt;         provide better privacy and security guarantees after
-&amp;gt; &amp;gt;&amp;gt;         discussions with PING.
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         The second Origin Trial
-&amp;gt; &amp;gt;&amp;gt;         
-&amp;gt; &amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/QfJ4pngu3gc"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/QfJ4pngu3gc&lt;/a&gt;&amp;gt; took 
-&amp;gt; &amp;gt;&amp;gt; place during M115-M120.
-&amp;gt; &amp;gt;&amp;gt;         During this origin trial we realized that the full capacity of
-&amp;gt; &amp;gt;&amp;gt;         the API couldn’t be tested due to a lack of support for
-&amp;gt; &amp;gt;&amp;gt;         third-party tokens. An Origin Trial extension
-&amp;gt; &amp;gt;&amp;gt;         
-&amp;gt; &amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/s83S7wXxa6E/m/AjvsIJxmAQAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/s83S7wXxa6E/m/AjvsIJxmAQAJ&lt;/a&gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;  was necessary until M123.
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;     Is there any developer feedback that can be shared from the origin
-&amp;gt; &amp;gt;     trials? I'm looking for signals that developers have been able to
-&amp;gt; &amp;gt;     improve user experiences by using the new signals.
-&amp;gt; &amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;                 Risks
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;                 Interoperability and Compatibility
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         /Gecko/: No signal
-&amp;gt; &amp;gt;&amp;gt;         (&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/521"&gt;https://github.com/mozilla/standards-positions/issues/521&lt;/a&gt;
-&amp;gt; &amp;gt;&amp;gt;         &amp;lt;&lt;a  rel="nofollow" href="https://github.com/mozilla/standards-positions/issues/521"&gt;https://github.com/mozilla/standards-positions/issues/521&lt;/a&gt;&amp;gt;)
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;         Can you add a comment to this issue pointing to this I2S, and
-&amp;gt; &amp;gt;         any relevant changes since the original issue was opened?
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         /WebKit/: Negative
-&amp;gt; &amp;gt;&amp;gt;         
-&amp;gt; &amp;gt;&amp;gt; (&lt;a  rel="nofollow" href="https://lists.webkit.org/pipermail/webkit-dev/2021-May/031845.html"&gt;https://lists.webkit.org/pipermail/webkit-dev/2021-May/031845.html&lt;/a&gt; 
-&amp;gt; &amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://lists.webkit.org/pipermail/webkit-dev/2021-May/031845.html"&gt;https://lists.webkit.org/pipermail/webkit-dev/2021-May/031845.html&lt;/a&gt;&amp;gt;) This 
-&amp;gt; &amp;gt;&amp;gt; issue has been taken into account: 
-&amp;gt; &amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/issues/24"&gt;https://github.com/w3c/compute-pressure/issues/24&lt;/a&gt; 
-&amp;gt; &amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/issues/24"&gt;https://github.com/w3c/compute-pressure/issues/24&lt;/a&gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;         
-&amp;gt; &amp;gt; &lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/issues/24#issuecomment-1022516116"&gt;https://github.com/w3c/compute-pressure/issues/24#issuecomment-1022516116&lt;/a&gt; 
-&amp;gt; &amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/issues/24#issuecomment-1022516116"&gt;https://github.com/w3c/compute-pressure/issues/24#issuecomment-1022516116&lt;/a&gt;&amp;gt; 
-&amp;gt; &amp;gt; suggests asking for re-review once issue 24 is settled (at least that's my 
-&amp;gt; &amp;gt; interpretation). Do you know if that ever happened?
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         /Web developers/: Positive
-&amp;gt; &amp;gt;&amp;gt;         (&lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/issues/14"&gt;https://github.com/w3c/compute-pressure/issues/14&lt;/a&gt;
-&amp;gt; &amp;gt;&amp;gt;         &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/issues/14"&gt;https://github.com/w3c/compute-pressure/issues/14&lt;/a&gt;&amp;gt;)
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         /Other signals/:
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;                 Security
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         &lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/issues/79"&gt;https://github.com/w3c/compute-pressure/issues/79&lt;/a&gt;
-&amp;gt; &amp;gt;&amp;gt;         &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/issues/79"&gt;https://github.com/w3c/compute-pressure/issues/79&lt;/a&gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;                 WebView application risks
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         No
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;                 Debuggability
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;                 Will this feature be supported on all six Blink
-&amp;gt; &amp;gt;&amp;gt;                 platforms (Windows, Mac, Linux, ChromeOS, Android, and
-&amp;gt; &amp;gt;&amp;gt;                 Android WebView)?
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         No,
-&amp;gt; &amp;gt;&amp;gt;         Windows, Linux, ChromeOs, Mac.
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         Support on Android (incl. Android WebView) has been
-&amp;gt; &amp;gt;&amp;gt;         deprioritized as there is no current way to access the
-&amp;gt; &amp;gt;&amp;gt;         telemetry needed after Android 11, and the current partners we
-&amp;gt; &amp;gt;&amp;gt;         are engaging with have no need as they are using native
-&amp;gt; &amp;gt;&amp;gt;         solutions on Android at this point.
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;                 Is this feature fully tested by web-platform-tests
-&amp;gt; &amp;gt;&amp;gt;                 
-&amp;gt; &amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md"&gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&lt;/a&gt;&amp;gt;?
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         Yes
-&amp;gt; &amp;gt;&amp;gt;         &lt;a  rel="nofollow" href="https://wpt.fyi/results/compute-pressure?run_id=5116280230641664"&gt;https://wpt.fyi/results/compute-pressure?run_id=5116280230641664&lt;/a&gt; 
-&amp;gt; &amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://wpt.fyi/results/compute-pressure?run_id=5116280230641664"&gt;https://wpt.fyi/results/compute-pressure?run_id=5116280230641664&lt;/a&gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         The wpt.fyi results are flaky due to WPT bug 44438
-&amp;gt; &amp;gt;&amp;gt;         &amp;lt;&lt;a  rel="nofollow" href="https://github.com/web-platform-tests/wpt/issues/44438"&gt;https://github.com/web-platform-tests/wpt/issues/44438&lt;/a&gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;                 DevTrial instructions
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         &lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/blob/main/HOWTO.md"&gt;https://github.com/w3c/compute-pressure/blob/main/HOWTO.md&lt;/a&gt;
-&amp;gt; &amp;gt;&amp;gt;         &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/blob/main/HOWTO.md"&gt;https://github.com/w3c/compute-pressure/blob/main/HOWTO.md&lt;/a&gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;                 Flag name on chrome://flags
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         see &lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/blob/main/HOWTO.md"&gt;https://github.com/w3c/compute-pressure/blob/main/HOWTO.md&lt;/a&gt;
-&amp;gt; &amp;gt;&amp;gt;         &amp;lt;&lt;a  rel="nofollow" href="https://github.com/w3c/compute-pressure/blob/main/HOWTO.md"&gt;https://github.com/w3c/compute-pressure/blob/main/HOWTO.md&lt;/a&gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;                 Finch feature name
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         None
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;                 Non-finch justification
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         None
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;                 Requires code in //chrome?
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         False
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;                 Tracking bug
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         &lt;a  rel="nofollow" href="https://crbug.com/1067627"&gt;https://crbug.com/1067627&lt;/a&gt; &amp;lt;&lt;a  rel="nofollow" href="https://crbug.com/1067627"&gt;https://crbug.com/1067627&lt;/a&gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;                 Launch bug
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         &lt;a  rel="nofollow" href="https://crbug.com/1173266"&gt;https://crbug.com/1173266&lt;/a&gt; &amp;lt;&lt;a  rel="nofollow" href="https://crbug.com/1173266"&gt;https://crbug.com/1173266&lt;/a&gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;                 Sample links
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         &lt;a  rel="nofollow" href="https://w3c.github.io/compute-pressure/demo"&gt;https://w3c.github.io/compute-pressure/demo&lt;/a&gt;
-&amp;gt; &amp;gt;&amp;gt;         &amp;lt;&lt;a  rel="nofollow" href="https://w3c.github.io/compute-pressure/demo"&gt;https://w3c.github.io/compute-pressure/demo&lt;/a&gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;                 Estimated milestones
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         OriginTrial desktop extension
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         123
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         OriginTrial desktop last
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         118
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         OriginTrial desktop first
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         115
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         OriginTrial desktop last
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         94
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         OriginTrial desktop first
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         92
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         DevTrial on desktop
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         109
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         Anticipated spec changes
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         None
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;                 Link to entry on the Chrome Platform Status
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         &lt;a  rel="nofollow" href="https://chromestatus.com/feature/5597608644968448"&gt;https://chromestatus.com/feature/5597608644968448&lt;/a&gt;
-&amp;gt; &amp;gt;&amp;gt;         &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/feature/5597608644968448"&gt;https://chromestatus.com/feature/5597608644968448&lt;/a&gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;                 Links to previous Intent discussions
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         Intent to prototype:
-&amp;gt; &amp;gt;&amp;gt;         
-&amp;gt; &amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/LTIRZ24C5Os/m/BPSeJ8y0BwAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/LTIRZ24C5Os/m/BPSeJ8y0BwAJ&lt;/a&gt;
-&amp;gt; &amp;gt;&amp;gt;  
-&amp;gt; &amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/LTIRZ24C5Os/m/BPSeJ8y0BwAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/LTIRZ24C5Os/m/BPSeJ8y0BwAJ&lt;/a&gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;          Ready for Trial:
-&amp;gt; &amp;gt;&amp;gt;         
-&amp;gt; &amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/u/1/a/chromium.org/g/blink-dev/c/-1ciwdn23J4"&gt;https://groups.google.com/u/1/a/chromium.org/g/blink-dev/c/-1ciwdn23J4&lt;/a&gt; 
-&amp;gt; &amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/u/1/a/chromium.org/g/blink-dev/c/-1ciwdn23J4"&gt;https://groups.google.com/u/1/a/chromium.org/g/blink-dev/c/-1ciwdn23J4&lt;/a&gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         Intent to Experiment:
-&amp;gt; &amp;gt;&amp;gt;         &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/QfJ4pngu3gc"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/QfJ4pngu3gc&lt;/a&gt; 
-&amp;gt; &amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/QfJ4pngu3gc"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/QfJ4pngu3gc&lt;/a&gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         Intent to Experiment:
-&amp;gt; &amp;gt;&amp;gt;         &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/HzVV-sM97T0"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/HzVV-sM97T0&lt;/a&gt; 
-&amp;gt; &amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/HzVV-sM97T0"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/HzVV-sM97T0&lt;/a&gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         Intent to Extend Experiment:
-&amp;gt; &amp;gt;&amp;gt;         
-&amp;gt; &amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/s83S7wXxa6E/m/AjvsIJxmAQAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/s83S7wXxa6E/m/AjvsIJxmAQAJ&lt;/a&gt;
-&amp;gt; &amp;gt;&amp;gt;  
-&amp;gt; &amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/g/blink-dev/c/s83S7wXxa6E/m/AjvsIJxmAQAJ"&gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/s83S7wXxa6E/m/AjvsIJxmAQAJ&lt;/a&gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         This intent message was generated by Chrome Platform Status
-&amp;gt; &amp;gt;&amp;gt;         &amp;lt;&lt;a  rel="nofollow" href="https://chromestatus.com/"&gt;https://chromestatus.com/&lt;/a&gt;&amp;gt;.
-&amp;gt; &amp;gt;&amp;gt;
-&amp;gt; &amp;gt;&amp;gt;         --
-&amp;gt; &amp;gt;&amp;gt;         You received this message because you are subscribed to the
-&amp;gt; &amp;gt;&amp;gt;         Google Groups &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; &amp;gt;&amp;gt;         To unsubscribe from this group and stop receiving emails from
-&amp;gt; &amp;gt;&amp;gt;         it, send an email to blink-dev+...@chromium.org.
-&amp;gt; &amp;gt;&amp;gt;         To view this discussion on the web visit
-&amp;gt; &amp;gt;&amp;gt;         
-&amp;gt; &amp;gt;&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/DS0PR11MB7902DDE9FBF54F29CFD8312593222%40DS0PR11MB7902.namprd11.prod.outlook.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/DS0PR11MB7902DDE9FBF54F29CFD8312593222%40DS0PR11MB7902.namprd11.prod.outlook.com&lt;/a&gt;
-&amp;gt; &amp;gt;&amp;gt;  
-&amp;gt; &amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/DS0PR11MB7902DDE9FBF54F29CFD8312593222%40DS0PR11MB7902.namprd11.prod.outlook.com?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/DS0PR11MB7902DDE9FBF54F29CFD8312593222%40DS0PR11MB7902.namprd11.prod.outlook.com?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-&amp;gt; &amp;gt;
-&amp;gt; &amp;gt;         --
-&amp;gt; &amp;gt;         You received this message because you are subscribed to the
-&amp;gt; &amp;gt;         Google Groups &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; &amp;gt;         To unsubscribe from this group and stop receiving emails from
-&amp;gt; &amp;gt;         it, send an email to blink-dev+...@chromium.org.
-&amp;gt; &amp;gt;
-&amp;gt; &amp;gt;         To view this discussion on the web visit
-&amp;gt; &amp;gt;         
-&amp;gt; &amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/68e05b3e-18c8-4330-8b67-b55cbd5bfdb1%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/68e05b3e-18c8-4330-8b67-b55cbd5bfdb1%40chromium.org&lt;/a&gt;
-&amp;gt; &amp;gt;  
-&amp;gt; &amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/68e05b3e-18c8-4330-8b67-b55cbd5bfdb1%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/68e05b3e-18c8-4330-8b67-b55cbd5bfdb1%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-&amp;gt; &amp;gt;
-&amp;gt; &amp;gt; --
-&amp;gt; &amp;gt; You received this message because you are subscribed to the Google
-&amp;gt; &amp;gt; Groups &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; &amp;gt; To unsubscribe from this group and stop receiving emails from it, send
-&amp;gt; &amp;gt; an email to blink-dev+unsubscr...@chromium.org
-&amp;gt; &amp;gt; &amp;lt;&lt;a  rel="nofollow" href="mailto:blink-dev+unsubscr...@chromium.org"&gt;mailto:blink-dev+unsubscr...@chromium.org&lt;/a&gt;&amp;gt;.
-&amp;gt; &amp;gt; To view this discussion on the web visit
-&amp;gt; &amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/7e198bbc-0216-4472-9b28-69b2ca27f3bbn%40chromium.org"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/7e198bbc-0216-4472-9b28-69b2ca27f3bbn%40chromium.org&lt;/a&gt;
-&amp;gt; &amp;gt;  
-&amp;gt; &amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/7e198bbc-0216-4472-9b28-69b2ca27f3bbn%40chromium.org?utm_medium=email&amp;utm_source=footer"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/7e198bbc-0216-4472-9b28-69b2ca27f3bbn%40chromium.org?utm_medium=email&amp;utm_source=footer&lt;/a&gt;&amp;gt;.
-&amp;gt;
-&amp;gt; --
-&amp;gt; You received this message because you are subscribed to the Google Groups 
-&amp;gt; &amp;quot;blink-dev&amp;quot; group.
-&amp;gt; To unsubscribe from this group and stop receiving emails from it, send an 
-&amp;gt; email to blink-dev+unsubscr...@chromium.org.
-&amp;gt; To view this discussion on the web visit 
-&amp;gt; &lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/d6c29007-f0bf-4cc5-97a4-7d31ebaf3153%40igalia.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/d6c29007-f0bf-4cc5-97a4-7d31ebaf3153%40igalia.com&lt;/a&gt;.
-
-
-
--- 
-Kenneth Rohde Christiansen
-Web Platform Architect, Intel Corporation.
-Phone  +45 4294 9458 ﹆﹆﹆
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAEC208scLXs%2B8whnnfiCqS5P--HAaEznQaE3z%3DKH6YnX8vn0aQ%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAEC208scLXs%2B8whnnfiCqS5P--HAaEznQaE3z%3DKH6YnX8vn0aQ%40mail.gmail.com&lt;/a&gt;.
-&lt;/pre&gt;
-
-&lt;/div&gt;</content>
-    </entry>
-    <entry>
-        <id>http://www.mail-archive.com/blink-dev@chromium.org/msg09540.html</id>
-        <title>Re: [blink-dev] Intent to Ship: Document Render-Blocking</title>
-        <author>
-            <name>Intent to Ship</name>
-        </author>
-        <link href="http://www.mail-archive.com/blink-dev@chromium.org/msg09540.html"/>
-        <updated>2024-03-06T12:44:50.000Z</updated>
-        <summary>http://www.mail-archive.com/blink-dev@chromium.org/msg09540.html summary</summary>
-        <content type="html">&lt;div class="msgHead"&gt;
-&lt;h1&gt;
-&lt;span class="subject"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Document+Render%5C-Blocking%22&amp;o=newest" rel="nofollow"&gt;&lt;span itemprop="name"&gt;Re: [blink-dev] Intent to Ship: Document Render-Blocking&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;/h1&gt;
-&lt;p class="darkgray font13"&gt;
-&lt;span class="sender pipe"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=from:%22Yoav+Weiss+%5C%28%40Shopify%5C%29%22" rel="nofollow"&gt;&lt;span itemprop="author" itemscope itemtype="http://schema.org/Person"&gt;&lt;span itemprop="name"&gt;Yoav Weiss (@Shopify)&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;span class="date"&gt;&lt;a href="/search?l=blink-dev@chromium.org&amp;q=date:20240306" rel="nofollow"&gt;Wed, 06 Mar 2024 04:44:50 -0800&lt;/a&gt;&lt;/span&gt;
-&lt;/p&gt;
-&lt;/div&gt;&lt;div itemprop="articleBody" class="msgBody"&gt;
-
-&lt;pre&gt;On Wed, Mar 6, 2024 at 1:28 PM Noam Rosenthal &amp;lt;nrosent...@chromium.org&amp;gt;
-wrote:&lt;/pre&gt;&lt;pre&gt;
-
-&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; g it using JS at a particular point. It allows a tradeoff between
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt; smoothness and speed, regardless of view transitions.
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; OK. In this case it might be interesting to think through current
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; use-cases for such initial page hiding (e.g. A/B testing comes to mind) and
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; see how they could be implemented using this and whether this would be a
-&amp;gt;&amp;gt;&amp;gt;&amp;gt; positive change. Did such thinking take place?
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; This kind of thinking did take place, though I'm not sure what kind of
-&amp;gt;&amp;gt;&amp;gt; A/B test you had in mind.
-&amp;gt;&amp;gt;&amp;gt;
-&amp;gt;&amp;gt;
-&amp;gt;&amp;gt; I should've been more specific. The use case I had in mind (but haven't
-&amp;gt;&amp;gt; fully thought through) was to avoid anti-flicker snippets
-&amp;gt;&amp;gt; &amp;lt;&lt;a  rel="nofollow" href="https://andydavies.me/blog/2020/11/16/the-case-against-anti-flicker-snippets/"&gt;https://andydavies.me/blog/2020/11/16/the-case-against-anti-flicker-snippets/&lt;/a&gt;&amp;gt;
-&amp;gt;&amp;gt; in A/B testing. (e.g. by including a non-existent ID in &amp;lt;link rel=expect&amp;gt;
-&amp;gt;&amp;gt; and then removing the &amp;lt;link&amp;gt; once the appropriate blocking DOM changes were
-&amp;gt;&amp;gt; applied)
-&amp;gt;&amp;gt;
-&amp;gt;
-&amp;gt; We can add some examples in the explainer, how some of these anti-flicker
-&amp;gt; use-cases can be implemented using &amp;lt;link rel=expect&amp;gt; instead of those
-&amp;gt; scripts, and the benefit. Would this help move this discussion forward?
-&amp;gt;
-
-That would be useful, thanks!!
-
--- 
-You received this message because you are subscribed to the Google Groups 
-&amp;quot;blink-dev&amp;quot; group.
-To unsubscribe from this group and stop receiving emails from it, send an email 
-to blink-dev+unsubscr...@chromium.org.
-To view this discussion on the web visit 
-&lt;a  rel="nofollow" href="https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOmohSKObFgahBgBwrZWmojke1PVMvtD_M0wtrVxLpkR9n55gw%40mail.gmail.com"&gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOmohSKObFgahBgBwrZWmojke1PVMvtD_M0wtrVxLpkR9n55gw%40mail.gmail.com&lt;/a&gt;.
 &lt;/pre&gt;
 
 &lt;/div&gt;</content>
