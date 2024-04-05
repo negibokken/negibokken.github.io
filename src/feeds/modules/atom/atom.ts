@@ -104,7 +104,12 @@ export class AtomFeed {
     }
 
     static createFromXML(xml: string): AtomFeed {
-        const json = JSON.parse(convert.xml2json(xml, { compact: true, spaces: 4 }));
+        try {
+            const json = JSON.parse(convert.xml2json(xml, { compact: true, spaces: 4 }));
+        } catch (e) {
+            console.error(xml);
+            throw new Error(`Failed to parse XML: ${e}`);
+        }
         console.log(JSON.stringify(json, null, '  '));
         return new AtomFeed({
             id: json.feed.id._text,
