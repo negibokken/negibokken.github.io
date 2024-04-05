@@ -16,15 +16,20 @@ import { AtomFeed } from '../modules';
             return;
         }
 
-    const latestEntries = convertToAtomEntries(intentToShipResult.value);
+        const latestEntries = convertToAtomEntries(intentToShipResult.value);
         console.log(latestEntries)
         // process.exit(1);
         const latestAtomFeed = uniqueJoinAtomFeedEntries(currentAtom, latestEntries, { length: 150 });
-        // To format the XML properly, we need to convert class to JSON and after that convert JSON to XML
-        const newAtomJSON = convert.xml2json(latestAtomFeed.toXML());
-        const newAtomXML = convert.json2xml(newAtomJSON, { compact: true, spaces: 4 });
-    console.log(`Contents is written in ${xmlPath}.new`);
-        fs.writeFileSync(`${xmlPath}.new`, newAtomXML);
+        try {
+            // To format the XML properly, we need to convert class to JSON and after that convert JSON to XML
+            const newAtomJSON = convert.xml2json(latestAtomFeed.toXML());
+            const newAtomXML = convert.json2xml(newAtomJSON, { compact: true, spaces: 4 });
+            console.log(`Contents is written in ${xmlPath}.new`);
+            fs.writeFileSync(`${xmlPath}.new`, newAtomXML);
+        } catch (e) {
+            console.log(latestAtomFeed);
+            throw e;
+        }
     } catch (e) {
         console.error(e)
     }
