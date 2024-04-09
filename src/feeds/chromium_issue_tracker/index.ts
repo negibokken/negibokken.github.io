@@ -1,10 +1,9 @@
 import fs from 'fs';
-import { AtomEntry, AtomFeed } from '../modules/atom';
 
 import convert from 'xml-js';
 
 import { request } from 'undici';
-import { AtomEntryProps } from '../modules/atom/atom';
+import { AtomEntryProps, AtomFeed, AtomEntry } from '../modules/atom/atom';
 
 // Response from the API contains unnecessary symbols so we need to remove them.
 function trimPrefix(text: string) {
@@ -82,13 +81,15 @@ async function sleep(time: number): Promise<void> {
                     "body": null,
                     "method": "GET"
                 });
-    
+
                 const formattedIssue = trimPrefix(await issueRes.text());
                 const issueJson = JSON.parse(formattedIssue)
     
-                const body = issueJson[0][1][15][19][0];
-                const author = issueJson[0][1][21][6][1];
-                const createdAt = new Date(Number(issueJson[0][1][3][1]) / 1000);
+                // The below site is useful to check the index of array:
+                // https://jsonformatter.org/json-viewer
+                const body = issueJson[0][1][22][43][0];
+                const author = issueJson[0][1][22][2][6][1];
+                const createdAt = new Date(Number(issueJson[0][1][22][4][0]) / 1000);
                 const atomentry: AtomEntryProps = {
                     author: { name: author },
                     content: body ? Buffer.from(body).toString('base64') : "-",
