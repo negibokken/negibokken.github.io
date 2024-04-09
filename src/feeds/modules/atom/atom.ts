@@ -106,26 +106,27 @@ export class AtomFeed {
     static createFromXML(xml: string): AtomFeed {
         try {
             const json = JSON.parse(convert.xml2json(xml, { compact: true, spaces: 4 }));
+            console.log(JSON.stringify(json, null, '  '));
+            return new AtomFeed({
+                id: json.feed.id._text,
+                title: json.feed.title._text,
+                link: json.feed.link._attributes.href,
+                updated: json.feed.updated._text,
+                entries: json.feed.entry.map((entry: any) => new AtomEntry({
+                    id: entry.id._text,
+                    title: entry.title._text,
+                    author: { name: entry.author.name._text },
+                    content: entry.content._text,
+                    link: entry.link._attributes.href,
+                    summary: entry.summary._text,
+                    updated: entry.updated._text,
+                }))
+            });
         } catch (e) {
             console.error(xml);
             throw new Error(`Failed to parse XML: ${e}`);
         }
-        console.log(JSON.stringify(json, null, '  '));
-        return new AtomFeed({
-            id: json.feed.id._text,
-            title: json.feed.title._text,
-            link: json.feed.link._attributes.href,
-            updated: json.feed.updated._text,
-            entries: json.feed.entry.map((entry: any) => new AtomEntry({
-                id: entry.id._text,
-                title: entry.title._text,
-                author: { name: entry.author.name._text },
-                content: entry.content._text,
-                link: entry.link._attributes.href,
-                summary: entry.summary._text,
-                updated: entry.updated._text,
-            }))
-        });
+
     }
 }
 
