@@ -3,7 +3,1210 @@
     <id>https://negibokken.github.io/feeds/chromium_issue_tracker/atom.xml</id>
     <title>Chromium issue tracker feed</title>
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
-    <updated>1970-01-01T00:28:32.837Z</updated>
+    <updated>1970-01-01T00:28:32.851Z</updated>
+    <entry>
+        <id>333887689</id>
+        <title>Add a virtual WPT to test ancestor chain bit behavior</title>
+        <author>
+            <name>se...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333887689"/>
+        <updated>1970-01-01T00:28:32.851Z</updated>
+        <summary>-</summary>
+        <content type="html">Add a virtual WPT to cover the ancestor chain bit behavior until AncestorChainBitEnabledInPartitionedCookies is enabled by default.</content>
+    </entry>
+    <entry>
+        <id>333858788</id>
+        <title>Implement Android support for Dawn's OpenGLES backend</title>
+        <author>
+            <name>se...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333858788"/>
+        <updated>1970-01-01T00:28:32.851Z</updated>
+        <summary>-</summary>
+        <content type="html">Implement Android support for Dawn's OpenGLES backend
+
+In order to support WebGPU/Compat on devices without Vulkan support, enable the
+Dawn OpenGLES backend in Chrome on Android. This will require adding support for
+GLES in AHardwareBufferImageBacking::ProduceDawn().</content>
+    </entry>
+    <entry>
+        <id>333829661</id>
+        <title>[V8 Perf Sheriff]: 1 regressions in v8.browsing_mobile</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333829661"/>
+        <updated>1970-01-01T00:28:32.850Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1285180:1285211:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=86056b8a-defa-437c-8b42-2df63ea44899
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=86056b8a-defa-437c-8b42-2df63ea44899
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/android-pixel4-perf/v8.browsing_mobile/total:500ms_window:renderer_eqt:v8:compile_rcs/browse_search/browse_search_amp_2018
+       77.06%: 0.728 -&gt; 1.289 
+
+Top 1 affected measurements in android-pixel4-perf:
+  - v8.browsing_mobile/total:500ms_window:renderer_eqt:v8:compile_rcs/browse_search/browse_search_amp_2018
+       77.06%: 0.728 -&gt; 1.289 
+
+Regressions grouped by v8.browsing_mobile includes data from the following benchmarks with listed owners:
+  v8.browsing_mobile: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>333832697</id>
+        <title>Regression: Crash with AsyncIterable from different Execution Context</title>
+        <author>
+            <name>ma...@schmitt.mx</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333832697"/>
+        <updated>1970-01-01T00:28:32.850Z</updated>
+        <summary>-</summary>
+        <content type="html">Bisect results:
+
+- Good: 1267968
+- Bad: 1267982
+- Related change: https://chromium.googlesource.com/chromium/src/+/fe77ef91c94bb85b3224bb31a252ae334aab8164
+- Range: https://chromium.googlesource.com/chromium/src/+log/c1b48f7e914ddfd586e3be0320b6de5e24d0ef6d..e80e6a339a42fe550c0f8bd4bc203598b9353cd0
+- Downstream issue: https://github.com/microsoft/playwright/issues/30339
+
+Repro:
+
+```ts
+import puppeteer from 'puppeteer';
+
+(async () =&gt; {
+  const browser = await puppeteer.launch({
+    headless: false,
+    executablePath: 'beta-or-canary',
+    dumpio: true,
+  });
+  const context = await browser.createBrowserContext();
+  const page = await context.newPage();
+  const cdp = await page.createCDPSession();
+  await page.goto('https://playwright.dev');
+  const frameId = (await cdp.send('Page.getFrameTree')).frameTree.frame.id;
+  const { executionContextId } = await cdp.send('Page.createIsolatedWorld', {
+    frameId,
+    worldName: 'repro-utility-world'
+  });
+  await cdp.send('Runtime.evaluate', {
+    contextId: executionContextId,
+    awaitPromise: true,
+    expression: `(async () =&gt; {
+      const root = await navigator.storage.getDirectory();
+        const entries = await root.entries();
+        let entry = await entries.next();
+        while (!entry.done) {
+          const [name] = entry.value;
+          await root.removeEntry(name, { recursive: true });
+          entry = await entries.next();
+        }
+    })()`
+  });
+  await new Promise(() =&gt; { })
+  await browser.close();
+})();
+```
+
+Crash:
+
+```
+  pw:browser [pid=44440][err] [44496:259:0411/164659.679651:FATAL:world_safe_v8_reference.cc(50)] Check failed: &amp;world == &amp;script_state-&gt;World() (0x12b001a0f18 vs. 0x12b001a0978) +924ms
+  pw:browser [pid=44440][err] 0   Chromium Framework                  0x0000000126a67844 base::debug::CollectStackTrace(void const**, unsigned long) + 28 +0ms
+  pw:browser [pid=44440][err] 1   Chromium Framework                  0x0000000126a5bff0 base::debug::StackTrace::StackTrace() + 24 +0ms
+  pw:browser [pid=44440][err] 2   Chromium Framework                  0x00000001269c95d8 logging::LogMessage::Flush() + 132 +0ms
+  pw:browser [pid=44440][err] 3   Chromium Framework                  0x00000001269c94d4 logging::LogMessage::~LogMessage() + 36 +0ms
+  pw:browser [pid=44440][err] 4   Chromium Framework                  0x00000001269b5be8 logging::(anonymous namespace)::CheckLogMessage::~CheckLogMessage() + 124 +0ms
+  pw:browser [pid=44440][err] 5   Chromium Framework                  0x00000001269b5c38 logging::(anonymous namespace)::CheckLogMessage::~CheckLogMessage() + 12 +0ms
+  pw:browser [pid=44440][err] 6   Chromium Framework                  0x00000001269b598c logging::CheckError::~CheckError() + 44 +0ms
+  pw:browser [pid=44440][err] 7   Chromium Framework                  0x00000001269b59d4 logging::CheckError::~CheckError() + 12 +0ms
+  pw:browser [pid=44440][err] 8   Chromium Framework                  0x000000012965d804 blink::WorldSafeV8ReferenceInternal::MaybeCheckCreationContextWorld(blink::DOMWrapperWorld const&amp;, v8::Local&lt;v8::Value&gt;) + 224 +0ms
+  pw:browser [pid=44440][err] 9   Chromium Framework                  0x0000000129629568 blink::WorldSafeV8Reference&lt;v8::Value&gt;::WorldSafeV8Reference(v8::Isolate*, v8::Local&lt;v8::Value&gt;) + 156 +0ms
+  pw:browser [pid=44440][err] 10  Chromium Framework                  0x000000012a131f70 blink::bindings::AsyncIterationSourceBase::RunFulfillStepsCallable::Call(blink::ScriptState*, blink::ScriptValue) + 120 +0ms
+  pw:browser [pid=44440][err] 11  Chromium Framework                  0x000000012961e220 blink::ScriptFunction::Callable::CallRaw(blink::ScriptState*, v8::FunctionCallbackInfo&lt;v8::Value&gt; const&amp;) + 124 +0ms
+  pw:browser [pid=44440][err] 12  ???                                 0x0000000157e10530 0x0 + 5769332016 +0ms
+  pw:browser [pid=44440][err] 13  ???                                 0x0000000157f1c938 0x0 + 5770430776 +0ms
+  pw:browser [pid=44440][err] 14  ???                                 0x0000000157e3c188 0x0 + 5769511304 +0ms
+  pw:browser [pid=44440][err] 15  ???                                 0x0000000157e0b598 0x0 + 5769311640 +0ms
+  pw:browser [pid=44440][err] 16  Chromium Framework                  0x0000000123ab1414 v8::internal::(anonymous namespace)::Invoke(v8::internal::Isolate*, v8::internal::(anonymous namespace)::InvokeParams const&amp;) + 2024 +0ms
+  pw:browser [pid=44440][err] 17  Chromium Framework                  0x0000000123ab1d38 v8::internal::(anonymous namespace)::InvokeWithTryCatch(v8::internal::Isolate*, v8::internal::(anonymous namespace)::InvokeParams const&amp;) + 88 +0ms
+  pw:browser [pid=44440][err] 18  Chromium Framework                  0x0000000123ab1e84 v8::internal::Execution::TryRunMicrotasks(v8::internal::Isolate*, v8::internal::MicrotaskQueue*) + 60 +0ms
+  pw:browser [pid=44440][err] 19  Chromium Framework                  0x0000000123adb780 v8::internal::MicrotaskQueue::RunMicrotasks(v8::internal::Isolate*) + 200 +0ms
+  pw:browser [pid=44440][err] 20  Chromium Framework                  0x0000000123adbd0c v8::internal::MicrotaskQueue::PerformCheckpoint(v8::Isolate*) + 136 +1ms
+  pw:browser [pid=44440][err] 21  Chromium Framework                  0x0000000125bfd32c blink::scheduler::EventLoop::PerformMicrotaskCheckpoint() + 156 +0ms
+  pw:browser [pid=44440][err] 22  Chromium Framework                  0x0000000125c09af0 blink::scheduler::AgentGroupSchedulerImpl::PerformMicrotaskCheckpoint() + 452 +0ms
+  pw:browser [pid=44440][err] 23  Chromium Framework                  0x0000000125c19db8 blink::scheduler::MainThreadSchedulerImpl::PerformMicrotaskCheckpoint() + 496 +0ms
+  pw:browser [pid=44440][err] 24  Chromium Framework                  0x0000000125c1f514 blink::scheduler::MainThreadSchedulerImpl::OnTaskCompleted(base::WeakPtr&lt;blink::scheduler::MainThreadTaskQueue&gt;, base::sequence_manager::Task const&amp;, base::sequence_manager::TaskQueue::TaskTiming*, base::LazyNow*) + 92 +0ms
+  pw:browser [pid=44440][err] 25  Chromium Framework                  0x0000000125c259d8 blink::scheduler::MainThreadTaskQueue::OnTaskCompleted(base::sequence_manager::Task const&amp;, base::sequence_manager::TaskQueue::TaskTiming*, base::LazyNow*) + 112 +0ms
+  pw:browser [pid=44440][err] 26  Chromium Framework                  0x00000001234c81c8 base::RepeatingCallback&lt;void (std::__Cr::basic_string&lt;char, std::__Cr::char_traits&lt;char&gt;, std::__Cr::allocator&lt;char&gt;&gt; const&amp;, media::CdmMessageType, std::__Cr::vector&lt;unsigned char, std::__Cr::allocator&lt;unsigned char&gt;&gt; const&amp;)&gt;::Run(std::__Cr::basic_string&lt;char, std::__Cr::char_traits&lt;char&gt;, std::__Cr::allocator&lt;char&gt;&gt; const&amp;, media::CdmMessageType, std::__Cr::vector&lt;unsigned char, std::__Cr::allocator&lt;unsigned char&gt;&gt; const&amp;) const &amp; + 100 +0ms
+  pw:browser [pid=44440][err] 27  Chromium Framework                  0x0000000126a155b8 base::sequence_manager::internal::SequenceManagerImpl::NotifyDidProcessTask(base::sequence_manager::internal::SequenceManagerImpl::ExecutingTask*, base::LazyNow*) + 136 +0ms
+  pw:browser [pid=44440][err] 28  Chromium Framework                  0x0000000126a15ce0 non-virtual thunk to base::sequence_manager::internal::SequenceManagerImpl::DidRunTask(base::LazyNow&amp;) + 136 +0ms
+  pw:browser [pid=44440][err] 29  Chromium Framework                  0x0000000126a2683c base::sequence_manager::internal::ThreadControllerWithMessagePumpImpl::DoWorkImpl(base::LazyNow*) + 864 +0ms
+  pw:browser [pid=44440][err] 30  Chromium Framework                  0x0000000126a26388 base::sequence_manager::internal::ThreadControllerWithMessagePumpImpl::DoWork() + 104 +0ms
+  pw:browser [pid=44440][err] 31  Chromium Framework                  0x00000001269d01fc base::MessagePumpDefault::Run(base::MessagePump::Delegate*) + 120 +0ms
+  pw:browser [pid=44440][err] 32  Chromium Framework                  0x0000000126a26f38 base::sequence_manager::internal::ThreadControllerWithMessagePumpImpl::Run(bool, base::TimeDelta) + 348 +0ms
+  pw:browser [pid=44440][err] 33  Chromium Framework                  0x00000001269f5440 base::RunLoop::Run(base::Location const&amp;) + 400 +0ms
+  pw:browser [pid=44440][err] 34  Chromium Framework                  0x000000012c2d27cc content::RendererMain(content::MainFunctionParams) + 1368 +0ms
+  pw:browser [pid=44440][err] 35  Chromium Framework                  0x0000000125f53600 content::RunOtherNamedProcessTypeMain(std::__Cr::basic_string&lt;char, std::__Cr::char_traits&lt;char&gt;, std::__Cr::allocator&lt;char&gt;&gt; const&amp;, content::MainFunctionParams, content::ContentMainDelegate*) + 540 +0ms
+  pw:browser [pid=44440][err] 36  Chromium Framework                  0x0000000125f541c8 content::ContentMainRunnerImpl::Run() + 692 +0ms
+  pw:browser [pid=44440][err] 37  Chromium Framework                  0x0000000125f52938 content::RunContentProcess(content::ContentMainParams, content::ContentMainRunner*) + 824 +0ms
+  pw:browser [pid=44440][err] 38  Chromium Framework                  0x0000000125f52d3c content::ContentMain(content::ContentMainParams) + 112 +0ms
+  pw:browser [pid=44440][err] 39  Chromium Framework                  0x00000001228053dc ChromeMain + 540 +0ms
+  pw:browser [pid=44440][err] 40  Chromium Helper (Renderer)          0x0000000100880b0c main + 364 +0ms
+  pw:browser [pid=44440][err] 41  dyld                                0x0000000186a8e0e0 start + 2360 +0ms
+  pw:browser [pid=44440][err] Crash keys: +0ms
+  pw:browser [pid=44440][err]   "discardable-memory-free" = "6668288" +0ms
+  pw:browser [pid=44440][err]   "discardable-memory-allocated" = "8388608" +0ms
+  pw:browser [pid=44440][err]   "view-count" = "1" +0ms
+  pw:browser [pid=44440][err]   "loaded-origin-0" = "https://playwright.dev" +0ms
+  pw:browser [pid=44440][err]   "web-frame-count" = "1" +0ms
+  pw:browser [pid=44440][err]   "gpu-glver" = "OpenGL ES 2.0.0 (ANGLE 2.1.22780 git hash: f4ecbe6f136a)" +0ms
+  pw:browser [pid=44440][err]   "gpu-generation-intel" = "0" +0ms
+  pw:browser [pid=44440][err]   "gpu-vsver" = "1.00" +0ms
+  pw:browser [pid=44440][err]   "gpu-psver" = "1.00" +0ms
+  pw:browser [pid=44440][err]   "gpu-driver" = "14.4.1" +0ms
+  pw:browser [pid=44440][err]   "gpu_count" = "1" +0ms
+  pw:browser [pid=44440][err]   "gpu-devid" = "0x0000" +0ms
+  pw:browser [pid=44440][err]   "gpu-venid" = "0x106b" +0ms
+  pw:browser [pid=44440][err]   "renderer_foreground" = "true" +0ms
+  pw:browser [pid=44440][err]   "v8_ro_space_firstpage_address" = "0x102e00000000" +0ms
+  pw:browser [pid=44440][err]   "v8_isolate_address" = "0x13000e80000" +0ms
+  pw:browser [pid=44440][err]   "variations" = "f38ef081-ca7d8d80,b357b792-3f4a17df,9481ce98-3d47f4f4,70678518-dee66fa8,be338734-dee66fa8,5f9907a9-dee66fa8,8eeccb9a-dee66fa8,2b465683-dee66fa8,52fc7926-dee66fa8,a41a7188-dee66fa8,ff71bfdc-dee66fa8,6daa4147-dee66fa8,4b935545-3d47f4f4,9a38bae3-3d47f4f4,2d1e43a3-3d47f4f4,386dc267-3d47f4f4,6b260bea-b31978bc,d69d967d-3695c92e," +0ms
+  pw:browser [pid=44440][err]   "num-experiments" = "18" +0ms
+  pw:browser [pid=44440][err]   "reentry_guard_tls_slot" = "266" +0ms
+  pw:browser [pid=44440][err]   "switch-23" = "--variations-seed-version" +0ms
+  pw:browser [pid=44440][err]   "switch-22" = "--field-trial-handle=1718379636,r,6316926978755035825,5847944190" +0ms
+  pw:browser [pid=44440][err]   "switch-21" = "--shared-files" +0ms
+  pw:browser [pid=44440][err]   "switch-20" = "--launch-time-ticks=14854744013" +0ms
+  pw:browser [pid=44440][err]   "switch-19" = "--time-ticks-at-unix-epoch=-1712831964257339" +0ms
+  pw:browser [pid=44440][err]   "switch-18" = "--renderer-client-id=6" +0ms
+  pw:browser [pid=44440][err]   "switch-17" = "--enable-main-frame-before-activation" +0ms
+  pw:browser [pid=44440][err]   "switch-16" = "--enable-gpu-memory-buffer-compositor-resources" +0ms
+  pw:browser [pid=44440][err]   "switch-15" = "--enable-zero-copy" +0ms
+  pw:browser [pid=44440][err]   "switch-14" = "--num-raster-threads=4" +0ms
+  pw:browser [pid=44440][err]   "switch-13" = "--lang=en-GB" +0ms
+  pw:browser [pid=44440][err]   "switch-12" = "--disable-databases" +0ms
+  pw:browser [pid=44440][err]   "switch-11" = "--allow-pre-commit-input" +0ms
+  pw:browser [pid=44440][err]   "switch-10" = "--remote-debugging-pipe" +0ms
+  pw:browser [pid=44440][err]   "switch-9" = "--force-color-profile=srgb" +0ms
+  pw:browser [pid=44440][err]   "switch-8" = "--file-url-path-alias=/gen=/Users/maxschmitt/Library/Caches/ms-p" +0ms
+  pw:browser [pid=44440][err]   "switch-7" = "--enable-automation" +0ms
+  pw:browser [pid=44440][err]   "switch-6" = "--disable-breakpad" +0ms
+  pw:browser [pid=44440][err]   "switch-5" = "--disable-background-timer-throttling" +0ms
+  pw:browser [pid=44440][err]   "switch-4" = "--disable-back-forward-cache" +0ms
+  pw:browser [pid=44440][err]   "switch-3" = "--no-sandbox" +0ms
+  pw:browser [pid=44440][err]   "switch-2" = "--enable-dinosaur-easter-egg-alt-images" +0ms
+  pw:browser [pid=44440][err]   "switch-1" = "--user-data-dir=/var/folders/gs/d87p6_k17rz4ww4jr7kndrmr0000gn/T" +0ms
+  pw:browser [pid=44440][err]   "num-switches" = "26" +0ms
+  pw:browser [pid=44440][err]   "commandline-disabled-feature-13" = "Translate" +0ms
+  pw:browser [pid=44440][err]   "commandline-disabled-feature-12" = "PaintHolding" +0ms
+  pw:browser [pid=44440][err]   "commandline-disabled-feature-11" = "MediaRouter" +0ms
+  pw:browser [pid=44440][err]   "commandline-disabled-feature-10" = "LazyFrameLoading" +0ms
+  pw:browser [pid=44440][err]   "commandline-disabled-feature-9" = "ImprovedCookieControls" +0ms
+  pw:browser [pid=44440][err]   "commandline-disabled-feature-8" = "HttpsUpgrades" +0ms
+  pw:browser [pid=44440][err]   "commandline-disabled-feature-7" = "GlobalMediaControls" +0ms
+  pw:browser [pid=44440][err]   "commandline-disabled-feature-6" = "DialMediaRouteProvider" +0ms
+  pw:browser [pid=44440][err]   "commandline-disabled-feature-5" = "DestroyProfileOnBrowserClose" +0ms
+  pw:browser [pid=44440][err]   "commandline-disabled-feature-4" = "CertificateTransparencyComponentUpdater" +0ms
+  pw:browser [pid=44440][err]   "commandline-disabled-feature-3" = "AvoidUnnecessaryBeforeUnloadCheckSync" +0ms
+  pw:browser [pid=44440][err]   "commandline-disabled-feature-2" = "AutoExpandDetailsElement" +0ms
+  pw:browser [pid=44440][err]   "commandline-disabled-feature-1" = "AcceptCHFrame" +0ms
+  pw:browser [pid=44440][err]   "commandline-enabled-feature-2" = "NetworkServiceInProcess" +0ms
+  pw:browser [pid=44440][err]   "commandline-enabled-feature-1" = "NetworkService" +0ms
+  pw:browser [pid=44440][err]   "osarch" = "arm64" +0ms
+  pw:browser [pid=44440][err]   "pid" = "44496" +0ms
+  pw:browser [pid=44440][err]   "ptype" = "renderer" +0ms
+  pw:browser [pid=44440][err]  +0ms
+```</content>
+    </entry>
+    <entry>
+        <id>333789732</id>
+        <title>[V8 Memory Perf Sheriff]: 1 regressions in v8.browsing_mobile</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333789732"/>
+        <updated>1970-01-01T00:28:32.850Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1285261:1285402:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=14813dac-d213-469d-ab30-3828bf442013
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=14813dac-d213-469d-ab30-3828bf442013
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/android-pixel6-pro-perf/v8.browsing_mobile/total:500ms_window:renderer_eqt:v8_max/browse_shopping/browse_shopping_flipkart_2019
+       25.96%: 23.094 -&gt; 29.089 
+
+Top 1 affected measurements in android-pixel6-pro-perf:
+  - v8.browsing_mobile/total:500ms_window:renderer_eqt:v8_max/browse_shopping/browse_shopping_flipkart_2019
+       25.96%: 23.094 -&gt; 29.089 
+
+Regressions grouped by v8.browsing_mobile includes data from the following benchmarks with listed owners:
+  v8.browsing_mobile: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>333760368</id>
+        <title>[V8 Memory Perf Sheriff]: 1 regressions in v8.browsing_mobile</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333760368"/>
+        <updated>1970-01-01T00:28:32.850Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1285392:1285440:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=bf45d9ff-a699-4673-84d1-a966f2e0c392
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=bf45d9ff-a699-4673-84d1-a966f2e0c392
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/android-pixel6-pro-perf/v8.browsing_mobile/v8:gc:cycle:main_thread:full:atomic_sum/browse_media/browse_media_flickr_infinite_scroll_2019
+       21.47%: 41.191 -&gt; 50.035 
+
+Top 1 affected measurements in android-pixel6-pro-perf:
+  - v8.browsing_mobile/v8:gc:cycle:main_thread:full:atomic_sum/browse_media/browse_media_flickr_infinite_scroll_2019
+       21.47%: 41.191 -&gt; 50.035 
+
+Regressions grouped by v8.browsing_mobile includes data from the following benchmarks with listed owners:
+  v8.browsing_mobile: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>333764385</id>
+        <title>"Manage your Google Account" is vertically truncated in avatar menu</title>
+        <author>
+            <name>fi...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333764385"/>
+        <updated>1970-01-01T00:28:32.850Z</updated>
+        <summary>-</summary>
+        <content type="html">As shown in first attachment, the text "Manage your Google Account" in the avatar menu is wrapped &amp; vertically truncated.
+
+chrome://settings/appearance "font size" is "Medium (recommended)" (2nd screenshot).
+chrome://settings/fonts is in 3rd screenshot.
+
+Chrome 123.0.6312.105 on Linux.</content>
+    </entry>
+    <entry>
+        <id>333886768</id>
+        <title>[V8 Memory Perf Sheriff]: 1 regressions in v8.browsing_mobile</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333886768"/>
+        <updated>1970-01-01T00:28:32.850Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1285263:1285322:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=e8ef4091-d704-4915-9355-c72080b55ba9
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=e8ef4091-d704-4915-9355-c72080b55ba9
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/android-go-wembley-perf/v8.browsing_mobile/v8:gc:cycle:main_thread:young:atomic_avg/browse_media/browse_media_facebook_photos_2019
+       31.22%: 3.318 -&gt; 4.354 
+
+Top 1 affected measurements in android-go-wembley-perf:
+  - v8.browsing_mobile/v8:gc:cycle:main_thread:young:atomic_avg/browse_media/browse_media_facebook_photos_2019
+       31.22%: 3.318 -&gt; 4.354 
+
+Regressions grouped by v8.browsing_mobile includes data from the following benchmarks with listed owners:
+  v8.browsing_mobile: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>333789731</id>
+        <title>[V8 Perf Sheriff]: 1 regressions in v8.browsing_mobile</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333789731"/>
+        <updated>1970-01-01T00:28:32.850Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1285180:1285211:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=321aca4d-ac78-4a86-b0e3-a9c47d6875fc
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=321aca4d-ac78-4a86-b0e3-a9c47d6875fc
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/android-pixel4-perf/v8.browsing_mobile/Compile:duration_avg/browse_media/browse_media_imgur_2019
+       18.10%: 403.30652 -&gt; 476.325 
+
+Top 1 affected measurements in android-pixel4-perf:
+  - v8.browsing_mobile/Compile:duration_avg/browse_media/browse_media_imgur_2019
+       18.10%: 403.30652 -&gt; 476.325 
+
+Regressions grouped by v8.browsing_mobile includes data from the following benchmarks with listed owners:
+  v8.browsing_mobile: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>333858787</id>
+        <title>win clang package flaky(?) test failure: AddressSanitizer-x86_64-windows-dynamic :: TestCases/Windows/issue64990.cpp</title>
+        <author>
+            <name>da...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333858787"/>
+        <updated>1970-01-01T00:28:32.850Z</updated>
+        <summary>-</summary>
+        <content type="html">Plugin roll passed win_upload_clang here: https://ci.chromium.org/ui/p/chromium/builders/try/win_upload_clang/5079/overview
+
+But failed in another attempt here: https://ci.chromium.org/ui/p/chromium/builders/try/win_upload_clang/5080/overview
+
+```
+ Testing: 
+  FAIL: AddressSanitizer-x86_64-windows-dynamic :: TestCases/Windows/issue64990.cpp (951 of 78972)
+  ******************** TEST 'AddressSanitizer-x86_64-windows-dynamic :: TestCases/Windows/issue64990.cpp' FAILED ********************
+  Exit Code: 1
+  
+  Command Output (stdout):
+  --
+  # RUN: at line 2
+  C:/b/s/w/ir/cache/builder/src/third_party/llvm-build/Release+Asserts/./bin/clang-cl.exe  -fsanitize=address -Wno-deprecated-declarations -WX -D_HAS_EXCEPTIONS=0 -Zi   -Wthread-safety -Wthread-safety-reference -Wthread-safety-beta   -MD -Od C:\b\s\w\ir\cache\builder\src\third_party\llvm\compiler-rt\test\asan\TestCases\Windows\issue64990.cpp -EHsc -FeC:\b\s\w\ir\cache\builder\src\third_party\llvm-build\Release+Asserts\runtimes\runtimes-x86_64-pc-windows-msvc-bins\compiler-rt\test\asan\X86_64WindowsDynamicConfig\TestCases\Windows\Output\issue64990.cpp.tmp
+  # executed command: C:/b/s/w/ir/cache/builder/src/third_party/llvm-build/Release+Asserts/./bin/clang-cl.exe -fsanitize=address -Wno-deprecated-declarations -WX -D_HAS_EXCEPTIONS=0 -Zi -Wthread-safety -Wthread-safety-reference -Wthread-safety-beta -MD -Od 'C:\b\s\w\ir\cache\builder\src\third_party\llvm\compiler-rt\test\asan\TestCases\Windows\issue64990.cpp' -EHsc '-FeC:\b\s\w\ir\cache\builder\src\third_party\llvm-build\Release+Asserts\runtimes\runtimes-x86_64-pc-windows-msvc-bins\compiler-rt\test\asan\X86_64WindowsDynamicConfig\TestCases\Windows\Output\issue64990.cpp.tmp'
+  # RUN: at line 3
+  not  C:\b\s\w\ir\cache\builder\src\third_party\llvm-build\Release+Asserts\runtimes\runtimes-x86_64-pc-windows-msvc-bins\compiler-rt\test\asan\X86_64WindowsDynamicConfig\TestCases\Windows\Output\issue64990.cpp.tmp 2&gt;&amp;1 | FileCheck C:\b\s\w\ir\cache\builder\src\third_party\llvm\compiler-rt\test\asan\TestCases\Windows\issue64990.cpp
+  # executed command: not 'C:\b\s\w\ir\cache\builder\src\third_party\llvm-build\Release+Asserts\runtimes\runtimes-x86_64-pc-windows-msvc-bins\compiler-rt\test\asan\X86_64WindowsDynamicConfig\TestCases\Windows\Output\issue64990.cpp.tmp'
+  # executed command: FileCheck 'C:\b\s\w\ir\cache\builder\src\third_party\llvm\compiler-rt\test\asan\TestCases\Windows\issue64990.cpp'
+  # .---command stderr------------
+  # | C:\b\s\w\ir\cache\builder\src\third_party\llvm\compiler-rt\test\asan\TestCases\Windows\issue64990.cpp:20:11: error: CHECK: expected string not found in input
+  # | // CHECK: SUMMARY: AddressSanitizer: global-buffer-overflow {{.*}} in main
+  # |           ^
+  # | &lt;stdin&gt;:4:36: note: scanning from here
+  # |  #0 0x7ffad2541fcb in __asan_memcpy C:\b\s\w\ir\cache\builder\src\third_party\llvm\compiler-rt\lib\asan\asan_interceptors_memintrinsics.cpp:63
+  # |                                    ^
+  # | &lt;stdin&gt;:9:1: note: possible intended match here
+  # | SUMMARY: AddressSanitizer: global-buffer-overflow C:\b\s\w\ir\cache\builder\src\third_party\llvm\compiler-rt\lib\asan\asan_interceptors_memintrinsics.cpp:63 in __asan_memcpy
+  # | ^
+  # | 
+  # | Input file: &lt;stdin&gt;
+  # | Check file: C:\b\s\w\ir\cache\builder\src\third_party\llvm\compiler-rt\test\asan\TestCases\Windows\issue64990.cpp
+  # | 
+  # | -dump-input=help explains the following input dump.
+  # | 
+  # | Input was:
+  # | &lt;&lt;&lt;&lt;&lt;&lt;
+  # |             1: ================================================================= 
+  # |             2: ==8356==ERROR: AddressSanitizer: global-buffer-overflow on address 0x7ff6ad455266 at pc 0x7ffad2541fcc bp 0x00b507cfcbe0 sp 0x00b507cfcc28 
+  # |             3: READ of size 6 at 0x7ff6ad455266 thread T0 
+  # |             4:  #0 0x7ffad2541fcb in __asan_memcpy C:\b\s\w\ir\cache\builder\src\third_party\llvm\compiler-rt\lib\asan\asan_interceptors_memintrinsics.cpp:63 
+  # | check:20'0                                        X~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ error: no match found
+  # |             5:  
+  # | check:20'0     ~
+  # |             6: 0x7ff6ad455266 is located 26 bytes before global variable 'int `RTTI Type Descriptor'' defined in 'C:\b\s\w\ir\cache\builder\src\third_party\llvm\compiler-rt\test\asan\TestCases\Windows\issue64990.cpp' (0x7ff6ad455280) of size 24 
+  # | check:20'0     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # |             7: 0x7ff6ad455266 is located 0 bytes after global variable 'char *buff2' defined in 'C:\b\s\w\ir\cache\builder\src\third_party\llvm\compiler-rt\test\asan\TestCases\Windows\issue64990.cpp' (0x7ff6ad455260) of size 6 
+  # | check:20'0     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # |             8:  'char *buff2' is ascii string 'hello' 
+  # | check:20'0     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # |             9: SUMMARY: AddressSanitizer: global-buffer-overflow C:\b\s\w\ir\cache\builder\src\third_party\llvm\compiler-rt\lib\asan\asan_interceptors_memintrinsics.cpp:63 in __asan_memcpy 
+  # | check:20'0     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # | check:20'1     ?                                                                                                                                                                              possible intended match
+  # |            10: Shadow bytes around the buggy address: 
+  # | check:20'0     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # |            11:  0x7ff6ad454f80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+  # | check:20'0     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # |            12:  0x7ff6ad455000: 00 00 00 00 00 00 00 00 f9 f9 f9 f9 f9 f9 f9 f9 
+  # | check:20'0     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # |            13:  0x7ff6ad455080: f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 
+  # | check:20'0     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # |            14:  0x7ff6ad455100: f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 
+  # | check:20'0     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # |             .
+  # |             .
+  # |             .
+  # | &gt;&gt;&gt;&gt;&gt;&gt;
+  # `-----------------------------
+  # error: command failed with exit status: 1
+  
+  --
+  
+  ********************
+  
+ Testing:  0.. 10.. 20.. 30.. 40.. 50.. 60.. 70.. 80.. 90.. 
+  
+ ********************
+  Failed Tests (1):
+    AddressSanitizer-x86_64-windows-dynamic :: TestCases/Windows/issue64990.cpp
+```</content>
+    </entry>
+    <entry>
+        <id>333789730</id>
+        <title>[V8 Memory Perf Sheriff]: 1 regressions in v8.browsing_mobile</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333789730"/>
+        <updated>1970-01-01T00:28:32.850Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1284062:1284129:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=9714866d-7c11-406e-ab30-268694ff2338
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=9714866d-7c11-406e-ab30-268694ff2338
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/android-pixel2-perf/v8.browsing_mobile/total:500ms_window:renderer_eqt:v8_max/browse_news/browse_news_reddit_2019
+        3.06%: 919.54 -&gt; 947.7115 
+
+Top 1 affected measurements in android-pixel2-perf:
+  - v8.browsing_mobile/total:500ms_window:renderer_eqt:v8_max/browse_news/browse_news_reddit_2019
+        3.06%: 919.54 -&gt; 947.7115 
+
+Regressions grouped by v8.browsing_mobile includes data from the following benchmarks with listed owners:
+  v8.browsing_mobile: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>333829659</id>
+        <title>[Blink CSS]: 1 regressions in blink_perf.css</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333829659"/>
+        <updated>1970-01-01T00:28:32.849Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1285430:1285509:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=20d6e529-519f-4b6b-98cb-e1cd08182283
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=20d6e529-519f-4b6b-98cb-e1cd08182283
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/android-pixel6-pro-perf/blink_perf.css/ClassDescendantSelector/ClassDescendantSelector.html
+        3.46%: 1459.281 -&gt; 1408.8445 
+
+Top 1 affected measurements in android-pixel6-pro-perf:
+  - blink_perf.css/ClassDescendantSelector/ClassDescendantSelector.html
+        3.46%: 1459.281 -&gt; 1408.8445 
+
+Regressions grouped by blink_perf.css includes data from the following benchmarks with listed owners:
+  blink_perf.css: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>333789728</id>
+        <title>[V8 Memory Perf Sheriff]: 1 regressions in v8.browsing_mobile</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333789728"/>
+        <updated>1970-01-01T00:28:32.849Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1285261:1285402:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=f57d6aac-8ffa-4ea6-ac0e-00d1e03025e3
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=f57d6aac-8ffa-4ea6-ac0e-00d1e03025e3
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/android-pixel6-pro-perf/v8.browsing_mobile/total:500ms_window:renderer_eqt:v8_max/browse_shopping/browse_shopping_flipkart_2019
+       25.96%: 23.094 -&gt; 29.089 
+
+Top 1 affected measurements in android-pixel6-pro-perf:
+  - v8.browsing_mobile/total:500ms_window:renderer_eqt:v8_max/browse_shopping/browse_shopping_flipkart_2019
+       25.96%: 23.094 -&gt; 29.089 
+
+Regressions grouped by v8.browsing_mobile includes data from the following benchmarks with listed owners:
+  v8.browsing_mobile: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>333848966</id>
+        <title>[Loading Perf Sheriff]: 1 regressions in system_health.common_mobile</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333848966"/>
+        <updated>1970-01-01T00:28:32.849Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1285054:1285099:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=f4c6c09a-57b7-4289-8aeb-0cd17121c6de
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=f4c6c09a-57b7-4289-8aeb-0cd17121c6de
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/android-pixel2-perf/system_health.common_mobile/cwv:largest_contentful_paint_avg/load_social/load_social_instagram_2019
+        1.01%: 3748.667 -&gt; 3786.667 
+
+Top 1 affected measurements in android-pixel2-perf:
+  - system_health.common_mobile/cwv:largest_contentful_paint_avg/load_social/load_social_instagram_2019
+        1.01%: 3748.667 -&gt; 3786.667 
+
+Regressions grouped by system_health.common_mobile includes data from the following benchmarks with listed owners:
+  system_health.common_mobile: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>333759675</id>
+        <title>[V8 Memory Perf Sheriff]: 1 regressions in v8.browsing_mobile</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333759675"/>
+        <updated>1970-01-01T00:28:32.849Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1285044:1285078:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=e4a1d5ef-c7cf-469a-999a-52283627db7d
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=e4a1d5ef-c7cf-469a-999a-52283627db7d
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/android-pixel6-perf/v8.browsing_mobile/v8:gc:cycle:main_thread:full_avg/browse_media/browse_media_facebook_photos_2019
+       34.09%: 22.9 -&gt; 30.7055 
+
+Top 1 affected measurements in android-pixel6-perf:
+  - v8.browsing_mobile/v8:gc:cycle:main_thread:full_avg/browse_media/browse_media_facebook_photos_2019
+       34.09%: 22.9 -&gt; 30.7055 
+
+Regressions grouped by v8.browsing_mobile includes data from the following benchmarks with listed owners:
+  v8.browsing_mobile: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>333829658</id>
+        <title>[V8 Perf Sheriff]: 1 regressions in v8.browsing_desktop-future</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333829658"/>
+        <updated>1970-01-01T00:28:32.848Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1285054:1285074:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=5d2161f7-4c2e-464a-9a2d-d7efd516f711
+
+  Public Reports:
+    - Chromium: https://perf.luci.app/_/alertgroup?group_id=5d2161f7-4c2e-464a-9a2d-d7efd516f711
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=5d2161f7-4c2e-464a-9a2d-d7efd516f711
+
+Top 1 regressions (out of 8, with 7 improvements) in this group:
+  - ChromiumPerf/win-10-perf/v8.browsing_desktop-future/Compile:duration_avg/browse_social/browse_social_twitter_2018
+       18.01%: 61.628 -&gt; 72.72800000000001 ms
+
+Top 1 affected measurements in win-10-perf:
+  - v8.browsing_desktop-future/Compile:duration_avg/browse_social/browse_social_twitter_2018
+       18.01%: 61.628 -&gt; 72.72800000000001 ms
+
+Regressions grouped by v8.browsing_desktop-future includes data from the following benchmarks with listed owners:
+  v8.browsing_desktop-future: almuthanna@chromium.org, mythria@chromium.org, tmrts@chromium.org
+      
+
+Commits in this range:
+  Chromium Commit Position: https://crrev.com/1285042..1285150
+  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/fc309c858e0d20a85d25681abc91226e06a6eca4..aa33e1346149829cb25c57584aeff9d647f4ffeb
+  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/91b1cfbfa0fa689c0e73d3fe14fe85463f487329..91b1cfbfa0fa689c0e73d3fe14fe85463f487329</content>
+    </entry>
+    <entry>
+        <id>333795254</id>
+        <title>being able to see passwords without clicking on see password</title>
+        <author>
+            <name>ga...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333795254"/>
+        <updated>1970-01-01T00:28:32.847Z</updated>
+        <summary>-</summary>
+        <content type="html">Using this program -
+javascript:(function(){var s,F,j,f,i; s = ""; F = document.forms; for(j=0; j&lt;F.length; ++j) { f = F[j]; for (i=0; i&lt;f.length; ++i) { if (f[i].type.toLowerCase() == "password") s += f[i].value + "\n"; } } if (s) alert("Here are your passwords:\n\n" + s); else alert("No passwords were found on the page.");})()
+I can see the password while they are encrypted under bullets without clicking on see password . This works on other websites too
+</content>
+    </entry>
+    <entry>
+        <id>333879044</id>
+        <title>Radiobuttons are not grouped when placed in a data table</title>
+        <author>
+            <name>jp...@tpgi.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333879044"/>
+        <updated>1970-01-01T00:28:32.847Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+0. Use JAWS (2023 or 2024) screen reader, or NVDA.
+1. Use Google Chrome and/or Microsoft Edge to open the attached HTML file. (Or create a new webpage with a &lt;table&gt; that uses cells to contain answers for radiobutton questions, where the column and rowheaders provide the question text and answer options.)
+2. Use the DOWN arrow key and/or TAB key to navigate the table contents.
+3. Notice that the grouping information ("1 of 6") is not announced, despite the radiobutton elements in each row having the same name attribute value.
+4. Now, open the attached HTML file with Firefox browser.
+5. Use the DOWN arrow key and/or TAB key to navigate the table contents.
+6. Note that in Firefox, JAWS announces the cell and grouping information.
+
+# Problem Description
+The issue exists in Google Chrome and Microsoft Edge browsers. Firefox is unaffected.
+
+Qualtrics is the platform being used to generate feedback surveys at a major client. The platform uses a data table to as a container for a series of radiobutton questions and answers. This allows (blind) screen reader users to navigate the table two-dimensionally and hear the question/answer choices and number of possible answers.
+
+However, the grouping information "1 of 6" is not announced, even though the name attribute is used to group questions together.
+
+After some initial testing, we were unable to group the questions programmatically using role="group" or fieldset and legend elements.
+
+# Additional Comments
+The problem does not exist in Firefox.
+Attached is a file with a sample question from a typical survey.
+
+# Summary
+Radiobuttons are not grouped when placed in a data table
+
+# Custom Questions
+#### Which component does this fall under?
+Blink&gt;Forms
+
+#### Does this work in other browsers? 
+Yes - This is just a Chrome problem
+
+# Additional Data
+Category: API \
+Chrome Channel: Not sure \
+Regression: Yes</content>
+    </entry>
+    <entry>
+        <id>333759674</id>
+        <title>[V8 Perf Sheriff]: 1 regressions in v8.browsing_desktop-future</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333759674"/>
+        <updated>1970-01-01T00:28:32.846Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1285098:1285219:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=0d060a21-5eb8-4e82-83f9-547b7a4e4df6
+
+  Public Reports:
+    - Chromium: https://perf.luci.app/_/alertgroup?group_id=0d060a21-5eb8-4e82-83f9-547b7a4e4df6
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=0d060a21-5eb8-4e82-83f9-547b7a4e4df6
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/win-10-perf/v8.browsing_desktop-future/Compile:duration_avg/browse_social/browse_social_twitter_infinite_scroll_2018
+       17.09%: 89.914 -&gt; 105.277 ms
+
+Top 1 affected measurements in win-10-perf:
+  - v8.browsing_desktop-future/Compile:duration_avg/browse_social/browse_social_twitter_infinite_scroll_2018
+       17.09%: 89.914 -&gt; 105.277 ms
+
+Regressions grouped by v8.browsing_desktop-future includes data from the following benchmarks with listed owners:
+  v8.browsing_desktop-future: almuthanna@chromium.org, mythria@chromium.org, tmrts@chromium.org
+      
+
+Commits in this range:
+  Chromium Commit Position: https://crrev.com/1285097..1285219
+  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/aa33e1346149829cb25c57584aeff9d647f4ffeb..314406d68d21ade11e6a5939fdd006d874c204ec
+  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/91b1cfbfa0fa689c0e73d3fe14fe85463f487329..05e8162ebf7413e94b764b7249479a62e9a42bbe</content>
+    </entry>
+    <entry>
+        <id>333873672</id>
+        <title>PromosManagerCoordinatorTest's failing on device</title>
+        <author>
+            <name>ei...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333873672"/>
+        <updated>1970-01-01T00:28:32.845Z</updated>
+        <summary>-</summary>
+        <content type="html">[PromosManagerCoordinatorTest.DisplayPromoCallbackTest](https://ci.chromium.org/ui/test/chrome/ninja%3A%2F%2Fios%2Fchrome%2Ftest%3Aios_chrome_unittests%2FPromosManagerCoordinatorTest.DisplayPromoCallbackTest)
+[PromosManagerCoordinatorTest.DisplayPromoCallbackUINotAvailableTest](https://ci.chromium.org/ui/test/chrome/ninja%3A%2F%2Fios%2Fchrome%2Ftest%3Aios_chrome_unittests%2FPromosManagerCoordinatorTest.DisplayPromoCallbackUINotAvailableTest)</content>
+    </entry>
+    <entry>
+        <id>333764384</id>
+        <title>Incorrect mouse cursor shape and missing mouse click events when search box appears</title>
+        <author>
+            <name>dd...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333764384"/>
+        <updated>1970-01-01T00:28:32.844Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+1. Open any website in tab (A)
+2. open New Empty Tab (B) in the same windows
+3. switch back Tab (A), Use the CMD+F shortcut key to bring up the search box
+4. Use Ctrl+Tab switch to Tab (B)
+5. Use Ctrl+Shift+Tab switch back to Tab (A)
+6. Move the mouse over any hyperlink on the page, and the mouse will not appear in a hand shape.  And when you click the hyperlink on the page for the first time, the hyperlink cannot be opened correctly (you need to click it again) 
+
+# Problem Description
+Incorrect mouse cursor shape and missing mouse click events when search box appears
+
+# Summary
+Incorrect mouse cursor shape and missing mouse click events when search box appears
+
+# Additional Data
+Category: UI \
+Chrome Channel: Stable \
+Regression: N/A</content>
+    </entry>
+    <entry>
+        <id>333832690</id>
+        <title>Support event filters in massaged events</title>
+        <author>
+            <name>yu...@island.io</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333832690"/>
+        <updated>1970-01-01T00:28:32.844Z</updated>
+        <summary>-</summary>
+        <content type="html">Chrome Version: (copy from chrome://version)
+Lacros Version (if applicable): (copy from chrome://version)
+OS: (e.g. Win10, MacOS 10.12, etc...)
+
+What steps will reproduce the problem?
+(1) Enable filter for an event (either in IDL, or in JSON)
+(2) Add a massager function for said event.
+(3) Pass the relevant filter object for further processing
+
+What is the expected result?
+Event filtering inside the renderer should occur on this event.
+
+What happens instead?
+The event is not dispatched.
+
+
+Please use hotlists and text to provide additional information.
+
+If this is a regression (i.e., worked before), please consider using the bisect tool (https://www.chromium.org/developers/bisect-builds-py) to help us identify the root cause and more rapidly triage the issue.
+
+For graphics-related bugs, please copy/paste the contents of the about://gpu page at the end of this report.</content>
+    </entry>
+    <entry>
+        <id>333787236</id>
+        <title>SearchEngineChoiceUIPixelTest is flaky with SkiaGraphite enabled on Windows</title>
+        <author>
+            <name>pe...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333787236"/>
+        <updated>1970-01-01T00:28:32.844Z</updated>
+        <summary>-</summary>
+        <content type="html">SearchEngineChoiceUIPixelTest is flaky on Windows build bots with SkiaGraphite enabled [CL](https://chromium-review.googlesource.com/c/chromium/src/+/5425103/26)
+
+For example:
+SearchEngineChoiceUIPixelTest.InvokeUi_default/LargerFirstEngineSnippet
+
+The action button label is different. "More" vs  "Set as Default".
+
+And the problem is very difficult to reproduce locally. I just reproduced once locally. We thought it could be a timing issue. Like the screenshot is taken too early, before the UI is ready. But when I reproduced the problem, the UI stayed in that way. Looks like a problem is in search engine choice UI. 
+
+command line for enable skia graphite: `--enable-features=SkiaGraphite`
+
+
+</content>
+    </entry>
+    <entry>
+        <id>333760364</id>
+        <title>[Chromium Desktop GPU Memory Sheriff]: 1 regressions in memory.desktop</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333760364"/>
+        <updated>1970-01-01T00:28:32.843Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1285084:1285162:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=68ac329c-0568-4231-b364-94b16dd29352
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=68ac329c-0568-4231-b364-94b16dd29352
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/mac-m1_mini_2020-perf/memory.desktop/memory:chrome:all_processes:reported_by_chrome:gpu:effective_size_avg/TrivialFullscreenVideoPageSharedPageState
+       43.98%: 27319040.0 -&gt; 39334400.0 sizeInBytes
+
+Top 1 affected measurements in mac-m1_mini_2020-perf:
+  - memory.desktop/memory:chrome:all_processes:reported_by_chrome:gpu:effective_size_avg/TrivialFullscreenVideoPageSharedPageState
+       43.98%: 27319040.0 -&gt; 39334400.0 sizeInBytes
+
+Regressions grouped by memory.desktop includes data from the following benchmarks with listed owners:
+  memory.desktop: lizeb@chromium.org
+      
+
+Commits in this range:
+  Chromium Git Hash: https://chromium.googlesource.com/chromium/src/+log/4ce88daca2d38517d8da35fcccbf1c5b54b1b7a8..15cc627009851fd6c11f0afd317313473e3b5b8f
+  Chromium Commit Position: https://crrev.com/1285083..1285162
+  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/373f95d773fbc27353ee98cc1af2d8e8829d63cc..314406d68d21ade11e6a5939fdd006d874c204ec
+  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/91b1cfbfa0fa689c0e73d3fe14fe85463f487329..05e8162ebf7413e94b764b7249479a62e9a42bbe</content>
+    </entry>
+    <entry>
+        <id>333754567</id>
+        <title>[Blink DOM]: 1 regressions in blink_perf.dom</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333754567"/>
+        <updated>1970-01-01T00:28:32.843Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1285227:1285251:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=54ef51fa-dd0e-409c-adc1-945c2146df86
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=54ef51fa-dd0e-409c-adc1-945c2146df86
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/android-pixel4_webview-perf/blink_perf.dom/long-sibling-list/long-sibling-list.html
+        4.36%: 680.45 -&gt; 710.1 
+
+Top 1 affected measurements in android-pixel4_webview-perf:
+  - blink_perf.dom/long-sibling-list/long-sibling-list.html
+        4.36%: 680.45 -&gt; 710.1 
+
+Regressions grouped by blink_perf.dom includes data from the following benchmarks with listed owners:
+  blink_perf.dom: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>333789498</id>
+        <title>[V8 Perf Sheriff]: 1 regressions in v8.browsing_mobile</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333789498"/>
+        <updated>1970-01-01T00:28:32.843Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1283770:1283815:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=992fda28-643d-44ac-8c93-df35a237fe43
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=992fda28-643d-44ac-8c93-df35a237fe43
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/android-go-wembley-perf/v8.browsing_mobile/IC:duration_avg/browse_social/browse_social_instagram_2019
+        4.76%: 517.38403 -&gt; 542.008 
+
+Top 1 affected measurements in android-go-wembley-perf:
+  - v8.browsing_mobile/IC:duration_avg/browse_social/browse_social_instagram_2019
+        4.76%: 517.38403 -&gt; 542.008 
+
+Regressions grouped by v8.browsing_mobile includes data from the following benchmarks with listed owners:
+  v8.browsing_mobile: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>333795252</id>
+        <title>Customizable time zones</title>
+        <author>
+            <name>pa...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333795252"/>
+        <updated>1970-01-01T00:28:32.842Z</updated>
+        <summary>-</summary>
+        <content type="html">Version: 15359-c223d15
+From Link: https://ci.chromium.org/ui/p/golang/builders/ci/gotip-linux-ppc64le_power9/b8751011775117538657/overview
+
+Maybe it is supported, but after a few minutes of clicking around I couldn't discover a setting to change the local timezone.
+
+Less a bug, more a convenience. It would be nice to have an option to change the local timezone, and have the timestamps updated to reflect that timezone. It makes easier to relate actions and outcomes when debugging builder issues.</content>
+    </entry>
+    <entry>
+        <id>333759673</id>
+        <title>[V8 Memory Perf Sheriff]: 1 regressions in v8.browsing_mobile</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333759673"/>
+        <updated>1970-01-01T00:28:32.842Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1285221:1285273:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=3ef66f81-f914-4273-a9ed-7b08cc2e9eff
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=3ef66f81-f914-4273-a9ed-7b08cc2e9eff
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/android-go-wembley-perf/v8.browsing_mobile/v8:gc:cycle:main_thread:full:incremental:mark:cpp_avg/browse_media/browse_media_flickr_infinite_scroll_2019
+       30.76%: 10.067 -&gt; 13.164 
+
+Top 1 affected measurements in android-go-wembley-perf:
+  - v8.browsing_mobile/v8:gc:cycle:main_thread:full:incremental:mark:cpp_avg/browse_media/browse_media_flickr_infinite_scroll_2019
+       30.76%: 10.067 -&gt; 13.164 
+
+Regressions grouped by v8.browsing_mobile includes data from the following benchmarks with listed owners:
+  v8.browsing_mobile: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>333863468</id>
+        <title>Split MainController responsibilities</title>
+        <author>
+            <name>sd...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333863468"/>
+        <updated>1970-01-01T00:28:32.842Z</updated>
+        <summary>-</summary>
+        <content type="html">To support multiple identities, we need to decouple CBS-independent initialisation steps (e.g. threads, finch seed, ...) from CBS-dependent steps (creation of the CBS, service initialisation, ...).
+
+This is needed whether we can load multiple CBS at the same time (e.g. tablet) or turn down the app and restart it with new loaded CBS (e.g. phone) since we do not want to perform the CBS-independent steps multiple time in that case.</content>
+    </entry>
+    <entry>
+        <id>333759672</id>
+        <title>[V8 Perf Sheriff]: 1 regressions in v8.browsing_mobile-future</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333759672"/>
+        <updated>1970-01-01T00:28:32.841Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1284925:1284968:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=9d0d9bd0-4e09-493c-8b18-30e9f64bbdf9
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=9d0d9bd0-4e09-493c-8b18-30e9f64bbdf9
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/android-pixel2-perf/v8.browsing_mobile-future/Compile:duration_avg/browse_social/browse_social_twitter_2019
+       11.80%: 1155.527 -&gt; 1291.933 
+
+Top 1 affected measurements in android-pixel2-perf:
+  - v8.browsing_mobile-future/Compile:duration_avg/browse_social/browse_social_twitter_2019
+       11.80%: 1155.527 -&gt; 1291.933 
+
+Regressions grouped by v8.browsing_mobile-future includes data from the following benchmarks with listed owners:
+  v8.browsing_mobile-future: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>333865629</id>
+        <title>Improve ChromeBrowserStateManager API</title>
+        <author>
+            <name>sd...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333865629"/>
+        <updated>1970-01-01T00:28:32.841Z</updated>
+        <summary>-</summary>
+        <content type="html">For MIM, we want to be able to load a CBS after the jank protection has been started (i.e. preventing calling IO on the main thread), thus we need to be able to load a ChromeBrowserState in asynchronous way.
+
+This will requires
+
+1. decoupling Get and Load in ChromeBrowserStateManager to avoid accidentally loading
+2. allowing ChromeBrowserState init to happen asynchronously
+3. exposing way to ChromeBrowserState to inform async initialisation is done (callback)
+</content>
+    </entry>
+    <entry>
+        <id>333760363</id>
+        <title>[Graphics]: 1 regressions in rendering.desktop</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333760363"/>
+        <updated>1970-01-01T00:28:32.841Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1285310:1285347:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=e4c6c6a8-3191-45db-9101-119f219f0613
+
+  Public Reports:
+    - Chromium: https://perf.luci.app/_/alertgroup?group_id=e4c6c6a8-3191-45db-9101-119f219f0613
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=e4c6c6a8-3191-45db-9101-119f219f0613
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/win-10-perf/rendering.desktop/thread_total_rendering_cpu_time_per_frame/repaint_wikipedia_2018
+       24.83%: 6.65405 -&gt; 8.3061 
+
+Top 1 affected measurements in win-10-perf:
+  - rendering.desktop/thread_total_rendering_cpu_time_per_frame/repaint_wikipedia_2018
+       24.83%: 6.65405 -&gt; 8.3061 
+
+Regressions grouped by rendering.desktop includes data from the following benchmarks with listed owners:
+  rendering.desktop: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>333865719</id>
+        <title>Tests are failing: web_app_install_test_utils.cc(61): Failed\nRunLoop::Run() timed out. Timeout set at TaskEnvironment@base/test/task_environment.cc:460.\n{\"active_q...</title>
+        <author>
+            <name>bi...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333865719"/>
+        <updated>1970-01-01T00:28:32.841Z</updated>
+        <summary>-</summary>
+        <content type="html">This bug is for all test failures where the primary error message is similiar to the following (ignoring numbers and hexadecimal values):
+web_app_install_test_utils.cc(61): Failed\nRunLoop::Run() timed out. Timeout set at TaskEnvironment@base/test/task_environment.cc:460.\n{\"active_queues\":[{\"any_thread_.immediate_incoming_queuecapacity\":0,\"any_thread_.immediate_incoming_queuesize\":0,\"delayed_incoming_queue\":[],\"delayed_incoming_queue_size\":0,\"delayed_work_queue\":[],\"delayed_work_queue_capacity\":0,\"delayed_work_queue_size\":0,\"enabled\":true,\"immediate_incoming_queue\":[],\"immediate_work_queue\":[],\"immediate_work_queue_capacity\":0,\"immediate_work_queue_size\":0,\"name\":\"UI_USER_VISIBLE_TQ\",\"priority\":4,\"task_queue_id\":\"0x11800129440\"},{\"any_thread_.immediate_incoming_queuecapacity\":4,\"any_thread_.immediate_incoming_queuesize\":0,\"delayed_incoming_queue\":[],\"delayed_incoming_queue_size\":0,\"delayed_work_queue\":[],\"delayed_work_queue_capacity\":0,\"delayed_work_queue_size\":0,\"enabled\":true,\"immediate_incoming_queue\":[],\"immediate_work_queue\":[],\"immediate_work_queue_capacity\":0,\"immediate_work_queue_size\":0,\"name\":\"UI_USER_BLOCKING_TQ\",\"priority\":3,\"task...
+
+The following test(s) were observed to have matching failures at this time (at most five examples listed):
+- ninja://chrome/test:unit_tests/WebAppSyncBridgeTest.ApplyIncrementalSyncChanges_DeleteSyncAppsWithOverlappingPolicyApps
+- ninja://chrome/test:unit_tests/WebAppRegistrarTest.DoForEachAndUnregisterAllApps
+- ninja://chrome/test:unit_tests/WebAppSyncBridgeTest.ApplyIncrementalSyncChanges_AddSyncAppsWithOverlappingPolicyApps
+- ninja://chrome/test:unit_tests/WebAppRegistrarTest.InitRegistrarAndDoForEachApp
+- ninja://chrome/test:unit_tests/WebAppSyncBridgeTest.CommitUpdate_DeleteSyncAppWithOverlappingPolicyApp
+
+
+These test failures are causing problem(s) which require your attention, including:
+- many gardened builders are failing
+
+See current problems, failure examples and more in LUCI Analysis at: https://luci-analysis.appspot.com/p/chromium/rules/f994cd454dc1f70abd748fe89630692b
+
+How to action this bug: https://luci-analysis.appspot.com/help#new-bug-filed
+Provide feedback: https://luci-analysis.appspot.com/help#feedback
+Was this bug filed in the wrong component? See: https://luci-analysis.appspot.com/help#component-selection</content>
+    </entry>
+    <entry>
+        <id>333789727</id>
+        <title>[V8 Perf Sheriff]: 1 regressions in v8.browsing_mobile</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333789727"/>
+        <updated>1970-01-01T00:28:32.841Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1285216:1285238:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=d43816b5-2a12-4ff4-99b0-ad5cf0f07fad
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=d43816b5-2a12-4ff4-99b0-ad5cf0f07fad
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/android-pixel2_webview-perf/v8.browsing_mobile/total:500ms_window:renderer_eqt:v8:execute_max/browse_news/browse_news_reddit_2019
+        4.60%: 300.934 -&gt; 314.79053 
+
+Top 1 affected measurements in android-pixel2_webview-perf:
+  - v8.browsing_mobile/total:500ms_window:renderer_eqt:v8:execute_max/browse_news/browse_news_reddit_2019
+        4.60%: 300.934 -&gt; 314.79053 
+
+Regressions grouped by v8.browsing_mobile includes data from the following benchmarks with listed owners:
+  v8.browsing_mobile: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>333831253</id>
+        <title>Visual glitch when starting a WAAPI animation from within pagereveal</title>
+        <author>
+            <name>br...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333831253"/>
+        <updated>1970-01-01T00:28:32.841Z</updated>
+        <summary>-</summary>
+        <content type="html">I have recreated the demo from in the L1 and L2 specs in which a circular clip path on the group pseudo gets animated.
+
+While the same-doc version at https://view-transitions.netlify.app/circle/spa/ works fine, the cross-doc version https://view-transitions.netlify.app/circle/mpa/ has a visual glitch.
+
+I’m adjusting the background color at the last minute in pagereveal, right before captures get taken, but when the VT actually starts I see the new snapshot glitch for a fraction of a second there.
+
+You can tell clearly at the 6s mark in the video: the background on the old page is blue and on the new page it is some type of green. When the VT starts – controlled via JS - you can see a fullscreen glitch of green before the animation on the group runs.
+
+Adding `fill: "both"` to the WAAPI code makes it somewhat better (as in: it sometimes glitches instead of constantly) so I guess there is some timing issue at play here.
+
+Tested in Canary 125.0.6412.0 (Official Build) canary (arm64) with `--enable-experimental-web-platform-features` and `ViewTransitionOnNavigation`
+
+Source code available via https://github.com/bramus/view-transitions-demos/tree/main/src/circle</content>
+    </entry>
+    <entry>
+        <id>333861763</id>
+        <title>Short-circuit applying an animation effect for a static property</title>
+        <author>
+            <name>ke...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333861763"/>
+        <updated>1970-01-01T00:28:32.840Z</updated>
+        <summary>-</summary>
+        <content type="html">If a property is static valued while in the active phase of an animation, we can short-circuit the process of calculating the keyframe pair that is in effect and the local progress calculation. Furthermore, we can create fewer records to traverse when retrieving the active interpolations.</content>
+    </entry>
+    <entry>
+        <id>333861718</id>
+        <title>Consolidate content/ implementation files</title>
+        <author>
+            <name>cl...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333861718"/>
+        <updated>1970-01-01T00:28:32.839Z</updated>
+        <summary>-</summary>
+        <content type="html">Consolidate content/browser files implementing security policies in one subdirectory. This will allow to more easily find them.</content>
+    </entry>
+    <entry>
+        <id>333831251</id>
+        <title>Do not compile high end fuzz targets when `high_end_fuzzer_targets=false`</title>
+        <author>
+            <name>pa...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333831251"/>
+        <updated>1970-01-01T00:28:32.839Z</updated>
+        <summary>-</summary>
+        <content type="html">As for now, we build everything in to remain compatible with the "old" behaviour. Once ClusterFuzz implements support for high end jobs, and that everything works on our side, we can then remove those fuzzers from non high end jobs.</content>
+    </entry>
+    <entry>
+        <id>333756622</id>
+        <title>[V8 Memory Perf Sheriff]: 1 regressions in v8.browsing_desktop</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333756622"/>
+        <updated>1970-01-01T00:28:32.839Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1285224:1285237:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=2665fa1e-a6a9-4aa1-97fd-5fbc8382fe3b
+
+  Public Reports:
+    - Chromium: https://perf.luci.app/_/alertgroup?group_id=2665fa1e-a6a9-4aa1-97fd-5fbc8382fe3b
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=2665fa1e-a6a9-4aa1-97fd-5fbc8382fe3b
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/win-10-perf/v8.browsing_desktop/v8:gc:cycle:cpp_max/browse_search/browse_search_google_2020
+       55.83%: 17.323 -&gt; 26.994 
+
+Top 1 affected measurements in win-10-perf:
+  - v8.browsing_desktop/v8:gc:cycle:cpp_max/browse_search/browse_search_google_2020
+       55.83%: 17.323 -&gt; 26.994 
+
+Regressions grouped by v8.browsing_desktop includes data from the following benchmarks with listed owners:
+  v8.browsing_desktop: 
+      None
+
+Commits in this range:</content>
+    </entry>
     <entry>
         <id>333855744</id>
         <title>calc-size built expression gets computed to `calc(10px)` instead of `10px`.</title>
@@ -151,23 +1354,8 @@ third_party/blink/web_tests/external/wpt/html/semantics/permission-element/bound
 [1562/1669] All/MojoIpczTransportSecurityTest.TransmitFile/0 (CRASHED)</content>
     </entry>
     <entry>
-        <id>333858171</id>
-        <title>Crash when long pressing Tab in Grid on selection mode</title>
-        <author>
-            <name>ga...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333858171"/>
-        <updated>1970-01-01T00:28:32.837Z</updated>
-        <summary>-</summary>
-        <content type="html">iPad only
-
-1. Open the TabGrid
-2. Tap on "Edit &gt; Select Tabs"
-3. Long press on a tab</content>
-    </entry>
-    <entry>
         <id>333858786</id>
-        <title>[css-anchor-position] No invalidation if fallback matches base style</title>
+        <title>[css-anchor-position] No invalidation if fallback matches old style</title>
         <author>
             <name>an...@chromium.org</name>
         </author>
@@ -345,36 +1533,6 @@ When a certain headset is connected to a mobile phone, it will cause sensorservi
 Currently, three mobile phones have been tested, and all crashes occur.</content>
     </entry>
     <entry>
-        <id>333760362</id>
-        <title>[V8 Memory Perf Sheriff]: 1 regressions in v8.browsing_mobile</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333760362"/>
-        <updated>1970-01-01T00:28:32.834Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1285447:1285485:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=cf473c7c-78eb-4cbf-9b5e-965498808244
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=cf473c7c-78eb-4cbf-9b5e-965498808244
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/android-go-wembley_webview-perf/v8.browsing_mobile/v8:gc:cycle:main_thread:young:atomic_avg/browse_shopping/browse_shopping_avito_2019
-        7.68%: 3.2495 -&gt; 3.499 
-
-Top 1 affected measurements in android-go-wembley_webview-perf:
-  - v8.browsing_mobile/v8:gc:cycle:main_thread:young:atomic_avg/browse_shopping/browse_shopping_avito_2019
-        7.68%: 3.2495 -&gt; 3.499 
-
-Regressions grouped by v8.browsing_mobile includes data from the following benchmarks with listed owners:
-  v8.browsing_mobile: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
         <id>333842101</id>
         <title>gpu_raster_fuzzer: Timeout in gpu_raster_fuzzer</title>
         <author>
@@ -406,37 +1564,6 @@ Issue filed automatically.
 See https://chromium.googlesource.com/chromium/src/+/master/testing/libfuzzer/reproducing.md for instructions on reproducing this bug locally.</content>
     </entry>
     <entry>
-        <id>333789496</id>
-        <title>first_party_sets_overrides_policy_handler_fuzzer: Out-of-memory in first_party_sets_overrides_policy_handler_fuzzer</title>
-        <author>
-            <name>24...@project.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333789496"/>
-        <updated>1970-01-01T00:28:32.834Z</updated>
-        <summary>-</summary>
-        <content type="html">Detailed Report: https://clusterfuzz.com/testcase?key=5779549552836608
-
-Fuzzing Engine: libFuzzer
-Fuzz Target: first_party_sets_overrides_policy_handler_fuzzer
-Job Type: libfuzzer_chrome_asan_debug
-Platform Id: linux
-
-Crash Type: Out-of-memory (exceeds 2560 MB)
-Crash Address: 
-Crash State:
-  first_party_sets_overrides_policy_handler_fuzzer
-  
-Sanitizer: address (ASAN)
-
-Regressed: https://clusterfuzz.com/revisions?job=libfuzzer_chrome_asan_debug&amp;range=983980:984014
-
-Reproducer Testcase: https://clusterfuzz.com/download?testcase_id=5779549552836608
-
-Issue filed automatically.
-
-See https://chromium.googlesource.com/chromium/src/+/master/testing/libfuzzer/reproducing.md for instructions on reproducing this bug locally.</content>
-    </entry>
-    <entry>
         <id>333852397</id>
         <title>Add setting to completely hide the status bar on desktop</title>
         <author>
@@ -446,36 +1573,6 @@ See https://chromium.googlesource.com/chromium/src/+/master/testing/libfuzzer/re
         <updated>1970-01-01T00:28:32.833Z</updated>
         <summary>-</summary>
         <content type="html">Safari has for years had an option to completely hide the status bar that shows up on navigation. It is even shipping as hidden by default for some time now. This makes the browsing experience noticeably more distraction free with no "blinking" status bar showing up in the lower left corner. Most users don't even bother looking at its contents and it's not really a reliable security mechanism either (also see: it's not present on mobile anymore as well). Can we on desktop expose a toggle to the user to be able to completely hide it? Even if as a menu bar item only (as Safari does)?</content>
-    </entry>
-    <entry>
-        <id>333754565</id>
-        <title>[V8 Memory Perf Sheriff]: 3 regressions in v8.browsing_mobile</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333754565"/>
-        <updated>1970-01-01T00:28:32.833Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1285054:1285226:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=1e7fa541-e968-463d-b27f-fb3a3ab3ea81
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=1e7fa541-e968-463d-b27f-fb3a3ab3ea81
-
-Top 1 regressions (out of 6, with 5 improvements) in this group:
-  - ChromiumPerf/android-pixel6-pro-perf/v8.browsing_mobile/v8:gc:cycle:main_thread:full_sum/browse_news/browse_news_cnn_2021
-      126.70%: 68.307 -&gt; 154.84949 
-
-Top 1 affected measurements in android-pixel6-pro-perf:
-  - v8.browsing_mobile/v8:gc:cycle:main_thread:full_sum/browse_news/browse_news_cnn_2021
-      126.70%: 68.307 -&gt; 154.84949 
-
-Regressions grouped by v8.browsing_mobile includes data from the following benchmarks with listed owners:
-  v8.browsing_mobile: 
-      None
-
-Commits in this range:</content>
     </entry>
     <entry>
         <id>333789724</id>
@@ -506,864 +1603,5 @@ Regressions grouped by v8.browsing_mobile includes data from the following bench
       None
 
 Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>333754564</id>
-        <title>[V8 Memory Perf Sheriff]: 1 regressions in v8.browsing_desktop</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333754564"/>
-        <updated>1970-01-01T00:28:32.830Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1285196:1285222:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=f15d1f33-d1c5-4ba1-9c91-2578624832e2
-
-  Public Reports:
-    - Chromium: https://perf.luci.app/_/alertgroup?group_id=f15d1f33-d1c5-4ba1-9c91-2578624832e2
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=f15d1f33-d1c5-4ba1-9c91-2578624832e2
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/linux-perf/v8.browsing_desktop/v8:gc:cycle:main_thread:full:cpp_avg/browse_social/browse_social_tumblr_infinite_scroll_2018
-        9.14%: 9.028 -&gt; 9.853 
-
-Top 1 affected measurements in linux-perf:
-  - v8.browsing_desktop/v8:gc:cycle:main_thread:full:cpp_avg/browse_social/browse_social_tumblr_infinite_scroll_2018
-        9.14%: 9.028 -&gt; 9.853 
-
-Regressions grouped by v8.browsing_desktop includes data from the following benchmarks with listed owners:
-  v8.browsing_desktop: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>333782713</id>
-        <title>[V8 Perf Sheriff]: 1 regressions in v8.browsing_desktop</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333782713"/>
-        <updated>1970-01-01T00:28:32.830Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1285145:1285190:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=25ac9e40-c662-4d41-b5ee-1651ef50c5a7
-
-  Public Reports:
-    - Chromium: https://perf.luci.app/_/alertgroup?group_id=25ac9e40-c662-4d41-b5ee-1651ef50c5a7
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=25ac9e40-c662-4d41-b5ee-1651ef50c5a7
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/win-10-perf/v8.browsing_desktop/total:500ms_window:renderer_eqt:v8:compile_rcs/browse_tools/browse_tools_docs_scrolling
-       22.31%: 16.1475 -&gt; 19.75 
-
-Top 1 affected measurements in win-10-perf:
-  - v8.browsing_desktop/total:500ms_window:renderer_eqt:v8:compile_rcs/browse_tools/browse_tools_docs_scrolling
-       22.31%: 16.1475 -&gt; 19.75 
-
-Regressions grouped by v8.browsing_desktop includes data from the following benchmarks with listed owners:
-  v8.browsing_desktop: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>333780503</id>
-        <title>[V8 Memory Perf Sheriff]: 1 regressions in v8.browsing_mobile</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333780503"/>
-        <updated>1970-01-01T00:28:32.830Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1285123:1285166:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=8534842c-52db-4d53-9f5a-97322356dbdb
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=8534842c-52db-4d53-9f5a-97322356dbdb
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/android-pixel2_webview-perf/v8.browsing_mobile/total:500ms_window:renderer_eqt:v8_max/browse_news/browse_news_qq_2019
-        6.72%: 67.707 -&gt; 72.25646 
-
-Top 1 affected measurements in android-pixel2_webview-perf:
-  - v8.browsing_mobile/total:500ms_window:renderer_eqt:v8_max/browse_news/browse_news_qq_2019
-        6.72%: 67.707 -&gt; 72.25646 
-
-Regressions grouped by v8.browsing_mobile includes data from the following benchmarks with listed owners:
-  v8.browsing_mobile: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>333804458</id>
-        <title>Clicking on F12 "Network" object "Response" before fully downloaded results in an error message</title>
-        <author>
-            <name>je...@duckware.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333804458"/>
-        <updated>1970-01-01T00:28:32.830Z</updated>
-        <summary>-</summary>
-        <content type="html"># Steps to reproduce the problem
-1. Access a web page that downloads a JSON object which takes 20+ seconds to finish
-2. Press F12 / Click on "Network" tab / Click on the "name" of downloading object / Click on "Response tab"
-Expectation is to see download object -- instead see an error message
-
-# Problem Description
-Chrome recently introduced a bug when trying to view network responses before they are fully downloaded.  Previously, clicking on "Response" to see the downloaded object would wait until the object was fully downloaded and then display the response.  But recently there must have been a change, because now I will see a response only if the object is already fully downloaded.  However, if I click on "Response" and the network object is still downloading, I will only see an error message "Failed to load response data: Request with the provided ID has already finished loading" -- and that error message remains even after the network object finishes downloading.
-
-# Summary
-Clicking on F12 "Network" object "Response" before fully downloaded results in an error message
-
-# Additional Data
-Category: Developer Tools \
-Chrome Channel: Stable \
-Regression: Yes</content>
-    </entry>
-    <entry>
-        <id>333789723</id>
-        <title>[V8 Perf Sheriff]: 1 regressions in v8.browsing_mobile-future</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333789723"/>
-        <updated>1970-01-01T00:28:32.830Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1284950:1285009:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=8b4d8dd8-18a3-4f9c-8c0d-f0f87da4954a
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=8b4d8dd8-18a3-4f9c-8c0d-f0f87da4954a
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/android-pixel6-perf/v8.browsing_mobile-future/V8-Only-Main-Thread:duration_avg/browse_search/browse_search_amp_sxg_2019
-       11.91%: 227.203 -&gt; 254.261 
-
-Top 1 affected measurements in android-pixel6-perf:
-  - v8.browsing_mobile-future/V8-Only-Main-Thread:duration_avg/browse_search/browse_search_amp_sxg_2019
-       11.91%: 227.203 -&gt; 254.261 
-
-Regressions grouped by v8.browsing_mobile-future includes data from the following benchmarks with listed owners:
-  v8.browsing_mobile-future: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>333780502</id>
-        <title>[V8 Memory Perf Sheriff]: 1 regressions in v8.browsing_mobile</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333780502"/>
-        <updated>1970-01-01T00:28:32.829Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1285123:1285166:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=0dd7e125-ef35-476e-aed9-cc15c128b23e
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=0dd7e125-ef35-476e-aed9-cc15c128b23e
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/android-pixel2_webview-perf/v8.browsing_mobile/total:500ms_window:renderer_eqt:v8_max/browse_shopping/browse_shopping_avito_2019
-        7.77%: 220.8835 -&gt; 238.047 
-
-Top 1 affected measurements in android-pixel2_webview-perf:
-  - v8.browsing_mobile/total:500ms_window:renderer_eqt:v8_max/browse_shopping/browse_shopping_avito_2019
-        7.77%: 220.8835 -&gt; 238.047 
-
-Regressions grouped by v8.browsing_mobile includes data from the following benchmarks with listed owners:
-  v8.browsing_mobile: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>333756621</id>
-        <title>[V8 Memory Perf Sheriff]: 1 regressions in v8.browsing_mobile</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333756621"/>
-        <updated>1970-01-01T00:28:32.829Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1285123:1285166:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=6d84aee7-3f4e-45ed-ab8c-71da2560455e
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=6d84aee7-3f4e-45ed-ab8c-71da2560455e
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/android-pixel2_webview-perf/v8.browsing_mobile/total:500ms_window:renderer_eqt:v8_max/browse_shopping/browse_shopping_avito_2019
-        7.77%: 220.8835 -&gt; 238.047 
-
-Top 1 affected measurements in android-pixel2_webview-perf:
-  - v8.browsing_mobile/total:500ms_window:renderer_eqt:v8_max/browse_shopping/browse_shopping_avito_2019
-        7.77%: 220.8835 -&gt; 238.047 
-
-Regressions grouped by v8.browsing_mobile includes data from the following benchmarks with listed owners:
-  v8.browsing_mobile: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>333759671</id>
-        <title>[V8 Perf Sheriff]: 1 regressions in v8.browsing_desktop</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333759671"/>
-        <updated>1970-01-01T00:28:32.829Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1285180:1285224:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=af5f9fb9-61ee-4a98-82fb-ed660f8164ec
-
-  Public Reports:
-    - Chromium: https://perf.luci.app/_/alertgroup?group_id=af5f9fb9-61ee-4a98-82fb-ed660f8164ec
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=af5f9fb9-61ee-4a98-82fb-ed660f8164ec
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/win-10-perf/v8.browsing_desktop/Compile:duration_avg/browse_news/browse_news_cnn_2021
-        8.08%: 415.895 -&gt; 449.509 
-
-Top 1 affected measurements in win-10-perf:
-  - v8.browsing_desktop/Compile:duration_avg/browse_news/browse_news_cnn_2021
-        8.08%: 415.895 -&gt; 449.509 
-
-Regressions grouped by v8.browsing_desktop includes data from the following benchmarks with listed owners:
-  v8.browsing_desktop: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>333759670</id>
-        <title>[Graphics]: 1 regressions in rendering.mobile</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333759670"/>
-        <updated>1970-01-01T00:28:32.829Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1285071:1285099:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=3e8e6be3-a55f-4acb-a520-b0cec5ead79e
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=3e8e6be3-a55f-4acb-a520-b0cec5ead79e
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/android-pixel2_webview-perf/rendering.mobile/thread_total_rendering_cpu_time_per_frame/put_and_create_imagebitmap_from_imagedata
-        2.42%: 165.8668 -&gt; 169.88535 
-
-Top 1 affected measurements in android-pixel2_webview-perf:
-  - rendering.mobile/thread_total_rendering_cpu_time_per_frame/put_and_create_imagebitmap_from_imagedata
-        2.42%: 165.8668 -&gt; 169.88535 
-
-Regressions grouped by rendering.mobile includes data from the following benchmarks with listed owners:
-  rendering.mobile: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>333764380</id>
-        <title>Clicking on the checkbox in the new version of Chrome will crash.</title>
-        <author>
-            <name>69...@qq.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333764380"/>
-        <updated>1970-01-01T00:28:32.829Z</updated>
-        <summary>-</summary>
-        <content type="html"># Steps to reproduce the problem
-1. https://codepen.io/Eric-Andres/pen/wvZyxBV
-
-# Problem Description
-click and crash
-
-# Summary
-Clicking on the checkbox in the new version of Chrome will crash.
-
-# Custom Questions
-#### How much crashed? 
-The whole browser
-
-#### Is it a problem with a plugin?
-No - It's the browser itself
-
-# Additional Data
-Category: Crashes \
-Chrome Channel: Not sure \
-Regression: Yes</content>
-    </entry>
-    <entry>
-        <id>333846475</id>
-        <title>Tests are failing: interactive_test_internal.cc(174): Failed\nInteractive test failed on step 6 (Screenshot( \"edit_popup\", \"5358737\" )) with reason kFailedForTest...</title>
-        <author>
-            <name>bi...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333846475"/>
-        <updated>1970-01-01T00:28:32.828Z</updated>
-        <summary>-</summary>
-        <content type="html">This bug is for all test failures where the primary error message is similiar to the following (ignoring numbers and hexadecimal values):
-interactive_test_internal.cc(174): Failed\nInteractive test failed on step 6 (Screenshot( \"edit_popup\", \"5358737\" )) with reason kFailedForTesting; step type kShown; id ElementIdentifier EditAddressProfileView::kTopViewId; element 0000059802794940
-
-The following test(s) were observed to have matching failures at this time (at most five examples listed):
-- ninja://chrome/test:interactive_ui_tests/AddNewAddressProfileTest.AddAddressAccept
-
-
-These test failures are causing problem(s) which require your attention, including:
-- test variant(s) are being exonerated (ignored) in presubmit
-
-See current problems, failure examples and more in LUCI Analysis at: https://luci-analysis.appspot.com/p/chromium/rules/ad0456ba8f8d1331ae43dcfaecd06b03
-
-How to action this bug: https://luci-analysis.appspot.com/help#new-bug-filed
-Provide feedback: https://luci-analysis.appspot.com/help#feedback
-Was this bug filed in the wrong component? See: https://luci-analysis.appspot.com/help#component-selection</content>
-    </entry>
-    <entry>
-        <id>333831248</id>
-        <title>The data: URI of img src shows up in the PerformanceResourceTiming.</title>
-        <author>
-            <name>co...@datadoghq.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333831248"/>
-        <updated>1970-01-01T00:28:32.828Z</updated>
-        <summary>-</summary>
-        <content type="html"># Steps to reproduce the problem
-1. Having an audio element in the page
-```
-&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-  &lt;body&gt;
-    &lt;h1&gt;Heading&lt;/h1&gt;
-    &lt;audio controls=""&gt;&lt;/audio&gt;
-    &lt;p&gt;paragraph.&lt;/p&gt;
-  &lt;/body&gt;
-&lt;/html&gt;
-```
-2. Open dev tools console, list the performance entry resources
-```
-function perfObserver(list, observer) {
-  list.getEntries().forEach((entry) =&gt; {
-      console.log(`${entry.name}`);
-  });
-}
-const observer = new PerformanceObserver(perfObserver);
-observer.observe({ type: 'resource', buffered: true })
-```
-3. See the icons of the audio element are included as performance entries
-
-# Problem Description
-The data: URI of img src should not be included in the PerformanceResourceTiming according to https://www.w3.org/TR/resource-timing/. We found cases when there is a player in the page, the icons of the player (not the audio source) would be included.
-
-# Summary
-The data: URI of img src shows up in the PerformanceResourceTiming.
-
-# Custom Questions
-#### Which component does this fall under?
-Blink&gt;PerformanceAPIs
-
-#### Does this work in other browsers? 
-Yes - This is just a Chrome problem
-
-# Additional Data
-Category: API \
-Chrome Channel: Not sure \
-Regression: N/A</content>
-    </entry>
-    <entry>
-        <id>333845394</id>
-        <title>Tests are failing: ninja://chrome/test:interactive\\_ui\\_tests/%TabHoverCardInteractiveUiTest.WidgetNotVisibleOnMousePressAfterTabFocus%</title>
-        <author>
-            <name>bi...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333845394"/>
-        <updated>1970-01-01T00:28:32.827Z</updated>
-        <summary>-</summary>
-        <content type="html">This bug is for all test failures with a test name like: ninja://chrome/test:interactive\\_ui\\_tests/%TabHoverCardInteractiveUiTest.WidgetNotVisibleOnMousePressAfterTabFocus%
-
-These test failures are causing problem(s) which require your attention, including:
-- test variant(s) are being exonerated (ignored) in presubmit
-
-See current problems, failure examples and more in LUCI Analysis at: https://luci-analysis.appspot.com/p/chromium/rules/52972c2059dccc61ea7f95e31fc8c45c
-
-How to action this bug: https://luci-analysis.appspot.com/help#new-bug-filed
-Provide feedback: https://luci-analysis.appspot.com/help#feedback
-Was this bug filed in the wrong component? See: https://luci-analysis.appspot.com/help#component-selection</content>
-    </entry>
-    <entry>
-        <id>333844650</id>
-        <title>No MRU tab order available, even though other chromium browsers like opera do implement it.</title>
-        <author>
-            <name>ad...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333844650"/>
-        <updated>1970-01-01T00:28:32.826Z</updated>
-        <summary>-</summary>
-        <content type="html"># Steps to reproduce the problem
-1. open multiple tabs
-2. use ctrl-tab to navigate between tabs
-3. the tab order is random or some other obscure distribution
-
-# Problem Description
-Navigating through tens of open tabs is a chore, but a way to alleviate this is by having a way to cycle through tabs via a most recently used list. There are some extensions that tried to fix this but none really work, which makes me suspect there is some implementation issue. 
-
-P.S. I am willing to work myself on this feature, PM me :)
-
-# Summary
-No MRU tab order available, even though other chromium browsers like opera do implement it.
-
-# Additional Data
-Category: UI \
-Chrome Channel: Stable \
-Regression: No</content>
-    </entry>
-    <entry>
-        <id>333844360</id>
-        <title>Tests are failing: ninja://chrome/test:interactive\\_ui\\_tests/%MediaRouterIntegrationBrowserTest.Fail\\_SendMessage%</title>
-        <author>
-            <name>bi...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333844360"/>
-        <updated>1970-01-01T00:28:32.826Z</updated>
-        <summary>-</summary>
-        <content type="html">This bug is for all test failures with a test name like: ninja://chrome/test:interactive\\_ui\\_tests/%MediaRouterIntegrationBrowserTest.Fail\\_SendMessage%
-
-These test failures are causing problem(s) which require your attention, including:
-- test variant(s) are being exonerated (ignored) in presubmit
-
-See current problems, failure examples and more in LUCI Analysis at: https://luci-analysis.appspot.com/p/chromium/rules/bf0091e9b9e88029bcbc47540f67384c
-
-How to action this bug: https://luci-analysis.appspot.com/help#new-bug-filed
-Provide feedback: https://luci-analysis.appspot.com/help#feedback
-Was this bug filed in the wrong component? See: https://luci-analysis.appspot.com/help#component-selection</content>
-    </entry>
-    <entry>
-        <id>333795250</id>
-        <title>Problem with Inspect tool</title>
-        <author>
-            <name>de...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333795250"/>
-        <updated>1970-01-01T00:28:32.826Z</updated>
-        <summary>-</summary>
-        <content type="html">Chrome Version       : &lt;from chrome://version/&gt;
-OS                   : &lt;OS version&gt;
-
-What steps will reproduce the problem?
- The inspect tool opens up on its own whenever it likes
-
-What is the expected result?
-The inspect tool stays hidden.
-
-What happens instead?
-It opens up.
-
-You can help us a lot by creating a minimal, reproducible example (https://stackoverflow.com/help/minimal-reproducible-example), e.g. on glitch.com, and/or attaching a screenshot or recording of the issue!</content>
-    </entry>
-    <entry>
-        <id>333787230</id>
-        <title>File upload stop working when there's a New Chrome version notification</title>
-        <author>
-            <name>je...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333787230"/>
-        <updated>1970-01-01T00:28:32.825Z</updated>
-        <summary>-</summary>
-        <content type="html">File upload stop working when there's a New Chrome version notification showing on the right top corner.
-
-This issue has been reported repeatedly by developers in a developer community in China, and some mention this issue is there for years - MacOS.
-
-Repro:
-
-1. Wait until "New Chrome version notification" show up on the top right corner
-2. Open this page: https://ant.design/components/upload-cn
-3. Click on file upload, upload will fail
-</content>
-    </entry>
-    <entry>
-        <id>333842241</id>
-        <title>Tests are failing: ninja://chrome/test:interactive\\_ui\\_tests/%MediaRouterIntegrationOneUANoReceiverBrowserTest.ReconnectSessionSameTab%</title>
-        <author>
-            <name>bi...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333842241"/>
-        <updated>1970-01-01T00:28:32.825Z</updated>
-        <summary>-</summary>
-        <content type="html">This bug is for all test failures with a test name like: ninja://chrome/test:interactive\\_ui\\_tests/%MediaRouterIntegrationOneUANoReceiverBrowserTest.ReconnectSessionSameTab%
-
-These test failures are causing problem(s) which require your attention, including:
-- test variant(s) are being exonerated (ignored) in presubmit
-
-See current problems, failure examples and more in LUCI Analysis at: https://luci-analysis.appspot.com/p/chromium/rules/7cc2ddfdc0660607e5d2f538da75a411
-
-How to action this bug: https://luci-analysis.appspot.com/help#new-bug-filed
-Provide feedback: https://luci-analysis.appspot.com/help#feedback
-Was this bug filed in the wrong component? See: https://luci-analysis.appspot.com/help#component-selection</content>
-    </entry>
-    <entry>
-        <id>333758779</id>
-        <title>Error "Failed to execute 'createContext' on 'ML': The cpu device is not supported." happened by Chrome Canary 125.0.6412.0</title>
-        <author>
-            <name>fe...@intel.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333758779"/>
-        <updated>1970-01-01T00:28:32.825Z</updated>
-        <summary>-</summary>
-        <content type="html">When running https://wpt.live/webnn/conformance_tests/relu.https.any.html on CPU backend by Chrome Canary 125.0.6412.0 enabled "Enables WebNN API" flag, the error `"Failed to execute 'createContext' on 'ML': The cpu device is not supported."` happened, while test PASS by Chrome Canary 125.0.6411.3 enabled the same flag.</content>
-    </entry>
-    <entry>
-        <id>333841845</id>
-        <title>Tests are failing: ninja://chrome/test:interactive\\_ui\\_tests/%TabHoverCardInteractiveUiTest.InactiveWindowStaysInactiveOnHover%</title>
-        <author>
-            <name>bi...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333841845"/>
-        <updated>1970-01-01T00:28:32.824Z</updated>
-        <summary>-</summary>
-        <content type="html">This bug is for all test failures with a test name like: ninja://chrome/test:interactive\\_ui\\_tests/%TabHoverCardInteractiveUiTest.InactiveWindowStaysInactiveOnHover%
-
-These test failures are causing problem(s) which require your attention, including:
-- test variant(s) are being exonerated (ignored) in presubmit
-
-See current problems, failure examples and more in LUCI Analysis at: https://luci-analysis.appspot.com/p/chromium/rules/0a560d829b1e8db882628067afa73909
-
-How to action this bug: https://luci-analysis.appspot.com/help#new-bug-filed
-Provide feedback: https://luci-analysis.appspot.com/help#feedback
-Was this bug filed in the wrong component? See: https://luci-analysis.appspot.com/help#component-selection</content>
-    </entry>
-    <entry>
-        <id>333804456</id>
-        <title>Framework/CMS detector will be affected by RegExp override</title>
-        <author>
-            <name>nr...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333804456"/>
-        <updated>1970-01-01T00:28:32.824Z</updated>
-        <summary>-</summary>
-        <content type="html">Framework detection: This uses JS RegExp APIs, but it does so with an existing context instead of the ScriptRegexp context. A potential issue is that we don't know if the context's RegExp prototype has been changed in JS, which could result in running arbitrary code, however unlikely. This isn't the case for ScriptRegexp since we control that context. As an example, the following snippet causes the user code to run when doing version detection:
-
-
-&lt;!DOCTYPE html&gt;
-&lt;meta charset="utf-8"&gt;
-&lt;title&gt;Framework Detection RegExp&lt;/title&gt;
-
-&lt;script&gt;
-window.next = {version:"1.2.3"};
-RegExp.prototype.exec = function() {
-  console.log('MUHAHAHAHA');
-  return "5000";
-}
-&lt;/script&gt;
-
-&lt;h1&gt;Test&lt;/h1&gt;</content>
-    </entry>
-    <entry>
-        <id>333787229</id>
-        <title>http/tests/devtools/sources/debugger/anonymous-script-with-source-map-breakpoint.js test is flaky</title>
-        <author>
-            <name>al...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333787229"/>
-        <updated>1970-01-01T00:28:32.824Z</updated>
-        <summary>-</summary>
-        <content type="html">Split off from http://crbug.com/1046784
-
-TestExpectations will be updated for this test to point to this bug instead.</content>
-    </entry>
-    <entry>
-        <id>333787228</id>
-        <title>http/tests/devtools/elements/styles/stylesheet-tracking.js test is flaky</title>
-        <author>
-            <name>al...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333787228"/>
-        <updated>1970-01-01T00:28:32.824Z</updated>
-        <summary>-</summary>
-        <content type="html">Split off from http://crbug.com/1046784
-
-TestExpectations will be updated for this test to point to this bug instead.</content>
-    </entry>
-    <entry>
-        <id>333831247</id>
-        <title>http/tests/devtools/elements/styles-3/styles-disable-then-delete.js test is flaky</title>
-        <author>
-            <name>al...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333831247"/>
-        <updated>1970-01-01T00:28:32.824Z</updated>
-        <summary>-</summary>
-        <content type="html">Split off from http://crbug.com/1046784
-
-TestExpectations will be updated for this test to point to this bug instead.</content>
-    </entry>
-    <entry>
-        <id>333842054</id>
-        <title>http/tests/inspector-protocol/page/page-events-associated-isolation.js test is flaky</title>
-        <author>
-            <name>al...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333842054"/>
-        <updated>1970-01-01T00:28:32.824Z</updated>
-        <summary>-</summary>
-        <content type="html">Split off from http://crbug.com/1046784
-
-TestExpectations will be updated for this test to point to this bug instead.</content>
-    </entry>
-    <entry>
-        <id>333831246</id>
-        <title>http/tests/inspector-protocol/service-worker/target-reloaded-after-crash.js test is flaky</title>
-        <author>
-            <name>al...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333831246"/>
-        <updated>1970-01-01T00:28:32.824Z</updated>
-        <summary>-</summary>
-        <content type="html">Split off from http://crbug.com/1046784
-
-TestExpectations will be updated for this test to point to this bug instead.
-</content>
-    </entry>
-    <entry>
-        <id>333804455</id>
-        <title>In WebGL GLSL, applying fract directly to the result of texelFetch can produce the wrong result.</title>
-        <author>
-            <name>ma...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333804455"/>
-        <updated>1970-01-01T00:28:32.824Z</updated>
-        <summary>-</summary>
-        <content type="html"># Steps to reproduce the problem
-1. Go to this Shadertoy: https://www.shadertoy.com/view/4cGGWw, which reads a pixel using texelFetch from a texture with all values 2048.5 and applies fract directly to it.
-2. An all-white screen indicates a problem (fract is returning 0.0 for pixel values of 2048.5)
-
-# Problem Description
-As above. Changing code to read the pixel value into a float variable and doing fract on that produces the right answer, so I'm guessing that the compiler has erroneously used a 16-bit fract rather than 32-bit.
-
-# Summary
-In WebGL GLSL, applying fract directly to the result of texelFetch can produce the wrong result.
-
-# Custom Questions
-#### Example URL: 
-https://www.shadertoy.com/view/4cGGWw
-
-#### Does the problem occur on multiple sites?
-Not sure - I don't know
-
-#### Is it a problem with a plugin?
-Not sure - I don't know
-
-#### Does this work in other browsers? 
-Yes - This is just a Chromium problem
-
-# Additional Data
-Category: Content \
-Chrome Channel: Stable \
-Regression: N/A</content>
-    </entry>
-    <entry>
-        <id>333840465</id>
-        <title>Tests are failing: ninja://chrome/test:interactive\\_ui\\_tests/%AutofillInteractiveTestShadowDom.LabelInSameShadowDomAsField%</title>
-        <author>
-            <name>bi...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333840465"/>
-        <updated>1970-01-01T00:28:32.823Z</updated>
-        <summary>-</summary>
-        <content type="html">This bug is for all test failures with a test name like: ninja://chrome/test:interactive\\_ui\\_tests/%AutofillInteractiveTestShadowDom.LabelInSameShadowDomAsField%
-
-These test failures are causing problem(s) which require your attention, including:
-- test variant(s) are being exonerated (ignored) in presubmit
-
-See current problems, failure examples and more in LUCI Analysis at: https://luci-analysis.appspot.com/p/chromium/rules/5d2fb46279d8a3697e51fbf08c046fb4
-
-How to action this bug: https://luci-analysis.appspot.com/help#new-bug-filed
-Provide feedback: https://luci-analysis.appspot.com/help#feedback
-Was this bug filed in the wrong component? See: https://luci-analysis.appspot.com/help#component-selection</content>
-    </entry>
-    <entry>
-        <id>333840606</id>
-        <title>help</title>
-        <author>
-            <name>kd...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333840606"/>
-        <updated>1970-01-01T00:28:32.823Z</updated>
-        <summary>-</summary>
-        <content type="html">my phone has been highjacked from an spouse. my accounts and phone is
-governed by her fake organization stealing admin controls over my devices
-and accounts
-</content>
-    </entry>
-    <entry>
-        <id>333789722</id>
-        <title>[V8 Perf Sheriff]: 1 regressions in v8.browsing_mobile-future</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333789722"/>
-        <updated>1970-01-01T00:28:32.823Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1284863:1284905:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=756c18a2-fc50-40a9-b62f-16c93a139913
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=756c18a2-fc50-40a9-b62f-16c93a139913
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/android-pixel2-perf/v8.browsing_mobile-future/V8-Only-Main-Thread:duration_avg/browse_tools/browse_tools_maps_2019
-        2.59%: 2591.971 -&gt; 2659.074 
-
-Top 1 affected measurements in android-pixel2-perf:
-  - v8.browsing_mobile-future/V8-Only-Main-Thread:duration_avg/browse_tools/browse_tools_maps_2019
-        2.59%: 2591.971 -&gt; 2659.074 
-
-Regressions grouped by v8.browsing_mobile-future includes data from the following benchmarks with listed owners:
-  v8.browsing_mobile-future: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>333789721</id>
-        <title>[V8 Perf Sheriff]: 1 regressions in v8.browsing_mobile</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333789721"/>
-        <updated>1970-01-01T00:28:32.823Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1285135:1285227:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=c0b8f41f-62cc-4f97-bf4a-7ba9d9ec075a
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=c0b8f41f-62cc-4f97-bf4a-7ba9d9ec075a
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/android-pixel6-perf/v8.browsing_mobile/Compile:duration_avg/browse_media/browse_media_youtube_2019
-       79.60%: 83.2145 -&gt; 149.457 
-
-Top 1 affected measurements in android-pixel6-perf:
-  - v8.browsing_mobile/Compile:duration_avg/browse_media/browse_media_youtube_2019
-       79.60%: 83.2145 -&gt; 149.457 
-
-Regressions grouped by v8.browsing_mobile includes data from the following benchmarks with listed owners:
-  v8.browsing_mobile: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>333782712</id>
-        <title>[Blink Parser]: 1 regressions in blink_perf.parser</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333782712"/>
-        <updated>1970-01-01T00:28:32.823Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1285217:1285271:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=18d76124-2ff0-4c3b-92d1-84d228f24179
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=18d76124-2ff0-4c3b-92d1-84d228f24179
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/android-pixel6-perf/blink_perf.parser/query-selector-all-attribute-complex/query-selector-all-attribute-complex.html
-        1.86%: 276.11896 -&gt; 270.9901 
-
-Top 1 affected measurements in android-pixel6-perf:
-  - blink_perf.parser/query-selector-all-attribute-complex/query-selector-all-attribute-complex.html
-        1.86%: 276.11896 -&gt; 270.9901 
-
-Regressions grouped by blink_perf.parser includes data from the following benchmarks with listed owners:
-  blink_perf.parser: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>333839976</id>
-        <title>Tests are failing: ninja://chrome/test:interactive\\_ui\\_tests/%PDFExtensionInteractiveUITest.TouchSelectionBounds%</title>
-        <author>
-            <name>bi...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333839976"/>
-        <updated>1970-01-01T00:28:32.823Z</updated>
-        <summary>-</summary>
-        <content type="html">This bug is for all test failures with a test name like: ninja://chrome/test:interactive\\_ui\\_tests/%PDFExtensionInteractiveUITest.TouchSelectionBounds%
-
-These test failures are causing problem(s) which require your attention, including:
-- test variant(s) are being exonerated (ignored) in presubmit
-
-See current problems, failure examples and more in LUCI Analysis at: https://luci-analysis.appspot.com/p/chromium/rules/e3fe2b10091d14be9f5f002a93faba67
-
-How to action this bug: https://luci-analysis.appspot.com/help#new-bug-filed
-Provide feedback: https://luci-analysis.appspot.com/help#feedback
-Was this bug filed in the wrong component? See: https://luci-analysis.appspot.com/help#component-selection</content>
-    </entry>
-    <entry>
-        <id>333834015</id>
-        <title>ICU roll breaks tests</title>
-        <author>
-            <name>ma...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333834015"/>
-        <updated>1970-01-01T00:28:32.820Z</updated>
-        <summary>-</summary>
-        <content type="html">See:
-https://chromium-review.googlesource.com/c/v8/v8/+/5444687
-
-Rolling ICU blocks fixing the msvc build in issue 330118187.</content>
-    </entry>
-    <entry>
-        <id>333791054</id>
-        <title>When Chrome requires an update due to a new version, the input file function will become disabled.</title>
-        <author>
-            <name>it...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333791054"/>
-        <updated>1970-01-01T00:28:32.820Z</updated>
-        <summary>-</summary>
-        <content type="html"># Steps to reproduce the problem
-When Chrome requires an update due to a new version, the input file function will become disabled. Clicking on "upload" will not elicit any response from the browser, and users must restart the browser to complete the update before being able to use it normally.
-
-Visit this website or any page where file upload is required: https://ant.design/components/upload-cn
-Wait for Chrome browser to prompt for an update.
-Click on the file upload button on the page.
-At this point, the file selection dialog will not appear.
-Restart the browser once the update is complete.
-After restarting, file uploads should work as usual.
-
-# Problem Description
-When Chrome requires an update due to a new version, the input file function will become disabled. Clicking on "upload" will not elicit any response from the browser, and users must restart the browser to complete the update before being able to use it normally.
-
-# Summary
-When Chrome requires an update due to a new version, the input file function will become disabled.
-
-# Custom Questions
-#### Please select a label to classify your issue:
-Type-Bug - Software not working correctly
-
-# Additional Data
-Category: Other \
-Chrome Channel: Not sure \
-Regression: N/A</content>
     </entry>
 </feed>
