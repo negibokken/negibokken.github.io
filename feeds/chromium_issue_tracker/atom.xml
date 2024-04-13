@@ -3,7 +3,1199 @@
     <id>https://negibokken.github.io/feeds/chromium_issue_tracker/atom.xml</id>
     <title>Chromium issue tracker feed</title>
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
-    <updated>1970-01-01T00:28:32.952Z</updated>
+    <updated>1970-01-01T00:28:32.969Z</updated>
+    <entry>
+        <id>334137034</id>
+        <title>[Blink Bindings Perf Regressions]: 1 regressions in blink_perf.bindings</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334137034"/>
+        <updated>1970-01-01T00:28:32.969Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1286037:1286064:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=66dce92a-247c-4eb8-bd6c-e2e2b303b4d6
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=66dce92a-247c-4eb8-bd6c-e2e2b303b4d6
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/android-pixel2_webview-perf/blink_perf.bindings/insert-before/insert-before.html
+       10.13%: 15.9556 -&gt; 14.3385 unitless
+
+Top 1 affected measurements in android-pixel2_webview-perf:
+  - blink_perf.bindings/insert-before/insert-before.html
+       10.13%: 15.9556 -&gt; 14.3385 unitless
+
+Regressions grouped by blink_perf.bindings includes data from the following benchmarks with listed owners:
+  blink_perf.bindings: haraken@chromium.org, japhet@chromium.org, jbroman@chromium.org
+      
+
+Commits in this range:
+  Chromium Commit Position: https://crrev.com/1286036..1286064
+  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/3a36d2b100d790f363601d661909ff23fe7e50c5..3a36d2b100d790f363601d661909ff23fe7e50c5
+  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/1c35107cdca725ca700f1c8c3ea39d690e4cfc3e..1c35107cdca725ca700f1c8c3ea39d690e4cfc3e</content>
+    </entry>
+    <entry>
+        <id>333961058</id>
+        <title>Not all ports available on external thunderbolt dock</title>
+        <author>
+            <name>wo...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333961058"/>
+        <updated>1970-01-01T00:28:32.968Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+1. Plug in thunderbolt doc
+2. Keyboard/mouse won't work in the dock but will when plugged directly into the laptop
+3. However, the monitor will connect just fine
+
+# Problem Description
+When I plug into a thunderbolt dock via usb-C cable, only some of the peripherals work (e.g., monitor works but the USB ports don't work). All of the ports worked in a previous version (probably ~1 week ago) and they all work with a different laptop (Thinkpad with Windows)
+
+# Summary
+Not all ports available on external thunderbolt dock
+
+# Custom Questions
+#### Please select a label to classify your issue:
+Type-Bug-Regression - Used to work, now broken
+
+# Additional Data
+Category: Other \
+Chrome Channel: Dev \
+Regression: Yes</content>
+    </entry>
+    <entry>
+        <id>333940421</id>
+        <title>Replace ChainCallbacks() with Callback::Then()</title>
+        <author>
+            <name>pk...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333940421"/>
+        <updated>1970-01-01T00:28:32.966Z</updated>
+        <summary>-</summary>
+        <content type="html">c/b/web_applications/callback_utils.h contains a facility for chaining callbacks, originally added (in a different subdir) in https://chromium-review.googlesource.com/c/chromium/src/+/3858898.
+
+This requires making each bound method take a "next callback" arg and manually invoke it with the desired arguments when it's done running, while returning `void` itself.
+
+**Problems**
+* Called method signatures are more verbose, because they include details of the subsequent pipeline stage.
+* Called method signatures don't "say what they mean", because any "return value" is passed to the next callback inline instead of being exposed as a return type.
+* Called method implementations are inflexible for composition/reuse, because they encode details of how to invoke the subsequent pipeline stage.
+* Caller implementations are misleading, because `RunChainedCallbacks()` doesn't actually mean each successive callback will run; it simply binds them as args and runs the first callback. Since any given callback can take its arg and do anything with it, as opposed to actually chaining to it (and many indeed do!), callers must go read each called method to understand the actual control flow.
+* The convenience of `RunChainedCallbacks()` encourages pessimistic serialization when some stages could theoretically run simultaneously.
+* Using callbacks as args makes any potential future conversion to coroutines more difficult.
+* This isn't common practice in Chromium, so it increases cognitive and maintenance burden.
+
+**Proposed solution**
+
+`base::{Once,Repeating}Callback` already contains a facility for chaining that avoids the issues above: `.Then()`. It binds successive callbacks by passing the return value of each as the unbound arg of the next. As a result, actual arguments and execution order are explicit at the callsite, and not encoded into the called methods.
+
+`base::BarrierCallback` allows parallelizing independent chains and running some termination step only when all of them complete. If "abort on first error" behavior is desired, https://chromium-review.googlesource.com/c/chromium/src/+/5378285 may be of interest.
+
+This bug proposes gradually converting all usage of ChainedCallbacks to standard Chromium idioms above (and then removing this header), along with removing continuation callback params where possible.
+
+**Complications**
+
+Without coroutines, maybe-async actions are difficult to implement without continuation callback arguments. Consider:
+```c++
+void Obj::MaybeAsync(ContinuationCallback cb) {
+  if (done_) {
+    cb.Run();
+  } else {
+    task_runner_-&gt;PostTaskAndReply(FROM_HERE, base::BindOnce(DoWork), std::move(cb));
+  }
+}
+```
+This code doesn't have obviously-superior alternatives. Such cases in existing code will probably need to continue to use continuation passing. However, by eliminating other continuations and pessimistic serialization, we can still improve existing code.
+
+**Sample conversions**
+
+OLD CODE *(based on the real class, but simplified)*
+```c++
+void WebAppIconDiagnosticCommand::DiagnoseEmptyOrMissingIconFiles(
+    base::OnceCallback&lt;void(CommandResult)&gt; done_callback,
+    WebAppIconManager::IconFilesCheck icon_files_check) {
+  result_-&gt;has_empty_icon_file = icon_files_check.empty &gt; 0;
+  result_-&gt;has_missing_icon_file = icon_files_check.missing &gt; 0;
+  std::move(done_callback).Run(CommandResult::kSuccess);
+}
+
+void Caller() {
+  RunChainedCallbacks(
+      base::BindOnce(
+          &amp;WebAppIconDiagnosticCommand::DiagnoseEmptyOrMissingIconFiles,
+          GetWeakPtr()),
+
+      base::BindOnce(&amp;WebAppIconDiagnosticCommand::ReportResultAndDestroy,
+                     GetWeakPtr()));
+}
+```
+NEW CODE
+```c++
+CommandResult WebAppIconDiagnosticCommand::DiagnoseEmptyOrMissingIconFiles(
+    WebAppIconManager::IconFilesCheck icon_files_check) {
+  result_-&gt;has_empty_icon_file = icon_files_check.empty &gt; 0;
+  result_-&gt;has_missing_icon_file = icon_files_check.missing &gt; 0;
+  return CommandResult::kSuccess;
+}
+
+void Caller() {
+  base::BindOnce(&amp;WebAppIconDiagnosticCommand::DiagnoseEmptyOrMissingIconFiles,
+                 GetWeakPtr())
+      .Then(base::BindOnce(&amp;WebAppIconDiagnosticCommand::ReportResultAndDestroy,
+                           GetWeakPtr()))
+      .Run();
+}
+```
+Not only is the new code shorter, `DiagnoseEmptyOrMissingIconFiles()` can now be invoked from anywhere and doesn't care about the context it's inside.
+
+OLD CODE *(based on the real class, but simplified)*
+```c++
+void ManifestUpdateCheckCommand::DownloadNewManifestData(
+    base::OnceClosure next_step_callback) {
+  DCHECK_EQ(stage_, ManifestUpdateCheckStage::kPendingAppLock);
+  stage_ = ManifestUpdateCheckStage::kDownloadingNewManifestData;
+
+  RunChainedCallbacks(
+      base::BindOnce(&amp;ManifestUpdateCheckCommand::DownloadNewManifestJson,
+                     GetWeakPtr()),
+
+      base::BindOnce(&amp;ManifestUpdateCheckCommand::StashNewManifestJson,
+                     GetWeakPtr()),
+
+      base::BindOnce(&amp;ManifestUpdateCheckCommand::DownloadNewIconBitmaps,
+                     GetWeakPtr()),
+
+      base::BindOnce(&amp;ManifestUpdateCheckCommand::StashNewIconBitmaps,
+                     GetWeakPtr()),
+
+      base::BindOnce(&amp;ManifestUpdateCheckCommand::ValidateNewScopeExtensions,
+                     GetWeakPtr()),
+
+      base::BindOnce(&amp;ManifestUpdateCheckCommand::StashValidatedScopeExtensions,
+                     GetWeakPtr()),
+
+      std::move(next_step_callback));
+}
+```
+NEW CODE (assumes https://chromium-review.googlesource.com/c/chromium/src/+/5378285 has landed, and some signature changes not shown here)
+```c++
+void ManifestUpdateCheckCommand::DownloadNewManifestData(
+    base::OnceClosure next_step_callback) {
+  DCHECK_EQ(stage_, ManifestUpdateCheckStage::kPendingAppLock);
+  stage_ = ManifestUpdateCheckStage::kDownloadingNewManifestData;
+
+  DownloadNewManifestJson(
+      base::BindOnce(&amp;ManifestUpdateCheckCommand::StashNewManifestJson,
+                     GetWeakPtr())
+          .Then(base::BindOnce(&amp;ManifestUpdateCheckCommand::OnManifestStashed,
+                               GetWeakPtr(), std::move(next_step_callback))));
+}
+
+void ManifestUpdateCheckCommand::OnManifestStashed(
+    base::OnceClosure next_step_callback) {
+  const auto barrier_cb = base::BarrierCallbackOrFirstError(
+      2, base::BindOnce(
+             [](base::OnceClosure cb, auto ret) {
+               // Only invoke `cb` if neither step had an error.
+               if (ret.has_value()) {
+                 std::move(cb).Run();
+               } else {
+                 CompleteCommandAndSelfDestruct(ret.error());
+               }
+             },
+             std::move(next_step_callback)));
+  DownloadNewIconBitmaps(
+      base::BindOnce(&amp;ManifestUpdateCheckCommand::StashNewIconBitmaps,
+                     GetWeakPtr())
+          .Then(barrier_cb));
+  ValidateNewScopeExtensions(
+      base::BindOnce(&amp;ManifestUpdateCheckCommand::StashValidatedScopeExtensions,
+                     GetWeakPtr())
+          .Then(barrier_cb));
+}
+```
+This eliminates continuation arguments from all three "stash" methods, hoists duplicated error-handling code to a common location, and allows the "download icon bitmaps" and "validate scope extensions" stages to run in parallel. The new `OnManifestStashed()` method could instead be written as a lambda if desired, assuming the called methods were public and the lambda manually checked a bound weak pointer.</content>
+    </entry>
+    <entry>
+        <id>334193264</id>
+        <title>Rename ImprovedBookmarkRow to BookmarkRow</title>
+        <author>
+            <name>wy...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334193264"/>
+        <updated>1970-01-01T00:28:32.965Z</updated>
+        <summary>-</summary>
+        <content type="html"></content>
+    </entry>
+    <entry>
+        <id>334192344</id>
+        <title>m126 ffmpeg roll</title>
+        <author>
+            <name>li...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334192344"/>
+        <updated>1970-01-01T00:28:32.965Z</updated>
+        <summary>-</summary>
+        <content type="html">another milestone, another ffmpeg roll.</content>
+    </entry>
+    <entry>
+        <id>334190793</id>
+        <title>Tests are failing: signin_view_controller_interactive_uitest.cc(184): Failed\r\nRunLoop::Run() timed out. Timeout set at ProxyRunTestOnMainThreadLoop@content\\public\...</title>
+        <author>
+            <name>bi...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334190793"/>
+        <updated>1970-01-01T00:28:32.965Z</updated>
+        <summary>-</summary>
+        <content type="html">This bug is for all test failures where the primary error message is similiar to the following (ignoring numbers and hexadecimal values):
+signin_view_controller_interactive_uitest.cc(184): Failed\r\nRunLoop::Run() timed out. Timeout set at ProxyRunTestOnMainThreadLoop@content\\public\\test\\browser_test_base.cc:851.
+
+The following test(s) were observed to have matching failures at this time (at most five examples listed):
+- ninja://chrome/test:interactive_ui_tests/SignInViewControllerBrowserTest.EmailConfirmationDefaultFocus
+- ninja://chrome/test:interactive_ui_tests/SignInViewControllerBrowserTest.SyncConfirmationDefaultFocus
+
+
+These test failures are causing problem(s) which require your attention, including:
+- many gardened builders are failing
+
+See current problems, failure examples and more in LUCI Analysis at: https://luci-analysis.appspot.com/p/chromium/rules/a42dce3841134a59389f3c4324199a0c
+
+How to action this bug: https://luci-analysis.appspot.com/help#new-bug-filed
+Provide feedback: https://luci-analysis.appspot.com/help#feedback
+Was this bug filed in the wrong component? See: https://luci-analysis.appspot.com/help#component-selection</content>
+    </entry>
+    <entry>
+        <id>333926710</id>
+        <title>[Graphics]: 8 regressions in rendering.desktop</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333926710"/>
+        <updated>1970-01-01T00:28:32.965Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1286142:1286275:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=40ceed90-9274-4286-b36b-c15804db949f
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=40ceed90-9274-4286-b36b-c15804db949f
+
+Top 1 regressions (out of 2, with 1 improvements) in this group:
+  - ChromiumPerf/mac-laptop_high_end-perf/rendering.desktop/thread_total_rendering_cpu_time_per_frame/jarro_doverson
+       82.59%: 5.5645500000000006 -&gt; 10.16005 unitless
+
+Top 1 affected measurements in mac-laptop_high_end-perf:
+  - rendering.desktop/thread_total_rendering_cpu_time_per_frame/jarro_doverson
+       82.59%: 5.5645500000000006 -&gt; 10.16005 unitless
+
+Regressions grouped by rendering.desktop includes data from the following benchmarks with listed owners:
+  rendering.desktop: chrome-gpu-metrics@google.com, jonross@chromium.org
+      
+
+Commits in this range:
+  Chromium Commit Position: https://crrev.com/1286141..1286275
+  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/3a36d2b100d790f363601d661909ff23fe7e50c5..3a36d2b100d790f363601d661909ff23fe7e50c5
+  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/0567fc17863c733a58907e561ef2fdcba53c17f8..69eafa67829f10ed19856b44b304629571069661</content>
+    </entry>
+    <entry>
+        <id>334188989</id>
+        <title>Chrome does not scroll the table when navigating with VoiceOver screen reader</title>
+        <author>
+            <name>vt...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334188989"/>
+        <updated>1970-01-01T00:28:32.964Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+1. Launch VoiceOver screen reader with Command+F5.
+2. Open a webpage with an HTML table that does not fit on the screen, i.e. the user has to scroll in order to see the rest of the table content.
+3. Use VoiceOver navigation keystrokes, i.e. Control+Option+arrows, to navigate through the table. Move downward to get to the last row and observe.
+
+Observed results:
+Even though VOiceOver reports the correct number of rows and columns, the count (and the focus) get reset as soon as VOiceOver cursor gets to the last visible row on the screen.
+
+Expected results:
+VoiceOver should scroll the table once the cursor hits the last visible row on the screen so that the user can continue navigating the rest of the table content.
+
+# Problem Description
+When the table does not fit on the screen, users of VoiceOver screen reader are not able to view the table content that extends beyond the current screen. As soon as the VoiceOver cursor hits the last visible row, the navigation gets reset to the top of the table.
+
+# Additional Comments
+Since I was not able to find the page that can be relied on to reproduce the issue at any time, I created a small HTML/Javascript example to illustrate the behavior. The constants at the top of the script can be adjusted to change the number of desired rows and columns.
+
+# Summary
+Chrome does not scroll the table when navigating with VoiceOver screen reader
+
+# Custom Questions
+#### Does the problem occur on multiple sites?
+Yes - Please describe below
+
+#### Is it a problem with a plugin?
+No - It's the browser itself
+
+#### Does this work in other browsers? 
+Yes - This is just a Chromium problem
+
+# Additional Data
+Category: Content \
+Chrome Channel: Not sure \
+Regression: N/A</content>
+    </entry>
+    <entry>
+        <id>333961056</id>
+        <title>href on anchor tag containing a text fragment fails on different query strings</title>
+        <author>
+            <name>db...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333961056"/>
+        <updated>1970-01-01T00:28:32.963Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+1. Navigate to a page with a query string such as "https://bungalooknursery.com.au/search-plants?SearchText=&amp;CatAndOr=OR&amp;category%5B%5D=Fern#ShowMatchingPlants"
+2. Click on a link within the page with the same text fragment but different query string such as "/search-plants?SearchText=possum#ShowMatchingPlants"
+3. The query doesn't get loaded into a new page, the only action performed is scrolling the page to "#ShowMatchingPlants".
+
+This code used to work.  This bug also affects WordPress menus with text fragments.  I have reproduced this bug in the latest Chrome and MS Edge browsers.  The above steps will fail (on above pages) as by the time you read this I will have removed the text fragments as a poor workaround.
+
+# Problem Description
+This HTML fails and simply scrolls to the text fragment:
+
+&lt;a class="ButtonLookSmall SpecialSearchBtn" href="/search-plants?SearchText=possum#ShowMatchingPlants" title="Canned search for plants that mention &amp;quot;possums&amp;quot;.
+
+NOTE: All other search fields will be ignored! You can reapply them after the search if you wish.
+
+URL
+----------
+/search-plants?SearchText=possum#ShowMatchingPlants"&gt;Possums&lt;/a&gt;
+
+# Summary
+href on anchor tag containing a text fragment fails on different query strings
+
+# Custom Questions
+#### Which component does this fall under?
+Not sure - I don't know
+
+#### Does this feature work correctly in other browsers?
+No - I can reproduce the problem in another browser
+
+#### Details of interop issue
+Tested latest Chrome &amp; MS Edge browsers
+
+# Additional Data
+Category: API \
+Chrome Channel: Not sure \
+Regression: Yes</content>
+    </entry>
+    <entry>
+        <id>333954432</id>
+        <title>chrome://dino visits are not logged in WebUI.CreatedForUrl histogram.</title>
+        <author>
+            <name>dp...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333954432"/>
+        <updated>1970-01-01T00:28:32.963Z</updated>
+        <summary>-</summary>
+        <content type="html">Candidate fix at https://chromium-review.googlesource.com/c/chromium/src/+/5449505.</content>
+    </entry>
+    <entry>
+        <id>333976558</id>
+        <title>[V8 Memory Perf Sheriff]: 4 regressions in system_health.memory_desktop</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333976558"/>
+        <updated>1970-01-01T00:28:32.961Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1286348:1286375:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=f8205bb9-bd3d-4500-8536-a60608400827
+
+  Public Reports:
+    - Chromium: https://perf.luci.app/_/alertgroup?group_id=f8205bb9-bd3d-4500-8536-a60608400827
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=f8205bb9-bd3d-4500-8536-a60608400827
+
+Top 4 regressions (out of 4, with 0 improvements) in this group:
+  - ChromiumPerf/win-10-perf/system_health.memory_desktop/memory:chrome:all_processes:reported_by_chrome:v8:allocated_objects_size_avg/browse_search/browse_search_google_india_2021
+      114.57%: 9691191.5 -&gt; 20794408.0 sizeInBytes
+  - ChromiumPerf/win-10-perf/system_health.memory_desktop/memory:chrome:all_processes:reported_by_chrome:v8:effective_size_avg/browse_search/browse_search_google_india_2021
+      104.11%: 11363885.0 -&gt; 23194341.5 sizeInBytes
+  - ChromiumPerf/win-10-perf/system_health.memory_desktop/memory:chrome:all_processes:reported_by_chrome:blink_gc:allocated_objects_size_avg/browse_search/browse_search_google_india_2021
+       90.50%: 4430477.0 -&gt; 8439868.0 sizeInBytes
+  - ChromiumPerf/win-10-perf/system_health.memory_desktop/memory:chrome:all_processes:reported_by_chrome:blink_gc:effective_size_avg/browse_search/browse_search_google_india_2021
+       49.52%: 9149098.5 -&gt; 13679275.0 sizeInBytes
+
+Top 3 affected measurements in win-10-perf:
+  - system_health.memory_desktop/memory:chrome:all_processes:reported_by_chrome:v8:allocated_objects_size_avg/browse_search/browse_search_google_india_2021
+      114.57%: 9691191.5 -&gt; 20794408.0 sizeInBytes
+  - system_health.memory_desktop/memory:chrome:all_processes:reported_by_chrome:v8:effective_size_avg/browse_search/browse_search_google_india_2021
+      104.11%: 11363885.0 -&gt; 23194341.5 sizeInBytes
+  - system_health.memory_desktop/memory:chrome:all_processes:reported_by_chrome:blink_gc:allocated_objects_size_avg/browse_search/browse_search_google_india_2021
+       90.50%: 4430477.0 -&gt; 8439868.0 sizeInBytes
+
+Regressions grouped by system_health.memory_desktop includes data from the following benchmarks with listed owners:
+  system_health.memory_desktop: lizeb@chromium.org, pasko@chromium.org
+      
+
+Commits in this range:
+  Chromium Commit Position: https://crrev.com/1286347..1286375
+  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/3a36d2b100d790f363601d661909ff23fe7e50c5..f16922ec4c190b96c206d983f110ecb0c88f9561
+  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/69eafa67829f10ed19856b44b304629571069661..41b4bf97c15b5dce6d5dd7dd0624c232889217ce</content>
+    </entry>
+    <entry>
+        <id>333967640</id>
+        <title>Rename setUpSaveCardInfobarEGTestHelper.</title>
+        <author>
+            <name>sl...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333967640"/>
+        <updated>1970-01-01T00:28:32.959Z</updated>
+        <summary>-</summary>
+        <content type="html">Currently setUpSaveCardInfobarEGTestHelper is used by the SaveCardInfobarEGTest as well as CardUnmaskAuthenticationSelectionEgtest. Give it a general name. For example `setUpFakeCreditCardServer`.</content>
+    </entry>
+    <entry>
+        <id>333961054</id>
+        <title>WebUI.CreatedForUrl histogram not recording any chrome-untrusted:// visits.</title>
+        <author>
+            <name>dp...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333961054"/>
+        <updated>1970-01-01T00:28:32.959Z</updated>
+        <summary>-</summary>
+        <content type="html">See logic at [1] which skips any logging unless the scheme is chrome:// or devtools://. This seems like a bug.
+
+[1] https://source.chromium.org/chromium/chromium/src/+/main:chrome/browser/ui/webui/log_web_ui_url.cc;l=20;drc=800532c0bf6712ea4ab5928da9e776d6607a10b1</content>
+    </entry>
+    <entry>
+        <id>333972306</id>
+        <title>138%-250% regression in blink_perf.webcodecs at 1285077:1285128</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333972306"/>
+        <updated>1970-01-01T00:28:32.959Z</updated>
+        <summary>-</summary>
+        <content type="html">None</content>
+    </entry>
+    <entry>
+        <id>334170377</id>
+        <title>Move TabRestoreService::Entry structs into their own file to decouple the types from the implementation</title>
+        <author>
+            <name>dl...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334170377"/>
+        <updated>1970-01-01T00:28:32.958Z</updated>
+        <summary>-</summary>
+        <content type="html">Chrome Version: (copy from chrome://version)
+Lacros Version (if applicable): (copy from chrome://version)
+OS: (e.g. Win10, MacOS 10.12, etc...)
+
+What steps will reproduce the problem?
+(1)
+(2)
+(3)
+
+What is the expected result?
+
+
+What happens instead?
+
+
+
+Please use hotlists and text to provide additional information.
+
+If this is a regression (i.e., worked before), please consider using the bisect tool (https://www.chromium.org/developers/bisect-builds-py) to help us identify the root cause and more rapidly triage the issue.
+
+For graphics-related bugs, please copy/paste the contents of the about://gpu page at the end of this report.</content>
+    </entry>
+    <entry>
+        <id>334167388</id>
+        <title>Tests are failing: ninja://chrome/test:unit_tests/SiteEngagementServiceTest.GetTotalNavigationPoints</title>
+        <author>
+            <name>bi...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334167388"/>
+        <updated>1970-01-01T00:28:32.958Z</updated>
+        <summary>-</summary>
+        <content type="html">This bug is for all test failures with the test name: ninja://chrome/test:unit_tests/SiteEngagementServiceTest.GetTotalNavigationPoints
+
+These test failures are causing problem(s) which require your attention, including:
+- test variant(s) are being exonerated (ignored) in presubmit
+
+See current problems, failure examples and more in LUCI Analysis at: https://luci-analysis.appspot.com/p/chromium/rules/cb5481d971c362ac3a2a0d5da08c224a
+
+How to action this bug: https://luci-analysis.appspot.com/help#new-bug-filed
+Provide feedback: https://luci-analysis.appspot.com/help#feedback
+Was this bug filed in the wrong component? See: https://luci-analysis.appspot.com/help#component-selection</content>
+    </entry>
+    <entry>
+        <id>333926708</id>
+        <title>[Chrome Perf Accessibility Sheriff]: 3 regressions in blink_perf.accessibility</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333926708"/>
+        <updated>1970-01-01T00:28:32.957Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1286523:1286532:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=3193c1d3-4915-41a7-90f8-fdcc38b1b272
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=3193c1d3-4915-41a7-90f8-fdcc38b1b272
+
+Top 1 regressions (out of 6, with 5 improvements) in this group:
+  - ChromiumPerf/mac-laptop_high_end-perf/blink_perf.accessibility/BrowserAccessibilityManager::OnLocationChanges_sum/location-changes-css-animation.html
+         inf%: 0.0 -&gt; 0.0975 ms
+
+Top 1 affected measurements in mac-laptop_high_end-perf:
+  - blink_perf.accessibility/BrowserAccessibilityManager::OnLocationChanges_sum/location-changes-css-animation.html
+         inf%: 0.0 -&gt; 0.0975 ms
+
+Regressions grouped by blink_perf.accessibility includes data from the following benchmarks with listed owners:
+  blink_perf.accessibility: aleventhal@chromium.org
+      
+
+Commits in this range:
+  Chromium Commit Position: https://crrev.com/1286522..1286532
+  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/a6857d71bd107af64d2245c68a280fe432cc179c..a6857d71bd107af64d2245c68a280fe432cc179c
+  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/bdfcaba85b3496ca1c799ecb306503fc40aff86b..bdfcaba85b3496ca1c799ecb306503fc40aff86b</content>
+    </entry>
+    <entry>
+        <id>333954430</id>
+        <title>Implement SharedImage Pool</title>
+        <author>
+            <name>vi...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333954430"/>
+        <updated>1970-01-01T00:28:32.957Z</updated>
+        <summary>-</summary>
+        <content type="html">Implement a shared image pool which clients can use to allocate a pool of identical shared images.
+
+Initially a client side SI pool can be implemented which can be later extended to the service side by passing additional information and metadata. Service side can use this information to optimize the SI Pool dynamically, handle pool cleanup by using service side events like memory pressure etc.
+</content>
+    </entry>
+    <entry>
+        <id>333961053</id>
+        <title>Check Bind special-cases for rebound callbacks for cvref quals + reference wrappers</title>
+        <author>
+            <name>pk...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333961053"/>
+        <updated>1970-01-01T00:28:32.957Z</updated>
+        <summary>-</summary>
+        <content type="html">`Bind()` has special-case code to try and avoid overhead when directly rebinding a callback without new args: https://source.chromium.org/chromium/chromium/src/+/main:base/functional/bind_internal.h;l=1853;drc=e2dd9c020dd1f8a6090365303a1efdab15599f96
+
+* The uses of `is_instantiation&lt;&gt;` do not attempt to decay the argument type. I should check whether this code actually fires in all the cases we want it to, e.g. if `BindOnce(std::move(once_cb))` works.
+* There's no unwrapping of `std::reference_wrapper&lt;&gt;`. I don't know if we ever do such a thing, but this should most likely (recursively) peek at the unwrapped type to see if it's a callback, and apply to that if so. (Need to think through whether there are any safety/correctness concerns with that.) Note that we can't just blindly strip reference wrappers here, since if the single arg is _not_ another callback, we need the ref wrapper storage machinery elsewhere to kick in.</content>
+    </entry>
+    <entry>
+        <id>334057056</id>
+        <title>[V8 Memory Perf Sheriff]: 1 regressions in v8.browsing_desktop</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334057056"/>
+        <updated>1970-01-01T00:28:32.957Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1284821:1284996:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=d762beab-2ac2-4760-a8c2-9debe012b14e
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=d762beab-2ac2-4760-a8c2-9debe012b14e
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/win-11-perf/v8.browsing_desktop/v8:gc:cycle_sum/browse_media/browse_media_tumblr_2018
+        4.93%: 149.427 -&gt; 156.798 
+
+Top 1 affected measurements in win-11-perf:
+  - v8.browsing_desktop/v8:gc:cycle_sum/browse_media/browse_media_tumblr_2018
+        4.93%: 149.427 -&gt; 156.798 
+
+Regressions grouped by v8.browsing_desktop includes data from the following benchmarks with listed owners:
+  v8.browsing_desktop: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>334082975</id>
+        <title>[V8 Perf Sheriff]: 1 regressions in v8.browsing_desktop-future</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334082975"/>
+        <updated>1970-01-01T00:28:32.956Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1284821:1284996:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=f6d34b55-ab04-4729-be22-2619c99aaa50
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=f6d34b55-ab04-4729-be22-2619c99aaa50
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/win-11-perf/v8.browsing_desktop-future/Compile:duration_avg/browse_news/browse_news_reddit_2020
+       32.62%: 57.05 -&gt; 75.66 
+
+Top 1 affected measurements in win-11-perf:
+  - v8.browsing_desktop-future/Compile:duration_avg/browse_news/browse_news_reddit_2020
+       32.62%: 57.05 -&gt; 75.66 
+
+Regressions grouped by v8.browsing_desktop-future includes data from the following benchmarks with listed owners:
+  v8.browsing_desktop-future: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>333954429</id>
+        <title>Allow requests from extension service workers to continue without a certificate in certain cases</title>
+        <author>
+            <name>rd...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333954429"/>
+        <updated>1970-01-01T00:28:32.956Z</updated>
+        <summary>-</summary>
+        <content type="html">This is a follow up from crbug.com/1417601.
+
+In crbug.com/1417601, we allowed requests from extension service workers to use enterprise-provided client certificates. This allowed requests from extension service workers that hit a resource that required a client cert to succeed if the user was on an enterprise device where the admin configured the enterprise policy.  This is inline with how extension offscreen documents and legacy extension background pages behaved.
+
+However, there's still a notable difference here; specifically, in the case of a resource having an _optional_ client cert.
+
+In both cases, we'll end up looking for the client cert from the ChromeContentBrowserClient in [SelectClientCertificate()](https://source.chromium.org/chromium/chromium/src/+/main:chrome/browser/chrome_content_browser_client.cc;l=3752-3874;drc=95da459e578db011f3717ed457e3a5c9174edd62).
+
+Extension Service Worker Case: We don't find a client cert from enterprise policy and we also don't have an associated WebContents. This results in us early-returning from [this if statement](https://source.chromium.org/chromium/chromium/src/+/main:chrome/browser/chrome_content_browser_client.cc;l=3841-3852;drc=95da459e578db011f3717ed457e3a5c9174edd62), which results in the request being terminated.
+
+Extension Offscreen Document and Legacy Background Page Case: These are both DOM-based contexts, so they *do* have a valid WebContents at this point.  This allows the code to continue through to [ShowSSLClientCertificateSelector](https://source.chromium.org/chromium/chromium/src/+/main:chrome/browser/ui/views/ssl_client_certificate_selector.cc;l=163-196;drc=0ebe2cf9f3f6544ba582473c5b9b8e3506f29708).  This will never let us show a dialog for these contexts -- [SSLClientCertificateSelector::CanShow()](https://source.chromium.org/chromium/chromium/src/+/main:chrome/browser/ui/views/ssl_client_certificate_selector.cc;l=183-188;drc=0ebe2cf9f3f6544ba582473c5b9b8e3506f29708) will return false.  That's good, because we don't want to display a picker without any context.  However, before reaching that point, there's [a check](https://source.chromium.org/chromium/chromium/src/+/main:chrome/browser/ui/views/ssl_client_certificate_selector.cc;l=176-181;drc=0ebe2cf9f3f6544ba582473c5b9b8e3506f29708) for whether there are any certificates to choose from.  If there aren't any, instead of canceling the request, the request will continue without a certificate.
+
+The end result is that, in the DOM-based contexts case, the extension can make requests to resources that request, but do not require, a certificate if there are no client certs to pick from.
+
+We should support this same behavior for extension service workers.  There's concern about supporting this case for *all* service workers because of the way client cert selection works on Android.  There, we can't separate out the process of querying and selecting the certificates, and so don't want to enter the flow of potentially selecting certificates unless we're ready to show a dialog.
+
+For this, we'll have extension service workers behave slightly differently from web service workers, allowing them to emulate the behavior we already have for DOM-based extension contexts.</content>
+    </entry>
+    <entry>
+        <id>333962770</id>
+        <title>[V8 Perf Sheriff]: 1 regressions in v8.browsing_desktop-future</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333962770"/>
+        <updated>1970-01-01T00:28:32.956Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1284821:1284996:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=fa95eb1b-8aca-4af5-a392-525e3b77ce94
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=fa95eb1b-8aca-4af5-a392-525e3b77ce94
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/win-11-perf/v8.browsing_desktop-future/V8 C++:duration_avg/browse_media/browse_media_googleplaystore_2021
+        1.61%: 87.630005 -&gt; 89.041 
+
+Top 1 affected measurements in win-11-perf:
+  - v8.browsing_desktop-future/V8 C++:duration_avg/browse_media/browse_media_googleplaystore_2021
+        1.61%: 87.630005 -&gt; 89.041 
+
+Regressions grouped by v8.browsing_desktop-future includes data from the following benchmarks with listed owners:
+  v8.browsing_desktop-future: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>333965950</id>
+        <title>Crash</title>
+        <author>
+            <name>ol...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333965950"/>
+        <updated>1970-01-01T00:28:32.956Z</updated>
+        <summary>-</summary>
+        <content type="html">Basic info:
+
+* Build fingerprint: OPPO/OPD2102ARU/OP5226L1:13/RKQ1.211119.001/S.16022e6-2-1:user/release-keys
+* Android API level: 33
+* Crashed WebView version: 124.0.6367.18
+* DevTools version: com.google.android.webview (124.0.6367.42/636704242)
+* Application: com.activision.callofduty.warzone (933)
+* If this app is available on Google Play, please include a URL:
+
+Steps to reproduce:
+
+1.
+2.
+3.
+
+Expected result:
+(What should have happened?)
+
+&lt;Any additional comments, you want to share&gt;"
+
+---
+
+**DO NOT CHANGE BELOW THIS LINE**
+
+* Crash ID: http://crash/54d78107e371605c
+* Instructions for triaging this report (Chromium members only): https://bit.ly/2SM1Y9t
+</content>
+    </entry>
+    <entry>
+        <id>334064001</id>
+        <title>Some CSS values don't wrap in the Styles panel</title>
+        <author>
+            <name>os...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334064001"/>
+        <updated>1970-01-01T00:28:32.956Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+1. Open https://stackblitz.com/github/oscarmarina/blk-material
+2. Open Chrome DevTools - Styles panel
+3. Inspect &lt;blk-material&gt; webcomponent
+2. 
+3. 
+
+# Problem Description
+In [Elements:Styles] panel some CSS values that contain multiple CSS variables do not wrap when the panel is narrowed. This can make it difficult to read and understand the CSS code.
+
+I've attached an image and video comparing Firefox Developer Tools (where CSS variables wrap correctly) with Chrome Developer Tools (where the issue occurs).
+
+# Summary
+Some CSS values don't wrap in the Styles panel
+
+# Additional Data
+Category: Developer Tools \
+Chrome Channel: Not sure \
+Regression: N/A</content>
+    </entry>
+    <entry>
+        <id>333926707</id>
+        <title>[V8 Perf Sheriff]: 1 regressions in v8.browsing_desktop-future</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333926707"/>
+        <updated>1970-01-01T00:28:32.956Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1284821:1284996:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=5f987230-213a-464c-9f08-17f27bd0d98e
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=5f987230-213a-464c-9f08-17f27bd0d98e
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/win-11-perf/v8.browsing_desktop-future/Compile:duration_avg/browse_tools/browse_tools_docs_scrolling
+       32.62%: 57.05 -&gt; 75.66 
+
+Top 1 affected measurements in win-11-perf:
+  - v8.browsing_desktop-future/Compile:duration_avg/browse_tools/browse_tools_docs_scrolling
+       32.62%: 57.05 -&gt; 75.66 
+
+Regressions grouped by v8.browsing_desktop-future includes data from the following benchmarks with listed owners:
+  v8.browsing_desktop-future: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>334085072</id>
+        <title>[V8 Perf Sheriff]: 1 regressions in v8.browsing_desktop-future</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334085072"/>
+        <updated>1970-01-01T00:28:32.956Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1284821:1284996:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=ae4c4eac-b5e5-40c1-ab7e-95edcdee7252
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=ae4c4eac-b5e5-40c1-ab7e-95edcdee7252
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/win-11-perf/v8.browsing_desktop-future/Compile:duration_avg/browse_search/browse_search_google_india_2021
+       32.62%: 57.05 -&gt; 75.66 
+
+Top 1 affected measurements in win-11-perf:
+  - v8.browsing_desktop-future/Compile:duration_avg/browse_search/browse_search_google_india_2021
+       32.62%: 57.05 -&gt; 75.66 
+
+Regressions grouped by v8.browsing_desktop-future includes data from the following benchmarks with listed owners:
+  v8.browsing_desktop-future: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>334026779</id>
+        <title>[V8 Perf Sheriff]: 1 regressions in v8.browsing_desktop-future</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334026779"/>
+        <updated>1970-01-01T00:28:32.956Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1284821:1284996:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=fa898ddb-c12e-4019-87aa-17542c0b0c3a
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=fa898ddb-c12e-4019-87aa-17542c0b0c3a
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/win-11-perf/v8.browsing_desktop-future/V8-Only-Main-Thread:duration_avg/browse_media/browse_media_youtubetv_2019
+        4.25%: 526.0875 -&gt; 548.459 
+
+Top 1 affected measurements in win-11-perf:
+  - v8.browsing_desktop-future/V8-Only-Main-Thread:duration_avg/browse_media/browse_media_youtubetv_2019
+        4.25%: 526.0875 -&gt; 548.459 
+
+Regressions grouped by v8.browsing_desktop-future includes data from the following benchmarks with listed owners:
+  v8.browsing_desktop-future: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>333976555</id>
+        <title>[V8 Perf Sheriff]: 1 regressions in v8.browsing_desktop-future</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333976555"/>
+        <updated>1970-01-01T00:28:32.956Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1284821:1284996:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=a0d3e832-1f48-4a82-a3ce-847a9c417a56
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=a0d3e832-1f48-4a82-a3ce-847a9c417a56
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/win-11-perf/v8.browsing_desktop-future/Compile:duration_avg/browse_media/browse_media_youtubetv_watch_2020
+       32.62%: 57.05 -&gt; 75.66 
+
+Top 1 affected measurements in win-11-perf:
+  - v8.browsing_desktop-future/Compile:duration_avg/browse_media/browse_media_youtubetv_watch_2020
+       32.62%: 57.05 -&gt; 75.66 
+
+Regressions grouped by v8.browsing_desktop-future includes data from the following benchmarks with listed owners:
+  v8.browsing_desktop-future: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>334085071</id>
+        <title>[Blink Layout]: 2 regressions in blink_perf.layout</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334085071"/>
+        <updated>1970-01-01T00:28:32.955Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1286044:1286052:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=2b5e1341-6a78-48d9-a285-75e964333727
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=2b5e1341-6a78-48d9-a285-75e964333727
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/android-pixel4_webview-perf/blink_perf.layout/hittest-block-children/hittest-block-children.html
+       71.82%: 22.25 -&gt; 38.230000000000004 ms
+
+Top 1 affected measurements in android-pixel4_webview-perf:
+  - blink_perf.layout/hittest-block-children/hittest-block-children.html
+       71.82%: 22.25 -&gt; 38.230000000000004 ms
+
+Regressions grouped by blink_perf.layout includes data from the following benchmarks with listed owners:
+  blink_perf.layout: ikilpatrick@chromium.org, kojii@chromium.org
+      
+
+Commits in this range:
+  Chromium Git Hash: https://chromium.googlesource.com/chromium/src/+log/d55abbb238196735f6a3ae6b5209a1a0eb4a8b28..6d38d8cba8bca76b7a4752461acec4b4dc97775d
+  Chromium Commit Position: https://crrev.com/1286043..1286052
+  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/3a36d2b100d790f363601d661909ff23fe7e50c5..3a36d2b100d790f363601d661909ff23fe7e50c5
+  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/1c35107cdca725ca700f1c8c3ea39d690e4cfc3e..1c35107cdca725ca700f1c8c3ea39d690e4cfc3e</content>
+    </entry>
+    <entry>
+        <id>334082973</id>
+        <title>[V8 Memory Perf Sheriff]: 1 regressions in v8.browsing_desktop</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334082973"/>
+        <updated>1970-01-01T00:28:32.955Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1285952:1286012:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=b733b1ec-d924-4981-8ab9-a6d25974b10e
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=b733b1ec-d924-4981-8ab9-a6d25974b10e
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/win-10_laptop_low_end-perf/v8.browsing_desktop/v8:gc:cycle:main_thread:young:atomic_sum/browse_media/browse_media_youtubetv_2019
+       34.62%: 39.4 -&gt; 53.04 
+
+Top 1 affected measurements in win-10_laptop_low_end-perf:
+  - v8.browsing_desktop/v8:gc:cycle:main_thread:young:atomic_sum/browse_media/browse_media_youtubetv_2019
+       34.62%: 39.4 -&gt; 53.04 
+
+Regressions grouped by v8.browsing_desktop includes data from the following benchmarks with listed owners:
+  v8.browsing_desktop: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>333971753</id>
+        <title>[V8 Perf Sheriff]: 1 regressions in v8.browsing_desktop-future</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333971753"/>
+        <updated>1970-01-01T00:28:32.955Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1286119:1286165:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=bfe9d525-ba27-43c9-b4e1-80bf08b8ab9c
+
+  Public Reports:
+    - Chromium: https://perf.luci.app/_/alertgroup?group_id=bfe9d525-ba27-43c9-b4e1-80bf08b8ab9c
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=bfe9d525-ba27-43c9-b4e1-80bf08b8ab9c
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/win-10-perf/v8.browsing_desktop-future/Total:duration_avg/browse_tools/browse_tools_docs_scrolling
+       19.71%: 3577.324 -&gt; 4282.471 
+
+Top 1 affected measurements in win-10-perf:
+  - v8.browsing_desktop-future/Total:duration_avg/browse_tools/browse_tools_docs_scrolling
+       19.71%: 3577.324 -&gt; 4282.471 
+
+Regressions grouped by v8.browsing_desktop-future includes data from the following benchmarks with listed owners:
+  v8.browsing_desktop-future: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>333972305</id>
+        <title>[V8 Perf Sheriff]: 3 regressions in v8</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333972305"/>
+        <updated>1970-01-01T00:28:32.955Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 93214:93217:
+
+  Internal (Googlers-only) Reports:
+    - V8: https://v8-perf.corp.goog/_/alertgroup?group_id=0bbec678-b294-4d56-a11a-680e0c892725
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=0bbec678-b294-4d56-a11a-680e0c892725
+
+Top 3 regressions (out of 5, with 2 improvements) in this group:
+  - internal.client.v8/ia32/v8/Infra/Stability/AreWeFastYet
+      100.00%: 1.0 -&gt; 0.0 bool
+  - internal.client.v8/ia32/v8/Infra/Stability/Unity-Liftoff
+      100.00%: 1.0 -&gt; 0.0 bool
+  - internal.client.v8/x64/v8/web-tooling-benchmark/buble
+       14.50%: 11.79 -&gt; 10.08 runs/s
+
+Top 2 affected measurements in ia32:
+  - v8/Infra/Stability/AreWeFastYet
+      100.00%: 1.0 -&gt; 0.0 bool
+  - v8/Infra/Stability/Unity-Liftoff
+      100.00%: 1.0 -&gt; 0.0 bool
+
+
+Top 1 affected measurements in x64:
+  - v8/web-tooling-benchmark/buble
+       14.50%: 11.79 -&gt; 10.08 runs/s
+
+Regressions grouped by v8 includes data from the following benchmarks with listed owners:
+  v8: 
+      
+
+Commits in this range:
+  V8 Git Hash: https://chromium.googlesource.com/v8/v8/+log/9e3c04a30922628a7424ed6df3fbddbc73fa4aa5..f18d6b0452142d5e411d502f5aa744ed9918307a
+  V8 Perf Git Hash: https://chrome-internal.googlesource.com/v8/v8-perf/+log/69314fe7313b988ec4d3f731b8e0949c46985d01..69314fe7313b988ec4d3f731b8e0949c46985d01</content>
+    </entry>
+    <entry>
+        <id>333981079</id>
+        <title>http://datatables.net/tn/7</title>
+        <author>
+            <name>po...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333981079"/>
+        <updated>1970-01-01T00:28:32.954Z</updated>
+        <summary>-</summary>
+        <content type="html">Chrome Version       : &lt;from chrome://version/&gt;
+OS                   : &lt;OS version&gt;
+
+What steps will reproduce the problem?
+
+
+What is the expected result?
+
+
+What happens instead?
+
+
+You can help us a lot by creating a minimal, reproducible example (https://stackoverflow.com/help/minimal-reproducible-example), e.g. on glitch.com, and/or attaching a screenshot or recording of the issue!</content>
+    </entry>
+    <entry>
+        <id>334154801</id>
+        <title>http/tests/devtools/elements/styles-2/multiple-imports-edit-crash.js test is flaky</title>
+        <author>
+            <name>sa...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334154801"/>
+        <updated>1970-01-01T00:28:32.954Z</updated>
+        <summary>-</summary>
+        <content type="html">http/tests/devtools/elements/styles-2/multiple-imports-edit-crash.js
+
+Text Failure on mac11-arm64-rel-tests, mac12-arm64-rel-tests: , mac13-arm64-rel-tests builder 
+
+Test History Link:
+mac11-arm64-rel-tests: https://ci.chromium.org/ui/test/chromium%3Aci/ninja%3A%2F%2F%3Ablink_web_tests%2Fhttp%2Ftests%2Fdevtools%2Felements%2Fstyles-2%2Fmultiple-imports-edit-crash.js?q=VHASH%3A1da32bc6d12138b3
+
+mac13-arm64-rel-tests: https://ci.chromium.org/ui/test/chromium%3Aci/ninja%3A%2F%2F%3Ablink_web_tests%2Fhttp%2Ftests%2Fdevtools%2Felements%2Fstyles-2%2Fmultiple-imports-edit-crash.js?q=VHASH%3A468033802be7c257
+
+mac12-arm64-rel-tests: : https://ci.chromium.org/ui/test/chromium%3Aci/ninja%3A%2F%2F%3Ablink_web_tests%2Fhttp%2Ftests%2Fdevtools%2Felements%2Fstyles-2%2Fmultiple-imports-edit-crash.js?q=VHASH%3Ac5838aea20088469
+
+Dashboard:
+https://data.corp.google.com/sites/chrome_generic_flakiness_dashboard_datasite/top_flakes/?f=test_id:eq:ninja:%2F%2F:blink_web_tests%2Fhttp%2Ftests%2Fdevtools%2Felements%2Fstyles-2%2Fmultiple-imports-edit-crash.js&amp;f=realm:in:(null)&amp;f=variant_test_suite:in:blink_web_tests&amp;can=2
+
+and average 10.21% flaky rate in runs mostly on mac  builders
+</content>
+    </entry>
+    <entry>
+        <id>333950756</id>
+        <title>Remove or flag guard SoftNavigationHeuristics developer console log</title>
+        <author>
+            <name>sh...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333950756"/>
+        <updated>1970-01-01T00:28:32.954Z</updated>
+        <summary>-</summary>
+        <content type="html">`SoftNavigationHeuristics` emits a console message when a soft navigation is detected. While this is useful for debugging, we probably shouldn't spam the console in production. We might not want to outright remove it (yet), but we should probably hide it behind an about://flags entry or something.
+
+See https://chromium-review.googlesource.com/c/chromium/src/+/5311372/comment/73e6bb08_cdf9c9d8/ for related discussion.</content>
+    </entry>
+    <entry>
+        <id>333945861</id>
+        <title>[SPC] Add experimental network/issuer icons</title>
+        <author>
+            <name>sm...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333945861"/>
+        <updated>1970-01-01T00:28:32.953Z</updated>
+        <summary>-</summary>
+        <content type="html">Tracking bug for adding experimental network/issuer icons to the SPC transaction UX, to allow local developer testing of this UX exploration. The intention is to land something behind a Chrome for exploration only, with the assumption of having to rework the API shape at minimum before it could be actually shipped.</content>
+    </entry>
+    <entry>
+        <id>333981078</id>
+        <title>Chromium Accessibility implementation misclassifies lists as tables</title>
+        <author>
+            <name>ej...@amazon.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/333981078"/>
+        <updated>1970-01-01T00:28:32.952Z</updated>
+        <summary>-</summary>
+        <content type="html">This bug is impacting an accessibility service:
+
+Problem:
+
+When trying to navigate by HTML Tables, the current chromium implementation classifies lists as tables. This causes incorrect usage when trying to navigate to a table, since you land on lists as well. Sometimes, there are multiple lists in between tables that cause unnecessary churn. 
+
+In it’s current state, performAction(ACTION_PREVIOUS_HTML_ELEMENT, “TABLE”) and performAction(ACTION_NEXT_HTML_ELEMENT, “TABLE”) navigate to elements that are not tables. This is due to the method isTableLike considering Lists and other elements as Table elements: 
+
+https://source.chromium.org/chromium/chromium/src/+/main:ui/accessibility/ax_role_properties.cc;l=844-875?q=isTableLike&amp;ss=chromium%2Fchromium%2Fsrc
+
+Here is the flow in which this happens:
+
+1. When performAction is called, it goes here in Chromium: https://source.chromium.org/chromium/chromium/src/+/main:content/public/android/java/src/org/chromium/content/browser/accessibility/WebContentsAccessibilityImpl.java;l=1147-1163?q=webcontentsaccessibility&amp;ss=chromium%2Fchromium%2Fsrc
+
+2. performAction then calls on the jumpToElementType method: https://source.chromium.org/chromium/chromium/src/+/main:content/public/android/java/src/org/chromium/content/browser/accessibility/WebContentsAccessibilityImpl.java;l=1413?q=jumptoelementtype&amp;sq=&amp;ss=chromium%2Fchromium%2Fsrc
+
+3. jumpToElementType calls on findElementType: https://source.chromium.org/chromium/chromium/src/+/main:content/browser/accessibility/web_contents_accessibility_android.cc;l=1088-1105
+
+4. Which then runs a tree search that has a predicate option, which in this case is “TABLE”: https://source.chromium.org/chromium/chromium/src/+/main:content/browser/accessibility/one_shot_accessibility_tree_search.cc;l=445-448?q=one_shot_acc&amp;ss=chromium%2Fchromium%2Fsrc
+
+5. This predicate calls on a method called isTableLike to determine if a node’s role is a table: https://source.chromium.org/chromium/chromium/src/+/main:ui/accessibility/ax_role_properties.cc;l=844-875?q=isTableLike&amp;ss=chromium%2Fchromium%2Fsrc
+
+
+The isTableLike method includes many elements that are not tables, and is the reason ACTION_PREVIOUS_HTML_ELEMENT and ACTION_NEXT_HTML_ELEMENT are jumping to elements that are not tables.
+
+
+Proposal:
+
+There should be a new check, for instance isTraditionalTable, that only includes grids and tables:
+
+class ax_role_properties
+
+bool IsTraditionalTable(const ax::mojom::Role role) {
+  switch (role) {
+    case ax::mojom::Role::kGrid:
+    case ax::mojom::Role::kListGrid:
+    case ax::mojom::Role::kTable:
+    case ax::mojom::Role::kTreeGrid:
+      return true;
+    case ax::mojom::Role::kLayoutTable:
+      return kExposeLayoutTableAsDataTable;
+    default:
+      return false;
+  }
+}
+
+This could then be called by either the existing Table predicate, or a new one to give a new argument option for accessibility actions html next and previous element.
+
+The existing table predicate would now call the isTraditionalTable method: 
+class one_shot_accessibility_tree_search
+
+bool AccessibilityTablePredicate(BrowserAccessibility* start,
+                                 BrowserAccessibility* node) {
+  return ui::IsTraditionalTable(node-&gt;GetRole());
+}
+
+</content>
+    </entry>
+    <entry>
+        <id>334148065</id>
+        <title>virtual/web-bluetooth-new-permissions-backend/external/wpt/bluetooth/server/getPrimaryService/gen-disconnected-device.https.window.html test is flaky</title>
+        <author>
+            <name>sa...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334148065"/>
+        <updated>1970-01-01T00:28:32.952Z</updated>
+        <summary>-</summary>
+        <content type="html">virtual/web-bluetooth-new-permissions-backend/external/wpt/bluetooth/server/getPrimaryService/gen-disconnected-device.https.window.html
+
+Crash Failure on Linux Tests (dbg)(1) builder
+
+Test History Link:
+Linux Tests (dbg)(1): 
+https://ci.chromium.org/ui/test/chromium%3Aci/ninja%3A%2F%2F%3Ablink_wpt_tests%2Fvirtual%2Fweb-bluetooth-new-permissions-backend%2Fexternal%2Fwpt%2Fbluetooth%2Fserver%2FgetPrimaryService%2Fgen-disconnected-device.https.window.html?q=VHASH%3A6002b55d65708e28
+
+Dashboard:
+https://data.corp.google.com/sites/chrome_generic_flakiness_dashboard_datasite/top_flakes/?f=test_id:eq:ninja:%2F%2F:blink_wpt_tests%2Fvirtual%2Fweb-bluetooth-new-permissions-backend%2Fexternal%2Fwpt%2Fbluetooth%2Fserver%2FgetPrimaryService%2Fgen-disconnected-device.https.window.html&amp;f=realm:in:(null)&amp;f=variant_test_suite:in:blink_wpt_tests&amp;can=2
+
+and average 11.71% flaky rate in runs mostly on Linux builders</content>
+    </entry>
     <entry>
         <id>334147653</id>
         <title>Add support for buyerReportingId and buyerAndSellerReportingId from B&amp;A response</title>
@@ -25,39 +1217,6 @@
         <updated>1970-01-01T00:28:32.952Z</updated>
         <summary>-</summary>
         <content type="html">Most of the builds on this builder are failing this test. Here is an example, but they go back farther than the first page: https://ci.chromium.org/ui/p/chromium/builders/ci/Win10%20Tests%20x64/89743/overview</content>
-    </entry>
-    <entry>
-        <id>334057055</id>
-        <title>[Graphics]: 1 regressions in rendering.desktop</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334057055"/>
-        <updated>1970-01-01T00:28:32.952Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1273949:1286076:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=9cc8fbda-c6f5-48df-b95e-9731a0273031
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=9cc8fbda-c6f5-48df-b95e-9731a0273031
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/win-10_laptop_low_end-perf/rendering.desktop/Graphics.Smoothness.PercentDroppedFrames3.AllSequences/google_calendar_2018
-     2012.50%: 4.0 -&gt; 84.5 unitless
-
-Top 1 affected measurements in win-10_laptop_low_end-perf:
-  - rendering.desktop/Graphics.Smoothness.PercentDroppedFrames3.AllSequences/google_calendar_2018
-     2012.50%: 4.0 -&gt; 84.5 unitless
-
-Regressions grouped by rendering.desktop includes data from the following benchmarks with listed owners:
-  rendering.desktop: chrome-gpu-metrics@google.com, jonross@chromium.org
-      
-
-Commits in this range:
-  Chromium Commit Position: https://crrev.com/1273948..1286076
-  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/309640da62fae0485c7e4f64829627c92d53b35d..3a36d2b100d790f363601d661909ff23fe7e50c5
-  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/dd28f1364b7be0c01ad896ac15087f253db82ca3..0567fc17863c733a58907e561ef2fdcba53c17f8</content>
     </entry>
     <entry>
         <id>334143253</id>
@@ -186,38 +1345,6 @@ Regressions grouped by rendering.mobile includes data from the following benchma
 Commits in this range:</content>
     </entry>
     <entry>
-        <id>333972304</id>
-        <title>[Graphics]: 1 regressions in rendering.desktop</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333972304"/>
-        <updated>1970-01-01T00:28:32.949Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1285987:1286015:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=0b9cd1ba-08f8-42e5-a0e6-1707dea62a18
-
-  Public Reports:
-    - Chromium: https://perf.luci.app/_/alertgroup?group_id=0b9cd1ba-08f8-42e5-a0e6-1707dea62a18
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=0b9cd1ba-08f8-42e5-a0e6-1707dea62a18
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/linux-perf/rendering.desktop/thread_total_rendering_cpu_time_per_frame/put_and_create_imagebitmap_from_imagedata
-        3.13%: 49.743797 -&gt; 51.3026 
-
-Top 1 affected measurements in linux-perf:
-  - rendering.desktop/thread_total_rendering_cpu_time_per_frame/put_and_create_imagebitmap_from_imagedata
-        3.13%: 49.743797 -&gt; 51.3026 
-
-Regressions grouped by rendering.desktop includes data from the following benchmarks with listed owners:
-  rendering.desktop: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
         <id>334134064</id>
         <title>Step "ios_chrome_integration_eg2tests_module iPhone X 16.7.1 or 16.7.5 on iOS-16.7.1 or iOS-16.7.5" failing on builder "chrome/ci/iphone-device"</title>
         <author>
@@ -297,96 +1424,6 @@ Regressions grouped by blink_perf.bindings includes data from the following benc
 Commits in this range:</content>
     </entry>
     <entry>
-        <id>333976553</id>
-        <title>[Blink CSS]: 1 regressions in blink_perf.css</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333976553"/>
-        <updated>1970-01-01T00:28:32.948Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1285805:1285842:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=58217652-bcb2-4cf9-bc0e-6ea2345e98ef
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=58217652-bcb2-4cf9-bc0e-6ea2345e98ef
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/android-pixel4-perf/blink_perf.css/CSSPropertyUpdateValue/CSSPropertyUpdateValue.html
-        6.54%: 7769.5996 -&gt; 7261.2114 
-
-Top 1 affected measurements in android-pixel4-perf:
-  - blink_perf.css/CSSPropertyUpdateValue/CSSPropertyUpdateValue.html
-        6.54%: 7769.5996 -&gt; 7261.2114 
-
-Regressions grouped by blink_perf.css includes data from the following benchmarks with listed owners:
-  blink_perf.css: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>333972303</id>
-        <title>[V8 Perf Sheriff]: 1 regressions in v8.browsing_desktop-future</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333972303"/>
-        <updated>1970-01-01T00:28:32.948Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1285906:1285962:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=4d7d418b-b1d6-41a7-9046-61f8660807a7
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=4d7d418b-b1d6-41a7-9046-61f8660807a7
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/win-10_laptop_low_end-perf/v8.browsing_desktop-future/API:duration_avg/browse_news/browse_news_reddit_2020
-        8.31%: 63.163 -&gt; 68.409 
-
-Top 1 affected measurements in win-10_laptop_low_end-perf:
-  - v8.browsing_desktop-future/API:duration_avg/browse_news/browse_news_reddit_2020
-        8.31%: 63.163 -&gt; 68.409 
-
-Regressions grouped by v8.browsing_desktop-future includes data from the following benchmarks with listed owners:
-  v8.browsing_desktop-future: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>334082971</id>
-        <title>[Blink Shadow DOM]: 1 regressions in blink_perf.shadow_dom</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334082971"/>
-        <updated>1970-01-01T00:28:32.948Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1285780:1285815:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=8d72f1ef-e7fe-4ebc-8242-88ae24d86f55
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=8d72f1ef-e7fe-4ebc-8242-88ae24d86f55
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/android-pixel4-perf/blink_perf.shadow_dom/v1-distribution-disconnected-and-reconnected/v1-distribution-disconnected-and-reconnected.html
-       31.03%: 348.68 -&gt; 456.88 
-
-Top 1 affected measurements in android-pixel4-perf:
-  - blink_perf.shadow_dom/v1-distribution-disconnected-and-reconnected/v1-distribution-disconnected-and-reconnected.html
-       31.03%: 348.68 -&gt; 456.88 
-
-Regressions grouped by blink_perf.shadow_dom includes data from the following benchmarks with listed owners:
-  blink_perf.shadow_dom: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
         <id>333962769</id>
         <title>[V8 Perf Sheriff]: 1 regressions in v8.browsing_mobile-future</title>
         <author>
@@ -412,1241 +1449,6 @@ Top 1 affected measurements in android-pixel6-perf:
 
 Regressions grouped by v8.browsing_mobile-future includes data from the following benchmarks with listed owners:
   v8.browsing_mobile-future: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>333976552</id>
-        <title>[Graphics]: 1 regressions in rendering.mobile</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333976552"/>
-        <updated>1970-01-01T00:28:32.948Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1285805:1285842:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=4778ebe6-ca75-4603-98a6-54290adef483
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=4778ebe6-ca75-4603-98a6-54290adef483
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/android-pixel4-perf/rendering.mobile/Graphics.Smoothness.PercentDroppedFrames3.AllSequences/balls_css_transition_all_properties
-        4.63%: 64.75 -&gt; 67.75 
-
-Top 1 affected measurements in android-pixel4-perf:
-  - rendering.mobile/Graphics.Smoothness.PercentDroppedFrames3.AllSequences/balls_css_transition_all_properties
-        4.63%: 64.75 -&gt; 67.75 
-
-Regressions grouped by rendering.mobile includes data from the following benchmarks with listed owners:
-  rendering.mobile: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>333886793</id>
-        <title>[V8 Perf Sheriff]: 1 regressions in v8.browsing_desktop-future</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333886793"/>
-        <updated>1970-01-01T00:28:32.948Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1286119:1286165:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=5aa23e12-c69f-4e1e-962c-36d8cdccb44f
-
-  Public Reports:
-    - Chromium: https://perf.luci.app/_/alertgroup?group_id=5aa23e12-c69f-4e1e-962c-36d8cdccb44f
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=5aa23e12-c69f-4e1e-962c-36d8cdccb44f
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/win-10-perf/v8.browsing_desktop-future/GC:duration_avg/browse_tools/browse_tools_docs_scrolling
-       18.69%: 106.955 -&gt; 126.942 
-
-Top 1 affected measurements in win-10-perf:
-  - v8.browsing_desktop-future/GC:duration_avg/browse_tools/browse_tools_docs_scrolling
-       18.69%: 106.955 -&gt; 126.942 
-
-Regressions grouped by v8.browsing_desktop-future includes data from the following benchmarks with listed owners:
-  v8.browsing_desktop-future: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>333971751</id>
-        <title>[WPT] New failures introduced in external by import https://crrev.com/c/5448636</title>
-        <author>
-            <name>wp...@chops-service-accounts.iam.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333971751"/>
-        <updated>1970-01-01T00:28:32.948Z</updated>
-        <summary>-</summary>
-        <content type="html">WPT import https://crrev.com/c/5448636 introduced new failures in external:
-
-List of new failures:
-external/wpt/mathml/relations/css-styling/first-line-first-letter-pseudo-elements-002.html [ Failure ]
-external/wpt/mathml/relations/css-styling/first-line-first-letter-pseudo-elements-003.html [ Failure ]
-external/wpt/mathml/relations/css-styling/first-line-first-letter-pseudo-elements-004.html [ Failure ]
-
-See https://chromium-review.googlesource.com/c/chromium/src/+/5448636/1?checksPatchset=1&amp;tab=checks for details.
-
-Expectations or baseline files [0] have been automatically added for the failing results to keep the bots green. Please investigate the new failures and triage as appropriate.
-
-Upstream changes imported:
-https://github.com/web-platform-tests/wpt/compare/1267c0a912d444e0e76f07d23477cb2cd26ee05e...1608f50e923836a9063c64c2f5f177c408a48086
-[anchor] Mark PositionedMovementLayout for null-AnchorEvaluator styles: https://github.com/web-platform-tests/wpt/commit/1608f50e923836a9063c64c2f5f177c408a48086
-[PEPC] Limit min/max-height/width for PEPC: https://github.com/web-platform-tests/wpt/commit/7c2a090d60996315c82651c562aaea988d2220b5
-[wdspec] change assertion for test_with_scrollbars (#45626): https://github.com/web-platform-tests/wpt/commit/29d95cd2b9416709e0c5cf690f79a0bad5e9508c
-[css-scroll-snap-2] Add onsnap* member test variants: https://github.com/web-platform-tests/wpt/commit/f42dcd7acbb40ff4949923514df528e07cc35422
-De-fuzz the 2d.layer.global-states WPT tests: https://github.com/web-platform-tests/wpt/commit/4275d57e23e4dd105a3e6e847018de1839bf07fe
-[Grid] Fix clamping of a subgrid's grid-template-areas: https://github.com/web-platform-tests/wpt/commit/f95204fd4e0b4bba4c6c28a67958992791a28708
-font-size-adjust-reload.html is flaky.: https://github.com/web-platform-tests/wpt/commit/fc4751b41508b9c0946c8ed193ed5d3760687bc8
-[anchor] Invalid anchor()/anchor-size() without fallback becomes IACVT: https://github.com/web-platform-tests/wpt/commit/039e0b75a1457090a6d0aed1cb10b8997ee8d284
-Storage buckets: throw TypeError when window context is destroyed.: https://github.com/web-platform-tests/wpt/commit/9f1cfd6824f166bd08d46c061be9e507d6bb45a7
-Support border in -internal-auto-base-select(): https://github.com/web-platform-tests/wpt/commit/daba59ad18bb87d65918965f130b30035bd277c9
-Add borders around canvas grid cells: https://github.com/web-platform-tests/wpt/commit/22c96b8e5dafe7a8df843a344023e5c5100bd813
-Apply ancestor-scope-reset to list-item counter only.: https://github.com/web-platform-tests/wpt/commit/5e332cd336c36e332ba5c89ab65bf033ac601c83
-DOM: Introduce Node#moveBefore() shell: https://github.com/web-platform-tests/wpt/commit/c0520884ae12c3ed398b42a39bd4f61971881ad8
-[css-anchor-position] position-visibility: anchors-visible with chained anchors: https://github.com/web-platform-tests/wpt/commit/d33717724c19fc2708e91bbab52d08132cb4a5f5
-Add tests for ::first-letter and ::first-line with MathML (#43334): https://github.com/web-platform-tests/wpt/commit/58bd6e4080be7067719c5a516cd91d9e4356d280
-FACEs work, setFormValue test is awful so now has _mozilla backup: https://github.com/web-platform-tests/wpt/commit/7ffd4f111b5602d17613a38e164a1f68a06dafc1
-Implement MediaStreamTrackAudioStats: https://github.com/web-platform-tests/wpt/commit/6a0c6f13e03573f238994462a7019cd18657afda
-Fix rendering of font ligatures with highlights: https://github.com/web-platform-tests/wpt/commit/1d522695b62ff465480400962a1dbc1ab923b41c
-WebKit export of https://bugs.webkit.org/show_bug.cgi?id=272517 (#45663): https://github.com/web-platform-tests/wpt/commit/d9cb9596198114c0a086baac025d33b15e348e94
-Revert "webnn: Migrate ConvTranspose2d validation tests to WPTs": https://github.com/web-platform-tests/wpt/commit/70f60491765dee7c7166a53e4825ca59ffee665d
-[anchor] Disable AnchorResults and persistent try sets: https://github.com/web-platform-tests/wpt/commit/e8a709f6b60f9bc20f11baa26567c77005e93b83
-webnn: Migrate transpose validation tests to WPTs: https://github.com/web-platform-tests/wpt/commit/91660d3f260345e5a394e065d729b412fee5f900
-webnn: Migrate ConvTranspose2d validation tests to WPTs: https://github.com/web-platform-tests/wpt/commit/e2f8e1e490bde0974019a2b417b41aa9a85e777c
-Disallow fractions in http-equiv=refresh: https://github.com/web-platform-tests/wpt/commit/e0455866135e3fec617a1a6d3590ce216c94a4d6
-Remove automatic adjustment for "centered operators".: https://github.com/web-platform-tests/wpt/commit/ac1a2c6a4bce9134fd9f7ef62c16adf1b5e9b50f
-[wdspec] Add tests for "storage.getCookies" command with network event.: https://github.com/web-platform-tests/wpt/commit/0a07acc30aca67035afb8ab2d3a07bdfe062a473
-[webnn] Fixed tests with keepDimensions=false for argMax and argMin (#45648): https://github.com/web-platform-tests/wpt/commit/c7ab28658c92ce11c4d6e7e5c40364e23a0b8717
-[Gamepad] Implement manual WPT for playEffect: https://github.com/web-platform-tests/wpt/commit/d18cf7f1cd3a916a3f9d748f3393d8b3ecb332a9
-Add WPT for nested &lt;options&gt; in &lt;select&gt; &lt;datalist&gt;: https://github.com/web-platform-tests/wpt/commit/321b4a774e2a8a10d7884bbc57cb9cc101140579
-[wptrunner] Remove WebLayer support (#45656): https://github.com/web-platform-tests/wpt/commit/5ff7c07707be3ef16d1ff552b2dd615ae7cdc5ed
-Reland "[Element Capture] add restrictTo WPT test": https://github.com/web-platform-tests/wpt/commit/93faad38ca9f9b50fecce0b2d396b8f45f130a02
-Make &lt;select&gt; native popup render descendant &lt;option&gt;s: https://github.com/web-platform-tests/wpt/commit/073f56c256ef0c248aacc4595420e5b4a630e797
-Implement -internal-appearance-auto-base-select(): https://github.com/web-platform-tests/wpt/commit/293b22bffa09048bbca34ab9a1357b1af0951699
-Mark position-visibility tests non-tentative: https://github.com/web-platform-tests/wpt/commit/5baae3e11208b54b1bf11a0e7c67f6abb0cf0651
-Test interaction between `object-fit` and `contain: size` (#45563): https://github.com/web-platform-tests/wpt/commit/ae05e1ac2530c57f3e6205c50d6176b4875098ff
-Don't expect an undefined promise in a detached iframe: https://github.com/web-platform-tests/wpt/commit/6e1c00a27dc59b8272ee5fbb247c975e2f5d5ec5
-Reland "Cross-origin support for window.fence.reportEvent()." (#45554): https://github.com/web-platform-tests/wpt/commit/a57b6bdf00987cf820d34e268779232d1aea8709
-Use "script" as the initiatorType in resource timing for modules: https://github.com/web-platform-tests/wpt/commit/2c7c60f2f062e2fd55cffaab4b2b5dbdd9c67ada
-Remove ASSERT_NO_EXCEPTION for toggling &lt;select&gt; popovers: https://github.com/web-platform-tests/wpt/commit/ed8ba2bd60d15c2423f013b62138756423cb08ed
-WebNN: Add XNN_FLAG_KEEP_DIMS flag for XNNPACK: https://github.com/web-platform-tests/wpt/commit/13056cf344566342922d5765d564e4f65076387e
-Add tests for new Worker() and worker.postMessage() to happen in parallel: https://github.com/web-platform-tests/wpt/commit/2060611f666a08629a55d5d594a0188c49c9ef5e
-[line-clamp] Don't treat clamped content as scrollable overflow: https://github.com/web-platform-tests/wpt/commit/9f53d39bcef48bdd862491409d1bcd3b8addd10b
-part 2: Add more subtests to getScreenCTM WPT, to cover more interesting scenarios with offsets and rotations.: https://github.com/web-platform-tests/wpt/commit/e4f3c7449e4821b522c567e213888b535b9cbab8
-part 1: Rewrite logic in getScreenCTM WPT to be more reusable/encapsulated.: https://github.com/web-platform-tests/wpt/commit/f81984dc2d0f4d0074a98a8d2f5e408462a5d143
-compute pressure: Move Options to Observe method: https://github.com/web-platform-tests/wpt/commit/b502725c15ef80cc8179a31a1e868ad7112bcc28
-Remove getHTML() shouldn't branch on shadow root's mode: https://github.com/web-platform-tests/wpt/commit/dd2e51de9985a1c9d381607c2b314b6562545d37
-[line-clamp] Hide floats after the clamp point: https://github.com/web-platform-tests/wpt/commit/94be77b5672ba30c3cf4dd1ead285ca57749bd15
-Reland "[FedCM] Enable CORS in ID assertion endpoint": https://github.com/web-platform-tests/wpt/commit/b1eacf12d9e205919a9363a179f14d6e8bc3bd71
-
-[0]: https://chromium.googlesource.com/chromium/src/+/HEAD/docs/testing/web_test_expectations.md
-
-This bug was filed automatically due to a new WPT test failure for which you are marked an OWNER. If you do not want to receive these reports, please add "wpt { notify: NO }"  to the relevant DIR_METADATA file.</content>
-    </entry>
-    <entry>
-        <id>333976551</id>
-        <title>[WPT] New failures introduced in external/wpt/html by import https://crrev.com/c/5448636</title>
-        <author>
-            <name>wp...@chops-service-accounts.iam.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333976551"/>
-        <updated>1970-01-01T00:28:32.948Z</updated>
-        <summary>-</summary>
-        <content type="html">WPT import https://crrev.com/c/5448636 introduced new failures in external/wpt/html:
-
-List of new failures:
-[ Mac12 ] external/wpt/html/meta/refresh-time.html [ Timeout ]
-
-See https://chromium-review.googlesource.com/c/chromium/src/+/5448636/1?checksPatchset=1&amp;tab=checks for details.
-
-Expectations or baseline files [0] have been automatically added for the failing results to keep the bots green. Please investigate the new failures and triage as appropriate.
-
-Upstream changes imported:
-https://github.com/web-platform-tests/wpt/compare/1267c0a912d444e0e76f07d23477cb2cd26ee05e...1608f50e923836a9063c64c2f5f177c408a48086
-[anchor] Mark PositionedMovementLayout for null-AnchorEvaluator styles: https://github.com/web-platform-tests/wpt/commit/1608f50e923836a9063c64c2f5f177c408a48086
-[PEPC] Limit min/max-height/width for PEPC: https://github.com/web-platform-tests/wpt/commit/7c2a090d60996315c82651c562aaea988d2220b5 [affecting this directory]
-[wdspec] change assertion for test_with_scrollbars (#45626): https://github.com/web-platform-tests/wpt/commit/29d95cd2b9416709e0c5cf690f79a0bad5e9508c
-[css-scroll-snap-2] Add onsnap* member test variants: https://github.com/web-platform-tests/wpt/commit/f42dcd7acbb40ff4949923514df528e07cc35422
-De-fuzz the 2d.layer.global-states WPT tests: https://github.com/web-platform-tests/wpt/commit/4275d57e23e4dd105a3e6e847018de1839bf07fe [affecting this directory]
-[Grid] Fix clamping of a subgrid's grid-template-areas: https://github.com/web-platform-tests/wpt/commit/f95204fd4e0b4bba4c6c28a67958992791a28708
-font-size-adjust-reload.html is flaky.: https://github.com/web-platform-tests/wpt/commit/fc4751b41508b9c0946c8ed193ed5d3760687bc8
-[anchor] Invalid anchor()/anchor-size() without fallback becomes IACVT: https://github.com/web-platform-tests/wpt/commit/039e0b75a1457090a6d0aed1cb10b8997ee8d284
-Storage buckets: throw TypeError when window context is destroyed.: https://github.com/web-platform-tests/wpt/commit/9f1cfd6824f166bd08d46c061be9e507d6bb45a7
-Support border in -internal-auto-base-select(): https://github.com/web-platform-tests/wpt/commit/daba59ad18bb87d65918965f130b30035bd277c9 [affecting this directory]
-Add borders around canvas grid cells: https://github.com/web-platform-tests/wpt/commit/22c96b8e5dafe7a8df843a344023e5c5100bd813 [affecting this directory]
-Apply ancestor-scope-reset to list-item counter only.: https://github.com/web-platform-tests/wpt/commit/5e332cd336c36e332ba5c89ab65bf033ac601c83
-DOM: Introduce Node#moveBefore() shell: https://github.com/web-platform-tests/wpt/commit/c0520884ae12c3ed398b42a39bd4f61971881ad8
-[css-anchor-position] position-visibility: anchors-visible with chained anchors: https://github.com/web-platform-tests/wpt/commit/d33717724c19fc2708e91bbab52d08132cb4a5f5
-Add tests for ::first-letter and ::first-line with MathML (#43334): https://github.com/web-platform-tests/wpt/commit/58bd6e4080be7067719c5a516cd91d9e4356d280
-FACEs work, setFormValue test is awful so now has _mozilla backup: https://github.com/web-platform-tests/wpt/commit/7ffd4f111b5602d17613a38e164a1f68a06dafc1
-Implement MediaStreamTrackAudioStats: https://github.com/web-platform-tests/wpt/commit/6a0c6f13e03573f238994462a7019cd18657afda
-Fix rendering of font ligatures with highlights: https://github.com/web-platform-tests/wpt/commit/1d522695b62ff465480400962a1dbc1ab923b41c
-WebKit export of https://bugs.webkit.org/show_bug.cgi?id=272517 (#45663): https://github.com/web-platform-tests/wpt/commit/d9cb9596198114c0a086baac025d33b15e348e94
-Revert "webnn: Migrate ConvTranspose2d validation tests to WPTs": https://github.com/web-platform-tests/wpt/commit/70f60491765dee7c7166a53e4825ca59ffee665d
-[anchor] Disable AnchorResults and persistent try sets: https://github.com/web-platform-tests/wpt/commit/e8a709f6b60f9bc20f11baa26567c77005e93b83
-webnn: Migrate transpose validation tests to WPTs: https://github.com/web-platform-tests/wpt/commit/91660d3f260345e5a394e065d729b412fee5f900
-webnn: Migrate ConvTranspose2d validation tests to WPTs: https://github.com/web-platform-tests/wpt/commit/e2f8e1e490bde0974019a2b417b41aa9a85e777c
-Disallow fractions in http-equiv=refresh: https://github.com/web-platform-tests/wpt/commit/e0455866135e3fec617a1a6d3590ce216c94a4d6 [affecting this directory]
-Remove automatic adjustment for "centered operators".: https://github.com/web-platform-tests/wpt/commit/ac1a2c6a4bce9134fd9f7ef62c16adf1b5e9b50f
-[wdspec] Add tests for "storage.getCookies" command with network event.: https://github.com/web-platform-tests/wpt/commit/0a07acc30aca67035afb8ab2d3a07bdfe062a473
-[webnn] Fixed tests with keepDimensions=false for argMax and argMin (#45648): https://github.com/web-platform-tests/wpt/commit/c7ab28658c92ce11c4d6e7e5c40364e23a0b8717
-[Gamepad] Implement manual WPT for playEffect: https://github.com/web-platform-tests/wpt/commit/d18cf7f1cd3a916a3f9d748f3393d8b3ecb332a9
-Add WPT for nested &lt;options&gt; in &lt;select&gt; &lt;datalist&gt;: https://github.com/web-platform-tests/wpt/commit/321b4a774e2a8a10d7884bbc57cb9cc101140579 [affecting this directory]
-[wptrunner] Remove WebLayer support (#45656): https://github.com/web-platform-tests/wpt/commit/5ff7c07707be3ef16d1ff552b2dd615ae7cdc5ed
-Reland "[Element Capture] add restrictTo WPT test": https://github.com/web-platform-tests/wpt/commit/93faad38ca9f9b50fecce0b2d396b8f45f130a02
-Make &lt;select&gt; native popup render descendant &lt;option&gt;s: https://github.com/web-platform-tests/wpt/commit/073f56c256ef0c248aacc4595420e5b4a630e797 [affecting this directory]
-Implement -internal-appearance-auto-base-select(): https://github.com/web-platform-tests/wpt/commit/293b22bffa09048bbca34ab9a1357b1af0951699 [affecting this directory]
-Mark position-visibility tests non-tentative: https://github.com/web-platform-tests/wpt/commit/5baae3e11208b54b1bf11a0e7c67f6abb0cf0651
-Test interaction between `object-fit` and `contain: size` (#45563): https://github.com/web-platform-tests/wpt/commit/ae05e1ac2530c57f3e6205c50d6176b4875098ff
-Don't expect an undefined promise in a detached iframe: https://github.com/web-platform-tests/wpt/commit/6e1c00a27dc59b8272ee5fbb247c975e2f5d5ec5
-Reland "Cross-origin support for window.fence.reportEvent()." (#45554): https://github.com/web-platform-tests/wpt/commit/a57b6bdf00987cf820d34e268779232d1aea8709
-Use "script" as the initiatorType in resource timing for modules: https://github.com/web-platform-tests/wpt/commit/2c7c60f2f062e2fd55cffaab4b2b5dbdd9c67ada
-Remove ASSERT_NO_EXCEPTION for toggling &lt;select&gt; popovers: https://github.com/web-platform-tests/wpt/commit/ed8ba2bd60d15c2423f013b62138756423cb08ed [affecting this directory]
-WebNN: Add XNN_FLAG_KEEP_DIMS flag for XNNPACK: https://github.com/web-platform-tests/wpt/commit/13056cf344566342922d5765d564e4f65076387e
-Add tests for new Worker() and worker.postMessage() to happen in parallel: https://github.com/web-platform-tests/wpt/commit/2060611f666a08629a55d5d594a0188c49c9ef5e
-[line-clamp] Don't treat clamped content as scrollable overflow: https://github.com/web-platform-tests/wpt/commit/9f53d39bcef48bdd862491409d1bcd3b8addd10b
-part 2: Add more subtests to getScreenCTM WPT, to cover more interesting scenarios with offsets and rotations.: https://github.com/web-platform-tests/wpt/commit/e4f3c7449e4821b522c567e213888b535b9cbab8
-part 1: Rewrite logic in getScreenCTM WPT to be more reusable/encapsulated.: https://github.com/web-platform-tests/wpt/commit/f81984dc2d0f4d0074a98a8d2f5e408462a5d143
-compute pressure: Move Options to Observe method: https://github.com/web-platform-tests/wpt/commit/b502725c15ef80cc8179a31a1e868ad7112bcc28
-Remove getHTML() shouldn't branch on shadow root's mode: https://github.com/web-platform-tests/wpt/commit/dd2e51de9985a1c9d381607c2b314b6562545d37
-[line-clamp] Hide floats after the clamp point: https://github.com/web-platform-tests/wpt/commit/94be77b5672ba30c3cf4dd1ead285ca57749bd15
-Reland "[FedCM] Enable CORS in ID assertion endpoint": https://github.com/web-platform-tests/wpt/commit/b1eacf12d9e205919a9363a179f14d6e8bc3bd71
-
-[0]: https://chromium.googlesource.com/chromium/src/+/HEAD/docs/testing/web_test_expectations.md
-
-This bug was filed automatically due to a new WPT test failure for which you are marked an OWNER. If you do not want to receive these reports, please add "wpt { notify: NO }"  to the relevant DIR_METADATA file.</content>
-    </entry>
-    <entry>
-        <id>333976550</id>
-        <title>[WPT] New failures introduced in external/wpt/webdriver/tests by import https://crrev.com/c/5448636</title>
-        <author>
-            <name>wp...@chops-service-accounts.iam.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333976550"/>
-        <updated>1970-01-01T00:28:32.948Z</updated>
-        <summary>-</summary>
-        <content type="html">WPT import https://crrev.com/c/5448636 introduced new failures in external/wpt/webdriver/tests:
-
-List of new failures:
-[ Linux-chrome ] external/wpt/webdriver/tests/bidi/integration/cookies_with_network_events.py new failing tests: https://crrev.com/c/5448636/5/third_party/blink/web_tests/platform/linux-chrome/external/wpt/webdriver/tests/bidi/integration/cookies_with_network_events-expected.txt
-
-See https://chromium-review.googlesource.com/c/chromium/src/+/5448636/1?checksPatchset=1&amp;tab=checks for details.
-
-Expectations or baseline files [0] have been automatically added for the failing results to keep the bots green. Please investigate the new failures and triage as appropriate.
-
-Upstream changes imported:
-https://github.com/web-platform-tests/wpt/compare/1267c0a912d444e0e76f07d23477cb2cd26ee05e...1608f50e923836a9063c64c2f5f177c408a48086
-[anchor] Mark PositionedMovementLayout for null-AnchorEvaluator styles: https://github.com/web-platform-tests/wpt/commit/1608f50e923836a9063c64c2f5f177c408a48086
-[PEPC] Limit min/max-height/width for PEPC: https://github.com/web-platform-tests/wpt/commit/7c2a090d60996315c82651c562aaea988d2220b5
-[wdspec] change assertion for test_with_scrollbars (#45626): https://github.com/web-platform-tests/wpt/commit/29d95cd2b9416709e0c5cf690f79a0bad5e9508c [affecting this directory]
-[css-scroll-snap-2] Add onsnap* member test variants: https://github.com/web-platform-tests/wpt/commit/f42dcd7acbb40ff4949923514df528e07cc35422
-De-fuzz the 2d.layer.global-states WPT tests: https://github.com/web-platform-tests/wpt/commit/4275d57e23e4dd105a3e6e847018de1839bf07fe
-[Grid] Fix clamping of a subgrid's grid-template-areas: https://github.com/web-platform-tests/wpt/commit/f95204fd4e0b4bba4c6c28a67958992791a28708
-font-size-adjust-reload.html is flaky.: https://github.com/web-platform-tests/wpt/commit/fc4751b41508b9c0946c8ed193ed5d3760687bc8
-[anchor] Invalid anchor()/anchor-size() without fallback becomes IACVT: https://github.com/web-platform-tests/wpt/commit/039e0b75a1457090a6d0aed1cb10b8997ee8d284
-Storage buckets: throw TypeError when window context is destroyed.: https://github.com/web-platform-tests/wpt/commit/9f1cfd6824f166bd08d46c061be9e507d6bb45a7
-Support border in -internal-auto-base-select(): https://github.com/web-platform-tests/wpt/commit/daba59ad18bb87d65918965f130b30035bd277c9
-Add borders around canvas grid cells: https://github.com/web-platform-tests/wpt/commit/22c96b8e5dafe7a8df843a344023e5c5100bd813
-Apply ancestor-scope-reset to list-item counter only.: https://github.com/web-platform-tests/wpt/commit/5e332cd336c36e332ba5c89ab65bf033ac601c83
-DOM: Introduce Node#moveBefore() shell: https://github.com/web-platform-tests/wpt/commit/c0520884ae12c3ed398b42a39bd4f61971881ad8
-[css-anchor-position] position-visibility: anchors-visible with chained anchors: https://github.com/web-platform-tests/wpt/commit/d33717724c19fc2708e91bbab52d08132cb4a5f5
-Add tests for ::first-letter and ::first-line with MathML (#43334): https://github.com/web-platform-tests/wpt/commit/58bd6e4080be7067719c5a516cd91d9e4356d280
-FACEs work, setFormValue test is awful so now has _mozilla backup: https://github.com/web-platform-tests/wpt/commit/7ffd4f111b5602d17613a38e164a1f68a06dafc1
-Implement MediaStreamTrackAudioStats: https://github.com/web-platform-tests/wpt/commit/6a0c6f13e03573f238994462a7019cd18657afda
-Fix rendering of font ligatures with highlights: https://github.com/web-platform-tests/wpt/commit/1d522695b62ff465480400962a1dbc1ab923b41c
-WebKit export of https://bugs.webkit.org/show_bug.cgi?id=272517 (#45663): https://github.com/web-platform-tests/wpt/commit/d9cb9596198114c0a086baac025d33b15e348e94
-Revert "webnn: Migrate ConvTranspose2d validation tests to WPTs": https://github.com/web-platform-tests/wpt/commit/70f60491765dee7c7166a53e4825ca59ffee665d
-[anchor] Disable AnchorResults and persistent try sets: https://github.com/web-platform-tests/wpt/commit/e8a709f6b60f9bc20f11baa26567c77005e93b83
-webnn: Migrate transpose validation tests to WPTs: https://github.com/web-platform-tests/wpt/commit/91660d3f260345e5a394e065d729b412fee5f900
-webnn: Migrate ConvTranspose2d validation tests to WPTs: https://github.com/web-platform-tests/wpt/commit/e2f8e1e490bde0974019a2b417b41aa9a85e777c
-Disallow fractions in http-equiv=refresh: https://github.com/web-platform-tests/wpt/commit/e0455866135e3fec617a1a6d3590ce216c94a4d6
-Remove automatic adjustment for "centered operators".: https://github.com/web-platform-tests/wpt/commit/ac1a2c6a4bce9134fd9f7ef62c16adf1b5e9b50f
-[wdspec] Add tests for "storage.getCookies" command with network event.: https://github.com/web-platform-tests/wpt/commit/0a07acc30aca67035afb8ab2d3a07bdfe062a473 [affecting this directory]
-[webnn] Fixed tests with keepDimensions=false for argMax and argMin (#45648): https://github.com/web-platform-tests/wpt/commit/c7ab28658c92ce11c4d6e7e5c40364e23a0b8717
-[Gamepad] Implement manual WPT for playEffect: https://github.com/web-platform-tests/wpt/commit/d18cf7f1cd3a916a3f9d748f3393d8b3ecb332a9
-Add WPT for nested &lt;options&gt; in &lt;select&gt; &lt;datalist&gt;: https://github.com/web-platform-tests/wpt/commit/321b4a774e2a8a10d7884bbc57cb9cc101140579
-[wptrunner] Remove WebLayer support (#45656): https://github.com/web-platform-tests/wpt/commit/5ff7c07707be3ef16d1ff552b2dd615ae7cdc5ed
-Reland "[Element Capture] add restrictTo WPT test": https://github.com/web-platform-tests/wpt/commit/93faad38ca9f9b50fecce0b2d396b8f45f130a02
-Make &lt;select&gt; native popup render descendant &lt;option&gt;s: https://github.com/web-platform-tests/wpt/commit/073f56c256ef0c248aacc4595420e5b4a630e797
-Implement -internal-appearance-auto-base-select(): https://github.com/web-platform-tests/wpt/commit/293b22bffa09048bbca34ab9a1357b1af0951699
-Mark position-visibility tests non-tentative: https://github.com/web-platform-tests/wpt/commit/5baae3e11208b54b1bf11a0e7c67f6abb0cf0651
-Test interaction between `object-fit` and `contain: size` (#45563): https://github.com/web-platform-tests/wpt/commit/ae05e1ac2530c57f3e6205c50d6176b4875098ff
-Don't expect an undefined promise in a detached iframe: https://github.com/web-platform-tests/wpt/commit/6e1c00a27dc59b8272ee5fbb247c975e2f5d5ec5
-Reland "Cross-origin support for window.fence.reportEvent()." (#45554): https://github.com/web-platform-tests/wpt/commit/a57b6bdf00987cf820d34e268779232d1aea8709
-Use "script" as the initiatorType in resource timing for modules: https://github.com/web-platform-tests/wpt/commit/2c7c60f2f062e2fd55cffaab4b2b5dbdd9c67ada
-Remove ASSERT_NO_EXCEPTION for toggling &lt;select&gt; popovers: https://github.com/web-platform-tests/wpt/commit/ed8ba2bd60d15c2423f013b62138756423cb08ed
-WebNN: Add XNN_FLAG_KEEP_DIMS flag for XNNPACK: https://github.com/web-platform-tests/wpt/commit/13056cf344566342922d5765d564e4f65076387e
-Add tests for new Worker() and worker.postMessage() to happen in parallel: https://github.com/web-platform-tests/wpt/commit/2060611f666a08629a55d5d594a0188c49c9ef5e
-[line-clamp] Don't treat clamped content as scrollable overflow: https://github.com/web-platform-tests/wpt/commit/9f53d39bcef48bdd862491409d1bcd3b8addd10b
-part 2: Add more subtests to getScreenCTM WPT, to cover more interesting scenarios with offsets and rotations.: https://github.com/web-platform-tests/wpt/commit/e4f3c7449e4821b522c567e213888b535b9cbab8
-part 1: Rewrite logic in getScreenCTM WPT to be more reusable/encapsulated.: https://github.com/web-platform-tests/wpt/commit/f81984dc2d0f4d0074a98a8d2f5e408462a5d143
-compute pressure: Move Options to Observe method: https://github.com/web-platform-tests/wpt/commit/b502725c15ef80cc8179a31a1e868ad7112bcc28
-Remove getHTML() shouldn't branch on shadow root's mode: https://github.com/web-platform-tests/wpt/commit/dd2e51de9985a1c9d381607c2b314b6562545d37
-[line-clamp] Hide floats after the clamp point: https://github.com/web-platform-tests/wpt/commit/94be77b5672ba30c3cf4dd1ead285ca57749bd15
-Reland "[FedCM] Enable CORS in ID assertion endpoint": https://github.com/web-platform-tests/wpt/commit/b1eacf12d9e205919a9363a179f14d6e8bc3bd71
-
-[0]: https://chromium.googlesource.com/chromium/src/+/HEAD/docs/testing/web_test_expectations.md
-
-This bug was filed automatically due to a new WPT test failure for which you are marked an OWNER. If you do not want to receive these reports, please add "wpt { notify: NO }"  to the relevant DIR_METADATA file.</content>
-    </entry>
-    <entry>
-        <id>333926318</id>
-        <title>[WPT] New failures introduced in external/wpt/css by import https://crrev.com/c/5448636</title>
-        <author>
-            <name>wp...@chops-service-accounts.iam.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333926318"/>
-        <updated>1970-01-01T00:28:32.948Z</updated>
-        <summary>-</summary>
-        <content type="html">WPT import https://crrev.com/c/5448636 introduced new failures in external/wpt/css:
-
-List of new failures:
-external/wpt/css/css-images/object-fit-containcontainintrinsicsize-png-001i.tentative.html [ Failure ]
-external/wpt/css/css-images/object-fit-containsize-png-001i.tentative.html [ Failure ]
-
-See https://chromium-review.googlesource.com/c/chromium/src/+/5448636/1?checksPatchset=1&amp;tab=checks for details.
-
-Expectations or baseline files [0] have been automatically added for the failing results to keep the bots green. Please investigate the new failures and triage as appropriate.
-
-Upstream changes imported:
-https://github.com/web-platform-tests/wpt/compare/1267c0a912d444e0e76f07d23477cb2cd26ee05e...1608f50e923836a9063c64c2f5f177c408a48086
-[anchor] Mark PositionedMovementLayout for null-AnchorEvaluator styles: https://github.com/web-platform-tests/wpt/commit/1608f50e923836a9063c64c2f5f177c408a48086 [affecting this directory]
-[PEPC] Limit min/max-height/width for PEPC: https://github.com/web-platform-tests/wpt/commit/7c2a090d60996315c82651c562aaea988d2220b5
-[wdspec] change assertion for test_with_scrollbars (#45626): https://github.com/web-platform-tests/wpt/commit/29d95cd2b9416709e0c5cf690f79a0bad5e9508c
-[css-scroll-snap-2] Add onsnap* member test variants: https://github.com/web-platform-tests/wpt/commit/f42dcd7acbb40ff4949923514df528e07cc35422 [affecting this directory]
-De-fuzz the 2d.layer.global-states WPT tests: https://github.com/web-platform-tests/wpt/commit/4275d57e23e4dd105a3e6e847018de1839bf07fe
-[Grid] Fix clamping of a subgrid's grid-template-areas: https://github.com/web-platform-tests/wpt/commit/f95204fd4e0b4bba4c6c28a67958992791a28708 [affecting this directory]
-font-size-adjust-reload.html is flaky.: https://github.com/web-platform-tests/wpt/commit/fc4751b41508b9c0946c8ed193ed5d3760687bc8 [affecting this directory]
-[anchor] Invalid anchor()/anchor-size() without fallback becomes IACVT: https://github.com/web-platform-tests/wpt/commit/039e0b75a1457090a6d0aed1cb10b8997ee8d284 [affecting this directory]
-Storage buckets: throw TypeError when window context is destroyed.: https://github.com/web-platform-tests/wpt/commit/9f1cfd6824f166bd08d46c061be9e507d6bb45a7
-Support border in -internal-auto-base-select(): https://github.com/web-platform-tests/wpt/commit/daba59ad18bb87d65918965f130b30035bd277c9
-Add borders around canvas grid cells: https://github.com/web-platform-tests/wpt/commit/22c96b8e5dafe7a8df843a344023e5c5100bd813
-Apply ancestor-scope-reset to list-item counter only.: https://github.com/web-platform-tests/wpt/commit/5e332cd336c36e332ba5c89ab65bf033ac601c83 [affecting this directory]
-DOM: Introduce Node#moveBefore() shell: https://github.com/web-platform-tests/wpt/commit/c0520884ae12c3ed398b42a39bd4f61971881ad8
-[css-anchor-position] position-visibility: anchors-visible with chained anchors: https://github.com/web-platform-tests/wpt/commit/d33717724c19fc2708e91bbab52d08132cb4a5f5 [affecting this directory]
-Add tests for ::first-letter and ::first-line with MathML (#43334): https://github.com/web-platform-tests/wpt/commit/58bd6e4080be7067719c5a516cd91d9e4356d280
-FACEs work, setFormValue test is awful so now has _mozilla backup: https://github.com/web-platform-tests/wpt/commit/7ffd4f111b5602d17613a38e164a1f68a06dafc1
-Implement MediaStreamTrackAudioStats: https://github.com/web-platform-tests/wpt/commit/6a0c6f13e03573f238994462a7019cd18657afda
-Fix rendering of font ligatures with highlights: https://github.com/web-platform-tests/wpt/commit/1d522695b62ff465480400962a1dbc1ab923b41c [affecting this directory]
-WebKit export of https://bugs.webkit.org/show_bug.cgi?id=272517 (#45663): https://github.com/web-platform-tests/wpt/commit/d9cb9596198114c0a086baac025d33b15e348e94
-Revert "webnn: Migrate ConvTranspose2d validation tests to WPTs": https://github.com/web-platform-tests/wpt/commit/70f60491765dee7c7166a53e4825ca59ffee665d
-[anchor] Disable AnchorResults and persistent try sets: https://github.com/web-platform-tests/wpt/commit/e8a709f6b60f9bc20f11baa26567c77005e93b83 [affecting this directory]
-webnn: Migrate transpose validation tests to WPTs: https://github.com/web-platform-tests/wpt/commit/91660d3f260345e5a394e065d729b412fee5f900
-webnn: Migrate ConvTranspose2d validation tests to WPTs: https://github.com/web-platform-tests/wpt/commit/e2f8e1e490bde0974019a2b417b41aa9a85e777c
-Disallow fractions in http-equiv=refresh: https://github.com/web-platform-tests/wpt/commit/e0455866135e3fec617a1a6d3590ce216c94a4d6
-Remove automatic adjustment for "centered operators".: https://github.com/web-platform-tests/wpt/commit/ac1a2c6a4bce9134fd9f7ef62c16adf1b5e9b50f
-[wdspec] Add tests for "storage.getCookies" command with network event.: https://github.com/web-platform-tests/wpt/commit/0a07acc30aca67035afb8ab2d3a07bdfe062a473
-[webnn] Fixed tests with keepDimensions=false for argMax and argMin (#45648): https://github.com/web-platform-tests/wpt/commit/c7ab28658c92ce11c4d6e7e5c40364e23a0b8717
-[Gamepad] Implement manual WPT for playEffect: https://github.com/web-platform-tests/wpt/commit/d18cf7f1cd3a916a3f9d748f3393d8b3ecb332a9
-Add WPT for nested &lt;options&gt; in &lt;select&gt; &lt;datalist&gt;: https://github.com/web-platform-tests/wpt/commit/321b4a774e2a8a10d7884bbc57cb9cc101140579
-[wptrunner] Remove WebLayer support (#45656): https://github.com/web-platform-tests/wpt/commit/5ff7c07707be3ef16d1ff552b2dd615ae7cdc5ed
-Reland "[Element Capture] add restrictTo WPT test": https://github.com/web-platform-tests/wpt/commit/93faad38ca9f9b50fecce0b2d396b8f45f130a02
-Make &lt;select&gt; native popup render descendant &lt;option&gt;s: https://github.com/web-platform-tests/wpt/commit/073f56c256ef0c248aacc4595420e5b4a630e797
-Implement -internal-appearance-auto-base-select(): https://github.com/web-platform-tests/wpt/commit/293b22bffa09048bbca34ab9a1357b1af0951699
-Mark position-visibility tests non-tentative: https://github.com/web-platform-tests/wpt/commit/5baae3e11208b54b1bf11a0e7c67f6abb0cf0651 [affecting this directory]
-Test interaction between `object-fit` and `contain: size` (#45563): https://github.com/web-platform-tests/wpt/commit/ae05e1ac2530c57f3e6205c50d6176b4875098ff [affecting this directory]
-Don't expect an undefined promise in a detached iframe: https://github.com/web-platform-tests/wpt/commit/6e1c00a27dc59b8272ee5fbb247c975e2f5d5ec5
-Reland "Cross-origin support for window.fence.reportEvent()." (#45554): https://github.com/web-platform-tests/wpt/commit/a57b6bdf00987cf820d34e268779232d1aea8709
-Use "script" as the initiatorType in resource timing for modules: https://github.com/web-platform-tests/wpt/commit/2c7c60f2f062e2fd55cffaab4b2b5dbdd9c67ada
-Remove ASSERT_NO_EXCEPTION for toggling &lt;select&gt; popovers: https://github.com/web-platform-tests/wpt/commit/ed8ba2bd60d15c2423f013b62138756423cb08ed
-WebNN: Add XNN_FLAG_KEEP_DIMS flag for XNNPACK: https://github.com/web-platform-tests/wpt/commit/13056cf344566342922d5765d564e4f65076387e
-Add tests for new Worker() and worker.postMessage() to happen in parallel: https://github.com/web-platform-tests/wpt/commit/2060611f666a08629a55d5d594a0188c49c9ef5e
-[line-clamp] Don't treat clamped content as scrollable overflow: https://github.com/web-platform-tests/wpt/commit/9f53d39bcef48bdd862491409d1bcd3b8addd10b [affecting this directory]
-part 2: Add more subtests to getScreenCTM WPT, to cover more interesting scenarios with offsets and rotations.: https://github.com/web-platform-tests/wpt/commit/e4f3c7449e4821b522c567e213888b535b9cbab8
-part 1: Rewrite logic in getScreenCTM WPT to be more reusable/encapsulated.: https://github.com/web-platform-tests/wpt/commit/f81984dc2d0f4d0074a98a8d2f5e408462a5d143
-compute pressure: Move Options to Observe method: https://github.com/web-platform-tests/wpt/commit/b502725c15ef80cc8179a31a1e868ad7112bcc28
-Remove getHTML() shouldn't branch on shadow root's mode: https://github.com/web-platform-tests/wpt/commit/dd2e51de9985a1c9d381607c2b314b6562545d37
-[line-clamp] Hide floats after the clamp point: https://github.com/web-platform-tests/wpt/commit/94be77b5672ba30c3cf4dd1ead285ca57749bd15 [affecting this directory]
-Reland "[FedCM] Enable CORS in ID assertion endpoint": https://github.com/web-platform-tests/wpt/commit/b1eacf12d9e205919a9363a179f14d6e8bc3bd71
-
-[0]: https://chromium.googlesource.com/chromium/src/+/HEAD/docs/testing/web_test_expectations.md
-
-This bug was filed automatically due to a new WPT test failure for which you are marked an OWNER. If you do not want to receive these reports, please add "wpt { notify: NO }"  to the relevant DIR_METADATA file.</content>
-    </entry>
-    <entry>
-        <id>334026778</id>
-        <title>[WPT] New failures introduced in external/wpt/workers by import https://crrev.com/c/5448636</title>
-        <author>
-            <name>wp...@chops-service-accounts.iam.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334026778"/>
-        <updated>1970-01-01T00:28:32.948Z</updated>
-        <summary>-</summary>
-        <content type="html">WPT import https://crrev.com/c/5448636 introduced new failures in external/wpt/workers:
-
-List of new failures:
-external/wpt/workers/Worker-creation-happens-in-parallel.https.html new failing tests: https://crrev.com/c/5448636/5/third_party/blink/web_tests/external/wpt/workers/Worker-creation-happens-in-parallel.https-expected.txt
-external/wpt/workers/Worker-creation-happens-in-parallel.https.html [ Pass Timeout ]
-external/wpt/workers/Worker-postMessage-happens-in-parallel.https.html [ Timeout ]
-virtual/plz-dedicated-worker-disabled/external/wpt/workers/Worker-creation-happens-in-parallel.https.html [ Pass Timeout ]
-virtual/plz-dedicated-worker-disabled/external/wpt/workers/Worker-postMessage-happens-in-parallel.https.html [ Timeout ]
-
-See https://chromium-review.googlesource.com/c/chromium/src/+/5448636/1?checksPatchset=1&amp;tab=checks for details.
-
-Expectations or baseline files [0] have been automatically added for the failing results to keep the bots green. Please investigate the new failures and triage as appropriate.
-
-Upstream changes imported:
-https://github.com/web-platform-tests/wpt/compare/1267c0a912d444e0e76f07d23477cb2cd26ee05e...1608f50e923836a9063c64c2f5f177c408a48086
-[anchor] Mark PositionedMovementLayout for null-AnchorEvaluator styles: https://github.com/web-platform-tests/wpt/commit/1608f50e923836a9063c64c2f5f177c408a48086
-[PEPC] Limit min/max-height/width for PEPC: https://github.com/web-platform-tests/wpt/commit/7c2a090d60996315c82651c562aaea988d2220b5
-[wdspec] change assertion for test_with_scrollbars (#45626): https://github.com/web-platform-tests/wpt/commit/29d95cd2b9416709e0c5cf690f79a0bad5e9508c
-[css-scroll-snap-2] Add onsnap* member test variants: https://github.com/web-platform-tests/wpt/commit/f42dcd7acbb40ff4949923514df528e07cc35422
-De-fuzz the 2d.layer.global-states WPT tests: https://github.com/web-platform-tests/wpt/commit/4275d57e23e4dd105a3e6e847018de1839bf07fe
-[Grid] Fix clamping of a subgrid's grid-template-areas: https://github.com/web-platform-tests/wpt/commit/f95204fd4e0b4bba4c6c28a67958992791a28708
-font-size-adjust-reload.html is flaky.: https://github.com/web-platform-tests/wpt/commit/fc4751b41508b9c0946c8ed193ed5d3760687bc8
-[anchor] Invalid anchor()/anchor-size() without fallback becomes IACVT: https://github.com/web-platform-tests/wpt/commit/039e0b75a1457090a6d0aed1cb10b8997ee8d284
-Storage buckets: throw TypeError when window context is destroyed.: https://github.com/web-platform-tests/wpt/commit/9f1cfd6824f166bd08d46c061be9e507d6bb45a7
-Support border in -internal-auto-base-select(): https://github.com/web-platform-tests/wpt/commit/daba59ad18bb87d65918965f130b30035bd277c9
-Add borders around canvas grid cells: https://github.com/web-platform-tests/wpt/commit/22c96b8e5dafe7a8df843a344023e5c5100bd813
-Apply ancestor-scope-reset to list-item counter only.: https://github.com/web-platform-tests/wpt/commit/5e332cd336c36e332ba5c89ab65bf033ac601c83
-DOM: Introduce Node#moveBefore() shell: https://github.com/web-platform-tests/wpt/commit/c0520884ae12c3ed398b42a39bd4f61971881ad8
-[css-anchor-position] position-visibility: anchors-visible with chained anchors: https://github.com/web-platform-tests/wpt/commit/d33717724c19fc2708e91bbab52d08132cb4a5f5
-Add tests for ::first-letter and ::first-line with MathML (#43334): https://github.com/web-platform-tests/wpt/commit/58bd6e4080be7067719c5a516cd91d9e4356d280
-FACEs work, setFormValue test is awful so now has _mozilla backup: https://github.com/web-platform-tests/wpt/commit/7ffd4f111b5602d17613a38e164a1f68a06dafc1
-Implement MediaStreamTrackAudioStats: https://github.com/web-platform-tests/wpt/commit/6a0c6f13e03573f238994462a7019cd18657afda
-Fix rendering of font ligatures with highlights: https://github.com/web-platform-tests/wpt/commit/1d522695b62ff465480400962a1dbc1ab923b41c
-WebKit export of https://bugs.webkit.org/show_bug.cgi?id=272517 (#45663): https://github.com/web-platform-tests/wpt/commit/d9cb9596198114c0a086baac025d33b15e348e94
-Revert "webnn: Migrate ConvTranspose2d validation tests to WPTs": https://github.com/web-platform-tests/wpt/commit/70f60491765dee7c7166a53e4825ca59ffee665d
-[anchor] Disable AnchorResults and persistent try sets: https://github.com/web-platform-tests/wpt/commit/e8a709f6b60f9bc20f11baa26567c77005e93b83
-webnn: Migrate transpose validation tests to WPTs: https://github.com/web-platform-tests/wpt/commit/91660d3f260345e5a394e065d729b412fee5f900
-webnn: Migrate ConvTranspose2d validation tests to WPTs: https://github.com/web-platform-tests/wpt/commit/e2f8e1e490bde0974019a2b417b41aa9a85e777c
-Disallow fractions in http-equiv=refresh: https://github.com/web-platform-tests/wpt/commit/e0455866135e3fec617a1a6d3590ce216c94a4d6
-Remove automatic adjustment for "centered operators".: https://github.com/web-platform-tests/wpt/commit/ac1a2c6a4bce9134fd9f7ef62c16adf1b5e9b50f
-[wdspec] Add tests for "storage.getCookies" command with network event.: https://github.com/web-platform-tests/wpt/commit/0a07acc30aca67035afb8ab2d3a07bdfe062a473
-[webnn] Fixed tests with keepDimensions=false for argMax and argMin (#45648): https://github.com/web-platform-tests/wpt/commit/c7ab28658c92ce11c4d6e7e5c40364e23a0b8717
-[Gamepad] Implement manual WPT for playEffect: https://github.com/web-platform-tests/wpt/commit/d18cf7f1cd3a916a3f9d748f3393d8b3ecb332a9
-Add WPT for nested &lt;options&gt; in &lt;select&gt; &lt;datalist&gt;: https://github.com/web-platform-tests/wpt/commit/321b4a774e2a8a10d7884bbc57cb9cc101140579
-[wptrunner] Remove WebLayer support (#45656): https://github.com/web-platform-tests/wpt/commit/5ff7c07707be3ef16d1ff552b2dd615ae7cdc5ed
-Reland "[Element Capture] add restrictTo WPT test": https://github.com/web-platform-tests/wpt/commit/93faad38ca9f9b50fecce0b2d396b8f45f130a02
-Make &lt;select&gt; native popup render descendant &lt;option&gt;s: https://github.com/web-platform-tests/wpt/commit/073f56c256ef0c248aacc4595420e5b4a630e797
-Implement -internal-appearance-auto-base-select(): https://github.com/web-platform-tests/wpt/commit/293b22bffa09048bbca34ab9a1357b1af0951699
-Mark position-visibility tests non-tentative: https://github.com/web-platform-tests/wpt/commit/5baae3e11208b54b1bf11a0e7c67f6abb0cf0651
-Test interaction between `object-fit` and `contain: size` (#45563): https://github.com/web-platform-tests/wpt/commit/ae05e1ac2530c57f3e6205c50d6176b4875098ff
-Don't expect an undefined promise in a detached iframe: https://github.com/web-platform-tests/wpt/commit/6e1c00a27dc59b8272ee5fbb247c975e2f5d5ec5
-Reland "Cross-origin support for window.fence.reportEvent()." (#45554): https://github.com/web-platform-tests/wpt/commit/a57b6bdf00987cf820d34e268779232d1aea8709
-Use "script" as the initiatorType in resource timing for modules: https://github.com/web-platform-tests/wpt/commit/2c7c60f2f062e2fd55cffaab4b2b5dbdd9c67ada
-Remove ASSERT_NO_EXCEPTION for toggling &lt;select&gt; popovers: https://github.com/web-platform-tests/wpt/commit/ed8ba2bd60d15c2423f013b62138756423cb08ed
-WebNN: Add XNN_FLAG_KEEP_DIMS flag for XNNPACK: https://github.com/web-platform-tests/wpt/commit/13056cf344566342922d5765d564e4f65076387e
-Add tests for new Worker() and worker.postMessage() to happen in parallel: https://github.com/web-platform-tests/wpt/commit/2060611f666a08629a55d5d594a0188c49c9ef5e [affecting this directory]
-[line-clamp] Don't treat clamped content as scrollable overflow: https://github.com/web-platform-tests/wpt/commit/9f53d39bcef48bdd862491409d1bcd3b8addd10b
-part 2: Add more subtests to getScreenCTM WPT, to cover more interesting scenarios with offsets and rotations.: https://github.com/web-platform-tests/wpt/commit/e4f3c7449e4821b522c567e213888b535b9cbab8
-part 1: Rewrite logic in getScreenCTM WPT to be more reusable/encapsulated.: https://github.com/web-platform-tests/wpt/commit/f81984dc2d0f4d0074a98a8d2f5e408462a5d143
-compute pressure: Move Options to Observe method: https://github.com/web-platform-tests/wpt/commit/b502725c15ef80cc8179a31a1e868ad7112bcc28
-Remove getHTML() shouldn't branch on shadow root's mode: https://github.com/web-platform-tests/wpt/commit/dd2e51de9985a1c9d381607c2b314b6562545d37
-[line-clamp] Hide floats after the clamp point: https://github.com/web-platform-tests/wpt/commit/94be77b5672ba30c3cf4dd1ead285ca57749bd15
-Reland "[FedCM] Enable CORS in ID assertion endpoint": https://github.com/web-platform-tests/wpt/commit/b1eacf12d9e205919a9363a179f14d6e8bc3bd71
-
-[0]: https://chromium.googlesource.com/chromium/src/+/HEAD/docs/testing/web_test_expectations.md
-
-This bug was filed automatically due to a new WPT test failure for which you are marked an OWNER. If you do not want to receive these reports, please add "wpt { notify: NO }"  to the relevant DIR_METADATA file.</content>
-    </entry>
-    <entry>
-        <id>334131661</id>
-        <title>virtual/exotic-color-space/images/rgb-jpeg-endian-pixels.html test is flaky</title>
-        <author>
-            <name>sa...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334131661"/>
-        <updated>1970-01-01T00:28:32.948Z</updated>
-        <summary>-</summary>
-        <content type="html">virtual/exotic-color-space/images/rgb-jpeg-endian-pixels.html
-
-Timeout Failure on WebKit Win10 builder
-
-Test History Link:
-WebKit Win10: https://ci.chromium.org/ui/test/chromium%3Aci/ninja%3A%2F%2F%3Ablink_web_tests%2Fvirtual%2Fexotic-color-space%2Fimages%2Frgb-jpeg-endian-pixels.html?q=VHASH%3A329768773e20e824
-
-Dashboard:
-https://data.corp.google.com/sites/chrome_generic_flakiness_dashboard_datasite/top_flakes/?f=test_id:eq:ninja:%2F%2F:blink_web_tests%2Fvirtual%2Fexotic-color-space%2Fimages%2Frgb-jpeg-endian-pixels.html&amp;f=realm:in:(null)&amp;f=variant_test_suite:in:blink_web_tests&amp;can=2
-
-and average 8.29% flaky rate in runs mostly on Win builders</content>
-    </entry>
-    <entry>
-        <id>333954426</id>
-        <title>Remove InsecureFormsWarningsEnabled after M130</title>
-        <author>
-            <name>me...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333954426"/>
-        <updated>1970-01-01T00:28:32.947Z</updated>
-        <summary>-</summary>
-        <content type="html">This is a temporary policy to support the insecure form warnings launch on iOS. Should be removed in M130.</content>
-    </entry>
-    <entry>
-        <id>333952124</id>
-        <title>Inconsistent Web USB Communication on Windows Machines</title>
-        <author>
-            <name>sa...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333952124"/>
-        <updated>1970-01-01T00:28:32.947Z</updated>
-        <summary>-</summary>
-        <content type="html"># Steps to reproduce the problem
-1. I have website where we can login and capture the pulse data from usb sensor device
-2. 
-3. 
-
-# Problem Description
-I work in the organization where having product of usb device with three pulse sensors. So for this web base communication I find the web serial so this not need any software installation and any other server.But this working correctly in mac Chrome but in some windows chrome (basically of 8 Gb ram) this not working properly this lossess the so much in between data and same for some bigger ram machines also, So I want the solution for this. So please help me in this.
-
-# Additional Comments
-I've attached the video which showing the lag in the pulse capturing using the web serial. In this attached video we can easily find that there is so much data is loses.
-
-# Summary
-Inconsistent Web USB Communication on Windows Machines
-
-# Custom Questions
-#### Which component does this fall under?
-Not sure - I don't know
-
-#### Does this work in other browsers? 
-Not sure - I don't know
-
-# Additional Data
-Category: API \
-Chrome Channel: Not sure \
-Regression: Yes</content>
-    </entry>
-    <entry>
-        <id>334124078</id>
-        <title>Tests are failing: ninja://chrome/android:chrome_public_test_apk/org.chromium.chrome.browser.sync.SyncTest#testIsSyncingUnencryptedUrlsWhileUsingTrustedVaultPassprhase</title>
-        <author>
-            <name>bi...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334124078"/>
-        <updated>1970-01-01T00:28:32.946Z</updated>
-        <summary>-</summary>
-        <content type="html">This bug is for all test failures with the test name: ninja://chrome/android:chrome_public_test_apk/org.chromium.chrome.browser.sync.SyncTest#testIsSyncingUnencryptedUrlsWhileUsingTrustedVaultPassprhase
-
-These test failures are causing problem(s) which require your attention, including:
-- test variant(s) are being exonerated (ignored) in presubmit
-
-See current problems, failure examples and more in LUCI Analysis at: https://luci-analysis.appspot.com/p/chromium/rules/eefd1338833a70e367f0f98fe788722e
-
-How to action this bug: https://luci-analysis.appspot.com/help#new-bug-filed
-Provide feedback: https://luci-analysis.appspot.com/help#feedback
-Was this bug filed in the wrong component? See: https://luci-analysis.appspot.com/help#component-selection</content>
-    </entry>
-    <entry>
-        <id>334122678</id>
-        <title>%external/wpt/html/semantics/forms/the-select-element/stylable-select/native-popup-with-datalist.tentative.html test is flaky</title>
-        <author>
-            <name>sa...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334122678"/>
-        <updated>1970-01-01T00:28:32.946Z</updated>
-        <summary>-</summary>
-        <content type="html">external/wpt/html/semantics/forms/the-select-element/stylable-select/native-popup-with-datalist.tentative.html
-
-Image Failure on Linux Tests, linux-bfcache-rel builder
-
-Test History Link:
-Linux Tests: https://ci.chromium.org/ui/test/chromium%3Aci/ninja%3A%2F%2F%3Ablink_wpt_tests%2Fexternal%2Fwpt%2Fhtml%2Fsemantics%2Fforms%2Fthe-select-element%2Fstylable-select%2Fnative-popup-with-datalist.tentative.html?q=VHASH%3A3d5d684c6208939e
-
-linux-bfcache-rel: https://ci.chromium.org/ui/test/chromium%3Aci/ninja%3A%2F%2F%3Ablink_wpt_tests%2Fexternal%2Fwpt%2Fhtml%2Fsemantics%2Fforms%2Fthe-select-element%2Fstylable-select%2Fnative-popup-with-datalist.tentative.html?q=VHASH%3A7a6a3f3d13a3be84
-
-Dashboard:
-https://data.corp.google.com/sites/chrome_generic_flakiness_dashboard_datasite/top_flakes/?f=test_id:eq:ninja:%2F%2F:blink_wpt_tests%2Fexternal%2Fwpt%2Fhtml%2Fsemantics%2Fforms%2Fthe-select-element%2Fstylable-select%2Fnative-popup-with-datalist.tentative.html&amp;f=realm:in:(null)&amp;f=variant_test_suite:in:blink_wpt_tests&amp;can=2
-
-and average 34.05% flaky rate in runs mostly on Linux builders</content>
-    </entry>
-    <entry>
-        <id>333945860</id>
-        <title>blink::InterestGroup violates the Google C++ style guide by being a class with public member variables.</title>
-        <author>
-            <name>mm...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333945860"/>
-        <updated>1970-01-01T00:28:32.945Z</updated>
-        <summary>-</summary>
-        <content type="html">Per the Google C++ style guide, "Make classes' data members private, unless they are constants."
-
-blink::InterestGroup was converted from a struct to a class in https://chromium-review.googlesource.com/c/chromium/src/+/5111200 without making most of its member variables private.
-
-I suggest switching it back to a struct, and making render_url_ public, like everything else (and possibly renaming it to render_url_string or somesuch).</content>
-    </entry>
-    <entry>
-        <id>333981076</id>
-        <title>there's a builder called mac-osxbeta-rel that does Debug builds</title>
-        <author>
-            <name>db...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333981076"/>
-        <updated>1970-01-01T00:28:32.944Z</updated>
-        <summary>-</summary>
-        <content type="html">It appears that we have a builder called `mac-osxbeta-rel` that tests Debug builds, despite the `-rel` in the name suggesting otherwise.
-
-It seems like either (a) the builder should be renamed or (b) it should be configured to test Release builds.  (I'm not sure what was intended.)
-
-I noticed this as part of https://issues.chromium.org/issues/333758768#comment3 (which was a failure happening only on debug builds, although I briefly thought otherwise because of this builder's name) and checked that in the WPT log it says:
-```
-16:42:28.754 4037 Baseline search path: mac -&gt; generic
-16:42:28.754 4037 Using Debug build
-16:42:28.754 4037 Regular timeout: 30000, slow test timeout: 150000
-```
-
-(As bpastene noted on `#ops` in Slack, this is an FYI builder.)</content>
-    </entry>
-    <entry>
-        <id>333957191</id>
-        <title>virtual/shared-storage-fenced-frame-mparch/external/wpt/shared-storage/shared-storage-writable-service-worker-fetch.tentative.https.sub.html is failing</title>
-        <author>
-            <name>ja...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333957191"/>
-        <updated>1970-01-01T00:28:32.943Z</updated>
-        <summary>-</summary>
-        <content type="html">This test was marked as timeout here: https://issues.chromium.org/issues/332372552
-It is also flaky on a win11 builder:
-https://ci.chromium.org/ui/p/chromium/builders/ci/Win11%20Tests%20x64/21042/overview
-https://ci.chromium.org/ui/p/chromium/builders/ci/Win11%20Tests%20x64/21037/overview</content>
-    </entry>
-    <entry>
-        <id>333981075</id>
-        <title>NFC unable to communicate with other devices</title>
-        <author>
-            <name>ev...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333981075"/>
-        <updated>1970-01-01T00:28:32.943Z</updated>
-        <summary>-</summary>
-        <content type="html"></content>
-    </entry>
-    <entry>
-        <id>333965948</id>
-        <title>[shared storage] Rename SharedStorageAPIM124 to SharedStorageAPIM125 and enable it</title>
-        <author>
-            <name>ya...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333965948"/>
-        <updated>1970-01-01T00:28:32.943Z</updated>
-        <summary>-</summary>
-        <content type="html">Previously we decided to push this back to M125 and disabled the feature.
-Now we rename it to M125 and enable it.</content>
-    </entry>
-    <entry>
-        <id>334112727</id>
-        <title>Request to add CIPD packages for the Android toolchain</title>
-        <author>
-            <name>ak...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334112727"/>
-        <updated>1970-01-01T00:28:32.943Z</updated>
-        <summary>-</summary>
-        <content type="html">In [this Chromium bug](https://g-issues.chromium.org/issues/40913000), the team stripped down the Android NDK packages to include only the sysroot, and not the full toolchain. This makes sense for Chromium, but other projects (such as BoringSSL) are still reliant on an NDK distribution which contains the full toolchain. As such, I'd like to add an infra CIPD package for both `android_toolchain` and `android_toolchain_canary`. We can lift and shift the previous Chromium builders, before the aforementioned change landed.</content>
-    </entry>
-    <entry>
-        <id>334108039</id>
-        <title>Add tabs title to SavedTabGroup context menu</title>
-        <author>
-            <name>yu...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334108039"/>
-        <updated>1970-01-01T00:28:32.942Z</updated>
-        <summary>-</summary>
-        <content type="html">Chrome Version: (copy from chrome://version)
-Lacros Version (if applicable): (copy from chrome://version)
-OS: (e.g. Win10, MacOS 10.12, etc...)
-
-What steps will reproduce the problem?
-(1)
-(2)
-(3)
-
-What is the expected result?
-
-
-What happens instead?
-
-
-
-Please use hotlists and text to provide additional information.
-
-If this is a regression (i.e., worked before), please consider using the bisect tool (https://www.chromium.org/developers/bisect-builds-py) to help us identify the root cause and more rapidly triage the issue.
-
-For graphics-related bugs, please copy/paste the contents of the about://gpu page at the end of this report.</content>
-    </entry>
-    <entry>
-        <id>334107183</id>
-        <title>ToTFuchsia bots failing in generate_build_files step</title>
-        <author>
-            <name>ae...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334107183"/>
-        <updated>1970-01-01T00:28:32.942Z</updated>
-        <summary>-</summary>
-        <content type="html">https://ci.chromium.org/ui/p/chromium/builders/ci/ToTFuchsia%20x64/13578/overview
-
-```
-ERROR at //ui/ozone/BUILD.gn:156:7: Unable to load "/b/s/w/ir/cache/builder/src/third_party/fuchsia-sdk/sdk/fidl/fuchsia.images/BUILD.gn".
-      "//third_party/fuchsia-sdk/sdk/fidl/fuchsia.images:fuchsia.images_hlcpp",
-```
-
-we checkout the Fuchsia SDK in [DEPS](https://crsrc.org/c/DEPS;drc=e210451c0a44392313d356bcfc00456bf975f39c;l=1335) with the `checkout_fuchsia_no_hooks` condition. that's set with [`fuchsia_no_hooks` gclient config](https://crsrc.org/b/recipes/recipe_modules/chromium/gclient_config.py;drc=3888bddaf2a1a515ac82ee5f29fa684bd8368e43;l=153) which our builder sets [here](https://crsrc.org/c/infra/config/subprojects/chromium/ci/chromium.clang.star;drc=c0737fd3b1aef4cfa85a1318d81838af0620bcae;l=633), so it seems like it should be working?</content>
-    </entry>
-    <entry>
-        <id>334102475</id>
-        <title>Right-click immediately selects whatever context menu item is under the cursor.</title>
-        <author>
-            <name>ac...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334102475"/>
-        <updated>1970-01-01T00:28:32.940Z</updated>
-        <summary>-</summary>
-        <content type="html"># Steps to reproduce the problem
-1. Right-click anywhere on any page.
-2. 
-3. 
-
-# Problem Description
-Right-clicking opens the context menu and immediately selects the item under the cursor, resulting in either the first or last menu item being selected (depending on whether the menu opens up or down).  Right-clicking, holding the button, moving the mouse away from the menu, then releasing the button results in the menu staying open as expected.
-
-The problem is also reproducible in an incognito window.  Right-click in other applications works fine.
-
-I'm running on KDE with Wayland.  
-
-# Summary
-Right-click immediately selects whatever context menu item is under the cursor.
-
-# Additional Data
-Category: UI \
-Chrome Channel: Stable \
-Regression: Yes</content>
-    </entry>
-    <entry>
-        <id>333976549</id>
-        <title>[V8 Memory Perf Sheriff]: 1 regressions in v8.browsing_mobile</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333976549"/>
-        <updated>1970-01-01T00:28:32.940Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1285659:1285706:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=70dca0f4-2f46-456f-ad07-915deb10aac0
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=70dca0f4-2f46-456f-ad07-915deb10aac0
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/android-pixel2-perf/v8.browsing_mobile/v8:gc:cycle:main_thread:young:atomic_sum/browse_news/browse_news_cnn_2021
-        8.10%: 85.406 -&gt; 92.322 
-
-Top 1 affected measurements in android-pixel2-perf:
-  - v8.browsing_mobile/v8:gc:cycle:main_thread:young:atomic_sum/browse_news/browse_news_cnn_2021
-        8.10%: 85.406 -&gt; 92.322 
-
-Regressions grouped by v8.browsing_mobile includes data from the following benchmarks with listed owners:
-  v8.browsing_mobile: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>333981074</id>
-        <title>CDP method Page.getFrameTree with chrome.debugger API doesn't return cross-domain iframes</title>
-        <author>
-            <name>ru...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333981074"/>
-        <updated>1970-01-01T00:28:32.939Z</updated>
-        <summary>-</summary>
-        <content type="html"># Steps to reproduce the problem
-1. Create a chrome extension:
-  - `manifest.json`:
-```json
-{
-  "name": "getFrameTree bug",
-  "version": "0.0.1",
-  "manifest_version": 3,
-  "background": {
-    "service_worker": "background.js",
-    "type": "module"
-  },
-  "action": {
-    "default_title": "Find frames"
-  },
-  "permissions": ["debugger", "tabs", "webNavigation"],
-  "host_permissions": ["&lt;all_urls&gt;"]
-}
-```
-  - `background.js`:
-```js
-function compareSets(fromDebugger, fromWebNavigation) {
-  const unique = (urls) =&gt; [...new Set(urls)];
-  const truncateUrl = (url) =&gt; url.length &gt; 64 ? `${url.slice(0, 61)}...` : url;
-  const urlToLine = (url) =&gt; `  - ${truncateUrl(url)}`;
-
-  const total = fromDebugger.size + fromWebNavigation.size;
-  const common = unique([...fromDebugger].filter(url =&gt; fromWebNavigation.has(url)));
-  const uniqueDebugger = unique([...fromDebugger].filter(url =&gt; !fromWebNavigation.has(url)));
-  const uniqueWebNavigation = unique([...fromWebNavigation].filter(url =&gt; !fromDebugger.has(url)));
-
-  return `
-Total URLs: ${total}
-  - from debugger: ${fromDebugger.size}
-  - from webNavigation: ${fromWebNavigation.size}
-${common.length &gt; 0 ? `\nCommon URLs:\n${common.map(urlToLine).join('\n')}` : ''}
-${uniqueDebugger.length &gt; 0 ? `\nUnique to debugger:\n${uniqueDebugger.map(urlToLine).join('\n')}` : ''}
-${uniqueWebNavigation.length &gt; 0 ? `\nUnique to webNavigation:\n${uniqueWebNavigation.map(urlToLine).join('\n')}` : ''}`;
-}
-
-chrome.action.onClicked.addListener(async ({ id: tabId }) =&gt; {
-  chrome.debugger.attach({ tabId }, "1.3");
-  const [{ frameTree }, webNavigationFrames] = await Promise.all([
-    chrome.debugger.sendCommand({ tabId }, 'Page.getFrameTree'),
-    chrome.webNavigation.getAllFrames({ tabId }),
-  ]);
-  const allChildFrames = ({ frame, childFrames }) =&gt; [frame, ...(childFrames ?? []).flatMap(allChildFrames)];
-  const debuggerFrameUrls = new Set(allChildFrames(frameTree).map(f =&gt; f.url));
-  const webNavigationFrameUrls = new Set(webNavigationFrames.map(f =&gt; f.url));
-  const url = 'data:text/plain,' + compareSets(debuggerFrameUrls, webNavigationFrameUrls);
-  await chrome.tabs.create({ url });W
-});
-```
-2. Load it as a unpacked chrome extension
-3. navigate to some site with cross-domain iframes, e.g. https://www.w3schools.com/html/html_iframe.asp
-4. Click the extension action
-5. It will open a new tab with a text report like this:
-
-```
-Total URLs: 11
-  - from debugger: 3
-  - from webNavigation: 8
-
-Common URLs:
-  - https://www.w3schools.com/tags/tag_iframe.ASP
-  - about:blank
-
-Unique to debugger:
-  - :
-
-Unique to webNavigation:
-  - https://gum.criteo.com/syncframe?origin=publishertag&amp;topUrl=w...
-  - https://aax-eu.amazon-adsystem.com/s/iu3?cm3ppd=1&amp;d=dtb-pub&amp;c...
-  - https://fe27afe8cd2e042d41a7628339e8cff0.safeframe.googlesynd...
-  - https://tpc.googlesyndication.com/sodar/sodar2/225/runner.html
-  - https://www.google.com/recaptcha/api2/aframe
-  - https://aax-eu.amazon-adsystem.com/s/v3/pr?exlist=n-nativo_n-...
-```
-
-# Problem Description
-chrome.debugger API doesn't provide the full `Page.getFrameTree`. For comparison, I used the `chrome.webNavigation.getAllFrames` API and it can obtain all the page frames. The extension above shows the difference.
-Note that cross-domain is not an issue in ay other CDP commands that I am aware of, I only noticed this issue with this specific one.
-
-BTW, I could rely on `chrome.webNavigation` for that but it requires that I add `host_permissions: [&lt;all_urls&gt;]` which I would like to avoid.
-
-# Additional Comments
-It's related with chrome.debugger extension API.
-
-# Summary
-CDP method Page.getFrameTree with chrome.debugger API doesn't return cross-domain iframes
-
-# Custom Questions
-#### Which component does this fall under?
-Blink&gt;ServiceWorker
-
-#### Does this work in other browsers? 
-Yes - This is just a Chrome problem
-
-# Additional Data
-Category: API \
-Chrome Channel: Stable \
-Regression: N/A</content>
-    </entry>
-    <entry>
-        <id>333940414</id>
-        <title>Increase win diff pool or decrease build trigger rate to avoid noisy pending time alerts</title>
-        <author>
-            <name>bp...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333940414"/>
-        <updated>1970-01-01T00:28:32.939Z</updated>
-        <summary>-</summary>
-        <content type="html">The windows bots in the `luci.chrome.official.diffs` pool are a frequent source of pending time alerts. eg:  
-irm/i_7jz7aTjd3gXwokRomAGz  
-irm/i_aV9nJgxprB4ZFqcT38UT  
-irm/i_v22xPEobmndN726ThJKb
-
-Its builds either take 1+ hour, it gets spammed with builds in a short period, or its machine pool is too small. Should address either of those things to avoid frequent pending time alerts for this pool. (Or just turn off the alerts?)
-</content>
-    </entry>
-    <entry>
-        <id>334057054</id>
-        <title>[V8 Speedometer2 Perf Sheriff]: 1 regressions in speedometer2</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334057054"/>
-        <updated>1970-01-01T00:28:32.939Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1286050:1286076:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=f5c86927-ff32-409a-a4ba-6c7c35b93488
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=f5c86927-ff32-409a-a4ba-6c7c35b93488
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/win-10_laptop_low_end-perf/speedometer2/VanillaJS-TodoMVC/Speedometer2
-      155.99%: 191.17849999999999 -&gt; 489.39124000000004 ms
-
-Top 1 affected measurements in win-10_laptop_low_end-perf:
-  - speedometer2/VanillaJS-TodoMVC/Speedometer2
-      155.99%: 191.17849999999999 -&gt; 489.39124000000004 ms
-
-Regressions grouped by speedometer2 includes data from the following benchmarks with listed owners:
-  speedometer2: cbruni@chromium.org, vahl@chromium.org
-      
-
-Commits in this range:
-  Chromium Commit Position: https://crrev.com/1286049..1286076
-  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/3a36d2b100d790f363601d661909ff23fe7e50c5..3a36d2b100d790f363601d661909ff23fe7e50c5
-  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/1c35107cdca725ca700f1c8c3ea39d690e4cfc3e..0567fc17863c733a58907e561ef2fdcba53c17f8</content>
-    </entry>
-    <entry>
-        <id>334026777</id>
-        <title>[Desktop Power Perf Sheriff]: 2 regressions in system_health.common_desktop</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334026777"/>
-        <updated>1970-01-01T00:28:32.939Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1286000:1286160:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=0a904d64-94f3-4193-bd6e-5aafd67a57cf
-
-  Public Reports:
-    - Chromium: https://perf.luci.app/_/alertgroup?group_id=0a904d64-94f3-4193-bd6e-5aafd67a57cf
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=0a904d64-94f3-4193-bd6e-5aafd67a57cf
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/win-10-perf/system_health.common_desktop/cpu_time_percentage_avg/browse_news/browse_news_nytimes_2020
-       18.76%: 0.6025 -&gt; 0.7155 n%
-
-Top 1 affected measurements in win-10-perf:
-  - system_health.common_desktop/cpu_time_percentage_avg/browse_news/browse_news_nytimes_2020
-       18.76%: 0.6025 -&gt; 0.7155 n%
-
-Regressions grouped by system_health.common_desktop includes data from the following benchmarks with listed owners:
-  system_health.common_desktop: charliea@chromium.org, chrome-speed-metrics-dev@chromium.org, sullivan@chromium.org, tdresser@chromium.org
-      
-
-Commits in this range:
-  Chromium Commit Position: https://crrev.com/1285999..1286160
-  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/3a36d2b100d790f363601d661909ff23fe7e50c5..3a36d2b100d790f363601d661909ff23fe7e50c5
-  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/f591f2dcf1bfb00f25967d214776fee6b675e2ef..0567fc17863c733a58907e561ef2fdcba53c17f8</content>
-    </entry>
-    <entry>
-        <id>333972300</id>
-        <title>[V8 Memory Perf Sheriff]: 1 regressions in v8.browsing_mobile</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333972300"/>
-        <updated>1970-01-01T00:28:32.938Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1285774:1285801:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=93422596-be13-4a90-a2c6-41940d197e84
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=93422596-be13-4a90-a2c6-41940d197e84
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/android-pixel2_webview-perf/v8.browsing_mobile/v8:gc:cycle_max/browse_media/browse_media_facebook_photos_2019
-        8.29%: 70.6875 -&gt; 76.549 
-
-Top 1 affected measurements in android-pixel2_webview-perf:
-  - v8.browsing_mobile/v8:gc:cycle_max/browse_media/browse_media_facebook_photos_2019
-        8.29%: 70.6875 -&gt; 76.549 
-
-Regressions grouped by v8.browsing_mobile includes data from the following benchmarks with listed owners:
-  v8.browsing_mobile: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>333957915</id>
-        <title>"Page unresponsive" after creating blob URL</title>
-        <author>
-            <name>aw...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333957915"/>
-        <updated>1970-01-01T00:28:32.938Z</updated>
-        <summary>-</summary>
-        <content type="html">Opening this as a public version of bug 40062699 (Chrome: Crash Report - [Renderer hang] blink::PublicURLManager::RegisterURL), for investigating the cause of page hangs after using URL.createObjectUrl.
-
-For more information see: https://docs.google.com/document/d/110PHqQ1U84RekgXTzC1XPOEMZtt_9889OGd2ZRfQOb0/edit?usp=sharing</content>
-    </entry>
-    <entry>
-        <id>333962768</id>
-        <title>[V8 Memory Perf Sheriff]: 1 regressions in v8.browsing_desktop</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333962768"/>
-        <updated>1970-01-01T00:28:32.938Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1285960:1286004:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=01f9bff6-4182-4c65-ba08-ac0a8c5b187b
-
-  Public Reports:
-    - Chromium: https://perf.luci.app/_/alertgroup?group_id=01f9bff6-4182-4c65-ba08-ac0a8c5b187b
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=01f9bff6-4182-4c65-ba08-ac0a8c5b187b
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/win-10-perf/v8.browsing_desktop/v8:gc:cycle:main_thread:full:cpp_sum/browse_news/browse_news_flipboard_2020
-       35.63%: 19.453 -&gt; 26.3835 
-
-Top 1 affected measurements in win-10-perf:
-  - v8.browsing_desktop/v8:gc:cycle:main_thread:full:cpp_sum/browse_news/browse_news_flipboard_2020
-       35.63%: 19.453 -&gt; 26.3835 
-
-Regressions grouped by v8.browsing_desktop includes data from the following benchmarks with listed owners:
-  v8.browsing_desktop: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>333971750</id>
-        <title>[Chromium Desktop GPU Memory Sheriff]: 2 regressions in system_health.memory_desktop</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333971750"/>
-        <updated>1970-01-01T00:28:32.937Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1286050:1286085:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=f396607d-3c29-4a77-9345-4f8e67d5fe71
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=f396607d-3c29-4a77-9345-4f8e67d5fe71
-
-Top 2 regressions (out of 24, with 22 improvements) in this group:
-  - ChromiumPerf/win-10_laptop_low_end-perf/system_health.memory_desktop/memory:chrome:all_processes:reported_by_chrome:gpu:effective_size_avg/browse_media/browse_media_tumblr_2018
-       65.30%: 139887308.5 -&gt; 231236031.5 sizeInBytes
-  - ChromiumPerf/win-10_laptop_low_end-perf/system_health.memory_desktop/memory:chrome:all_processes:reported_by_chrome:gpu:effective_size_avg/browse_tools/browse_tools_maps_2019
-       21.75%: 21091804.0 -&gt; 25680142.5 sizeInBytes
-
-Top 2 affected measurements in win-10_laptop_low_end-perf:
-  - system_health.memory_desktop/memory:chrome:all_processes:reported_by_chrome:gpu:effective_size_avg/browse_media/browse_media_tumblr_2018
-       65.30%: 139887308.5 -&gt; 231236031.5 sizeInBytes
-  - system_health.memory_desktop/memory:chrome:all_processes:reported_by_chrome:gpu:effective_size_avg/browse_tools/browse_tools_maps_2019
-       21.75%: 21091804.0 -&gt; 25680142.5 sizeInBytes
-
-Regressions grouped by system_health.memory_desktop includes data from the following benchmarks with listed owners:
-  system_health.memory_desktop: lizeb@chromium.org, pasko@chromium.org
-      
-
-Commits in this range:
-  Chromium Commit Position: https://crrev.com/1286049..1286076
-  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/3a36d2b100d790f363601d661909ff23fe7e50c5..3a36d2b100d790f363601d661909ff23fe7e50c5
-  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/1c35107cdca725ca700f1c8c3ea39d690e4cfc3e..0567fc17863c733a58907e561ef2fdcba53c17f8</content>
-    </entry>
-    <entry>
-        <id>333940413</id>
-        <title>Updating textarea defaultValue breaks minlength validation</title>
-        <author>
-            <name>ju...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333940413"/>
-        <updated>1970-01-01T00:28:32.937Z</updated>
-        <summary>-</summary>
-        <content type="html"># Steps to reproduce the problem
-1. Add a textarea with minlength (say, 5)
-2. Type fewer than 5 characters into the textarea
-3. See textarea.validity.valid == false, CSS :invalid matches
-4. Set textarea.defaultValue through JavaScript to something different than its current value
-5. See textarea.validity.valid == true, CSS :invalid still matches
-
-A HTML file that showcases the problem is attached.
-
-# Problem Description
-When the defaultValue of a textarea is changed with JavaScript, it undoes or bypasses minlength constraint validation. The textarea's ValidityState will go from { valid: false, tooShort: true } to { valid: true, tooShort: false }. This can be a problem in frameworks like React if the defaultValue is set to a state variable and can change. Safari and Firefox do not share this behavior.
-
-I would expect that changing the defaultValue doesn't change whether or not the textarea's actual value is valid, and that this validation would match the CSS :invalid state.
-
-# Summary
-Updating textarea defaultValue breaks minlength validation
-
-# Custom Questions
-#### Which component does this fall under?
-Blink&gt;Forms
-
-#### Does this work in other browsers? 
-Yes - This is just a Chrome problem
-
-# Additional Data
-Category: API \
-Chrome Channel: Stable \
-Regression: N/A</content>
-    </entry>
-    <entry>
-        <id>333886790</id>
-        <title>[V8 Perf Sheriff]: 1 regressions in v8.browsing_mobile</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333886790"/>
-        <updated>1970-01-01T00:28:32.937Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1285928:1286017:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=a8f3e444-7723-42ba-8e69-d647b43a34c4
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=a8f3e444-7723-42ba-8e69-d647b43a34c4
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/android-pixel6-pro-perf/v8.browsing_mobile/Compile:duration_avg/browse_news/browse_news_globo_2019
-        4.23%: 337.947 -&gt; 352.25 
-
-Top 1 affected measurements in android-pixel6-pro-perf:
-  - v8.browsing_mobile/Compile:duration_avg/browse_news/browse_news_globo_2019
-        4.23%: 337.947 -&gt; 352.25 
-
-Regressions grouped by v8.browsing_mobile includes data from the following benchmarks with listed owners:
-  v8.browsing_mobile: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>334084140</id>
-        <title>clank instrumented build on aarch64: multiple __cyg_profile_func_enter_bare in one toplevel function</title>
-        <author>
-            <name>pa...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334084140"/>
-        <updated>1970-01-01T00:28:32.937Z</updated>
-        <summary>-</summary>
-        <content type="html">For the Clank orderfile generator we rely on `-finstrument-function-entry-bare` inserting the hook `_cyg_profile_func_enter_bare` after inlining. We then rely on identical inline decisions when we switch to the regular (uninstrumented build).
-
-We are working now on switching the orderfile generator to aarch64. I noticed that for aarch64 we often have multiple calls to the hook from one toplevel function.
-
-For example, here is a disassembly of `_ZN5blink14ResourceLoader16DidFinishLoadingEN4base9TimeTicksElml` (not in full, only the beginning):
-
-```
- 5b2378c: d503233f     	paciasp
- 5b23790: d102c3ff     	sub	sp, sp, #0xb0
- 5b23794: a9067bfd     	stp	x29, x30, [sp, #0x60]
- 5b23798: f9003bf9     	str	x25, [sp, #0x70]
- 5b2379c: a9085ff8     	stp	x24, x23, [sp, #0x80]
- 5b237a0: a90957f6     	stp	x22, x21, [sp, #0x90]
- 5b237a4: a90a4ff4     	stp	x20, x19, [sp, #0xa0]
- 5b237a8: 910183fd     	add	x29, sp, #0x60
- 5b237ac: aa0403f5     	mov	x21, x4
- 5b237b0: aa0303f7     	mov	x23, x3
- 5b237b4: aa0203f6     	mov	x22, x2
- 5b237b8: aa0103f3     	mov	x19, x1
- 5b237bc: aa0003f4     	mov	x20, x0
- 5b237c0: 95b049e4     	bl	0xc735f50 &lt;__cyg_profile_func_enter_bare&gt;
- 5b237c4: f00373d8     	adrp	x24, 0xc99e000 &lt;__emutls_v._ZN8perfetto10DataSourceIN2v88internal14CodeDataSourceENS2_20CodeDataSourceTraitsEE10tls_state_E+0x18&gt;
- 5b237c8: b9804288     	ldrsw	x8, [x20, #0x40]
- 5b237cc: f9404309     	ldr	x9, [x24, #0x80]
- 5b237d0: 8a080539     	and	x25, x9, x8, lsl #1
- 5b237d4: 395e4728     	ldrb	w8, [x25, #0x791]
- 5b237d8: 37180ac8     	tbnz	w8, #0x3, 0x5b23930 &lt;_ZN5blink14ResourceLoader16DidFinishLoadingEN4base9TimeTicksElml+0x1a4&gt;
- 5b237dc: 95b049dd     	bl	0xc735f50 &lt;__cyg_profile_func_enter_bare&gt;
- 5b237e0: f9047736     	str	x22, [x25, #0x8e8]
- 5b237e4: f9404309     	ldr	x9, [x24, #0x80]
- 5b237e8: b9804288     	ldrsw	x8, [x20, #0x40]
- 5b237ec: 8a080539     	and	x25, x9, x8, lsl #1
- 5b237f0: 95b049d8     	bl	0xc735f50 &lt;__cyg_profile_func_enter_bare&gt;
- 5b237f4: f9047b37     	str	x23, [x25, #0x8f0]
- 5b237f8: f9404309     	ldr	x9, [x24, #0x80]
- 5b237fc: b9804288     	ldrsw	x8, [x20, #0x40]
- 5b23800: 8a080537     	and	x23, x9, x8, lsl #1
- 5b23804: 95b049d3     	bl	0xc735f50 &lt;__cyg_profile_func_enter_bare&gt;
- 5b23808: f9047ef5     	str	x21, [x23, #0x8f8]
- 5b2380c: b9806289     	ldrsw	x9, [x20, #0x60]
- 5b23810: f900a693     	str	x19, [x20, #0x148]
- 5b23814: 340002e9     	cbz	w9, 0x5b23870 &lt;_ZN5blink14ResourceLoader16DidFinishLoadingEN4base9TimeTicksElml+0xe4&gt;
- 5b23818: 3941ea8a     	ldrb	w10, [x20, #0x7a]
- 5b2381c: f9404308     	ldr	x8, [x24, #0x80]
- 5b23820: 370002aa     	tbnz	w10, #0x0, 0x5b23874 &lt;_ZN5blink14ResourceLoader16DidFinishLoadingEN4base9TimeTicksElml+0xe8&gt;
- 5b23824: 8a090509     	and	x9, x8, x9, lsl #1
- 5b23828: 3940d929     	ldrb	w9, [x9, #0x36]
- 5b2382c: 35000249     	cbnz	w9, 0x5b23874 &lt;_ZN5blink14ResourceLoader16DidFinishLoadingEN4base9TimeTicksElml+0xe8&gt;
- 5b23830: 39422289     	ldrb	w9, [x20, #0x88]
- 5b23834: 37000069     	tbnz	w9, #0x0, 0x5b23840 &lt;_ZN5blink14ResourceLoader16DidFinishLoadingEN4base9TimeTicksElml+0xb4&gt;
-```
-
-I did not check whether it is a result of some aarch64 specifics or just a result of Clank/arm32 heavily discouraging inlining (for binary size reasons).
-
-We recently changed the value of `-Wl,-mllvm,-import-instr-limit`, and it broke the orderfile pipeline, but I cannot attribute this breakage to the specific problem in this bug. It could be a combination of factors.
-
-Here are our link flags (we are using thinlto and PGO):
-```
--Wl,--version-script=gen/chrome/android/libmonochrome_64_linker_script.txt -Wl,--hash-style=gnu -Wl,-soname,libmonochrome_64.so --partitioned-library -Werror -fuse-ld=lld -Wl,--fatal-warnings -Wl,--build-id=sha1 -fPIC -Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now -Wl,--color-diagnostics -Wl,-mllvm,-instcombine-lower-dbg-declare=0 -Wl,-mllvm,-split-threshold-for-reg-with-hint=0 -fexperimental-relative-c++-abi-vtables -Wl,--thinlto-cache-dir=thinlto-cache -Wl,--thinlto-cache-policy=cache_size=10\%:cache_size_bytes=40g:cache_size_files=100000 -flto=thin -Wl,--thinlto-jobs=all -Wl,-mllvm,-import-instr-limit=5 -Wl,-mllvm,-disable-auto-upgrade-debug-info -fwhole-program-vtables -Wl,--no-rosegment -Wl,--undefined-version -Wl,--exclude-libs=libvpx_assembly_arm.a -Wl,-z,max-page-size=16384 --target=aarch64-linux-android26 -Wl,-mllvm,-enable-machine-outliner=never -no-canonical-prefixes -Wl,--warn-shared-textrel -Wl,-O2 -Wl,--gc-sections -Wl,-z,defs -Wl,--as-needed --unwindlib=none -nostdlib++ --sysroot=../../third_party/android_toolchain/ndk/toolchains/llvm/prebuilt/linux-x86_64/sysroot -Wl,-mllvm,-enable-ext-tsp-block-placement=1 -Wl,-u,__cyg_profile_func_enter_bare -Wl,-z,force-bti -Wl,--lto-O2 -Wl,--symbol-ordering-file -Wl,../../clank/orderfiles/orderfile.arm.out -Wl,--no-warn-symbol-ordering -Wl,--pack-dyn-relocs=relr,--use-android-relr-tags -Wl,-wrap,calloc -Wl,-wrap,free -Wl,-wrap,malloc -Wl,-wrap,memalign -Wl,-wrap,posix_memalign -Wl,-wrap,pvalloc -Wl,-wrap,realloc -Wl,-wrap,valloc -Wl,-wrap,malloc_usable_size -Wl,-wrap,realpath -Wl,-wrap,strdup -Wl,-wrap,strndup -Wl,-wrap,getcwd -Wl,-wrap,asprintf -Wl,-wrap,vasprintf -Wl,--dynamic-linker,/system/bin/linker64 -o "./lib.unstripped/libmonochrome_64__combined.so" @"./libmonochrome_64__combined.so.rsp"
-```
-
-... then follow a few libs
-
-Contents of `libmonochrome_64__combined.so.rsp`:
-```
--Wl,--whole-archive [... many objects ...] -Wl,--no-whole-archive ../../third_party/llvm-build/Release+Asserts/lib/clang/19/lib/linux/libclang_rt.builtins-aarch64-android.a -ldl -lm -landroid -llog -ljnigraphics ../../base/android/library_loader/anchor_functions.lds -lGLESv2 -laaudio -lnativewindow -lmediandk
-```
-
-args:
-```
-enable_resource_allowlist_generation = false
-is_chrome_branded = true
-is_debug = false
-is_official_build = true
-symbol_level = 1
-target_os = "android"
-use_remoteexec = true
-use_order_profiling = true
-devtools_instrumentation_dumping = true
-target_cpu = "arm64"
-```</content>
-    </entry>
-    <entry>
-        <id>333971749</id>
-        <title>[Blink Paint]: 1 regressions in rasterize_and_record_micro.top_25</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/333971749"/>
-        <updated>1970-01-01T00:28:32.937Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1286166:1286241:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=2fdd8285-27b5-4144-80f5-44a6791b9750
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=2fdd8285-27b5-4144-80f5-44a6791b9750
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/android-pixel6-pro-perf/rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_cnn.html
-        2.23%: 0.6955 -&gt; 0.711 
-
-Top 1 affected measurements in android-pixel6-pro-perf:
-  - rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_cnn.html
-        2.23%: 0.6955 -&gt; 0.711 
-
-Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
-  rasterize_and_record_micro.top_25: 
       None
 
 Commits in this range:</content>
