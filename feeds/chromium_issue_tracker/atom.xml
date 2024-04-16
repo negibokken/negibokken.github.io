@@ -3,950 +3,199 @@
     <id>https://negibokken.github.io/feeds/chromium_issue_tracker/atom.xml</id>
     <title>Chromium issue tracker feed</title>
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
-    <updated>1970-01-01T00:28:33.211Z</updated>
+    <updated>1970-01-01T00:28:33.228Z</updated>
     <entry>
-        <id>334843187</id>
-        <title>[Graphics]: 1 regressions in rendering.desktop</title>
+        <id>334991035</id>
+        <title>Remove primordial SiteInstance from extensions' ProcessManager.</title>
+        <author>
+            <name>na...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334991035"/>
+        <updated>1970-01-01T00:28:33.228Z</updated>
+        <summary>-</summary>
+        <content type="html">The ProcessManager in the extensions code maintains a primordial SiteInstance in its site_instance_ member. Historically it was necessary in order to implement process model semantics required by extensions. However, at this point, the process model for extensions isolates them all from each other and this initial SiteInstance is no longer necessary.
+
+This issues is filed to track the work necessary to remove this member, which is non-trivial change and will land across multiple CLs.</content>
+    </entry>
+    <entry>
+        <id>334988065</id>
+        <title>WebNN: Use LOG(ERROR) in DirectML backend</title>
+        <author>
+            <name>ni...@intel.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334988065"/>
+        <updated>1970-01-01T00:28:33.228Z</updated>
+        <summary>-</summary>
+        <content type="html">For general errors returned from D3D like device removed and unanticipated ones, use LOG(ERROR) in DirectML backend, so users can view them in the about://gpu log messages.</content>
+    </entry>
+    <entry>
+        <id>334983212</id>
+        <title>[V8 Perf Sheriff]: 2 regressions in v8.browsing_desktop</title>
         <author>
             <name>ch...@appspot.gserviceaccount.com</name>
         </author>
-        <link href="https://issues.chromium.org/issues/334843187"/>
-        <updated>1970-01-01T00:28:33.211Z</updated>
+        <link href="https://issues.chromium.org/issues/334983212"/>
+        <updated>1970-01-01T00:28:33.226Z</updated>
         <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1287200:1287221:
+        <content type="html">All graphs for this regression group at 1283692:1285447:
 
   Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=2bdc5192-7de0-49db-a57c-cc0053f9a00e
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=c3998464-e70f-4c4e-aced-04a8d6cbf455
 
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=2bdc5192-7de0-49db-a57c-cc0053f9a00e
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=c3998464-e70f-4c4e-aced-04a8d6cbf455
 
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/mac-laptop_high_end-perf/rendering.desktop/thread_total_rendering_cpu_time_per_frame/small_texture_uploads
-        2.65%: 2.7862 -&gt; 2.8601499 
+Top 2 regressions (out of 2, with 0 improvements) in this group:
+  - ChromiumPerf/win-11-perf/v8.browsing_desktop/total:500ms_window:renderer_eqt:v8:compile_rcs/browse_media/browse_media_tumblr_2018
+       12.80%: 2.6605 -&gt; 3.0010000000000003 ms
+  - ChromiumPerf/win-11-perf/v8.browsing_desktop/total:500ms_window:renderer_eqt:v8:compile_rcs_max/browse_media/browse_media_tumblr_2018
+       12.79%: 7.981 -&gt; 9.001999999999999 ms
 
-Top 1 affected measurements in mac-laptop_high_end-perf:
-  - rendering.desktop/thread_total_rendering_cpu_time_per_frame/small_texture_uploads
-        2.65%: 2.7862 -&gt; 2.8601499 
+Top 2 affected measurements in win-11-perf:
+  - v8.browsing_desktop/total:500ms_window:renderer_eqt:v8:compile_rcs/browse_media/browse_media_tumblr_2018
+       12.80%: 2.6605 -&gt; 3.0010000000000003 ms
+  - v8.browsing_desktop/total:500ms_window:renderer_eqt:v8:compile_rcs_max/browse_media/browse_media_tumblr_2018
+       12.79%: 7.981 -&gt; 9.001999999999999 ms
 
-Regressions grouped by rendering.desktop includes data from the following benchmarks with listed owners:
-  rendering.desktop: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>334963179</id>
-        <title>Large processing and rendering times spent on simple form validation</title>
-        <author>
-            <name>mm...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334963179"/>
-        <updated>1970-01-01T00:28:33.211Z</updated>
-        <summary>-</summary>
-        <content type="html">Context: this is related to Issue 41485748.
-
-It seems that even [relatively simple, vanilla HTML forms using client side validation](https://developer.mozilla.org/en-US/docs/Learn/Forms/Form_validation) i.e. just a `required` attribute, can significantly affect Interaction responsiveness on Android when attempting to submit a form.
-
-For example in [this trace](https://ui.perfetto.dev/#!/?s=848dd0b7f80c49ba3cccc305d9dec70a3887857757c7723f4102d7709e7199c3) (Find the interaction that takes 283ms total duration, close to the end)
-
-...The DOMActivate event is dispatched as part of click (on submit button) which takes 41ms of main thread time on a Pixel 8 device with no throttling.  The rendering task that follows is quite fast, but Committing, Activating, and Submitting the animation also takes a long time (unclear if this is just due to the form validation UI or also due to other issues).
-
-One possibility is that the form validation UI appears to start a new opacity animation, which triggers a stream of animation frames and where the first ones "jank" a bit.</content>
-    </entry>
-    <entry>
-        <id>334654444</id>
-        <title>Browser crash with pathological filters</title>
-        <author>
-            <name>pd...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334654444"/>
-        <updated>1970-01-01T00:28:33.211Z</updated>
-        <summary>-</summary>
-        <content type="html">The attached testcase will bring down the entire browser (Chrome 123.0.6312.123, MacOs), rather than just crashing a tab. The console contains:
-```
-...
-[ERROR:gpu_process_host.cc(999)] GPU process exited unexpectedly: exit_code=10
-[FATAL:gpu_data_manager_impl_private.cc(448)] GPU process isn't usable. Goodbye.
-```
-
-I bisected this to https://chromium.googlesource.com/chromium/src/+/76eb5175c491e5e1d1f5081371048c473113b5d8. Other filter effects don't seem to bring the whole browser down.</content>
-    </entry>
-    <entry>
-        <id>334954143</id>
-        <title>experiment reduce accept-language</title>
-        <author>
-            <name>vi...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334954143"/>
-        <updated>1970-01-01T00:28:33.211Z</updated>
-        <summary>-</summary>
-        <content type="html">Adding experiment changes related reduce accept-language </content>
-    </entry>
-    <entry>
-        <id>334963806</id>
-        <title>[Graphics]: 1 regressions in rendering.desktop</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334963806"/>
-        <updated>1970-01-01T00:28:33.211Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1287260:1287273:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=2c4add4d-baf9-40e6-9673-9c7dc76ab1f7
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=2c4add4d-baf9-40e6-9673-9c7dc76ab1f7
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/mac-laptop_high_end-perf/rendering.desktop/thread_total_rendering_cpu_time_per_frame/animometer_webgl_indexed_multi_draw
-        1.08%: 20.8125 -&gt; 21.0376 
-
-Top 1 affected measurements in mac-laptop_high_end-perf:
-  - rendering.desktop/thread_total_rendering_cpu_time_per_frame/animometer_webgl_indexed_multi_draw
-        1.08%: 20.8125 -&gt; 21.0376 
-
-Regressions grouped by rendering.desktop includes data from the following benchmarks with listed owners:
-  rendering.desktop: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>334961946</id>
-        <title>Experiment with prioritizing viewport resize before BeginMainFrame</title>
-        <author>
-            <name>mm...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334961946"/>
-        <updated>1970-01-01T00:28:33.211Z</updated>
-        <summary>-</summary>
-        <content type="html">Context: this is related to Issue 41485748, where input focus causes Android Native Keyboard to show/hide, and this causes viewport to resize, with negative effects on rendering performance and INP
-
-[Example trace](https://ui.perfetto.dev/#!/?s=848dd0b7f80c49ba3cccc305d9dec70a3887857757c7723f4102d7709e7199c3) (Find the interaction that takes 283ms total duration, close to the end)
-
-- GestureShowPress (Renderer) invalidates the UI and requests BeginMainFrame
-  - Compositor posts BMF task soon afterwards
-- GestureTap (Renderer) causes Input focus change, and sends IPC to Browser process
-  - Browser accepts IPC and causes the Keyboard to pop up (Browser process: ManualFillingMediator#transitionIntoState as part of ManualFillingControllerImpl::NotifyFocusedInputChanged)
-  - Browser sends a Viewport resize IPC back down to Renderer
-- BeginMainFrame is runs first, with HIGHEST priority
-- Viewport resize is run second, with NORMAL priority
-  - (See WidgetBase::UpdateVisualProperties)
-- ...this triggers a second BeginMainFrame, and leads to STATE_DROPPED for the previous frame
-
-
-Since we seem to be dropping the first frame and then re-rendering anyway, we might as well prioritize the resize IPC message higher than the BMF task, I think?</content>
-    </entry>
-    <entry>
-        <id>334874362</id>
-        <title>[Chrome Perf Accessibility Sheriff]: 1 regressions in blink_perf.accessibility</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334874362"/>
-        <updated>1970-01-01T00:28:33.211Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1287247:1287306:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=7fe2d27d-3e1e-4ace-a77e-26b61d3fcca7
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=7fe2d27d-3e1e-4ace-a77e-26b61d3fcca7
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/mac-m1_mini_2020-perf/blink_perf.accessibility/BrowserAccessibilityManager::OnAccessibilityEvents_sum/many-nodes-toggle-content-visibility-auto.html
-       10.90%: 151.961 -&gt; 168.526 ms
-
-Top 1 affected measurements in mac-m1_mini_2020-perf:
-  - blink_perf.accessibility/BrowserAccessibilityManager::OnAccessibilityEvents_sum/many-nodes-toggle-content-visibility-auto.html
-       10.90%: 151.961 -&gt; 168.526 ms
-
-Regressions grouped by blink_perf.accessibility includes data from the following benchmarks with listed owners:
-  blink_perf.accessibility: aleventhal@chromium.org
+Regressions grouped by v8.browsing_desktop includes data from the following benchmarks with listed owners:
+  v8.browsing_desktop: almuthanna@chromium.org, cbruni@chromium.org, vahl@chromium.org
       
 
 Commits in this range:
-  Chromium Git Hash: https://chromium.googlesource.com/chromium/src/+log/201e4500c5e1227ea145bdce56d01420e4869052..6c4398bd803e216706c6160a38edf34e943fa938
-  Chromium Commit Position: https://crrev.com/1287246..1287306
-  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/15b9756484d5bda98ba273ae13f8db58200db4db..15b9756484d5bda98ba273ae13f8db58200db4db
-  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/1261863f87ff0f6c7910a039012d3469ee8ee2fb..f29d297523b8fe01d4e990cf89479999611857bf</content>
+  Chromium Commit Position: https://crrev.com/1283691..1285447
+  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/d05142a52ddd270fb385ede6625833a09c67fd31..de7ce8021831d4f3c4e49336623f25b2fc406fbc
+  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/9bd68dad4d40fb022905545fb698e22963424cf5..4dfe7ea5afa4cbfde1bf0e5579aec362ea1a4a09</content>
     </entry>
     <entry>
-        <id>334954142</id>
-        <title>input type="number" does not properly localize decimal values according to CLDR rules</title>
+        <id>335017001</id>
+        <title> Universal Test Runner (UTR): Support for layout test archiving</title>
         <author>
-            <name>ej...@aurorasolar.com</name>
+            <name>ss...@google.com</name>
         </author>
-        <link href="https://issues.chromium.org/issues/334954142"/>
-        <updated>1970-01-01T00:28:33.210Z</updated>
+        <link href="https://issues.chromium.org/issues/335017001"/>
+        <updated>1970-01-01T00:28:33.226Z</updated>
         <summary>-</summary>
-        <content type="html"># Steps to reproduce the problem
-1. Open the attached index.html file
-2. Observe the display formatting of the input value
-
-# Problem Description
-This is a long-standing problem that, to my knowledge, only Firefox has fixed properly to date. CLDR/ICU contains all the data necessary to properly render numbers according to a given locale's rules. Locales are commonly set by the global `lang` attribute and/or other browser mechanics like language headers.
-
-For HTML &lt;input type="number" /&gt; this localized decimal character functionality seems to be broken / not implemented.
-
-# Summary
-input type="number" does not properly localize decimal values according to CLDR rules
-
-# Custom Questions
-#### Which component does this fall under?
-Not sure - I don't know
-
-#### Does this work in other browsers? 
-Yes - This is just a Chrome problem
-
-# Additional Data
-Category: API \
-Chrome Channel: Not sure \
-Regression: No</content>
+        <content type="html">Swarming tasks with [layout tests](https://source.chromium.org/chromium/chromium/tools/build/+/main:recipes/recipe_modules/chromium_tests/steps.py;drc=08cb0e506303eadd831cfa219e0dc56d2fc44069;l=2691) as their handler name upload results to a special gcs location. UTR needs to support running try and ci builders by devs on their machines which means we need to create a directory that has read/write permissions for devs that can store the results of ci layout tests. For now we'll skip uploading results with UTR</content>
     </entry>
     <entry>
-        <id>334293685</id>
-        <title>[Graphics]: 1 regressions in rendering.desktop</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334293685"/>
-        <updated>1970-01-01T00:28:33.210Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1287211:1287232:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=fd30795c-1666-4262-ad7a-36c44662e3d5
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=fd30795c-1666-4262-ad7a-36c44662e3d5
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/mac-laptop_high_end-perf/rendering.desktop/thread_total_rendering_cpu_time_per_frame/toBlob_small_canvas_in_worker.html
-        1.89%: 7.69835 -&gt; 7.8442 
-
-Top 1 affected measurements in mac-laptop_high_end-perf:
-  - rendering.desktop/thread_total_rendering_cpu_time_per_frame/toBlob_small_canvas_in_worker.html
-        1.89%: 7.69835 -&gt; 7.8442 
-
-Regressions grouped by rendering.desktop includes data from the following benchmarks with listed owners:
-  rendering.desktop: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>334843186</id>
-        <title>[Graphics]: 1 regressions in rendering.desktop</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334843186"/>
-        <updated>1970-01-01T00:28:33.210Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1287260:1287273:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=c739dd80-4f72-4b53-a6c1-9cf322f6a87a
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=c739dd80-4f72-4b53-a6c1-9cf322f6a87a
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/mac-laptop_high_end-perf/rendering.desktop/thread_total_rendering_cpu_time_per_frame/canvas_to_canvas_draw
-        1.08%: 20.8125 -&gt; 21.0376 
-
-Top 1 affected measurements in mac-laptop_high_end-perf:
-  - rendering.desktop/thread_total_rendering_cpu_time_per_frame/canvas_to_canvas_draw
-        1.08%: 20.8125 -&gt; 21.0376 
-
-Regressions grouped by rendering.desktop includes data from the following benchmarks with listed owners:
-  rendering.desktop: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>334944233</id>
-        <title>Modernize "Copy to clipboard" on about://media-internals </title>
-        <author>
-            <name>xh...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334944233"/>
-        <updated>1970-01-01T00:28:33.210Z</updated>
-        <summary>-</summary>
-        <content type="html">&lt;Replace this with a summary of the problem. This form is for audio/video issues.&gt;
-
-#### What steps will reproduce the problem?
-(1) On an Android phone, start Chrome, go to about://media-internals
-(2) Click a player
-(3) Try to copy the properties or log by clicking "Copy to clipboard"
-
-#### What is the expected result?
-It's easy to copy.
-
-#### What is the actual result?
-The text is selected by default, and the prompt say to use "Ctrl + C" to copy it. However on Android this is not possible, and trying to get the context menu to show "Copy" is tricky.
-
-#### Feature Request:
-We probably should replace this "Copy to clipboard" behavior with the modernized copy button (see attachment). When clicked, automatically copy things to the clipboard. If user wants to change what's selected before sharing, they can always paste to a text editor and choose what to share.</content>
-    </entry>
-    <entry>
-        <id>334954448</id>
-        <title>Add settings for CPSS on android</title>
-        <author>
-            <name>ra...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334954448"/>
-        <updated>1970-01-01T00:28:33.209Z</updated>
-        <summary>-</summary>
-        <content type="html">Add a dedicated settings for CPSS on Android.
-Also add support for Messages UI for location permission.</content>
-    </entry>
-    <entry>
-        <id>334944232</id>
-        <title>Long running tasks or newtork calls are getting rejected in service worker.</title>
-        <author>
-            <name>li...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334944232"/>
-        <updated>1970-01-01T00:28:33.208Z</updated>
-        <summary>-</summary>
-        <content type="html"># Steps to reproduce the problem
-1. Utilize navigator.serviceWorker.register() to establish a service worker for your web application. The designated task of this service worker is to append an authorization token to service requests.
-2. Design a user interface (UI) button that, upon being clicked, activates a function responsible for fetching data from the server. This function is designed to acquire a substantial dataset (e.g., exceeding 2 million records) and present it within the UI.
-3. When the server's API request surpasses a 5-minute processing period to handle the extensive dataset, the browser declines the request, resulting in inconsistent behavior.
-
-# Problem Description
-When tasks or network calls exeeds beyond 5 minutes of processing time, the browser is automatically cancelling them. Interestingly, removing the service worker from the implementation restores the expected behavior. Consequently, we're exploring options to extend or customize the default time limit.
-
-References: 
-  a) https://developer.chrome.com/blog/longer-esw-lifetimes
-  b) https://chromium.googlesource.com/chromium/src/+/main/docs/security/service-worker-security-faq.md#do-service-workers-live-forever
-
-# Additional Comments
-I have attached a screenshot of a failed network call.
-
-# Summary
-Long running tasks or newtork calls are getting rejected in service worker.
-
-# Custom Questions
-#### Which component does this fall under?
-Blink&gt;ServiceWorker
-
-#### Does this feature work correctly in other browsers?
-No - I can reproduce the problem in another browser
-
-#### Details of interop issue
-undefined
-
-# Additional Data
-Category: API \
-Chrome Channel: Stable \
-Regression: Yes</content>
-    </entry>
-    <entry>
-        <id>334952574</id>
-        <title>Canceling mousemove on a document listener cancels drag-and-drop</title>
-        <author>
-            <name>mu...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334952574"/>
-        <updated>1970-01-01T00:28:33.208Z</updated>
-        <summary>-</summary>
-        <content type="html">The mousemove event has no default action.  Chrome used to cancel drag-and-drop and text-selection through a cancelled mousemove which was clearly not spec compliant and was fixed through [Issue 40078978](https://issues.chromium.org/40078978).
-
-Apparently the fix missed a corner case: if the event listener is on the document, canceling the event still cancels drag-and-drop.  Thanks echen@mozilla.com for spotting this.</content>
-    </entry>
-    <entry>
-        <id>334948424</id>
-        <title>Coordinate space allocation between Pinned tab groups  and bookmarks</title>
-        <author>
-            <name>pe...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334948424"/>
-        <updated>1970-01-01T00:28:33.207Z</updated>
-        <summary>-</summary>
-        <content type="html">Chrome Version: (copy from chrome://version)
-Lacros Version (if applicable): (copy from chrome://version)
-OS: (e.g. Win10, MacOS 10.12, etc...)
-
-What steps will reproduce the problem?
-(1)
-(2)
-(3)
-
-What is the expected result?
-
-
-What happens instead?
-
-
-
-Please use hotlists and text to provide additional information.
-
-If this is a regression (i.e., worked before), please consider using the bisect tool (https://www.chromium.org/developers/bisect-builds-py) to help us identify the root cause and more rapidly triage the issue.
-
-For graphics-related bugs, please copy/paste the contents of the about://gpu page at the end of this report.</content>
-    </entry>
-    <entry>
-        <id>334948300</id>
-        <title>Add "Tabs" title to context menu </title>
-        <author>
-            <name>pe...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334948300"/>
-        <updated>1970-01-01T00:28:33.207Z</updated>
-        <summary>-</summary>
-        <content type="html">Chrome Version: (copy from chrome://version)
-Lacros Version (if applicable): (copy from chrome://version)
-OS: (e.g. Win10, MacOS 10.12, etc...)
-
-What steps will reproduce the problem?
-(1)
-(2)
-(3)
-
-What is the expected result?
-
-
-What happens instead?
-
-
-
-Please use hotlists and text to provide additional information.
-
-If this is a regression (i.e., worked before), please consider using the bisect tool (https://www.chromium.org/developers/bisect-builds-py) to help us identify the root cause and more rapidly triage the issue.
-
-For graphics-related bugs, please copy/paste the contents of the about://gpu page at the end of this report.</content>
-    </entry>
-    <entry>
-        <id>334944601</id>
-        <title>Need to archive componentID 1456709</title>
-        <author>
-            <name>va...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334944601"/>
-        <updated>1970-01-01T00:28:33.207Z</updated>
-        <summary>-</summary>
-        <content type="html">Hi everyone, could you please help with the following?
-
-Requested Action: [Archive]
-
-Component Name: Shell
-
-Component ID: (only if modifying or archiving) https://buganizer.corp.google.com/components/1456709 
-
-Thank you.</content>
-    </entry>
-    <entry>
-        <id>334944231</id>
-        <title> Assigned to me
- Starred by me
- CC'd to me
- Reported by me
- To be verified
-Bookmark groups
-Saved sea</title>
-        <author>
-            <name>nu...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334944231"/>
-        <updated>1970-01-01T00:28:33.206Z</updated>
-        <summary>-</summary>
-        <content type="html"># Steps to reproduce the problem
-1. 
-2.  Assigned to me
- Starred by me
- CC'd to me
- Reported by me
- To be verified
-Bookmark groups
-Saved searches
-Hotlists
-Create hotlist
-Create bookmark group
-Browse components
-
-Details for 
-3. 
-
-# Problem Description
- Assigned to me
- Starred by me
- CC'd to me
- Reported by me
- To be verified
-Bookmark groups
-Saved searches
-Hotlists
-Create hotlist
-Create bookmark group
-Browse components
-
-Details for 
-
-# Summary
- Assigned to me
- Starred by me
- CC'd to me
- Reported by me
- To be verified
-Bookmark groups
-Saved sea
-
-# Additional Data
-Category: UI \
-Chrome Channel: Dev \
-Regression: Yes</content>
-    </entry>
-    <entry>
-        <id>334914466</id>
-        <title>[CoreML] Support pooling options</title>
-        <author>
-            <name>as...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334914466"/>
-        <updated>1970-01-01T00:28:33.206Z</updated>
-        <summary>-</summary>
-        <content type="html">Chromium's implementation of pooling operators (`averagePool2d`, `l2Pool2d`, and `maxPool2d`) for the CoreML backend does not support:
-
-- [ ] data types other than "float16" or "float32"
-- [ ] "NHWC" input layout
-- [ ] dilations other than [1, 1]
-- [ ] `ceil_mode`</content>
-    </entry>
-    <entry>
-        <id>334914465</id>
-        <title>Phase 3: Service-Side Optimizations</title>
-        <author>
-            <name>vi...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334914465"/>
-        <updated>1970-01-01T00:28:33.206Z</updated>
-        <summary>-</summary>
-        <content type="html">This will track various service side optimizations tailored to specific use cases.
-
-With knowledge of client-side pools, implement service-side optimizations such as:
-Break the 1:1 relationship between shared memory and gpu memory in SharedImage for cases like software video decode, where we want to decode ahead and have 8-16 of shared memory images, but very unlikely need more than 2-3 gpu memory images
-Proactive texture pre-allocation based on pool sizes.
-Batching texture creation requests across pools.
-Intelligent texture eviction considering which pools are actively used by clients.
-Responding to various GPU signals like memory pressure.
-</content>
-    </entry>
-    <entry>
-        <id>334764455</id>
-        <title>Phase 2: Service-Side Implementation and Integration</title>
-        <author>
-            <name>vi...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334764455"/>
-        <updated>1970-01-01T00:28:33.206Z</updated>
-        <summary>-</summary>
-        <content type="html">This tracks phase 2 implementation to wire the SI pool details to service side without disrupting the clients usage of pool.</content>
-    </entry>
-    <entry>
-        <id>334842949</id>
-        <title>CHECK failure: auto_stack.Contains(endpoint) in html_element.cc</title>
-        <author>
-            <name>24...@project.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334842949"/>
-        <updated>1970-01-01T00:28:33.205Z</updated>
-        <summary>-</summary>
-        <content type="html">Detailed Report: https://clusterfuzz.com/testcase?key=5900637247045632
-
-Fuzzer: lcamtuf_cross_fuzz
-Job Type: windows_asan_chrome
-Platform Id: windows
-
-Crash Type: CHECK failure
-Crash Address: 
-Crash State:
-  auto_stack.Contains(endpoint) in html_element.cc
-  logging::CheckLogMessage::~CheckLogMessage
-  blink::HTMLElement::HideAllPopoversUntil
-  
-Sanitizer: address (ASAN)
-
-Regressed: https://clusterfuzz.com/revisions?job=windows_asan_chrome&amp;range=1275885:1275946
-
-Reproducer Testcase: https://clusterfuzz.com/download?testcase_id=5900637247045632
-
-Issue filed automatically.
-
-</content>
-    </entry>
-    <entry>
-        <id>334293684</id>
-        <title>renderer_tree_fuzzer: CHECK failure: RunLoop::Run() timed out. Timeout set at RenderViewTestAdapter@content/test/fuzz</title>
-        <author>
-            <name>24...@project.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334293684"/>
-        <updated>1970-01-01T00:28:33.205Z</updated>
-        <summary>-</summary>
-        <content type="html">Detailed Report: https://clusterfuzz.com/testcase?key=5362504218640384
-
-Fuzzing Engine: libFuzzer
-Fuzz Target: renderer_tree_fuzzer
-Job Type: libfuzzer_chrome_ubsan
-Platform Id: linux
-
-Crash Type: CHECK failure
-Crash Address: 
-Crash State:
-  RunLoop::Run() timed out. Timeout set at RenderViewTestAdapter@content/test/fuzz
-  base::sequence_manager::internal::ThreadControllerWithMessagePumpImpl::DoWork
-  base::test::StandardTimeoutCallback
-  
-Sanitizer: undefined (UBSAN)
-
-Regressed: https://clusterfuzz.com/revisions?job=libfuzzer_chrome_ubsan&amp;range=1155573:1155586
-
-Reproducer Testcase: https://clusterfuzz.com/download?testcase_id=5362504218640384
-
-Issue filed automatically.
-
-See https://chromium.googlesource.com/chromium/src/+/master/testing/libfuzzer/reproducing.md for instructions on reproducing this bug locally.</content>
-    </entry>
-    <entry>
-        <id>334940007</id>
-        <title>Highlight Overriding Stylesheet Filename</title>
-        <author>
-            <name>sc...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334940007"/>
-        <updated>1970-01-01T00:28:33.205Z</updated>
-        <summary>-</summary>
-        <content type="html">Can there be an option in devtools that highlights the stylesheet filename (navPages.scss), if one of the parent folders is in a given list of folders?
-
-This would make it much easier to see at a glance which styles are apart of your overriding styles. 
-
-Devtools option:
-Highlight stylesheets in folder(s): &lt;comma separated string&gt;
-
-Attached example:
-Highlight stylesheets in folder(s): "AE"
-(this should highlight 'navPages.scss' because the path contains the parent folder 'AE')
-(The native navPages.scss filenames would not be highlighted)</content>
-    </entry>
-    <entry>
-        <id>334764454</id>
-        <title>Phase 1 : Client-Side SharedImagePool</title>
-        <author>
-            <name>vi...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334764454"/>
-        <updated>1970-01-01T00:28:33.205Z</updated>
-        <summary>-</summary>
-        <content type="html">This story tracks the phase 1 implementation which involves :
-
-1. Develop the SharedImagePool class, providing clients with APIs for pool creation, image acquisition, and release.
-2. Refactor existing clients (webgl/canvas/webgpu etc.) to utilize this SharedImagePool instead of individually creating/destroying shared images. 
-3.Profile thoroughly to make sure there are no performance regressions and establish a baseline. 
-4. Identify and refactor remaining clients to start using the pool and quantify the performance gains even without service-side changes.</content>
-    </entry>
-    <entry>
-        <id>334213573</id>
-        <title>gpu_raster_passthrough_fuzzer: Unexpected-exit in skgpu::tess::PreChopPathCurves</title>
-        <author>
-            <name>24...@project.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334213573"/>
-        <updated>1970-01-01T00:28:33.205Z</updated>
-        <summary>-</summary>
-        <content type="html">Detailed Report: https://clusterfuzz.com/testcase?key=4805055245910016
-
-Fuzzing Engine: libFuzzer
-Fuzz Target: gpu_raster_passthrough_fuzzer
-Job Type: libfuzzer_chrome_asan_debug
-Platform Id: linux
-
-Crash Type: Unexpected-exit
-Crash Address: 
-Crash State:
-  skgpu::tess::PreChopPathCurves
-  skgpu::tess::PreChopPathCurves
-  skgpu::ganesh::TessellationPathRenderer::onDrawPath
-  
-Sanitizer: address (ASAN)
-
-Regressed: https://clusterfuzz.com/revisions?job=libfuzzer_chrome_asan_debug&amp;range=1285150:1285197
-
-Reproducer Testcase: https://clusterfuzz.com/download?testcase_id=4805055245910016
-
-Issue filed automatically.
-
-See https://chromium.googlesource.com/chromium/src/+/master/testing/libfuzzer/reproducing.md for instructions on reproducing this bug locally.</content>
-    </entry>
-    <entry>
-        <id>334213572</id>
-        <title>[Graphics]: 50 regressions in rendering.mobile</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334213572"/>
-        <updated>1970-01-01T00:28:33.205Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1287195:1287228:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=e9d13562-d13c-4450-bfa0-3460886d6658
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=e9d13562-d13c-4450-bfa0-3460886d6658
-
-Top 10 regressions (out of 32, with 0 improvements) in this group:
-  - ChromiumPerf/android-pixel4-perf/rendering.mobile/Event.ScrollJank.MissedVsyncsPercentage.FixedWindow/espn_2018
-         inf%: 0.0 -&gt; 97.58335 unitless
-  - ChromiumPerf/android-pixel4-perf/rendering.mobile/Event.ScrollJank.MissedVsyncsPercentage.FixedWindow/text_fling_10000_pixels_per_second
-         inf%: 0.0 -&gt; 97.25 unitless
-  - ChromiumPerf/android-pixel4-perf/rendering.mobile/Event.ScrollJank.MissedVsyncsPercentage.PerScroll/text_fling_10000_pixels_per_second
-         inf%: 0.0 -&gt; 97.0 unitless
-  - ChromiumPerf/android-pixel4-perf/rendering.mobile/Event.ScrollJank.DelayedFramesPercentage.PerScroll/text_fling_10000_pixels_per_second
-         inf%: 0.0 -&gt; 70.5 unitless
-  - ChromiumPerf/android-pixel4-perf/rendering.mobile/Event.ScrollJank.MissedVsyncsPercentage.FixedWindow/text_fling_20000_pixels_per_second
-         inf%: 0.0 -&gt; 96.91665 unitless
-  - ChromiumPerf/android-pixel4-perf/rendering.mobile/Event.ScrollJank.MissedVsyncsPercentage.FixedWindow/gsp.ro_mobile_2018
-         inf%: 0.0 -&gt; 97.225 unitless
-  - ChromiumPerf/android-pixel4-perf/rendering.mobile/Event.ScrollJank.MissedVsyncsPercentage.FixedWindow/facebook_mobile_2018
-         inf%: 0.0 -&gt; 97.41665 unitless
-  - ChromiumPerf/android-pixel4-perf/rendering.mobile/Event.ScrollJank.MissedVsyncsPercentage.FixedWindow/forecast.io_mobile_2018
-         inf%: 0.0 -&gt; 98.0 unitless
-  - ChromiumPerf/android-pixel4-perf/rendering.mobile/Event.ScrollJank.MissedVsyncsPercentage.FixedWindow/text_fling_05000_pixels_per_second
-         inf%: 0.0 -&gt; 96.83335 unitless
-  - ChromiumPerf/android-pixel4-perf/rendering.mobile/Event.ScrollJank.MissedVsyncsPercentage.FixedWindow/espn_mobile_2018
-    39033.34%: 0.25 -&gt; 97.83335 unitless
-
-Top 3 affected measurements in android-pixel4-perf:
-  - rendering.mobile/Event.ScrollJank.MissedVsyncsPercentage.FixedWindow/espn_2018
-         inf%: 0.0 -&gt; 97.58335 unitless
-  - rendering.mobile/Event.ScrollJank.MissedVsyncsPercentage.FixedWindow/text_fling_10000_pixels_per_second
-         inf%: 0.0 -&gt; 97.25 unitless
-  - rendering.mobile/Event.ScrollJank.MissedVsyncsPercentage.PerScroll/text_fling_10000_pixels_per_second
-         inf%: 0.0 -&gt; 97.0 unitless
-
-Regressions grouped by rendering.mobile includes data from the following benchmarks with listed owners:
-  rendering.mobile: chrome-gpu-metrics@google.com, jonross@chromium.org
-      
-
-Commits in this range:
-  Chromium Git Hash: https://chromium.googlesource.com/chromium/src/+log/08d6c0ec805461ea7fdffd7377c867501a1d89e3..31ed5696e28cf865e6097678d8d9c50698e875da
-  Chromium Commit Position: https://crrev.com/1287194..1287228
-  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/15b9756484d5bda98ba273ae13f8db58200db4db..15b9756484d5bda98ba273ae13f8db58200db4db
-  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/1261863f87ff0f6c7910a039012d3469ee8ee2fb..1261863f87ff0f6c7910a039012d3469ee8ee2fb</content>
-    </entry>
-    <entry>
-        <id>334940006</id>
-        <title>Make ServiceWorkerContextObserver methods synchronous</title>
-        <author>
-            <name>jl...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334940006"/>
-        <updated>1970-01-01T00:28:33.205Z</updated>
-        <summary>-</summary>
-        <content type="html">Context: [Investigate cases where WorkerIdSet can contain multiple WorkerId for one extension [40936639] - Chromium](https://crbug.com/40936639)
-
-During the above bug, //extensions discovered the only obvious way to accurately track whether a worker is started or stopped is if //extensions has more timely (synchronous) observer notification (outside of //content) of a worker starting or stopping.
-
-It seems all the observer methods were made asynchronous thread safe (base::ObserverListThreadSafe) in order to handle the multi-thread hopping that was happening before ServiceWorkerOnUI. Now that that project is completed, these observer notifications do not need to be asynchronous anymore.
-
-While we're at it, it seems a good idea to just make all the other observer methods synchronous too.
-
-It seems that ServiceWorkerContextWrapper+ServiceWorkerContextCore share these observers in a non-obvious way, so this bug is to simply make them synchronous for the purposes of the blocked bug, and leave the existing sharing in-place for another bug to tackle (if needed).</content>
-    </entry>
-    <entry>
-        <id>334935699</id>
-        <title>[V8 Perf Sheriff]: 1 regressions in v8.browsing_mobile</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334935699"/>
-        <updated>1970-01-01T00:28:33.204Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1287162:1287179:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=9a8f7010-b274-46d9-afbf-3772681b5584
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=9a8f7010-b274-46d9-afbf-3772681b5584
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/android-go-wembley_webview-perf/v8.browsing_mobile/total:500ms_window:renderer_eqt:v8:gc_max/browse_tools/browse_tools_maps_2019
-      168.91%: 3.2024999 -&gt; 8.612 
-
-Top 1 affected measurements in android-go-wembley_webview-perf:
-  - v8.browsing_mobile/total:500ms_window:renderer_eqt:v8:gc_max/browse_tools/browse_tools_maps_2019
-      168.91%: 3.2024999 -&gt; 8.612 
-
-Regressions grouped by v8.browsing_mobile includes data from the following benchmarks with listed owners:
-  v8.browsing_mobile: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>334938042</id>
-        <title>Tests are failing: ninja://third_party/blink/renderer/controller:blink_unittests/SVGResourceDocumentContentTest.EmptyDataUrl</title>
+        <id>335012349</id>
+        <title>Tests are failing: browser_view_interactive_uitest.cc(383): Failed\nRunLoop::Run() timed out. Timeout set at ProxyRunTestOnMainThreadLoop@content/public/test/browser_...</title>
         <author>
             <name>bi...@google.com</name>
         </author>
-        <link href="https://issues.chromium.org/issues/334938042"/>
-        <updated>1970-01-01T00:28:33.204Z</updated>
-        <summary>-</summary>
-        <content type="html">This bug is for all test failures with the test name: ninja://third_party/blink/renderer/controller:blink_unittests/SVGResourceDocumentContentTest.EmptyDataUrl
-
-These test failures are causing problem(s) which require your attention, including:
-- test variant(s) are being exonerated (ignored) in presubmit
-
-See current problems, failure examples and more in LUCI Analysis at: https://luci-analysis.appspot.com/p/chromium/rules/ad96f1a7b7893f320e995ff3917087e3
-
-How to action this bug: https://luci-analysis.appspot.com/help#new-bug-filed
-Provide feedback: https://luci-analysis.appspot.com/help#feedback
-Was this bug filed in the wrong component? See: https://luci-analysis.appspot.com/help#component-selection</content>
-    </entry>
-    <entry>
-        <id>334935433</id>
-        <title>Chrome crashes on my gtk settings</title>
-        <author>
-            <name>jo...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334935433"/>
-        <updated>1970-01-01T00:28:33.204Z</updated>
-        <summary>-</summary>
-        <content type="html"># Steps to reproduce the problem
-1. create a gtk settings file: ~/.config/gtk-3.0/settings.ini
-with contents:
-```
-gtk-cursor-theme-size=24
-```
-2. attempt to launch chrome
-3. chrome never launches. If launched from the command line, it prints an error about the gtk settings file not starting with a key, then hangs. I can't give you the exact error because I need to have chrome open to report the bug, but this is a 100% repro.
-4. If you remove/rename the settings file, chrome launches normally
-
-# Problem Description
-see repro steps
-
-# Additional Comments
-This is actually a "hangs on launch", not a "crash" - but I couldn't find a category for startup issues.
-
-# Summary
-Chrome crashes on my gtk settings
-
-# Custom Questions
-#### Crashed report ID: 
-no
-
-#### How much crashed? 
-The whole browser
-
-#### Is it a problem with a plugin?
-No - It's the browser itself
-
-# Additional Data
-Category: Crashes \
-Chrome Channel: Not sure \
-Regression: Yes</content>
-    </entry>
-    <entry>
-        <id>334934844</id>
-        <title>Tests are failing: ninja://ios/chrome/test/earl_grey2:ios_chrome_bookmarks_eg2tests_module/BookmarksAccountStoragePromoTestCase/testSignInPromoWhenSyncDataNotRemovedI...</title>
-        <author>
-            <name>bi...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334934844"/>
-        <updated>1970-01-01T00:28:33.203Z</updated>
-        <summary>-</summary>
-        <content type="html">This bug is for all test failures with the test name: ninja://ios/chrome/test/earl_grey2:ios_chrome_bookmarks_eg2tests_module/BookmarksAccountStoragePromoTestCase/testSignInPromoWhenSyncDataNotRemovedIfBatchUploadEnabled
-
-These test failures are causing problem(s) which require your attention, including:
-- test variant(s) are being exonerated (ignored) in presubmit
-
-See current problems, failure examples and more in LUCI Analysis at: https://luci-analysis.appspot.com/p/chromium/rules/fc889a486795a8cbf4e5eadffd9711ae
-
-How to action this bug: https://luci-analysis.appspot.com/help#new-bug-filed
-Provide feedback: https://luci-analysis.appspot.com/help#feedback
-Was this bug filed in the wrong component? See: https://luci-analysis.appspot.com/help#component-selection</content>
-    </entry>
-    <entry>
-        <id>334764453</id>
-        <title>brighjtness and display color</title>
-        <author>
-            <name>lu...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334764453"/>
-        <updated>1970-01-01T00:28:33.203Z</updated>
-        <summary>-</summary>
-        <content type="html">Chrome Version       : &lt;from chrome://version/&gt;
-OS                   : &lt;OS version&gt;
-
-What steps will reproduce the problem?
-
-
-What is the expected result?
-
-
-What happens instead?
-
-
-You can help us a lot by creating a minimal, reproducible example (https://stackoverflow.com/help/minimal-reproducible-example), e.g. on glitch.com, and/or attaching a screenshot or recording of the issue!</content>
-    </entry>
-    <entry>
-        <id>334293683</id>
-        <title>40.8% regression in blink_perf.webcodecs at 1285966:1285999</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334293683"/>
-        <updated>1970-01-01T00:28:33.202Z</updated>
-        <summary>-</summary>
-        <content type="html">None</content>
-    </entry>
-    <entry>
-        <id>334377755</id>
-        <title>@font-palette-values override-colors accepting non-absolute colors</title>
-        <author>
-            <name>fu...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334377755"/>
-        <updated>1970-01-01T00:28:33.202Z</updated>
-        <summary>-</summary>
-        <content type="html">override-colors is specified to only accept absolute colors. System color names are dropped, but currentcolor, light-dark(), and color-mix() with non-absolute colors inside, are not handled correctly.
-</content>
-    </entry>
-    <entry>
-        <id>334928103</id>
-        <title>Tests are failing: svg_resource_document_content.cc(259): Check failed: AllowedRequestMode(params.GetResourceRequest()).</title>
-        <author>
-            <name>bi...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334928103"/>
-        <updated>1970-01-01T00:28:33.201Z</updated>
+        <link href="https://issues.chromium.org/issues/335012349"/>
+        <updated>1970-01-01T00:28:33.224Z</updated>
         <summary>-</summary>
         <content type="html">This bug is for all test failures where the primary error message is similiar to the following (ignoring numbers and hexadecimal values):
-svg_resource_document_content.cc(259): Check failed: AllowedRequestMode(params.GetResourceRequest()).
+browser_view_interactive_uitest.cc(383): Failed\nRunLoop::Run() timed out. Timeout set at ProxyRunTestOnMainThreadLoop@content/public/test/browser_test_base.cc:851.
 
 The following test(s) were observed to have matching failures at this time (at most five examples listed):
-- ninja://third_party/blink/renderer/controller:blink_unittests/SVGResourceDocumentContentTest.EmptyDataUrl
+- ninja://chrome/test:interactive_ui_tests/BrowserViewTestWithStopLoadingAnimationForHiddenWindow.LoadingAnimationChangeOnMinimizeAndRestore
 
 
 These test failures are causing problem(s) which require your attention, including:
-- test variant(s) are being exonerated (ignored) in presubmit
+- many gardened builders are failing
 
-See current problems, failure examples and more in LUCI Analysis at: https://luci-analysis.appspot.com/p/chromium/rules/e466d8e1cc9324e0071dad5bbc8c3475
+See current problems, failure examples and more in LUCI Analysis at: https://luci-analysis.appspot.com/p/chromium/rules/a39d04d77aafcf215b1f94eba2a244f4
 
 How to action this bug: https://luci-analysis.appspot.com/help#new-bug-filed
 Provide feedback: https://luci-analysis.appspot.com/help#feedback
 Was this bug filed in the wrong component? See: https://luci-analysis.appspot.com/help#component-selection</content>
     </entry>
     <entry>
-        <id>334819529</id>
-        <title>https://developer.android.com/studio/debug/bug-report</title>
+        <id>334994007</id>
+        <title>Roll libjpeg_turbo</title>
         <author>
-            <name>re...@gmail.com</name>
+            <name>pk...@chromium.org</name>
         </author>
-        <link href="https://issues.chromium.org/issues/334819529"/>
-        <updated>1970-01-01T00:28:33.201Z</updated>
+        <link href="https://issues.chromium.org/issues/334994007"/>
+        <updated>1970-01-01T00:28:33.224Z</updated>
+        <summary>-</summary>
+        <content type="html">libjpeg_turbo upstream is on 3.0.2; our repo is at 2.1.5.1, which is more than a year old.
+
+The newer version contains speedups, security fixes, and API improvements. I don't know what (if anything) we've backported, or if the API changes will be onerous for us.</content>
+    </entry>
+    <entry>
+        <id>334991033</id>
+        <title>Live region changed event should not be fired on the creation of a live region node</title>
+        <author>
+            <name>be...@microsoft.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334991033"/>
+        <updated>1970-01-01T00:28:33.222Z</updated>
+        <summary>-</summary>
+        <content type="html">With IA2, we only fire a live region when the live region node's content changes. With UIA, we're also firing a live region when the node gets created. This leads to unexpected behaviors with NVDA and JAWS when UIA is enabled.
+
+We're in the process of fixing that difference so that with UIA too with only fire live region events when the content changes.</content>
+    </entry>
+    <entry>
+        <id>335003884</id>
+        <title>Cleanup NoIntrinsicSizeOverride feature flag</title>
+        <author>
+            <name>tc...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/335003884"/>
+        <updated>1970-01-01T00:28:33.222Z</updated>
+        <summary>-</summary>
+        <content type="html">Clean up flag after shipping.
+
+Flag checked in:
+https://chromium-review.googlesource.com/c/chromium/src/+/5442533
+
+Also clean up /  remove IntrinsicWidthOverride and IntrinsicHeightOverride when removing this flag
+Cleanup was discussed in the original CL attempted in V7 of that CL:
+https://chromium-review.googlesource.com/c/chromium/src/+/5442533/7
+
+Investigate if the ComputeObjectBoxForIntrinsicSizing is actually doing anything and maybe clean that up too.
+</content>
+    </entry>
+    <entry>
+        <id>335003883</id>
+        <title>Suspicious Site Reporter - Extension Removed from Webstore?</title>
+        <author>
+            <name>an...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/335003883"/>
+        <updated>1970-01-01T00:28:33.221Z</updated>
+        <summary>-</summary>
+        <content type="html">https://chrome.google.com/webstore/detail/jknemblkbdhdcpllfgbfekkdciegfboi
+
+Is this extension being discontinued? Or being directly integrated into Chrome now?</content>
+    </entry>
+    <entry>
+        <id>335003102</id>
+        <title>SoM is showing failures from builders that shouldn't be being gardened</title>
+        <author>
+            <name>dp...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/335003102"/>
+        <updated>1970-01-01T00:28:33.221Z</updated>
+        <summary>-</summary>
+        <content type="html">Today I've been seeing the "generate build files" step failing on linux-arm64-cast-rel and linux-x64-cast-dbg, despite them supposedly being taken out of the SoM configs last week (see also bug 332735845):
+
+https://chromium-review.googlesource.com/c/chromium/src/+/5444214
+https://chromium-review.googlesource.com/c/chromium/src/+/5436134</content>
+    </entry>
+    <entry>
+        <id>334977811</id>
+        <title>Background scrim under quick actions</title>
+        <author>
+            <name>ch...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334977811"/>
+        <updated>1970-01-01T00:28:33.221Z</updated>
+        <summary>-</summary>
+        <content type="html">The original design for quick actions on the download bubble was to have the background scrim under the quick actions fade ([design here](https://docs.google.com/presentation/d/1XQkcGct5GnSVnB4zaKkd4iPqfy3aVEvnwjImWy2HOKw/edit?resourcekey=0-e8IAsNo5uakC74aTn-N0tA#slide=id.gf5a80a88ec_0_77), [specs here](https://docs.google.com/presentation/d/1XQkcGct5GnSVnB4zaKkd4iPqfy3aVEvnwjImWy2HOKw/edit?resourcekey=0-e8IAsNo5uakC74aTn-N0tA&amp;disco=AAABMCQA6vo)). (design links internal only)
+
+This was deemed too difficult to implement for the initial launch, but perhaps we could consider adding it.</content>
+    </entry>
+    <entry>
+        <id>334993089</id>
+        <title>التطبيق لا يشتغل </title>
+        <author>
+            <name>ha...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334993089"/>
+        <updated>1970-01-01T00:28:33.220Z</updated>
         <summary>-</summary>
         <content type="html">This template is for filing bugs against Android System WebView. Chrome bugs should be filed at https://crbug.com/wizard.
 
@@ -979,255 +228,215 @@ It's especially helpful if you can capture a bug report right after you experien
 Screen recordings can also be very helpful - see https://developer.android.com/studio/command-line/adb#screenrecord. Please enable "Show taps" in developer settings.</content>
     </entry>
     <entry>
-        <id>334840713</id>
-        <title>[V8 Memory Perf Sheriff]: 4 regressions in v8.browsing_desktop</title>
+        <id>335001211</id>
+        <title>Show human-readable build number on build page when URL only includes build ID</title>
+        <author>
+            <name>bp...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/335001211"/>
+        <updated>1970-01-01T00:28:33.220Z</updated>
+        <summary>-</summary>
+        <content type="html">eg: https://ci.chromium.org/ui/p/chromium/builders/ci/Linux%20Builder/b8750557649975428929/infra
+
+Some services link to bb builds like the above (with the build ID in the URL). For most/all chrome builders, we enable "build numbers" which are easier on the eyes.
+
+For the build link above, its corresponding build number is `184349`:  
+https://ci.chromium.org/ui/p/chromium/builders/ci/Linux%20Builder/184349/infra
+
+Such URLs are generally easier to use that build ID ones. eg: You can compare two URLs and immediately roughly know how far apart the two builds are. You can also manually bisect very easily by tweaking the build number.
+
+But mapping to build number when all you have is the build ID is not easy. So can we get the build number displayed somewhere (like in the infra tab) in URLs like https://ci.chromium.org/ui/p/chromium/builders/ci/Linux%20Builder/b8750557649975428929/infra</content>
+    </entry>
+    <entry>
+        <id>335000695</id>
+        <title>Tests are failing: Failed to drag drop content: failed to verify content preview for: failed to Drag and Drop on step 1: cdp.Runtime: CallFunctionOn: rpcc: the connec...</title>
+        <author>
+            <name>bi...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/335000695"/>
+        <updated>1970-01-01T00:28:33.220Z</updated>
+        <summary>-</summary>
+        <content type="html">This bug is for all test failures where the primary error message is similiar to the following (ignoring numbers and hexadecimal values):
+Failed to drag drop content: failed to verify content preview for: failed to Drag and Drop on step 1: cdp.Runtime: CallFunctionOn: rpcc: the connection is closing
+
+The following test(s) were observed to have matching failures at this time (at most five examples listed):
+- ninja://chromeos:chrome_all_tast_tests/dlp.DataLeakPreventionRulesListDragdrop.ash_blocked
+
+
+These test failures are causing problem(s) which require your attention, including:
+- test variant(s) are being exonerated (ignored) in presubmit
+
+See current problems, failure examples and more in LUCI Analysis at: https://luci-analysis.appspot.com/p/chromium/rules/f48cd74c456d898c77b5c4f1fb5df61f
+
+How to action this bug: https://luci-analysis.appspot.com/help#new-bug-filed
+Provide feedback: https://luci-analysis.appspot.com/help#feedback
+Was this bug filed in the wrong component? See: https://luci-analysis.appspot.com/help#component-selection</content>
+    </entry>
+    <entry>
+        <id>334999227</id>
+        <title>New Tab in Chrome on LaCrOS in dark mode &amp; black theme has black text on black background which is hard to read.</title>
+        <author>
+            <name>an...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334999227"/>
+        <updated>1970-01-01T00:28:33.220Z</updated>
+        <summary>-</summary>
+        <content type="html">### Description
+New Tab in Chrome on LaCrOS in dark mode &amp; black theme has black text on black background which is hard to read.
+
+------------------------------------------------------------
+### User feedback report
+https://listnr.corp.google.com/report/91686967698
+
+* URL: chrome://newtab/ [REDACTED_URL]
+* Product Version: Lacros 124.0.6367.29 beta, Ash 123.0.6312.79 beta
+* User Agent: Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36
+
+### Description
+New Tab in Chrome on LaCrOS in dark mode &amp; black theme has black text on black background which is hard to read.
+
+### Product Specific Data (allowlisted)
+* # FeedbackMonLink: https://healthmon.chromeos.goog/feedback/91686967698
+* CHROME VERSION: Lacros 124.0.6367.29 beta, Ash 123.0.6312.79 beta
+* CHROMEOS_ARC_ANDROID_SDK_VERSION: 33
+* CHROMEOS_ARC_STATUS: enabled
+* CHROMEOS_AUSERVER: (URL: 8)
+* CHROMEOS_BLUETOOTH_FLOSS: enabled
+* CHROMEOS_RELEASE_BOARD: hatch-signed-mp-v8keys
+* CHROMEOS_RELEASE_DESCRIPTION: 15786.37.0 (Official Build) beta-channel hatch 
+* CHROMEOS_RELEASE_TRACK: beta-channel
+* CHROMEOS_RELEASE_VERSION: 15786.37.0
+* ENTERPRISE_ENROLLED: Managed
+* ONBOARDING_TIME: 2023-04-14
+* RECORDED_AUTH_EVENTS: auth_surface_change_Lock,update_lock_screen_view,auth_surface_change_Lock,update_lock_screen_view,auth_submit,auth_complete_success,login_screen_exit_success,auth_surface_change_Lock,update_lock_screen_view,auth_submit,auth_complete_success,login_screen_exit_success,auth_surface_change_Lock,update_lock_screen_view,
+* TOUCHPAD_PID: 0x00ac
+* TOUCHPAD_VENDOR: Elan
+* TOUCHSCREEN_PID: 0x0e0d
+* TOUCHSCREEN_VENDOR: Goodix
+* [REDACTED_PSD]: common_data count: 156
+* all_crashes_link: https://crash.corp.google.com/browse?q=ReportID%20in%20%28%2764af47e1ccf82708%27%2C%20%27b7980957b0c7ef9c%27%2C%20%275be97ba853d96c0e%27%2C%20%278191b0dfeb31d6f1%27%2C%20%27c1cc851b117ec7e1%27%2C%20%27896d41d5465ea63d%27%2C%20%2714c343dac6b2ddbb%27%2C%20%278e2942c48d62436c%27%2C%20%277fd907ee19ef195a%27%29&amp;reportid=&amp;index=0
+* demo_mode_config: none
+* expi:  3300104 3300130 3313322 3322044 3330194 3330309 3358490 3373657 3374169 3374641 3374746 3374977 3375320 3375971 3376014 3376029 3376369 
+* feedbackDmaDma52DataSharingEnabledCorePlatformService: []
+* feedbackDmaDma52DataSharingEnabledForAllCpsTag: true
+* feedbackDmaRolloutPriority: 98
+* feedbackUserCtlConsent: true
+* hardware_class: JINLON-YTGY C5C-M5C-E4E-J3Q-E65
+* isSubmittedViaFeedback1P: true
+* segmentation_feature_level: 0
+
+* segmentation_scope_level: 0
+
+* uname: Linux localhost 5.15.148-21847-g8fcfca0aff8a #1 SMP PREEMPT Fri, 22 Mar 2024 02:36:14 +0000 x86_64 Intel(R) Core(TM) i7-10610U CPU @ 1.80GHz GenuineIntel GNU/Linux
+</content>
+    </entry>
+    <entry>
+        <id>334996886</id>
+        <title>owner cleans up job can suggest to use primary email if secondary email is used in OWNERS</title>
+        <author>
+            <name>yi...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334996886"/>
+        <updated>1970-01-01T00:28:33.219Z</updated>
+        <summary>-</summary>
+        <content type="html">In b/333717295, user is reporting that if the secondary email is listed in OWNERS file, that email may not show up in the find owner suggestion because most of the Gerrit users doesn't have permission to view secondary email of a given user.
+
+To mitigate this issue, a long term solution could be to extend our [owners clean up infrastructure](http://go/chrome-owners-cleanup-docs) so that it can propose a CL to replace the secondary email with the primary email if a secondary email is detected in the OWNERS file.</content>
+    </entry>
+    <entry>
+        <id>334983411</id>
+        <title>Tracker bug to address timing metrics mix-shift from background renderers</title>
+        <author>
+            <name>ga...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334983411"/>
+        <updated>1970-01-01T00:28:33.219Z</updated>
+        <summary>-</summary>
+        <content type="html">One-pager: go/cqbds</content>
+    </entry>
+    <entry>
+        <id>334984155</id>
+        <title>We view Safe Browsing Disabled</title>
+        <author>
+            <name>wa...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334984155"/>
+        <updated>1970-01-01T00:28:33.219Z</updated>
+        <summary>-</summary>
+        <content type="html">This template is for filing bugs against Android System WebView. Chrome bugs should be filed at https://crbug.com/wizard.
+
+Android device name:
+
+Android OS version:
+
+Android System WebView version: (Settings &gt; Apps &gt; the 3 dots in the upper right &gt; Show system. On Android N (7.x) through P (9.0), please include Chrome's version. Otherwise, look for "Android System WebView")
+
+Application: (package name or Play Store URL)
+
+Application version:
+
+Steps to reproduce:
+
+1.
+2.
+3.
+
+Expected result:
+
+Actual result:
+
+Did this work before? (last working WebView version, or N/A)
+
+---
+
+It's especially helpful if you can capture a bug report right after you experience the bug, and attach it here. See https://developer.android.com/studio/debug/bug-report for instructions.
+
+Screen recordings can also be very helpful - see https://developer.android.com/studio/command-line/adb#screenrecord. Please enable "Show taps" in developer settings.</content>
+    </entry>
+    <entry>
+        <id>334984154</id>
+        <title>$0 - $4 do not play nice with pseudo elements</title>
+        <author>
+            <name>br...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334984154"/>
+        <updated>1970-01-01T00:28:33.218Z</updated>
+        <summary>-</summary>
+        <content type="html">1. Inspect an element that has a pseudo element, e.g. one of the scrollers on https://scroll-driven-animations.style/demos/scroll-shadows/css/
+2. Select the ::before or ::after pseudo from that scroller in the Elements panel
+3. Print $0 via the console
+
+$0 holds a reference the actual element that contains the pseudo, not the pseudo itself.
+
+While I know you can’t querySelector a pseudo element, sometimes it’s necessary to also know if a pseudo was selected or not instead of getting back the reference to the element. For example, when trying to extract the animations that are applied to the selected pseudo – https://github.com/bramus/scroll-driven-animations-debugger-extension/issues/24
+
+There would need to be a way to know if and which pseudo was selected, in addition to $0.
+
+(Also pretty confusing that DevTools shows “== $0” next to the selected pseudo, which is not true)</content>
+    </entry>
+    <entry>
+        <id>334984463</id>
+        <title>[Blink Paint]: 1 regressions in rasterize_and_record_micro.top_25</title>
         <author>
             <name>ch...@appspot.gserviceaccount.com</name>
         </author>
-        <link href="https://issues.chromium.org/issues/334840713"/>
-        <updated>1970-01-01T00:28:33.201Z</updated>
+        <link href="https://issues.chromium.org/issues/334984463"/>
+        <updated>1970-01-01T00:28:33.218Z</updated>
         <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1287161:1287175:
+        <content type="html">All graphs for this regression group at 1287241:1287265:
 
   Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=5a55b648-4077-4c91-953c-9650fa2de4e7
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=ef596899-e36e-4edf-927d-8896ea13a055
 
-  Public Reports:
-    - Chromium: https://perf.luci.app/_/alertgroup?group_id=5a55b648-4077-4c91-953c-9650fa2de4e7
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=5a55b648-4077-4c91-953c-9650fa2de4e7
-
-Top 3 regressions (out of 4, with 1 improvements) in this group:
-  - ChromiumPerf/win-10-perf/v8.browsing_desktop/total:500ms_window:renderer_eqt:v8_max/browse_tools/browse_tools_photoshop_2021
-      211.75%: 3156.1059999999998 -&gt; 9839.237000000001 ms
-  - ChromiumPerf/win-10-perf/v8.browsing_desktop/total:500ms_window:renderer_eqt_max/browse_tools/browse_tools_photoshop_2021
-      211.73%: 3156.322 -&gt; 9839.328000000001 ms
-  - ChromiumPerf/win-10-perf/v8.browsing_desktop/total:500ms_window:renderer_eqt_max/browse_media/browse_media_youtubetv_2019
-      133.98%: 2077.098 -&gt; 4860.045 ms
-
-Top 3 affected measurements in win-10-perf:
-  - v8.browsing_desktop/total:500ms_window:renderer_eqt:v8_max/browse_tools/browse_tools_photoshop_2021
-      211.75%: 3156.1059999999998 -&gt; 9839.237000000001 ms
-  - v8.browsing_desktop/total:500ms_window:renderer_eqt_max/browse_tools/browse_tools_photoshop_2021
-      211.73%: 3156.322 -&gt; 9839.328000000001 ms
-  - v8.browsing_desktop/total:500ms_window:renderer_eqt_max/browse_media/browse_media_youtubetv_2019
-      133.98%: 2077.098 -&gt; 4860.045 ms
-
-Regressions grouped by v8.browsing_desktop includes data from the following benchmarks with listed owners:
-  v8.browsing_desktop: mythria@chromium.org, tmrts@chromium.org
-      
-
-Commits in this range:
-  Chromium Commit Position: https://crrev.com/1287160..1287175
-  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/15b9756484d5bda98ba273ae13f8db58200db4db..15b9756484d5bda98ba273ae13f8db58200db4db
-  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/352bfe3c44c3baf1f16a18f912b8b162ca581c54..1261863f87ff0f6c7910a039012d3469ee8ee2fb</content>
-    </entry>
-    <entry>
-        <id>334720108</id>
-        <title>Kyrgyz Language is not supported on chromium upon using Date.prototype.toLocaleString()</title>
-        <author>
-            <name>ba...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334720108"/>
-        <updated>1970-01-01T00:28:33.199Z</updated>
-        <summary>-</summary>
-        <content type="html"># Steps to reproduce the problem
-1. To reproduce the problem please use the MDN docs https://developer.mozilla.org
-2. test the case by pasting below on MDN docs https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toLocaleString
-```js
-const event = new Date(Date.UTC(2012, 11, 20, 3, 0, 0));
-console.log(event.toLocaleString(['ky', 'kg', 'ky-KG', 'kyr'], { month: 'long' }));
-//provided possible kyrgyz language tags but as it is not found the match tag it falls back to default language
-``` 
-3. verify the available options MDN docs https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/supportedLocalesOf
-```js
-const locales1 = ['ky', 'ky-KG', 'kg'];
-const options1 = { localeMatcher: 'lookup' };
-
-console.log(Intl.DateTimeFormat.supportedLocalesOf(locales1, options1));
-//no match found empty array
-```
-
-4. please verify the existance of language on different browser like Safari, FireFox and follow step 2, 3, it has to has a language support
-```js
-const locales1 = ['ky', 'ky-KG', 'kg'];
-const options1 = { localeMatcher: 'lookup' };
-
-console.log(Intl.DateTimeFormat.supportedLocalesOf(locales1, options1));
-//language tag match found = Array ["ky", "ky-KG"]
-```
-
-# Problem Description
-my application is using the Date.prototype.toLocaleString() method to get the Date with specified locale of date names. on Safari , FireFox its working but in Chromium is not working when i provide first parametr "ky-KG"
-
-# Summary
-Kyrgyz Language is not supported on chromium upon using Date.prototype.toLocaleString()
-
-# Custom Questions
-#### Which component does this fall under?
-Blink&gt;Javascript
-
-#### Does this work in other browsers? 
-Yes - This is just a Chrome problem
-
-# Additional Data
-Category: API \
-Chrome Channel: Not sure \
-Regression: N/A</content>
-    </entry>
-    <entry>
-        <id>334293682</id>
-        <title>[Graphics]: 1 regressions in rendering.desktop</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334293682"/>
-        <updated>1970-01-01T00:28:33.198Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1286444:1286588:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=b02650dc-6176-42a0-b7f2-843775086619
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=b02650dc-6176-42a0-b7f2-843775086619
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=ef596899-e36e-4edf-927d-8896ea13a055
 
 Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/lacros-x86-perf/rendering.desktop/thread_total_rendering_cpu_time_per_frame/infinite_scroll_root_n_layers_99
-       48.66%: 7.41605 -&gt; 11.02495 
+  - ChromiumPerf/mac-m1_mini_2020-perf/rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_yahoogames.html
+        3.15%: 0.254 -&gt; 0.262 
 
-Top 1 affected measurements in lacros-x86-perf:
-  - rendering.desktop/thread_total_rendering_cpu_time_per_frame/infinite_scroll_root_n_layers_99
-       48.66%: 7.41605 -&gt; 11.02495 
-
-Regressions grouped by rendering.desktop includes data from the following benchmarks with listed owners:
-  rendering.desktop: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>334279458</id>
-        <title>[Graphics]: 1 regressions in rendering.desktop</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334279458"/>
-        <updated>1970-01-01T00:28:33.198Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1286444:1286588:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=efb740f5-d3d0-4be0-9132-a49e3ea9a03f
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=efb740f5-d3d0-4be0-9132-a49e3ea9a03f
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/lacros-x86-perf/rendering.desktop/thread_total_rendering_cpu_time_per_frame/jarro_doverson
-       48.66%: 7.41605 -&gt; 11.02495 
-
-Top 1 affected measurements in lacros-x86-perf:
-  - rendering.desktop/thread_total_rendering_cpu_time_per_frame/jarro_doverson
-       48.66%: 7.41605 -&gt; 11.02495 
-
-Regressions grouped by rendering.desktop includes data from the following benchmarks with listed owners:
-  rendering.desktop: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>334213571</id>
-        <title>[Graphics]: 1 regressions in rendering.desktop</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334213571"/>
-        <updated>1970-01-01T00:28:33.198Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1286379:1286454:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=50617c0e-6694-46fd-a63f-8958d7a2e8af
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=50617c0e-6694-46fd-a63f-8958d7a2e8af
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/lacros-x86-perf/rendering.desktop/Event.ScrollJank.DelayedFramesPercentage.FixedWindow/text_constant_full_page_raster_10000_pixels_per_second
-     1350.00%: 0.0625 -&gt; 0.90625 
-
-Top 1 affected measurements in lacros-x86-perf:
-  - rendering.desktop/Event.ScrollJank.DelayedFramesPercentage.FixedWindow/text_constant_full_page_raster_10000_pixels_per_second
-     1350.00%: 0.0625 -&gt; 0.90625 
-
-Regressions grouped by rendering.desktop includes data from the following benchmarks with listed owners:
-  rendering.desktop: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>334408282</id>
-        <title>Add an iCloud keychain secret as a vault recovery factor</title>
-        <author>
-            <name>ns...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334408282"/>
-        <updated>1970-01-01T00:28:33.198Z</updated>
-        <summary>-</summary>
-        <content type="html">Store and retrieve an iCloud keychain secret as a vault recovery factor for mac and iphone users.</content>
-    </entry>
-    <entry>
-        <id>334842946</id>
-        <title>[Graphics]: 1 regressions in rendering.desktop</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334842946"/>
-        <updated>1970-01-01T00:28:33.198Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1286318:1286389:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=7568a004-b88c-4a25-a380-220642aecb61
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=7568a004-b88c-4a25-a380-220642aecb61
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/lacros-x86-perf/rendering.desktop/Event.ScrollJank.DelayedFramesPercentage.FixedWindow/text_constant_full_page_raster_10000_pixels_per_second
-     1250.00%: 0.0625 -&gt; 0.84375 
-
-Top 1 affected measurements in lacros-x86-perf:
-  - rendering.desktop/Event.ScrollJank.DelayedFramesPercentage.FixedWindow/text_constant_full_page_raster_10000_pixels_per_second
-     1250.00%: 0.0625 -&gt; 0.84375 
-
-Regressions grouped by rendering.desktop includes data from the following benchmarks with listed owners:
-  rendering.desktop: 
-      None
-
-Commits in this range:</content>
-    </entry>
-    <entry>
-        <id>334163262</id>
-        <title>[Graphics]: 1 regressions in rasterize_and_record_micro.top_25</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334163262"/>
-        <updated>1970-01-01T00:28:33.198Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1286578:1286760:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=eb283c12-17a8-4d16-8ee6-ed0d15da54a9
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=eb283c12-17a8-4d16-8ee6-ed0d15da54a9
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/lacros-x86-perf/rasterize_and_record_micro.top_25/rasterize_time/file___static_top_25_espn.html
-       10.15%: 0.73899996 -&gt; 0.814 
-
-Top 1 affected measurements in lacros-x86-perf:
-  - rasterize_and_record_micro.top_25/rasterize_time/file___static_top_25_espn.html
-       10.15%: 0.73899996 -&gt; 0.814 
+Top 1 affected measurements in mac-m1_mini_2020-perf:
+  - rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_yahoogames.html
+        3.15%: 0.254 -&gt; 0.262 
 
 Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
   rasterize_and_record_micro.top_25: 
@@ -1236,166 +445,884 @@ Regressions grouped by rasterize_and_record_micro.top_25 includes data from the 
 Commits in this range:</content>
     </entry>
     <entry>
-        <id>334755569</id>
-        <title>Android OS manager uses the same request ID for all triggers</title>
-        <author>
-            <name>ap...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334755569"/>
-        <updated>1970-01-01T00:28:33.197Z</updated>
-        <summary>-</summary>
-        <content type="html">The first one to complete will successfully have its callback invoked, but any subsequent ones will see that the corresponding callback doesn't exist. This leads to incorrect behavior in the `AttributionManagerImpl`  as the callback is invoked *before* all the registrations have been completed, and the `success` value will only reflect the success of the first registration, not any subsequent ones.
-
-https://source.chromium.org/chromium/chromium/src/+/main:content/browser/attribution_reporting/attribution_os_level_manager_android.cc;l=208-211;drc=291e237516f017c890576f0f0c6edf43bc7d9450
-
-https://source.chromium.org/chromium/chromium/src/+/main:content/public/android/java/src/org/chromium/content/browser/AttributionOsLevelManager.java;l=371-388;drc=291e237516f017c890576f0f0c6edf43bc7d9450
-
-https://source.chromium.org/chromium/chromium/src/+/main:content/browser/attribution_reporting/attribution_os_level_manager_android.cc;l=254-256;drc=291e237516f017c890576f0f0c6edf43bc7d9450</content>
-    </entry>
-    <entry>
-        <id>334279181</id>
-        <title>[Graphics]: 13 regressions in rendering.desktop</title>
+        <id>334984462</id>
+        <title>[Blink Paint]: 1 regressions in rasterize_and_record_micro.top_25</title>
         <author>
             <name>ch...@appspot.gserviceaccount.com</name>
         </author>
-        <link href="https://issues.chromium.org/issues/334279181"/>
-        <updated>1970-01-01T00:28:33.197Z</updated>
+        <link href="https://issues.chromium.org/issues/334984462"/>
+        <updated>1970-01-01T00:28:33.217Z</updated>
         <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1287161:1287175:
+        <content type="html">All graphs for this regression group at 1287255:1287270:
 
   Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=355e3b93-810f-4c89-b8cc-ed071e0e2cc8
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=3dda1b02-f0d9-4bb1-b02e-976bd1cc632b
 
-  Public Reports:
-    - Chromium: https://perf.luci.app/_/alertgroup?group_id=355e3b93-810f-4c89-b8cc-ed071e0e2cc8
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=355e3b93-810f-4c89-b8cc-ed071e0e2cc8
-
-Top 2 regressions (out of 49, with 47 improvements) in this group:
-  - ChromiumPerf/win-10-perf/rendering.desktop/Graphics.Smoothness.PercentDroppedFrames3.AllSequences/webgl_to_texture
-      400.00%: 0.5 -&gt; 2.5 unitless
-  - ChromiumPerf/win-10-perf/rendering.desktop/thread_total_rendering_cpu_time_per_frame/css_value_type_path
-       49.22%: 9.1167 -&gt; 13.60405 unitless
-
-Top 2 affected measurements in win-10-perf:
-  - rendering.desktop/Graphics.Smoothness.PercentDroppedFrames3.AllSequences/webgl_to_texture
-      400.00%: 0.5 -&gt; 2.5 unitless
-  - rendering.desktop/thread_total_rendering_cpu_time_per_frame/css_value_type_path
-       49.22%: 9.1167 -&gt; 13.60405 unitless
-
-Regressions grouped by rendering.desktop includes data from the following benchmarks with listed owners:
-  rendering.desktop: chrome-gpu-metrics@google.com, jonross@chromium.org
-      
-
-Commits in this range:
-  Chromium Commit Position: https://crrev.com/1287160..1287175
-  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/15b9756484d5bda98ba273ae13f8db58200db4db..15b9756484d5bda98ba273ae13f8db58200db4db
-  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/352bfe3c44c3baf1f16a18f912b8b162ca581c54..1261863f87ff0f6c7910a039012d3469ee8ee2fb</content>
-    </entry>
-    <entry>
-        <id>334279457</id>
-        <title>[Chromium Desktop GPU Memory Sheriff]: 8 regressions in system_health.memory_desktop</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334279457"/>
-        <updated>1970-01-01T00:28:33.197Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1287161:1287175:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=5e019539-beaf-40b4-90a8-0e1ffac69773
-
-  Public Reports:
-    - Chromium: https://perf.luci.app/_/alertgroup?group_id=5e019539-beaf-40b4-90a8-0e1ffac69773
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=5e019539-beaf-40b4-90a8-0e1ffac69773
-
-Top 3 regressions (out of 3, with 0 improvements) in this group:
-  - ChromiumPerf/win-10-perf/system_health.memory_desktop/memory:chrome:all_processes:reported_by_chrome:gpu:effective_size_avg/browse_news/browse_news_flipboard_2020
-       48.32%: 43496469.5 -&gt; 64511924.5 sizeInBytes
-  - ChromiumPerf/win-10-perf/system_health.memory_desktop/memory:chrome:all_processes:reported_by_chrome:gpu:effective_size_avg/load_search/load_search_flipkart_2018
-       31.84%: 7768108.0 -&gt; 10241188.0 sizeInBytes
-  - ChromiumPerf/win-10-perf/system_health.memory_desktop/memory:chrome:all_processes:reported_by_chrome:gpu:effective_size_avg/browse_news/browse_news_nytimes_2020
-       12.09%: 25209703.0 -&gt; 28258451.0 sizeInBytes
-
-Top 3 affected measurements in win-10-perf:
-  - system_health.memory_desktop/memory:chrome:all_processes:reported_by_chrome:gpu:effective_size_avg/browse_news/browse_news_flipboard_2020
-       48.32%: 43496469.5 -&gt; 64511924.5 sizeInBytes
-  - system_health.memory_desktop/memory:chrome:all_processes:reported_by_chrome:gpu:effective_size_avg/load_search/load_search_flipkart_2018
-       31.84%: 7768108.0 -&gt; 10241188.0 sizeInBytes
-  - system_health.memory_desktop/memory:chrome:all_processes:reported_by_chrome:gpu:effective_size_avg/browse_news/browse_news_nytimes_2020
-       12.09%: 25209703.0 -&gt; 28258451.0 sizeInBytes
-
-Regressions grouped by system_health.memory_desktop includes data from the following benchmarks with listed owners:
-  system_health.memory_desktop: lizeb@chromium.org, pasko@chromium.org
-      
-
-Commits in this range:
-  Chromium Commit Position: https://crrev.com/1287160..1287175
-  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/15b9756484d5bda98ba273ae13f8db58200db4db..15b9756484d5bda98ba273ae13f8db58200db4db
-  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/352bfe3c44c3baf1f16a18f912b8b162ca581c54..1261863f87ff0f6c7910a039012d3469ee8ee2fb</content>
-    </entry>
-    <entry>
-        <id>334840712</id>
-        <title>[Graphics]: 1 regressions in rendering.desktop</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/334840712"/>
-        <updated>1970-01-01T00:28:33.197Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1286993:1287019:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=0eb9a93d-8f4a-4904-b48c-1a622f26fc28
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=0eb9a93d-8f4a-4904-b48c-1a622f26fc28
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=3dda1b02-f0d9-4bb1-b02e-976bd1cc632b
 
 Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/lacros-x86-perf/rendering.desktop/thread_total_rendering_cpu_time_per_frame/falling_particle_simulation_cpu.html
-        3.97%: 24.2146 -&gt; 25.175 
+  - ChromiumPerf/mac-m1_mini_2020-perf/rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_googleplus.html
+        1.51%: 0.529 -&gt; 0.537 
 
-Top 1 affected measurements in lacros-x86-perf:
-  - rendering.desktop/thread_total_rendering_cpu_time_per_frame/falling_particle_simulation_cpu.html
-        3.97%: 24.2146 -&gt; 25.175 
+Top 1 affected measurements in mac-m1_mini_2020-perf:
+  - rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_googleplus.html
+        1.51%: 0.529 -&gt; 0.537 
 
-Regressions grouped by rendering.desktop includes data from the following benchmarks with listed owners:
-  rendering.desktop: 
+Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
+  rasterize_and_record_micro.top_25: 
       None
 
 Commits in this range:</content>
     </entry>
     <entry>
-        <id>334279180</id>
-        <title>[Chrome-Fuchsia Perf Size Sheriff]: 2 regressions in sizes</title>
+        <id>334974236</id>
+        <title>[Blink Paint]: 1 regressions in rasterize_and_record_micro.top_25</title>
         <author>
             <name>ch...@appspot.gserviceaccount.com</name>
         </author>
-        <link href="https://issues.chromium.org/issues/334279180"/>
-        <updated>1970-01-01T00:28:33.197Z</updated>
+        <link href="https://issues.chromium.org/issues/334974236"/>
+        <updated>1970-01-01T00:28:33.217Z</updated>
         <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1287206:1287219:
+        <content type="html">All graphs for this regression group at 1287255:1287270:
 
   Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=36227851-c669-4b03-9ca4-933983ed389a
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=d7105e65-0ec1-469d-b584-02a89a0e724b
 
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=36227851-c669-4b03-9ca4-933983ed389a
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=d7105e65-0ec1-469d-b584-02a89a0e724b
 
 Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromeFYIInternal/fuchsia-fyi-arm64-size/sizes/web_engine_compressed
-        0.11%: 43929600.0 -&gt; 43978752.0 sizeInBytes
+  - ChromiumPerf/mac-m1_mini_2020-perf/rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_googlecalendar.html
+        1.51%: 0.529 -&gt; 0.537 
 
-Top 1 affected measurements in fuchsia-fyi-arm64-size:
-  - sizes/web_engine_compressed
-        0.11%: 43929600.0 -&gt; 43978752.0 sizeInBytes
+Top 1 affected measurements in mac-m1_mini_2020-perf:
+  - rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_googlecalendar.html
+        1.51%: 0.529 -&gt; 0.537 
 
-Regressions grouped by sizes includes data from the following benchmarks with listed owners:
-  sizes: 
-      
+Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
+  rasterize_and_record_micro.top_25: 
+      None
 
-Commits in this range:
-  Chromium Git Hash: https://chromium.googlesource.com/chromium/src/+log/938219f51ee3ff5cb13ecf2f26f16efe07def354..a059fa24e36978d6fcf076793b2cf58fa0e4ef53
-  Chromium Commit Position: https://crrev.com/1287205..1287219
-  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/15b9756484d5bda98ba273ae13f8db58200db4db..15b9756484d5bda98ba273ae13f8db58200db4db
-  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/1261863f87ff0f6c7910a039012d3469ee8ee2fb..1261863f87ff0f6c7910a039012d3469ee8ee2fb</content>
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>334986373</id>
+        <title>[Blink Paint]: 1 regressions in rasterize_and_record_micro.top_25</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334986373"/>
+        <updated>1970-01-01T00:28:33.217Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1287255:1287270:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=42910408-bca9-4d41-88d4-ee89ea5dc054
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=42910408-bca9-4d41-88d4-ee89ea5dc054
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/mac-m1_mini_2020-perf/rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_ebay.html
+        1.51%: 0.529 -&gt; 0.537 
+
+Top 1 affected measurements in mac-m1_mini_2020-perf:
+  - rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_ebay.html
+        1.51%: 0.529 -&gt; 0.537 
+
+Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
+  rasterize_and_record_micro.top_25: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>334963814</id>
+        <title>[Blink Paint]: 1 regressions in rasterize_and_record_micro.top_25</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334963814"/>
+        <updated>1970-01-01T00:28:33.217Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1287255:1287270:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=79f6dec2-eacf-4eaa-afe1-1235d0a36700
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=79f6dec2-eacf-4eaa-afe1-1235d0a36700
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/mac-m1_mini_2020-perf/rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_yahooanswers.html
+        1.51%: 0.529 -&gt; 0.537 
+
+Top 1 affected measurements in mac-m1_mini_2020-perf:
+  - rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_yahooanswers.html
+        1.51%: 0.529 -&gt; 0.537 
+
+Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
+  rasterize_and_record_micro.top_25: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>334983271</id>
+        <title>[Blink Paint]: 1 regressions in rasterize_and_record_micro.top_25</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334983271"/>
+        <updated>1970-01-01T00:28:33.217Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1287255:1287270:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=7afeb62f-bbae-4e87-be05-c2deeb6204ce
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=7afeb62f-bbae-4e87-be05-c2deeb6204ce
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/mac-m1_mini_2020-perf/rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_amazon.html
+        1.51%: 0.529 -&gt; 0.537 
+
+Top 1 affected measurements in mac-m1_mini_2020-perf:
+  - rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_amazon.html
+        1.51%: 0.529 -&gt; 0.537 
+
+Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
+  rasterize_and_record_micro.top_25: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>334983208</id>
+        <title>[Blink Paint]: 1 regressions in rasterize_and_record_micro.top_25</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334983208"/>
+        <updated>1970-01-01T00:28:33.217Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1287255:1287270:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=4f300006-bf9b-456b-a73e-63535334f172
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=4f300006-bf9b-456b-a73e-63535334f172
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/mac-m1_mini_2020-perf/rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_blogger.html
+        1.51%: 0.529 -&gt; 0.537 
+
+Top 1 affected measurements in mac-m1_mini_2020-perf:
+  - rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_blogger.html
+        1.51%: 0.529 -&gt; 0.537 
+
+Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
+  rasterize_and_record_micro.top_25: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>334963813</id>
+        <title>[Blink Paint]: 1 regressions in rasterize_and_record_micro.top_25</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334963813"/>
+        <updated>1970-01-01T00:28:33.217Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1287241:1287265:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=670902ce-ec72-4f72-9bc7-38a4c5dcf033
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=670902ce-ec72-4f72-9bc7-38a4c5dcf033
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/mac-m1_mini_2020-perf/rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_google.html
+        3.15%: 0.254 -&gt; 0.262 
+
+Top 1 affected measurements in mac-m1_mini_2020-perf:
+  - rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_google.html
+        3.15%: 0.254 -&gt; 0.262 
+
+Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
+  rasterize_and_record_micro.top_25: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>334983207</id>
+        <title>[Blink Paint]: 1 regressions in rasterize_and_record_micro.top_25</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334983207"/>
+        <updated>1970-01-01T00:28:33.217Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1287241:1287265:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=61ecc8a0-ae16-45eb-9f5b-7bcc155a0a8c
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=61ecc8a0-ae16-45eb-9f5b-7bcc155a0a8c
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/mac-m1_mini_2020-perf/rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_blogger.html
+        3.15%: 0.254 -&gt; 0.262 
+
+Top 1 affected measurements in mac-m1_mini_2020-perf:
+  - rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_blogger.html
+        3.15%: 0.254 -&gt; 0.262 
+
+Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
+  rasterize_and_record_micro.top_25: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>334983790</id>
+        <title>[Blink Paint]: 1 regressions in rasterize_and_record_micro.top_25</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334983790"/>
+        <updated>1970-01-01T00:28:33.217Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1287255:1287270:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=1855b159-efd9-4c44-b09d-cfdb7d6b500a
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=1855b159-efd9-4c44-b09d-cfdb7d6b500a
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/mac-m1_mini_2020-perf/rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_google.html
+        1.51%: 0.529 -&gt; 0.537 
+
+Top 1 affected measurements in mac-m1_mini_2020-perf:
+  - rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_google.html
+        1.51%: 0.529 -&gt; 0.537 
+
+Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
+  rasterize_and_record_micro.top_25: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>334983206</id>
+        <title>[Blink Paint]: 1 regressions in rasterize_and_record_micro.top_25</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334983206"/>
+        <updated>1970-01-01T00:28:33.216Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1287241:1287265:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=225b8315-2de9-4376-b74b-eedf0ab0a4c0
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=225b8315-2de9-4376-b74b-eedf0ab0a4c0
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/mac-m1_mini_2020-perf/rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_yahoonews.html
+        3.15%: 0.254 -&gt; 0.262 
+
+Top 1 affected measurements in mac-m1_mini_2020-perf:
+  - rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_yahoonews.html
+        3.15%: 0.254 -&gt; 0.262 
+
+Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
+  rasterize_and_record_micro.top_25: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>334986372</id>
+        <title>[Graphics]: 1 regressions in rasterize_and_record_micro.top_25</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334986372"/>
+        <updated>1970-01-01T00:28:33.216Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1287255:1287270:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=94d9f544-fdd4-449c-8637-6147359716a8
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=94d9f544-fdd4-449c-8637-6147359716a8
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/mac-m1_mini_2020-perf/rasterize_and_record_micro.top_25/rasterize_time/file___static_top_25_ebay.html
+        2.14%: 1.45 -&gt; 1.481 
+
+Top 1 affected measurements in mac-m1_mini_2020-perf:
+  - rasterize_and_record_micro.top_25/rasterize_time/file___static_top_25_ebay.html
+        2.14%: 1.45 -&gt; 1.481 
+
+Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
+  rasterize_and_record_micro.top_25: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>334983270</id>
+        <title>[Graphics]: 1 regressions in rasterize_and_record_micro.top_25</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334983270"/>
+        <updated>1970-01-01T00:28:33.216Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1287255:1287270:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=94d9f544-fdd4-449c-8637-6147359716a8
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=94d9f544-fdd4-449c-8637-6147359716a8
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/mac-m1_mini_2020-perf/rasterize_and_record_micro.top_25/rasterize_time/file___static_top_25_ebay.html
+        2.14%: 1.45 -&gt; 1.481 
+
+Top 1 affected measurements in mac-m1_mini_2020-perf:
+  - rasterize_and_record_micro.top_25/rasterize_time/file___static_top_25_ebay.html
+        2.14%: 1.45 -&gt; 1.481 
+
+Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
+  rasterize_and_record_micro.top_25: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>334965845</id>
+        <title>[Topics] Record a database file size UMA upon initialization</title>
+        <author>
+            <name>ya...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334965845"/>
+        <updated>1970-01-01T00:28:33.216Z</updated>
+        <summary>-</summary>
+        <content type="html"></content>
+    </entry>
+    <entry>
+        <id>334963811</id>
+        <title>[Blink Paint]: 1 regressions in rasterize_and_record_micro.top_25</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334963811"/>
+        <updated>1970-01-01T00:28:33.216Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1287241:1287265:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=e7a09216-8c70-4cb6-a010-47b054709e31
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=e7a09216-8c70-4cb6-a010-47b054709e31
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/mac-m1_mini_2020-perf/rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_amazon.html
+        3.15%: 0.254 -&gt; 0.262 
+
+Top 1 affected measurements in mac-m1_mini_2020-perf:
+  - rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_amazon.html
+        3.15%: 0.254 -&gt; 0.262 
+
+Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
+  rasterize_and_record_micro.top_25: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>334983788</id>
+        <title>[Blink Paint]: 1 regressions in rasterize_and_record_micro.top_25</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334983788"/>
+        <updated>1970-01-01T00:28:33.216Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1287255:1287270:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=e49af1a2-7b27-4d58-987d-161bc3b69cdc
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=e49af1a2-7b27-4d58-987d-161bc3b69cdc
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/mac-m1_mini_2020-perf/rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_cnn.html
+        1.51%: 0.529 -&gt; 0.537 
+
+Top 1 affected measurements in mac-m1_mini_2020-perf:
+  - rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_cnn.html
+        1.51%: 0.529 -&gt; 0.537 
+
+Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
+  rasterize_and_record_micro.top_25: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>334984461</id>
+        <title>[Blink Paint]: 1 regressions in rasterize_and_record_micro.top_25</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334984461"/>
+        <updated>1970-01-01T00:28:33.216Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1287255:1287270:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=c4c18a1e-1d0a-4f75-bd1e-892ccd396014
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=c4c18a1e-1d0a-4f75-bd1e-892ccd396014
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/mac-m1_mini_2020-perf/rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_weather.html
+        1.51%: 0.529 -&gt; 0.537 
+
+Top 1 affected measurements in mac-m1_mini_2020-perf:
+  - rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_weather.html
+        1.51%: 0.529 -&gt; 0.537 
+
+Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
+  rasterize_and_record_micro.top_25: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>334984460</id>
+        <title>[Blink Paint]: 1 regressions in rasterize_and_record_micro.top_25</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334984460"/>
+        <updated>1970-01-01T00:28:33.216Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1287241:1287265:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=4d33fcc9-793a-49d3-8e26-c59bdfcdf34b
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=4d33fcc9-793a-49d3-8e26-c59bdfcdf34b
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/mac-m1_mini_2020-perf/rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_booking.html
+        3.15%: 0.254 -&gt; 0.262 
+
+Top 1 affected measurements in mac-m1_mini_2020-perf:
+  - rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_booking.html
+        3.15%: 0.254 -&gt; 0.262 
+
+Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
+  rasterize_and_record_micro.top_25: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>334967492</id>
+        <title>[Blink Paint]: 1 regressions in rasterize_and_record_micro.top_25</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334967492"/>
+        <updated>1970-01-01T00:28:33.216Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1287241:1287265:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=62d08f98-0045-40bf-9459-6a631c41ec5e
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=62d08f98-0045-40bf-9459-6a631c41ec5e
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/mac-m1_mini_2020-perf/rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_techcrunch.html
+        3.15%: 0.254 -&gt; 0.262 
+
+Top 1 affected measurements in mac-m1_mini_2020-perf:
+  - rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_techcrunch.html
+        3.15%: 0.254 -&gt; 0.262 
+
+Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
+  rasterize_and_record_micro.top_25: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>334963809</id>
+        <title>[Blink Paint]: 1 regressions in rasterize_and_record_micro.top_25</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334963809"/>
+        <updated>1970-01-01T00:28:33.216Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1287255:1287270:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=b1d94987-7d9f-4d40-b410-be82d01fe9b5
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=b1d94987-7d9f-4d40-b410-be82d01fe9b5
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/mac-m1_mini_2020-perf/rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_yahoogames.html
+        1.51%: 0.529 -&gt; 0.537 
+
+Top 1 affected measurements in mac-m1_mini_2020-perf:
+  - rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_yahoogames.html
+        1.51%: 0.529 -&gt; 0.537 
+
+Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
+  rasterize_and_record_micro.top_25: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>334984459</id>
+        <title>[Blink Paint]: 1 regressions in rasterize_and_record_micro.top_25</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334984459"/>
+        <updated>1970-01-01T00:28:33.216Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1287255:1287270:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=a6f7c28a-9d34-4c5d-9aa7-85b85e1badc4
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=a6f7c28a-9d34-4c5d-9aa7-85b85e1badc4
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/mac-m1_mini_2020-perf/rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_booking.html
+        1.51%: 0.529 -&gt; 0.537 
+
+Top 1 affected measurements in mac-m1_mini_2020-perf:
+  - rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_booking.html
+        1.51%: 0.529 -&gt; 0.537 
+
+Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
+  rasterize_and_record_micro.top_25: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>334963808</id>
+        <title>[Blink Paint]: 1 regressions in rasterize_and_record_micro.top_25</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334963808"/>
+        <updated>1970-01-01T00:28:33.216Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1287255:1287270:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=98126314-0482-49dc-8981-b87f6b585a2b
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=98126314-0482-49dc-8981-b87f6b585a2b
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/mac-m1_mini_2020-perf/rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_linkedin.html
+        1.51%: 0.529 -&gt; 0.537 
+
+Top 1 affected measurements in mac-m1_mini_2020-perf:
+  - rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_linkedin.html
+        1.51%: 0.529 -&gt; 0.537 
+
+Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
+  rasterize_and_record_micro.top_25: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>334983204</id>
+        <title>[Blink Paint]: 1 regressions in rasterize_and_record_micro.top_25</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334983204"/>
+        <updated>1970-01-01T00:28:33.216Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1287255:1287270:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=1f4f7bbf-5ae0-4f4c-ad22-a50069b16782
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=1f4f7bbf-5ae0-4f4c-ad22-a50069b16782
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/mac-m1_mini_2020-perf/rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_twitter.html
+        1.51%: 0.529 -&gt; 0.537 
+
+Top 1 affected measurements in mac-m1_mini_2020-perf:
+  - rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_twitter.html
+        1.51%: 0.529 -&gt; 0.537 
+
+Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
+  rasterize_and_record_micro.top_25: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>334974235</id>
+        <title>[Blink Paint]: 1 regressions in rasterize_and_record_micro.top_25</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334974235"/>
+        <updated>1970-01-01T00:28:33.216Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1287241:1287265:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=634249b7-7177-46c4-8666-45ea06aed3dd
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=634249b7-7177-46c4-8666-45ea06aed3dd
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/mac-m1_mini_2020-perf/rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_googleplus.html
+        3.15%: 0.254 -&gt; 0.262 
+
+Top 1 affected measurements in mac-m1_mini_2020-perf:
+  - rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_googleplus.html
+        3.15%: 0.254 -&gt; 0.262 
+
+Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
+  rasterize_and_record_micro.top_25: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>334983787</id>
+        <title>[Blink Paint]: 1 regressions in rasterize_and_record_micro.top_25</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334983787"/>
+        <updated>1970-01-01T00:28:33.216Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1287241:1287265:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=fbac68cc-d22a-46bb-8519-cff9a70d83bc
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=fbac68cc-d22a-46bb-8519-cff9a70d83bc
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/mac-m1_mini_2020-perf/rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_yahooanswers.html
+        3.15%: 0.254 -&gt; 0.262 
+
+Top 1 affected measurements in mac-m1_mini_2020-perf:
+  - rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_yahooanswers.html
+        3.15%: 0.254 -&gt; 0.262 
+
+Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
+  rasterize_and_record_micro.top_25: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>334983203</id>
+        <title>[Blink Paint]: 1 regressions in rasterize_and_record_micro.top_25</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334983203"/>
+        <updated>1970-01-01T00:28:33.216Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1287255:1287270:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=4cd6f073-82f4-48bf-ba88-3c4fc10deb77
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=4cd6f073-82f4-48bf-ba88-3c4fc10deb77
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/mac-m1_mini_2020-perf/rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_techcrunch.html
+        1.51%: 0.529 -&gt; 0.537 
+
+Top 1 affected measurements in mac-m1_mini_2020-perf:
+  - rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_techcrunch.html
+        1.51%: 0.529 -&gt; 0.537 
+
+Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
+  rasterize_and_record_micro.top_25: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>334963807</id>
+        <title>[Blink Paint]: 1 regressions in rasterize_and_record_micro.top_25</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334963807"/>
+        <updated>1970-01-01T00:28:33.216Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1287255:1287270:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=336f240a-92da-4ff1-b18e-823fff61595f
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=336f240a-92da-4ff1-b18e-823fff61595f
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/mac-m1_mini_2020-perf/rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_facebook.html
+        1.51%: 0.529 -&gt; 0.537 
+
+Top 1 affected measurements in mac-m1_mini_2020-perf:
+  - rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_facebook.html
+        1.51%: 0.529 -&gt; 0.537 
+
+Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
+  rasterize_and_record_micro.top_25: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>334983561</id>
+        <title>[Blink Paint]: 1 regressions in rasterize_and_record_micro.top_25</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334983561"/>
+        <updated>1970-01-01T00:28:33.216Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1287255:1287270:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=d6f7c190-3673-460b-b32c-1678989d1581
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=d6f7c190-3673-460b-b32c-1678989d1581
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/mac-m1_mini_2020-perf/rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_gmail.html
+        1.51%: 0.529 -&gt; 0.537 
+
+Top 1 affected measurements in mac-m1_mini_2020-perf:
+  - rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_gmail.html
+        1.51%: 0.529 -&gt; 0.537 
+
+Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
+  rasterize_and_record_micro.top_25: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>334967491</id>
+        <title>[Blink Paint]: 1 regressions in rasterize_and_record_micro.top_25</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334967491"/>
+        <updated>1970-01-01T00:28:33.216Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1287255:1287270:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=a9793466-94d7-4b1b-9bfc-41da69e8e6cd
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=a9793466-94d7-4b1b-9bfc-41da69e8e6cd
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/mac-m1_mini_2020-perf/rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_yahoonews.html
+        1.51%: 0.529 -&gt; 0.537 
+
+Top 1 affected measurements in mac-m1_mini_2020-perf:
+  - rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_yahoonews.html
+        1.51%: 0.529 -&gt; 0.537 
+
+Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
+  rasterize_and_record_micro.top_25: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>334983268</id>
+        <title>[Blink Paint]: 1 regressions in rasterize_and_record_micro.top_25</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334983268"/>
+        <updated>1970-01-01T00:28:33.215Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1287241:1287265:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=52a38661-b941-4b7b-a9e7-6c9920959a4d
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=52a38661-b941-4b7b-a9e7-6c9920959a4d
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/mac-m1_mini_2020-perf/rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_twitter.html
+        3.15%: 0.254 -&gt; 0.262 
+
+Top 1 affected measurements in mac-m1_mini_2020-perf:
+  - rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_twitter.html
+        3.15%: 0.254 -&gt; 0.262 
+
+Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
+  rasterize_and_record_micro.top_25: 
+      None
+
+Commits in this range:</content>
+    </entry>
+    <entry>
+        <id>334983202</id>
+        <title>[Blink Paint]: 1 regressions in rasterize_and_record_micro.top_25</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/334983202"/>
+        <updated>1970-01-01T00:28:33.215Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1287241:1287265:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=8998c9f1-7ff4-448d-bef9-330d6752d4c7
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=8998c9f1-7ff4-448d-bef9-330d6752d4c7
+
+Top 1 regressions (out of 1, with 0 improvements) in this group:
+  - ChromiumPerf/mac-m1_mini_2020-perf/rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_cnn.html
+        3.15%: 0.254 -&gt; 0.262 
+
+Top 1 affected measurements in mac-m1_mini_2020-perf:
+  - rasterize_and_record_micro.top_25/record_time_caching_disabled/file___static_top_25_cnn.html
+        3.15%: 0.254 -&gt; 0.262 
+
+Regressions grouped by rasterize_and_record_micro.top_25 includes data from the following benchmarks with listed owners:
+  rasterize_and_record_micro.top_25: 
+      None
+
+Commits in this range:</content>
     </entry>
 </feed>
