@@ -84,12 +84,12 @@ async function sleep(time: number): Promise<void> {
 
                 const formattedIssue = trimPrefix(await issueRes.text());
                 const issueJson = JSON.parse(formattedIssue)
-    
+
                 // The below site is useful to check the index of array:
                 // https://jsonformatter.org/json-viewer
                 const body = issueJson[0][1][22][43][0];
                 const author = issueJson[0][1][22][2][6][1];
-                const createdAt = new Date(Number(issueJson[0][1][22][4][0]) / 1000);
+                const createdAt = new Date(Number(issueJson[0][1][22][4][0]) * 1000);
                 const atomentry: AtomEntryProps = {
                     author: { name: author },
                     content: body ? Buffer.from(body).toString('base64') : "-",
