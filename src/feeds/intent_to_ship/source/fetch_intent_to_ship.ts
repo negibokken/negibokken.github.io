@@ -20,7 +20,7 @@ export async function fetchIntentToShip(): Promise<Result<IntentToShip, Error>> 
         console.log(`fetched ${items.length} items`);
 
         const filledItems = [];
-        for (const item of items) {
+        for (const item of items.slice(0, 1)) {
             const description = await fetchDescription(item.link);
             filledItems.push(
                 {

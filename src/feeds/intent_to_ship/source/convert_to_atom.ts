@@ -5,7 +5,15 @@ const DEFAULT_LENGTH = 150;
 
 export function convertToAtomEntries(intentToShip: IntentToShip): AtomEntry[] {
     const entries = intentToShip.map((entry) => {
-        return new AtomEntry({ id: entry.guid, title: entry.title, author: { name: "Intent to Ship" }, updated: entry.pubDate.toISOString(), link: entry.link, summary: entry.link + " summary", content: entry.description });
+        return new AtomEntry({
+            id: entry.guid,
+            title: entry.title,
+            author: { name: "Intent to Ship" },
+            updated: entry.pubDate.toISOString(),
+            link: entry.link,
+            summary: entry.link + " summary",
+            content: entry.description
+        });
     });
     return entries;
 };

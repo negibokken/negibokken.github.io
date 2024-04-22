@@ -1,8 +1,8 @@
 import fs from 'fs';
-import convert from 'xml-js';
 import { fetchIntentToShip } from './source/fetch_intent_to_ship';
 import { convertToAtomEntries, uniqueJoinAtomFeedEntries } from './source/convert_to_atom';
 import { AtomFeed } from '../modules';
+import * as prettier from 'prettier';
 
 (async () => {
     try {
@@ -17,15 +17,12 @@ import { AtomFeed } from '../modules';
         }
 
         const latestEntries = convertToAtomEntries(intentToShipResult.value);
-        console.log(latestEntries)
-        // process.exit(1);
         const latestAtomFeed = uniqueJoinAtomFeedEntries(currentAtom, latestEntries, { length: 150 });
         try {
-            // To format the XML properly, we need to convert class to JSON and after that convert JSON to XML
-            const newAtomJSON = convert.xml2json(latestAtomFeed.toXML());
-            const newAtomXML = convert.json2xml(newAtomJSON, { compact: true, spaces: 4 });
-            console.log(`Contents is written in ${xmlPath}.new`);
-            fs.writeFileSync(`${xmlPath}.new`, newAtomXML);
+            const newAtomXML = latestAtomFeed.toXML();
+            console.log(`a file is written in ${xmlPath}.new`);
+            const formattedXML = prettier.format(newAtomXML, { parser: 'xml' });
+            fs.writeFileSync(`${xmlPath}.new`, formattedXML);
         } catch (e) {
             console.log(latestAtomFeed);
             throw e;

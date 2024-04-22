@@ -1,9 +1,10 @@
 import { AtomEntry, AtomFeed } from './atom';
 import { describe, it, expect } from 'vitest';
 import { format } from 'prettier';
+import * as fs from 'fs';
 
-describe('Atom', () => {
-    it('AtomEntry toXML', () => {
+describe('AtomEntry.toXML', () => {
+    it('should match snapshot', () => {
         const entry = new AtomEntry({
             id: 'https://example.com/a',
             title: "title",
@@ -15,11 +16,14 @@ describe('Atom', () => {
             summary: "this is a summary text",
             content: "this is a content of the entry",
         });
-        console.log(format(entry.toXML(), { parser: 'xml' }));
         expect(format(entry.toXML(), { parser: 'xml' })).toMatchSnapshot();
     });
 
-    it('AtomFeed toXML', () => {
+
+});
+
+describe('AtomFeed.toXML', () => {
+    it('should match snapshot', () => {
         const entry = new AtomEntry({
             id: 'https://example.com/a',
             title: "title",
@@ -38,7 +42,15 @@ describe('Atom', () => {
             updated: "2001-02-03T16:05:06Z",
         });
         feed.appendEntry(entry);
-        console.log(format(feed.toXML(), { parser: 'xml' }));
         expect(format(feed.toXML(), { parser: 'xml' })).toMatchSnapshot();
+    });
+});
+
+
+describe('AtomFeed.createFromXML', () => {
+    it('should match snapshot', () => {
+        const xmlData = fs.readFileSync('./src/feeds/modules/atom/__fixtures/atom.xml').toString();
+        const currentAtom: AtomFeed = AtomFeed.createFromXML(xmlData);
+        expect(currentAtom.toXML()).toMatchSnapshot();
     });
 });
