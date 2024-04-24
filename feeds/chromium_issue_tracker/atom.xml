@@ -3,7 +3,804 @@
     <id>https://negibokken.github.io/feeds/chromium_issue_tracker/atom.xml</id>
     <title>Chromium issue tracker feed</title>
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
-    <updated>2024-04-24T08:06:14.000Z</updated>
+    <updated>2024-04-24T12:19:19.000Z</updated>
+    <entry>
+        <id>336681960</id>
+        <title>Register global shortcut for keycode 0 will lead to unexpected result on Linux/X11</title>
+        <author>
+            <name>de...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336681960"/>
+        <updated>2024-04-24T12:19:19.000Z</updated>
+        <summary>-</summary>
+        <content type="html">Problem:
+ui/base/x/x11_global_shortcut_listener.cc
+bool XGlobalShortcutListener::RegisterAccelerator(KeyboardCode key_code,...) {
+...
+  auto keysym = XKeysymForWindowsKeyCode(key_code, false);
+  auto keycode = connection_-&gt;KeysymToKeycode(keysym);
+}
+after XKeysymForWindowsKeyCode(...) and KeysymToKeycode(...), if the input argument key_code=0,  the value keycode will 
+be transformed to an UnExpeced keycode!!! And an unexpected shortcut is registered.
+On my Ubuntu 23.04/GNOME(X11),  keycode is transformed to 204 and will make Alt_L shortcut registered. Other OSs may be different, LMDE6 will be BackSpace.
+We can use command "xmodmap -pk | grep ${KEYCODE}" to check keysym for KEYCODE.
+
+To Reproduce:
+My test code keysymbug.c(Attacehed), compile with "gcc -Wno-deprecated-declarations -o keysymbug keysymbug.c -lX11".
+Run keysymbug(test code), will produce output:
+src keycode(0x0)-&gt;keysym(0x0:(null))
+keysym(0x0)-&gt;translated to keycode(204:0xcc)
+!!!Warning: keycode 0 tranformed to valued keycode(204:0xcc)
+You can use shell command 'xmodmap -pk| grep 204' find key meanging.
+1: keycode(204:0xcc) -&gt;transformed to keysym(0xffe9:Alt_L)
+!!!Warning: keycode 0 transformed to meaningful keysym:(65513:0xffe9:Alt_L)
+
+Solution:
+add extra check:
+@@ -86,6 +86,11 @@ bool XGlobalShortcutListener::RegisterAccelerator(KeyboardCode key_code,
+   auto keysym = XKeysymForWindowsKeyCode(key_code, false);
+   auto keycode = connection_-&gt;KeysymToKeycode(keysym);
+ 
++  // if key_code is 0, keycode may be transformed to unexpected key.
++  if (key_code == ui::KeyboardCode::VKEY_UNKNOWN &amp;&amp; keysym == 0) {
++    return false;
++  }
++
+
+
+</content>
+    </entry>
+    <entry>
+        <id>336681981</id>
+        <title>error chrome bug</title>
+        <author>
+            <name>da...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336681981"/>
+        <updated>2024-04-24T12:13:04.000Z</updated>
+        <summary>-</summary>
+        <content type="html">Chrome Version       : &lt;from chrome://version/&gt;
+OS                   : &lt;OS version&gt;
+
+What steps will reproduce the problem?
+
+
+What is the expected result?
+
+
+What happens instead?
+
+
+You can help us a lot by creating a minimal, reproducible example (https://stackoverflow.com/help/minimal-reproducible-example), e.g. on glitch.com, and/or attaching a screenshot or recording of the issue!</content>
+    </entry>
+    <entry>
+        <id>336577752</id>
+        <title>Graphical artifacts in inset box shadow</title>
+        <author>
+            <name>ko...@opera.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336577752"/>
+        <updated>2024-04-24T12:08:12.000Z</updated>
+        <summary>-</summary>
+        <content type="html">Bug is visible on the latest Chrome:
+Chrome Version: 124.0.6367.61 (64-bit) (cohort: Stable) 
+OS: Windows 11 Version 23H2 (Build 22631.3447)
+
+I've tested archive builds and traced regression:
+
+88.0.4289.0 dev - broken
+815960 e8d15ca69fd9c9ae88a589018a069a9b5569e123
+
+88.0.4286.0 dev - ok
+814962 5034c8b9252e1cb6dd75fbfea8f184c53de8de0b
+
+I didn't verify this, but probably this [Skia update] (https://chromium.googlesource.com/chromium/src/+/98a887fbb1fa0992e2220260acf54291a58d7362)
+introduced this problem
+
+What steps will reproduce the problem?
+(1)  Open a page with a box-shadow, eg.: 
+
+&lt;!doctype html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;head&gt;
+&lt;div style="width:660px; height: 310px; box-shadow: inset 0px 0px 225px 84px black;"&gt;&lt;/div&gt;
+&lt;body&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+
+(2) Gradually change the browser window size to roughly match the size of the div
+
+What is the expected result?
+Applied box-shadow stays intact 
+
+What happens instead?
+At some window height value the graphical artifact will start to appear at the bottom of the div
+</content>
+    </entry>
+    <entry>
+        <id>336681980</id>
+        <title>Observed issue while accessing the inhouse website within the local network without internet. </title>
+        <author>
+            <name>mi...@casepoint.in</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336681980"/>
+        <updated>2024-04-24T11:47:51.000Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+1. Observed issue while accessing the inhouse website within the local network without internet. 
+2. Issue observed after version 124.x.x earlier version working fine
+3. We are suspecting Remove enterprise policies used for TLS handshake and RSA key usage with newer version
+
+# Problem Description
+Not able to access website hosted in local network after version upgrade. All other browser (IE, Edge,Firefox, etc ) works well
+
+# Additional Comments
+Any Locally hosted website which accessible within the local network.
+
+# Summary
+Observed issue while accessing the inhouse website within the local network without internet. 
+
+# Additional Data
+Category: Network / Downloading \
+Chrome Channel: Stable \
+Regression: Yes</content>
+    </entry>
+    <entry>
+        <id>336739509</id>
+        <title>Remove EventOnTimelineData.url</title>
+        <author>
+            <name>ja...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336739509"/>
+        <updated>2024-04-24T11:47:43.000Z</updated>
+        <summary>-</summary>
+        <content type="html">We rely on EventOnTimelineData.url in a few places to associate URLs to events which we then show in the UI in various places.
+
+We need to replicate this in the new engine or replace it with a helper.</content>
+    </entry>
+    <entry>
+        <id>336566550</id>
+        <title>I might violate terms and conditions with no intentions.</title>
+        <author>
+            <name>ls...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336566550"/>
+        <updated>2024-04-24T11:43:08.000Z</updated>
+        <summary>-</summary>
+        <content type="html">Version: 15481-ab9382a
+From Link: https://ci.chromium.org/ui/builder-search?q=GuPZ5nAFjVc
+Please enter a description of the problem, with repro steps if applicable.
+
+sorry if I did something I should not have done.</content>
+    </entry>
+    <entry>
+        <id>336702729</id>
+        <title>After refresh, a totally different layout is being used for distillability detection.</title>
+        <author>
+            <name>vi...@samsung.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336702729"/>
+        <updated>2024-04-24T11:25:04.000Z</updated>
+        <summary>-</summary>
+        <content type="html">URL: https://www.bbc.com/news/world-europe-68872783
+
+On first load, features are extracted and distillability is detected.
+After refresh, a totally different layout is being used for distillability detection. 
+Hence, resulting in the article now being classified as non-distillable.
+When we log the features for the page, it can be seen that all the text length features are 0 after refresh.
+</content>
+    </entry>
+    <entry>
+        <id>336734536</id>
+        <title>[Google drive] While uploading the file, Clicking on the “cancel” is showing the status of the file as completed and the file is getting uploaded into the drive</title>
+        <author>
+            <name>rn...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336734536"/>
+        <updated>2024-04-24T11:24:08.000Z</updated>
+        <summary>-</summary>
+        <content type="html">Chrome Version :123.0.6312.134 (Official Build) (64-bit)/15786.60.0 (Official Build) stable-channel
+
+OS: Chrome OS, Windows, Mac
+
+Regression: NO
+
+Steps to reproduce:
+
+1. Launch Chrome and open Google drive from **‘drive.google.com’** / Google apps.
+2. Click on the ‘New’ button and upload any file into the drive by clicking on **“File upload”**
+3. While the file is getting uploaded, **cancel** the file upload.
+4. Observe that the status of the file and search for the uploaded file.
+
+**Actual Result** : While uploading the file, Clicking on the **“cancel”** is showing the status of the file as completed and the file is getting uploaded into the drive. 
+
+**Expected Result** : While uploading the file, Clicking on the **“cancel”** Should not show the status of the file as completed and the file should not be uploaded into the drive. 
+
+Please find the attached screen cast below..!
+
+Note: 
+1. Issue is reproducible on **Canary#126.0.6434.0(15864.0.0), Dev #125.0.6422.11(15853.10.0), Beta #124.0.6367.89(15823.38.0)**.
+2. Issue is reproducible on **Hatch, Snappy, Nami, Kappa and Octopus**
+3. This is a NR issue.
+
+
+</content>
+    </entry>
+    <entry>
+        <id>336588276</id>
+        <title>[WPT] New failures introduced in external by import https://crrev.com/c/5479528</title>
+        <author>
+            <name>wp...@chops-service-accounts.iam.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336588276"/>
+        <updated>2024-04-24T11:21:58.000Z</updated>
+        <summary>-</summary>
+        <content type="html">WPT import https://crrev.com/c/5479528 introduced new failures in external:
+
+List of new failures:
+[ Mac-mac14-arm64 ] virtual/webnn-service-with-gpu/external/wpt/webnn/conformance_tests/gpu/parallel-compute.https.any.html new failing tests: https://crrev.com/c/5479528/4/third_party/blink/web_tests/platform/mac-mac14-arm64/virtual/webnn-service-with-gpu/external/wpt/webnn/conformance_tests/gpu/parallel-compute.https.any-expected.txt
+[ Mac-mac14-arm64 ] virtual/webnn-service-with-gpu/external/wpt/webnn/conformance_tests/gpu/parallel-compute.https.any.worker.html new failing tests: https://crrev.com/c/5479528/4/third_party/blink/web_tests/platform/mac-mac14-arm64/virtual/webnn-service-with-gpu/external/wpt/webnn/conformance_tests/gpu/parallel-compute.https.any.worker-expected.txt
+[ Win11-arm64 ] external/wpt/webnn/conformance_tests/parallel-compute.https.any.worker.html [ Skip Timeout ]: https://crrev.com/c/5479528/4/third_party/blink/web_tests/TestExpectations#2609
+[ Mac14-arm64 ] virtual/webnn-service-with-gpu/external/wpt/webnn/conformance_tests/gpu/parallel-compute.https.any.worker.html [ Crash Failure ]: https://crrev.com/c/5479528/4/third_party/blink/web_tests/TestExpectations#2610
+
+See https://chromium-review.googlesource.com/c/chromium/src/+/5479528/1?checksPatchset=1&amp;tab=checks for details.
+
+Expectations or baseline files [0] have been automatically added for the failing results to keep the bots green. Please investigate the new failures and triage as appropriate.
+
+Upstream changes imported:
+https://github.com/web-platform-tests/wpt/compare/a4034034c992c00078d3efe3c0f998ae8af06af0...55cb997b1b096774ac1b8f386b7f4e871e3902e1
+Add expected labels to errant tests in display-contents-role-and-label.html (#45856): https://github.com/web-platform-tests/wpt/commit/55cb997b1b096774ac1b8f386b7f4e871e3902e1
+DOM: Fix Observable predicate function: https://github.com/web-platform-tests/wpt/commit/b0ceb0445119cf04fee32a742eea2ca3f793b734
+StepDown should default to min when no current val: https://github.com/web-platform-tests/wpt/commit/2c67022fcbacef33b1090e1eb0008e9af7ed6181
+Fall back to main thread if scroll hit test is affected by rounded corners: https://github.com/web-platform-tests/wpt/commit/9e7e1bd19fecd541ce4192e24039b746a88ce3df
+[reading-order-items] Reading Order Container is a Focus Scope Owner: https://github.com/web-platform-tests/wpt/commit/43ae6cd615fad8cd6df2cade33ad48bfb9f285cb
+LoAF: Use document character position for inline scripts: https://github.com/web-platform-tests/wpt/commit/8fbd3592bb05175e634f4ee7fcaec159ae855e78
+Always initialize PaintInfo::descendant_painting_blocked_: https://github.com/web-platform-tests/wpt/commit/ec57fe8800ad35b9648561988ebeb049f5bb58df
+DOM: Implement `inspect()` Observable operator: https://github.com/web-platform-tests/wpt/commit/fa3d0b9c1312e920006554bed91ffc6b381f263e
+
+[0]: https://chromium.googlesource.com/chromium/src/+/HEAD/docs/testing/web_test_expectations.md
+
+This bug was filed automatically due to a new WPT test failure for which you are marked an OWNER. If you do not want to receive these reports, please add "wpt { notify: NO }"  to the relevant DIR_METADATA file.</content>
+    </entry>
+    <entry>
+        <id>336734268</id>
+        <title>Stop relying on timelineModel subtracting from line numbers</title>
+        <author>
+            <name>ja...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336734268"/>
+        <updated>2024-04-24T11:15:38.000Z</updated>
+        <summary>-</summary>
+        <content type="html">The TimelineModel will subtract 1 from line numbers in certain events to take them from 1 index to 0 indexed:
+
+```
+      case RecordType.EvaluateScript:
+      case RecordType.CompileScript:
+      // @ts-ignore fallthrough intended.
+      case RecordType.CacheScript: {
+        if (typeof eventData['lineNumber'] === 'number') {
+          --eventData['lineNumber'];
+        }
+        if (typeof eventData['columnNumber'] === 'number') {
+          --eventData['columnNumber'];
+        }
+      }
+```
+
+In various helpers that linkify and output a URL plus line/col numbers, 1 is then added to the output. It is expected in our data that we model the numbers as 0 indexed, but trace events work off 1 indexing.
+
+The legacy TimelineModel mutates these events to fix this, but we want to remove the old model.
+
+Rather than mutate the events, let's instead create a helper inside TimelineUIUtils (where most of the UI generation logic exists) to correctly subtract one and return the "right" (0-indexed) numbers for events that need it (which is the 3 events listed up there).</content>
+    </entry>
+    <entry>
+        <id>336648791</id>
+        <title>The `overscroll-behavior` CSS property not trap keyboard navigation</title>
+        <author>
+            <name>4....@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336648791"/>
+        <updated>2024-04-24T11:08:27.000Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+1. go to the example at https://codepen.io/qsppl/pen/wvZNewV?editors=1000
+2. try scrolling with your keyboard inside an &lt;aside style="overscroll-behavior: contain"&gt; element
+
+# Problem Description
+observed behavior: after scrolling in the &lt;aside style="overscroll-behavior: contain"&gt; element is complete - the parent starts scrolling.
+expected behavior: after scrolling in the &lt;aside style="overscroll-behavior: contain"&gt; element is complete - scrolling stops ().
+I tested this case in firefox - keyboard scrolling is successfully blocked there.
+
+# Summary
+The `overscroll-behavior` CSS property not trap keyboard navigation
+
+# Custom Questions
+#### Which component does this fall under?
+Not sure - I don't know
+
+#### Does this work in other browsers? 
+Yes - This is just a Chrome problem
+
+# Additional Data
+Category: API \
+Chrome Channel: Stable \
+Regression: N/A</content>
+    </entry>
+    <entry>
+        <id>336577748</id>
+        <title>Chrome spell check stuck in English despite language bar changes.</title>
+        <author>
+            <name>da...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336577748"/>
+        <updated>2024-04-24T10:57:26.000Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+Steps to Reproduce:
+Ensure multiple languages are set up in the Windows language bar, including English and German.
+Set Chrome's spell check to 'Basic' to utilize the operating system's spell check capabilities.
+Switch the active language in the language bar to German.
+Type in Chrome and observe that the spell check corrections are still based on English.
+Expected Behavior:
+The spell check should adapt to the language currently active in the language bar, providing appropriate corrections for German when it is selected.
+
+Actual Behavior:
+The spell check remains fixed to English and does not adjust to the language changes dictated by the language bar.
+
+Environment:
+
+Google Chrome Version: Version 124.0.6367.62 (Official Build) (64-bit)
+Operating System: Windows 10 Version 10.0.19045 Build 19045
+
+# Problem Description
+I have encountered an issue where Chrome's spell check feature fails to adapt to the language settings specified in the Windows language bar. Despite having multiple languages set up (e.g., English and German), the spell check remains fixed to English and does not switch according to the active language. This issue persists even when the language bar displays a language other than English. This behavior occurs regardless of the spell check setting (Basic or Enhanced) selected in Chrome.
+
+My discovery process with ChatGPT for this issue for (probably useless?) context:
+https://pastebin.com/DEyzmwyj
+
+# Summary
+Chrome spell check stuck in English despite language bar changes.
+
+# Custom Questions
+#### Does the problem occur on multiple sites?
+Yes - Please describe below
+
+#### Is it a problem with a plugin?
+Not sure - I don't know
+
+#### Does this work in other browsers? 
+Not sure - I don't know
+
+# Additional Data
+Category: Content \
+Chrome Channel: Stable \
+Regression: N/A</content>
+    </entry>
+    <entry>
+        <id>336628725</id>
+        <title>Mixed names in box</title>
+        <author>
+            <name>ji...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336628725"/>
+        <updated>2024-04-24T10:43:50.000Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+Visit one site and then another before the first loads
+
+# Problem Description
+The problem is in that red circled area there's two lines one mentions 12 or something on the other says p r e t ... 
+Well one is from one website and the other is from another. 
+
+So I managed to get the title of one site and the URL of another right inside the same box that you see.
+
+# Additional Comments
+No it's hard to reproduce because the first side I selected from the history list. I'm just saying it's possible. For your information.
+
+# Summary
+Mixed names in box
+
+# Additional Data
+Category: UI \
+Chrome Channel: Not sure \
+Regression: N/A</content>
+    </entry>
+    <entry>
+        <id>336681953</id>
+        <title>[Customize Themes] Observe the image is not seen after changing multiple colors and selecting the default color from customize chrome.</title>
+        <author>
+            <name>kh...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336681953"/>
+        <updated>2024-04-24T10:30:09.000Z</updated>
+        <summary>-</summary>
+        <content type="html">Chrome Version : 123.0.6312.134 (Official Build) (64-bit) / 15786.60.0 (Official Build) stable-channel snappy
+
+OS: Chrome OS
+
+Repro rate:100%
+
+Steps to reproduce:
+
+1.Launch Chrome 
+
+2.Click on the “Customize Chrome” icon
+
+3.Click on “Change theme”,  click on “Upload image” and upload any image.
+
+4.Selecting multiple colors and again click on “Default color” (I.e first option in colors) 
+
+5.Observe the uploaded image is not seen after selecting the default color(I.e first option in colors) 
+
+
+**Actual Result** : The image is not seen after changing multiple colors and selecting the default color from customize chrome.
+
+**Expected Result** :  The image should be seen after changing multiple colors  and selecting the default color from customize chrome.
+
+Note:
+
+1.Issue able to repro on Stable#123.0.6312.134/15786.60.0,/#123.0.6312.112/15786.48.0
+
+2.Issue able to repro on Snappy, Hatch, Nami, Octopus and kappa.
+
+3.This is NR issue</content>
+    </entry>
+    <entry>
+        <id>336730582</id>
+        <title>Tests are failing: browser_test_utils.cc(1627): Failed\r\nRunLoop::Run() timed out. Timeout set at ProxyRunTestOnMainThreadLoop@content\\public\\test\\browser_test_ba...</title>
+        <author>
+            <name>bi...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336730582"/>
+        <updated>2024-04-24T10:25:26.000Z</updated>
+        <summary>-</summary>
+        <content type="html">This bug is for all test failures where the primary error message is similiar to the following (ignoring numbers and hexadecimal values):
+browser_test_utils.cc(1627): Failed\r\nRunLoop::Run() timed out. Timeout set at ProxyRunTestOnMainThreadLoop@content\\public\\test\\browser_test_base.cc:851.
+
+The following test(s) were observed to have matching failures at this time (at most five examples listed):
+- ninja://chrome/test:browser_tests/PageLoadMetricsBrowserTestAnimatedLCP.PageLCPNonAnimatedImage
+- ninja://chrome/test:browser_tests/SoftNavigationTest.LayoutShift/All.1
+- ninja://chrome/test:browser_tests/SoftNavigationTest.LayoutShift/All.0
+- ninja://chrome/test:browser_tests/PageLoadMetricsBrowserTest.PageLCPImagePriority
+- ninja://chrome/test:browser_tests/SoftNavigationTest.LargestContentfulPaint/All.0
+
+
+These test failures are causing problem(s) which require your attention, including:
+- test variant(s) are being exonerated (ignored) in presubmit
+
+See current problems, failure examples and more in LUCI Analysis at: https://luci-analysis.appspot.com/p/chromium/rules/712b8f814bfaf3eff361dba566ee9301
+
+How to action this bug: https://luci-analysis.appspot.com/help#new-bug-filed
+Provide feedback: https://luci-analysis.appspot.com/help#feedback
+Was this bug filed in the wrong component? See: https://luci-analysis.appspot.com/help#component-selection</content>
+    </entry>
+    <entry>
+        <id>336681970</id>
+        <title>No LCP with SimplifyLoadingTransparentPlaceholderImage</title>
+        <author>
+            <name>pd...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336681970"/>
+        <updated>2024-04-24T10:18:11.000Z</updated>
+        <summary>-</summary>
+        <content type="html">With `--enable-features=SimplifyLoadingTransparentPlaceholderImage`, we do not receive a LCP event on the devtools timeline in the following example:
+
+```
+&lt;!doctype html&gt;
+&lt;div style="width: 100px; height: 100px; background: lightgreen;"&gt;&lt;/div&gt;
+&lt;img style="zoom: 100;" src="data:image/gif;base64,R0lGODlhAQABAIAAAP///////yH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="&gt;
+&lt;div style="width: 100px; height: 100px; background: lightgreen;"&gt;&lt;/div&gt;
+```</content>
+    </entry>
+    <entry>
+        <id>336681952</id>
+        <title>Onload not firing with SimplifyLoadingTransparentPlaceholderImage</title>
+        <author>
+            <name>pd...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336681952"/>
+        <updated>2024-04-24T10:05:15.000Z</updated>
+        <summary>-</summary>
+        <content type="html">With `--enable-features=SimplifyLoadingTransparentPlaceholderImage`, the image onload does not fire in the following example:
+```
+&lt;!doctype html&gt;
+&lt;script&gt;
+  function imgonload() { console.log('img onload'); }
+  function bodyonload() { console.log('body onload'); }
+&lt;/script&gt;
+&lt;body onload="bodyonload()"&gt;
+  &lt;img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///////yH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" onload="imgonload()"&gt;
+&lt;/body&gt;
+```</content>
+    </entry>
+    <entry>
+        <id>336721302</id>
+        <title>Remove kForYouFre feature flag check from chrome/browser/ui/profiles/profile_customization_util.cc</title>
+        <author>
+            <name>jy...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336721302"/>
+        <updated>2024-04-24T09:58:41.000Z</updated>
+        <summary>-</summary>
+        <content type="html"></content>
+    </entry>
+    <entry>
+        <id>336722814</id>
+        <title>Remove kForYouFre feature flag check from chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc</title>
+        <author>
+            <name>jy...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336722814"/>
+        <updated>2024-04-24T09:55:10.000Z</updated>
+        <summary>-</summary>
+        <content type="html"></content>
+    </entry>
+    <entry>
+        <id>336721096</id>
+        <title>Tests are failing: ninja://content/test:content_browsertests/NavigationBrowserTest.FormSubmissionInRemoteFrameSenderDeletedBeforeReceivingOpenURL</title>
+        <author>
+            <name>bi...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336721096"/>
+        <updated>2024-04-24T09:40:25.000Z</updated>
+        <summary>-</summary>
+        <content type="html">This bug is for all test failures with the test name: ninja://content/test:content_browsertests/NavigationBrowserTest.FormSubmissionInRemoteFrameSenderDeletedBeforeReceivingOpenURL
+
+These test failures are causing problem(s) which require your attention, including:
+- many gardened builders are failing
+
+See current problems, failure examples and more in LUCI Analysis at: https://luci-analysis.appspot.com/p/chromium/rules/509f7875176f4148627f83663ac16686
+
+How to action this bug: https://luci-analysis.appspot.com/help#new-bug-filed
+Provide feedback: https://luci-analysis.appspot.com/help#feedback
+Was this bug filed in the wrong component? See: https://luci-analysis.appspot.com/help#component-selection</content>
+    </entry>
+    <entry>
+        <id>336720134</id>
+        <title>Account snackbar</title>
+        <author>
+            <name>tr...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336720134"/>
+        <updated>2024-04-24T09:32:47.000Z</updated>
+        <summary>-</summary>
+        <content type="html">[Figma deeplink](https://www.figma.com/file/UDyNaZrkg6tTmDgbVMWgcR/Multi-account-on-mobile?type=design&amp;node-id=3083-141550&amp;mode=design&amp;t=Gz9fpdKuMapAJpiV-0)
+
+Implement an account info snackbar (or reuse an existing one), to be shown after account switching, and (in some cases, specifics TBD) on browser startup.</content>
+    </entry>
+    <entry>
+        <id>336720170</id>
+        <title>Overflow menu and iPad toolbar entry points</title>
+        <author>
+            <name>tr...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336720170"/>
+        <updated>2024-04-24T09:31:26.000Z</updated>
+        <summary>-</summary>
+        <content type="html">[Figma deeplink](https://www.figma.com/file/UDyNaZrkg6tTmDgbVMWgcR/Multi-account-on-mobile?type=design&amp;node-id=3016-124088&amp;mode=design&amp;t=Gz9fpdKuMapAJpiV-0)
+
+Add buttons to open the account menu in the iPhone overflow menu and the iPad toolbar, to be shown only if there are &gt;1 accounts.</content>
+    </entry>
+    <entry>
+        <id>336719357</id>
+        <title>Account settings entry point</title>
+        <author>
+            <name>tr...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336719357"/>
+        <updated>2024-04-24T09:30:50.000Z</updated>
+        <summary>-</summary>
+        <content type="html">[Figma deeplink](https://www.figma.com/file/UDyNaZrkg6tTmDgbVMWgcR/Multi-account-on-mobile?type=design&amp;node-id=3016-122841&amp;mode=design&amp;t=Gz9fpdKuMapAJpiV-0)
+
+Add an entry point (three-dot button) in account settings which opens an account-switching bottom sheet.</content>
+    </entry>
+    <entry>
+        <id>336720191</id>
+        <title>Tab switcher entry point</title>
+        <author>
+            <name>tr...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336720191"/>
+        <updated>2024-04-24T09:30:03.000Z</updated>
+        <summary>-</summary>
+        <content type="html">[Figma deeplink](https://www.figma.com/file/UDyNaZrkg6tTmDgbVMWgcR/Multi-account-on-mobile?type=design&amp;node-id=3016-121927&amp;mode=design&amp;t=Gz9fpdKuMapAJpiV-0)
+
+Add an APD (account particle disk) in the tab switcher, separately for iPhone and iPad.</content>
+    </entry>
+    <entry>
+        <id>336719423</id>
+        <title>Account menu</title>
+        <author>
+            <name>tr...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336719423"/>
+        <updated>2024-04-24T09:29:28.000Z</updated>
+        <summary>-</summary>
+        <content type="html">[Figma deeplink](https://www.figma.com/file/UDyNaZrkg6tTmDgbVMWgcR/Multi-account-on-mobile?type=design&amp;node-id=3012-112673&amp;mode=design&amp;t=GOjjpkiCopYflhth-0)
+
+Includes:
+
+* Menu skeleton
+* Accounts list
+* Other actions (manage account etc)
+* Long-press (secondary) actions on accounts</content>
+    </entry>
+    <entry>
+        <id>336718011</id>
+        <title>OOM crash if the a11y cache is re-created often</title>
+        <author>
+            <name>al...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336718011"/>
+        <updated>2024-04-24T09:24:26.000Z</updated>
+        <summary>-</summary>
+        <content type="html">Chrome 126.0.6435.0
+
+Steps to reproduce:
+
+1. Open DevTools in Chrome 
+2. Enable Protocol Monitor experiment in DevTools settings
+3. Open Protocol Monitor pane
+4. Navigate to example.com
+5. Navigate to the DevTools console tab, run the following script to create many elements
+
+for (var i = 0; i &lt;= 10000; i++) {
+            const button = document.createElement('button');
+            button.textContent = i;
+            document.body.appendChild(button);
+        }
+
+6. Run the following commands for the main target (use the dropdown in Protocol monitor to select the target) "Accessibility.disable" and "Overlay.disable" by pasting the command into the Protocol Monitor's input and pressing Enter. (this commands remove DevTools-retained a11y caches).
+
+7. Runs the following script searching for buttons using getAccessibleName and getAccessibleRole bindings (they call into blink's Element::computedRole, Element::computedName)
+
+
+```
+const returnedNodes = [];
+
+console.log("running")
+
+const bindings = {
+    getAccessibleRole,
+    getAccessibleName
+}
+
+function collect(
+    contextNodes,
+    selector
+) {
+for (const contextNode of contextNodes) {
+  let match = true;
+
+  if (selector.role) {
+    const role = bindings.getAccessibleRole(contextNode);
+    if (selector.role !== role) {
+      match = false;
+    }
+  }
+
+  if (selector.name) {
+    const name = bindings.getAccessibleName(contextNode);
+    if (selector.name !== name) {
+      match = false;
+    }
+  }
+
+  if (match) {
+    returnedNodes.push(contextNode);
+  }
+
+  const childNodes = [];
+  for (const child of contextNode.children) {
+    if (child instanceof HTMLElement) {
+      childNodes.push(child);
+    }
+  }
+
+  collect(childNodes, selector);
+}
+}
+
+collect([document.body], {
+    role: 'button',
+    name: undefined,
+});
+
+console.log(returnedNodes)
+```
+
+
+Expected result:
+
+The querying is slow because a11y cache is re-created for each call.
+
+Actual result:
+
+OOM crash happens. Crash ID https://goto.google.com/crash/db479b13e5e28c42
+
+Note: this is a manual reproducible example but this issue affects mostly automation clients that didn't turn on the a11y caches. </content>
+    </entry>
+    <entry>
+        <id>336715592</id>
+        <title>Introduce a kBrowserStateIdentifier key and store it to PrefService</title>
+        <author>
+            <name>as...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336715592"/>
+        <updated>2024-04-24T09:07:37.000Z</updated>
+        <summary>-</summary>
+        <content type="html">We want to introduce a new key called kBrowserStateIdentifier and save it to PrefService associated with ChromeBrowserState.</content>
+    </entry>
+    <entry>
+        <id>336681968</id>
+        <title>Update GetHttpSchemeUserChoiceProgId to Use Modern API for Retrieving HTTP Scheme Handlers</title>
+        <author>
+            <name>ju...@microsoft.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336681968"/>
+        <updated>2024-04-24T08:46:44.000Z</updated>
+        <summary>-</summary>
+        <content type="html">## Proposed Change
+
+It is proposed to update the implementation to utilize the `IApplicationAssociationRegistration` interface provided by Windows. This modern API offers a more reliable and system-supported way of querying the default programs associated with specific protocols or file types.
+
+## Implementation Details
+
+The new implementation involves:
+
+- Creating an instance of `IApplicationAssociationRegistration` using `SHCreateAssociationRegistration`.
+- Using `QueryCurrentDefault` to fetch the current default ProgId for HTTP schemes.
+- Handling errors and logging them for better diagnostics.
+
+
+This change not only enhances the reliability of the function but also aligns it with modern Windows practices for application association queries, ensuring that the browser integration on Windows is robust and adheres to system-wide user preferences.</content>
+    </entry>
+    <entry>
+        <id>336595422</id>
+        <title>CHECK failure: false. Unable to reset the SharedDictionary DB in sqlite_persistent_store_backen</title>
+        <author>
+            <name>24...@project.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336595422"/>
+        <updated>2024-04-24T08:38:15.000Z</updated>
+        <summary>-</summary>
+        <content type="html">Detailed Report: https://clusterfuzz.com/testcase?key=5104091840577536
+
+Fuzzer: markbrand_utf8
+Job Type: linux_asan_content_shell
+Platform Id: linux
+
+Crash Type: CHECK failure
+Crash Address: 
+Crash State:
+  false. Unable to reset the SharedDictionary DB in sqlite_persistent_store_backen
+  
+Sanitizer: address (ASAN)
+
+Crash Revision: https://clusterfuzz.com/revisions?job=linux_asan_content_shell&amp;revision=1285399
+
+Reproducer Testcase: https://clusterfuzz.com/download?testcase_id=5104091840577536
+
+Issue filed automatically.
+
+To reproduce this, please build the target in this report and run it against the reproducer testcase. Please use the GN arguments provided at bottom of this report when building the binary. 
+
+If you have trouble reproducing, please also export the environment variables listed under "[Environment]" in the crash stacktrace.
+
+If you have any feedback on reproducing test cases, let us know at https://forms.gle/Yh3qCYFveHj6E5jz5 so we can improve.
+
+
+************************* UNREPRODUCIBLE *************************
+Note: This crash might not be reproducible with the provided testcase. That said, for the past 14 days, we've been seeing this crash frequently.
+
+It may be possible to reproduce by trying the following options:
+- Run testcase multiple times for a longer duration.
+- Run fuzzing without testcase argument to hit the same crash signature.
+
+If it still does not reproduce, try a speculative fix based on the crash stacktrace and verify if it works by looking at the crash statistics in the report. We will auto-close the bug if the crash is not seen for 14 days.
+******************************************************************</content>
+    </entry>
     <entry>
         <id>336577744</id>
         <title>FedCM version of One Tap hijacks first click on page</title>
@@ -26,64 +823,6 @@ Repro Steps
 4. Try to click the link
 result: nothing happens
 expected result: You should be redirected to the button/link's location</content>
-    </entry>
-    <entry>
-        <id>336592439</id>
-        <title>Regression : Extra space is observed between elements in Chrome Settings</title>
-        <author>
-            <name>ys...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336592439"/>
-        <updated>2024-04-24T07:59:29.000Z</updated>
-        <summary>-</summary>
-        <content type="html">Chrome Version: 126.0.6437.0 (Official Build) canary (arm64)
-d8c19b20cdfc64275699e9da8aeba46189637c52-refs/branch-heads/6437@{#1}
-
-OS : Mac,Win(10,11),Linux
-
-Preconditions:
-None
-
-Steps to reproduce:
-1. Launch Chrome and open Settings
-2. Navigate through different tabs like Performance, Privacy and Security, On startup etc.
-3. Observe the abnormal extra space between elements
-
-Actual Result: Extra space is observed between elements in Chrome Settings
-
-Expected Result: Elements in Chrome Settings must be displayed normally
-
-Please find bisect info below:
-
-This is a regression issue broken in M126, and please find per revision-bisect info below:
-
-Good Build  : 126.0.6434.0 
-Bad Build :    126.0.6435.0 
-
-You are probably looking for a change made after 1290868 (known good), but no later than 1290869 (first known bad).
-
-CHANGELOG URL:
-
-The script might not always return single CL as suspect as some perf builds might get missing due to failure.
-
-https://chromium.googlesource.com/chromium/src/+log/f2b3391a6b7c3f5d8997b71e59b7d8b96cfca72a..3a5c66efc2c8e86c3a7ed4afd5f378b530dd93d3
-
-Suspect: https://chromium.googlesource.com/chromium/src/+/3a5c66efc2c8e86c3a7ed4afd5f378b530dd93d3
-
-@dpapad: Could you please check whether this is caused with respect to your change, if not please help us in assigning it to the right owner.
-
-Note
-1.Issue repro on latest Canary #126.0.6437.0
-2.Issue not repro on latest Dev #126.0.6423.2, Beta #125.0.6422.14 and Stable #124.0.6367.80
-3.Issue is reproducible on Windows and Linux.
-
-Kindly refer the screencasts attached below
-
-Good Build : https://screencast.googleplex.com/cast/NTg3ODQxMTUzMTY0OTAyNHxiOWY4N2VlYS0wNA
-
-Bad Build : https://screencast.googleplex.com/cast/NDU2NDA5ODAxMTM2NTM3Nnw2MTM0NTJiOS05Zg
-
-Thanks!</content>
     </entry>
     <entry>
         <id>336706549</id>
@@ -238,39 +977,6 @@ In Chrome 124, they are stored.
 
 ### quesion
 Does CORS support also affect the Response Set-Cookie header?</content>
-    </entry>
-    <entry>
-        <id>336628719</id>
-        <title> [Tab Group Parity]-When changing  device orientation "Color picker" is not shown. </title>
-        <author>
-            <name>aa...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336628719"/>
-        <updated>2024-04-24T07:12:57.000Z</updated>
-        <summary>-</summary>
-        <content type="html">Chrome Version: 126.0.6436.4  
-OS: Samsung Galaxy S7 (SM-G930F) / 8.O   
-
-Pre-Conditions:  
-Mobiles : #tab-group-parity-android -Enable  
-
-What steps will reproduce the problem?  
-1.Launch Chrome and complete the FRE.  
-2.Enable the above-mentioned flag and restart Chrome twice.  
-3.Launch '3' tabs in normal mode.  
-4.Group the 1st and 2nd tab and then rotate the device into Landscape  
-5.Now from '3 button navigation' tap on minimise button twice  &gt; Observe  
-
-What happens instead?  
-1.When changing  device orientation "Color picker" is not shown.  
-
-What is the expected result?  
-1.No such behavior should be found  
-
-Frequency : 5/5  
-
-Additional Comments:  
-This issue is reproducible on:Samsung Galaxy S7 (SM-G930F) / 8.O   </content>
     </entry>
     <entry>
         <id>336589275</id>
@@ -1115,806 +1821,5 @@ Regression: N/A</content>
 &gt; A WebNN backend must execute the graph as two separate operators if the op can't be executed fused, regardless of which DML version. So if a `clamp` was stuffed into the `MLConv2dOptions::activation` field, then the Chromium DML backend should call `relu` followed by a `clamp` as if was specified as two separate calls in WebNN
 
 The current implementation fuses standalone activations wherever possible, and we should also support un-fusing the ops if the given activation is not supported.</content>
-    </entry>
-    <entry>
-        <id>336654216</id>
-        <title>Unable to choose saved passwords</title>
-        <author>
-            <name>th...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336654216"/>
-        <updated>2024-04-24T00:50:05.000Z</updated>
-        <summary>-</summary>
-        <content type="html">Device name: samsung s22+
-
-From ""Settings &gt; About Chrome""
-Application version:124.0.6367.54 (Official Build) (64-bit) 
-Operating system:Android 14; SM-S906U Build/UP1A.231005.007
-
-URLs (if applicable):
-
-When going to a site in Chrome with a login, the password manager appears but does not allow clicking on the saved password. 
-
-Steps to reproduce:
-(1)
-(2)
-(3)
-
-Expected result:
-
-Actual result:</content>
-    </entry>
-    <entry>
-        <id>336589466</id>
-        <title>v8_inspector_fuzzer: Fatal error in Empty MaybeLocal</title>
-        <author>
-            <name>24...@project.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336589466"/>
-        <updated>2024-04-24T00:35:11.000Z</updated>
-        <summary>-</summary>
-        <content type="html">Detailed Report: https://clusterfuzz.com/testcase?key=5144296333180928
-
-Fuzzing Engine: libFuzzer
-Fuzz Target: v8_inspector_fuzzer
-Job Type: v8_libfuzzer_asan_linux_arm64_sim
-Platform Id: linux
-
-Crash Type: Fatal error
-Crash Address: 
-Crash State:
-  Empty MaybeLocal
-  v8::Utils::ReportApiFailure
-  v8_inspector::V8SerializationDuplicateTracker::LinkExistingOrCreate
-  
-Sanitizer: address (ASAN)
-
-Regressed: https://clusterfuzz.com/revisions?job=v8_libfuzzer_asan_linux_arm64_sim&amp;range=1240619:1240621
-
-Reproducer Testcase: https://clusterfuzz.com/download?testcase_id=5144296333180928
-
-Issue filed automatically.
-
-See https://chromium.googlesource.com/chromium/src/+/master/testing/libfuzzer/reproducing.md for instructions on reproducing this bug locally.</content>
-    </entry>
-    <entry>
-        <id>336649313</id>
-        <title>java_cpp_template: carry over comments to the generated Java file</title>
-        <author>
-            <name>nt...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336649313"/>
-        <updated>2024-04-24T00:29:40.000Z</updated>
-        <summary>-</summary>
-        <content type="html">I noticed that `java_cpp_template` will generate a Java file, but it doesn't carry over code comments to the generated file. Consider `BuildConfig.template` as an example:
-
-```
-// Copyright 2015 The Chromium Authors
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
-package org.chromium.build;
-...
-/**
- *  Build configuration. Generated on a per-target basis.
- */
-public class BuildConfig {
-...
-    // Value of android:versionCode.
-#if defined(_VERSION_CODE)
-    public static MAYBE_FINAL long VERSION_CODE = _VERSION_CODE;
-#else
-    public static MAYBE_FINAL long VERSION_CODE = 1;
-#endif
-...
-}
-```
-
-The generated file is functional, however it's missing the useful comments:
-
-```
-package org.chromium.build;
-public class BuildConfig {
-...
-    public static long VERSION_CODE = 1;
-...
-}
-```
-
-I know `gcc -E -C` or `gcc -E -CC` is supposed to keep the comments, so it may be possible to carry over these comments.</content>
-    </entry>
-    <entry>
-        <id>336589264</id>
-        <title>Find text on page, on View Source page, splits highlights, and browser eventually crashes, on searching long line</title>
-        <author>
-            <name>sw...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336589264"/>
-        <updated>2024-04-24T00:16:50.000Z</updated>
-        <summary>-</summary>
-        <content type="html">Chrome Version: 124.0.6367.62
-Operating System: Mac OS X 14.4.1
-
-URL (if applicable) where crash occurred:
-view-source:https://www.linkedin.com/in/josiahkrutz/
-
-Can you reproduce this crash?
-Yes, every time
-
-What steps will reproduce this crash? (If it's not reproducible, what were you doing just before the crash?)
-1. View Source (Ctrl/Cmd-Alt/Option-U) on a LinkedIn profile page, e.g. https://linkedin.com/in/josiahkrutz/ (note: you may need to be logged into LinkedIn to see a profile page - I'm sure this happens with other pages too, I just haven't repro'd anywhere else yet)
-2. Hit Ctrl/Cmd-F, and type 'meet'
-3. Notice highlight is split into two parts, one is not highlighting the right word (see screenshot)
-4. Backspace the last character, and type it again (e.g. 'meet' -&gt; 'mee' -&gt; 'meet')
-5. Repeat step 4 over and over, notice the browser gets slow, and eventually crashes
-
-Thank you for all your help! Chromium rocks!! -Me (Xoogler)
-
-****DO NOT CHANGE BELOW THIS LINE****
-Crash ID: crash/2b5d9258dc8f6fcc</content>
-    </entry>
-    <entry>
-        <id>336648770</id>
-        <title>PrefetchService::owned_prefetches_ should contain only prefetches with network request started</title>
-        <author>
-            <name>li...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336648770"/>
-        <updated>2024-04-24T00:12:09.000Z</updated>
-        <summary>-</summary>
-        <content type="html">PrefetchService::owned_prefetches_ [1] should contain only prefetch containers for which the network request has started.
- 
-In PrefetchService::AddPrefetchContainer [2], the prefetch container is added to PrefetchService::owned_prefetches_ before its network request is started.
-Before the prefetch network request is started, there are multiple conditions that could cancel the prefetch request all together. E.g. one of these conditions is if Preloading was disabled in Chrome.
-
-PrefetchService::owned_prefetches_ is used to select the prefetch to be used by the navigation in PrefetchService::FindPrefetchContainerToServe[3]. Because PrefetchService::owned_prefetches_ is populated before successfully passing all conditions that could cancel the prefetch, PrefetchService::FindPrefetchContainerToServe is doing unnecessary work when trying to select a prefetch to be used by navigation because it is checking prefetches that haven't started a network request, and never will and as such they could never be used by the navigation.
-
-PrefetchService::owned_prefetches_ should be populated when the network request for the prefetch is sent, after all conditions are met.
-
-[1] https://source.chromium.org/chromium/chromium/src/+/main:content/browser/preloading/prefetch/prefetch_service.h;drc=a963a934b5420b3fa7eafdd96eb55844a9277559;l=375
-[2] https://source.chromium.org/chromium/chromium/src/+/main:content/browser/preloading/prefetch/prefetch_service.cc;drc=81f4f2c7936cc451e4071b9b7b25d86040d869c7;l=378
-[3] https://source.chromium.org/chromium/chromium/src/+/main:content/browser/preloading/prefetch/prefetch_service.cc;drc=81f4f2c7936cc451e4071b9b7b25d86040d869c7;l=1414</content>
-    </entry>
-    <entry>
-        <id>336589262</id>
-        <title>Remove uses of "api.path.checkout_dir" throughout chromium recipe code</title>
-        <author>
-            <name>bp...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336589262"/>
-        <updated>2024-04-24T00:12:05.000Z</updated>
-        <summary>-</summary>
-        <content type="html">When running recipe tests today in tools/build, the following recipe deprecation warning is printed:
-```
-Found 1 warning                                                                                                                                                                                                          
-                                                                                                                                                                                                                         
-**********************************************************************                                   
-            WARNING: recipe_engine/CHECKOUT_DIR_DEPRECATED                                                                                                                                                               
-               Found 382 call sites and 0 import sites                                                                                                                                                                   
-**********************************************************************                                  
-Description:                                                                                                
-  api.path.checkout_dir is deprecated.                                                                      
-                                                                                                                                                                                                                         
-  This value acts like a global variable and leads to very                                            
-  confusing code. Instead of this, prefer the following (in order                                                                                                                                                        
-  from most to least desirable):                                                                                                                                                                                         
-                                                                                                                                                                                                                         
-  1) Modify functions which inspect api.path.checkout_dir to                                                                                                                                                             
-  instead directly take the directory to operate on.                                                                                                                                                                     
-                                                                                                                                                                                                                         
-  2) Modify functions to use the recipe_engine/context module's                                                                                                                                                          
-  cwd value. This can still be confusing if abused, because it                                                                                                                                                           
-  changes the behavior of the function based on the context from                                                                                                                                                         
-  which it's called. However, for some 'leaf' functions which are                                                                                                                                                        
-  just directly invoking a tool in a directory, this can be                                                
-  acceptable. Unlike the checkout_dir value in path, the context                                                                                                                                                         
-  module keeps per-thread state, which means that concurrent                                                                                                                                                             
-  futures in the recipe will each see their own value as                                                                                                                                                                 
-  appropriate for their own call stack.                                                                     
-                                                                                                            
-  3) Introduce your own 'global' path to a module that you own,                                                                                                                                                          
-  and then use this. This doesn't solve the code clarity problem                
-  directly, but can be a useful transition for code which heavily                                 
-  relies on the existing checkout_dir within its own codebase.                                     
-  This will not solve the problem for common modules which use                                            
-  the checkout_dir global variable without a way to explicitly                                            
-  pass in a directory, however.                                                                             
-                                                                                                                                                                                                                         
-  If you pick this third path, please consider making this global            
-  only assignable once, and making it a hard error (e.g. raise                     
-  ValueError) if this is accessed prior to assignment.                                      
-Deadline: 2024-06-15
-```
-
-This theoretically/ideally requires significant plumbing of the checkout_dir in a variety of callsites throughout the chromium recipe codebase. There are over a 100 different recipe files accessing `api.path.checkout_dir`, for a total of 382 call sites:  
-https://paste.googleplex.com/5492404135657472?raw
-
-Tentatively making this size-medium, but this could very well be size-large since it requires so much re-plumbing.</content>
-    </entry>
-    <entry>
-        <id>336640739</id>
-        <title>[Graphics]: 8 regressions in rendering.mobile</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336640739"/>
-        <updated>2024-04-24T00:07:48.000Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1291245:1291302:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=86645b7a-3b61-48fb-a0b7-36436579ae71
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=86645b7a-3b61-48fb-a0b7-36436579ae71
-
-Top 1 regressions (out of 1, with 0 improvements) in this group:
-  - ChromiumPerf/android-pixel6-pro-perf/rendering.mobile/Graphics.Smoothness.PercentDroppedFrames3.AllSequences/background_color_animation
-      833.33%: 3.0 -&gt; 28.0 unitless
-
-Top 1 affected measurements in android-pixel6-pro-perf:
-  - rendering.mobile/Graphics.Smoothness.PercentDroppedFrames3.AllSequences/background_color_animation
-      833.33%: 3.0 -&gt; 28.0 unitless
-
-Regressions grouped by rendering.mobile includes data from the following benchmarks with listed owners:
-  rendering.mobile: chrome-gpu-metrics@google.com, jonross@chromium.org
-      
-
-Commits in this range:
-  Chromium Git Hash: https://chromium.googlesource.com/chromium/src/+log/ef6bbeefc92b34b430706e5f81461774c70addfd..34f1d48e18e2f70b0e1f60d08476d14661f71f1c
-  Chromium Commit Position: https://crrev.com/1291244..1291302
-  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/2bd5a47e1a3efe38367b7d9540cb7ab71787f29e..fd82d9a2134ce3ba2a225303332eb7dbb18fbed1
-  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/3e7d35c55de137229862957359cfc7e28f3ec919..81f09d3db8e54250e90e829bc0c7fd928c4f893a</content>
-    </entry>
-    <entry>
-        <id>336589261</id>
-        <title>Webview error inquiry after One UI 6.1 update</title>
-        <author>
-            <name>zn...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336589261"/>
-        <updated>2024-04-24T00:02:01.000Z</updated>
-        <summary>-</summary>
-        <content type="html">This template is for filing bugs against Android System WebView. Chrome bugs should be filed at https://crbug.com/wizard.
-
-Android device name: Galaxy s23 plus
-
-Android OS version: 14
-
-Android System WebView version: Flutter inapp webview
-
-Application: https://play.google.com/store/apps/details?id=com.bemily.chat.befamily
-
-Application version: 1.2.4
-
-Steps to reproduce:
-
-1. Webview is open
-2. Run another app
-3. Return to our app and check the webview
-
-Expected result: The webview should not show a white screen.
-
-Actual result: When resume app, the webview appears as a white screen.
-
-Did this work before? 
-Doesn't happen before samsung one ui update
-
----
-
-It's especially helpful if you can capture a bug report right after you experience the bug, and attach it here. See https://developer.android.com/studio/debug/bug-report for instructions.
-
-Screen recordings can also be very helpful - see https://developer.android.com/studio/command-line/adb#screenrecord. Please enable "Show taps" in developer settings.</content>
-    </entry>
-    <entry>
-        <id>336592422</id>
-        <title>Webview error inquiry after One UI 6.1 update</title>
-        <author>
-            <name>zn...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336592422"/>
-        <updated>2024-04-24T00:00:12.000Z</updated>
-        <summary>-</summary>
-        <content type="html">This template is for filing bugs against Android System WebView. Chrome bugs should be filed at https://crbug.com/wizard.
-
-Android device name: Galaxy s23 plus
-
-Android OS version: 14
-
-Android System WebView version: Flutter inapp webview
-
-Application: https://play.google.com/store/apps/details?id=com.bemily.chat.befamily
-
-Application version: 1.2.4
-
-Steps to reproduce:
-
-1. Webview is open
-2. Run another app
-3. Return to our app and check the webview
-
-Expected result: The webview should not show a white screen.
-
-Actual result: When resume app, the webview appears as a white screen.
-
-Did this work before? 
-Doesn't happen before samsung one ui update
-
----
-
-It's especially helpful if you can capture a bug report right after you experience the bug, and attach it here. See https://developer.android.com/studio/debug/bug-report for instructions.
-
-Screen recordings can also be very helpful - see https://developer.android.com/studio/command-line/adb#screenrecord. Please enable "Show taps" in developer settings.</content>
-    </entry>
-    <entry>
-        <id>336639734</id>
-        <title>[V8 Perf Sheriff]: 6 regressions in v8.browsing_desktop-future</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336639734"/>
-        <updated>2024-04-23T23:36:16.000Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1291310:1291354:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=db637e29-d941-4d68-82f7-73a0b614cc1b
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=db637e29-d941-4d68-82f7-73a0b614cc1b
-
-Top 3 regressions (out of 3, with 0 improvements) in this group:
-  - ChromiumPerf/mac-m1_mini_2020-perf/v8.browsing_desktop-future/GC:duration_avg/browse_news/browse_news_cnn_2021
-       62.58%: 138.324 -&gt; 224.894 ms
-  - ChromiumPerf/mac-m1_mini_2020-perf/v8.browsing_desktop-future/V8-Only:duration_avg/browse_news/browse_news_cnn_2021
-       15.41%: 3570.6059999999998 -&gt; 4120.853 ms
-  - ChromiumPerf/mac-m1_mini_2020-perf/v8.browsing_desktop-future/Total:duration_avg/browse_news/browse_news_cnn_2021
-       12.60%: 4362.7205 -&gt; 4912.229 ms
-
-Top 3 affected measurements in mac-m1_mini_2020-perf:
-  - v8.browsing_desktop-future/GC:duration_avg/browse_news/browse_news_cnn_2021
-       62.58%: 138.324 -&gt; 224.894 ms
-  - v8.browsing_desktop-future/V8-Only:duration_avg/browse_news/browse_news_cnn_2021
-       15.41%: 3570.6059999999998 -&gt; 4120.853 ms
-  - v8.browsing_desktop-future/Total:duration_avg/browse_news/browse_news_cnn_2021
-       12.60%: 4362.7205 -&gt; 4912.229 ms
-
-Regressions grouped by v8.browsing_desktop-future includes data from the following benchmarks with listed owners:
-  v8.browsing_desktop-future: almuthanna@chromium.org, cbruni@chromium.org
-      
-
-Commits in this range:
-  Chromium Git Hash: https://chromium.googlesource.com/chromium/src/+log/2cd47a5341bcf34b4891c85dd036643484b5448f..1bbe6833095afef4cb08c2b3ca3a107bc1493513
-  Chromium Commit Position: https://crrev.com/1291309..1291354
-  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/fd82d9a2134ce3ba2a225303332eb7dbb18fbed1..fd82d9a2134ce3ba2a225303332eb7dbb18fbed1
-  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/81f09d3db8e54250e90e829bc0c7fd928c4f893a..454d65196eccae44a9a64f3d02b26966edff9cba</content>
-    </entry>
-    <entry>
-        <id>336639733</id>
-        <title>[V8 Perf Sheriff]: 7 regressions in v8.browsing_desktop</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336639733"/>
-        <updated>2024-04-23T23:36:09.000Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1291310:1291354:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=54d4fed1-e6da-4d91-a6e1-eeea81ea8e95
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=54d4fed1-e6da-4d91-a6e1-eeea81ea8e95
-
-Top 3 regressions (out of 3, with 0 improvements) in this group:
-  - ChromiumPerf/mac-m1_mini_2020-perf/v8.browsing_desktop/GC:duration_avg/browse_news/browse_news_cnn_2021
-       57.28%: 140.611 -&gt; 221.154 ms
-  - ChromiumPerf/mac-m1_mini_2020-perf/v8.browsing_desktop/V8-Only:duration_avg/browse_news/browse_news_cnn_2021
-       14.71%: 3596.1045 -&gt; 4125.008 ms
-  - ChromiumPerf/mac-m1_mini_2020-perf/v8.browsing_desktop/Total:duration_avg/browse_news/browse_news_cnn_2021
-       12.32%: 4374.7970000000005 -&gt; 4913.639 ms
-
-Top 3 affected measurements in mac-m1_mini_2020-perf:
-  - v8.browsing_desktop/GC:duration_avg/browse_news/browse_news_cnn_2021
-       57.28%: 140.611 -&gt; 221.154 ms
-  - v8.browsing_desktop/V8-Only:duration_avg/browse_news/browse_news_cnn_2021
-       14.71%: 3596.1045 -&gt; 4125.008 ms
-  - v8.browsing_desktop/Total:duration_avg/browse_news/browse_news_cnn_2021
-       12.32%: 4374.7970000000005 -&gt; 4913.639 ms
-
-Regressions grouped by v8.browsing_desktop includes data from the following benchmarks with listed owners:
-  v8.browsing_desktop: almuthanna@chromium.org, cbruni@chromium.org, vahl@chromium.org
-      
-
-Commits in this range:
-  Chromium Git Hash: https://chromium.googlesource.com/chromium/src/+log/2cd47a5341bcf34b4891c85dd036643484b5448f..1bbe6833095afef4cb08c2b3ca3a107bc1493513
-  Chromium Commit Position: https://crrev.com/1291309..1291354
-  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/fd82d9a2134ce3ba2a225303332eb7dbb18fbed1..fd82d9a2134ce3ba2a225303332eb7dbb18fbed1
-  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/81f09d3db8e54250e90e829bc0c7fd928c4f893a..454d65196eccae44a9a64f3d02b26966edff9cba</content>
-    </entry>
-    <entry>
-        <id>336639732</id>
-        <title>[V8 Memory Perf Sheriff]: 34 regressions in v8.browsing_desktop</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336639732"/>
-        <updated>2024-04-23T23:33:20.000Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1291310:1291409:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=c46a415c-ee8c-4720-9130-360e5879944d
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=c46a415c-ee8c-4720-9130-360e5879944d
-
-Top 10 regressions (out of 12, with 0 improvements) in this group:
-  - ChromiumPerf/win-11-perf/v8.browsing_desktop/v8:gc:cycle:main_thread:full:incremental:mark_max/browse_tools/browse_tools_photoshop_warm_2021
-      379.07%: 13.4725 -&gt; 64.543 ms
-  - ChromiumPerf/win-11-perf/v8.browsing_desktop/v8:gc:cycle:main_thread:full_max/browse_tools/browse_tools_photoshop_warm_2021
-      208.47%: 31.6175 -&gt; 97.5315 ms
-  - ChromiumPerf/win-11-perf/v8.browsing_desktop/v8:gc:cycle:main_thread_max/browse_tools/browse_tools_photoshop_warm_2021
-      208.47%: 31.6175 -&gt; 97.5315 ms
-  - ChromiumPerf/mac-m1_mini_2020-perf/v8.browsing_desktop/v8:gc:cycle:main_thread:full:incremental:mark_sum/browse_news/browse_news_cnn_2021
-      133.55%: 48.622 -&gt; 113.5585 ms
-  - ChromiumPerf/mac-m1_mini_2020-perf/v8.browsing_desktop/v8:gc:cycle:full_sum/browse_news/browse_news_cnn_2021
-      102.83%: 463.45399999999995 -&gt; 940.0375 ms
-  - ChromiumPerf/mac-m1_mini_2020-perf/v8.browsing_desktop/v8:gc:cycle:main_thread:full_sum/browse_news/browse_news_cnn_2021
-       97.51%: 88.98599999999999 -&gt; 175.756 ms
-  - ChromiumPerf/mac-m1_mini_2020-perf/v8.browsing_desktop/v8:gc:cycle:full:cpp_sum/browse_news/browse_news_cnn_2021
-       96.12%: 59.6125 -&gt; 116.9095 ms
-  - ChromiumPerf/mac-m1_mini_2020-perf/v8.browsing_desktop/v8:gc:cycle:cpp_sum/browse_news/browse_news_cnn_2021
-       96.12%: 59.6125 -&gt; 116.9095 ms
-  - ChromiumPerf/mac-m1_mini_2020-perf/v8.browsing_desktop/v8:gc:cycle_sum/browse_news/browse_news_cnn_2021
-       76.81%: 619.5084999999999 -&gt; 1095.3775 ms
-  - ChromiumPerf/mac-m1_mini_2020-perf/v8.browsing_desktop/v8:gc:cycle:main_thread_sum/browse_news/browse_news_cnn_2021
-       74.76%: 118.0455 -&gt; 206.302 ms
-
-Top 3 affected measurements in mac-m1_mini_2020-perf:
-  - v8.browsing_desktop/v8:gc:cycle:main_thread:full:incremental:mark_sum/browse_news/browse_news_cnn_2021
-      133.55%: 48.622 -&gt; 113.5585 ms
-  - v8.browsing_desktop/v8:gc:cycle:full_sum/browse_news/browse_news_cnn_2021
-      102.83%: 463.45399999999995 -&gt; 940.0375 ms
-  - v8.browsing_desktop/v8:gc:cycle:main_thread:full_sum/browse_news/browse_news_cnn_2021
-       97.51%: 88.98599999999999 -&gt; 175.756 ms
-
-
-Top 3 affected measurements in win-11-perf:
-  - v8.browsing_desktop/v8:gc:cycle:main_thread:full:incremental:mark_max/browse_tools/browse_tools_photoshop_warm_2021
-      379.07%: 13.4725 -&gt; 64.543 ms
-  - v8.browsing_desktop/v8:gc:cycle:main_thread:full_max/browse_tools/browse_tools_photoshop_warm_2021
-      208.47%: 31.6175 -&gt; 97.5315 ms
-  - v8.browsing_desktop/v8:gc:cycle:main_thread_max/browse_tools/browse_tools_photoshop_warm_2021
-      208.47%: 31.6175 -&gt; 97.5315 ms
-
-Regressions grouped by v8.browsing_desktop includes data from the following benchmarks with listed owners:
-  v8.browsing_desktop: almuthanna@chromium.org, cbruni@chromium.org, vahl@chromium.org
-      
-
-Commits in this range:
-  Chromium Commit Position: https://crrev.com/1291315..1291359
-  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/fd82d9a2134ce3ba2a225303332eb7dbb18fbed1..fd82d9a2134ce3ba2a225303332eb7dbb18fbed1
-  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/81f09d3db8e54250e90e829bc0c7fd928c4f893a..454d65196eccae44a9a64f3d02b26966edff9cba</content>
-    </entry>
-    <entry>
-        <id>336592420</id>
-        <title>Deep scan notice is not flag guarded</title>
-        <author>
-            <name>dr...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336592420"/>
-        <updated>2024-04-23T23:28:38.000Z</updated>
-        <summary>-</summary>
-        <content type="html">The deep scan notice can show for users who will not have their deep scanning behavior changed. This UX should be guarded by SafeBrowsingDeepScanningPromptRemoval </content>
-    </entry>
-    <entry>
-        <id>336628702</id>
-        <title>Add tests for PDF.LoadStatus metric</title>
-        <author>
-            <name>an...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336628702"/>
-        <updated>2024-04-23T23:22:59.000Z</updated>
-        <summary>-</summary>
-        <content type="html">PDF.LoadStatus is lacking in test coverage, which caused bug 336599994. This metric should have tests.</content>
-    </entry>
-    <entry>
-        <id>336636127</id>
-        <title>Umbrella tracker for Perf service deployments [Apr 23, 2024]</title>
-        <author>
-            <name>as...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336636127"/>
-        <updated>2024-04-23T23:14:08.000Z</updated>
-        <summary>-</summary>
-        <content type="html">Umbrella tracker for Perf service deployment</content>
-    </entry>
-    <entry>
-        <id>336589260</id>
-        <title>[DNR] Re-evaluate which rule matches are recorded for response header matched rules</title>
-        <author>
-            <name>ke...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336589260"/>
-        <updated>2024-04-23T23:08:37.000Z</updated>
-        <summary>-</summary>
-        <content type="html">Giving feedback for the extension and developer on which DNR rules have been matched/have taken action on the request are tricky, especially with rules that match on different request phases, that can interact with previously matched rules.</content>
-    </entry>
-    <entry>
-        <id>336595419</id>
-        <title>[Blink Layout]: 6 regressions in blink_perf.layout</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336595419"/>
-        <updated>2024-04-23T23:02:04.000Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1290838:1291011:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=9c0ee6e6-1f54-493c-aed7-3eea519d7b22
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=9c0ee6e6-1f54-493c-aed7-3eea519d7b22
-
-Top 4 regressions (out of 4, with 0 improvements) in this group:
-  - ChromiumPerf/android-pixel4-perf/blink_perf.layout/multicol_deeply-nested-tables-2/multicol_deeply-nested-tables-2.html
-       17.79%: 440.72175000000004 -&gt; 362.3032 unitless
-  - ChromiumPerf/android-pixel6-perf/blink_perf.layout/flexbox-input/flexbox-input.html
-       10.56%: 19106.984 -&gt; 17088.3719 unitless
-  - ChromiumPerf/android-pixel6-perf/blink_perf.layout/multicol_nested-forced-breaks/multicol_nested-forced-breaks.html
-       10.06%: 1290.2285 -&gt; 1160.4613 unitless
-  - ChromiumPerf/android-pixel6-perf/blink_perf.layout/attach-inlines/attach-inlines.html
-       10.00%: 164.0729 -&gt; 147.6597 unitless
-
-Top 1 affected measurements in android-pixel4-perf:
-  - blink_perf.layout/multicol_deeply-nested-tables-2/multicol_deeply-nested-tables-2.html
-       17.79%: 440.72175000000004 -&gt; 362.3032 unitless
-
-
-Top 3 affected measurements in android-pixel6-perf:
-  - blink_perf.layout/flexbox-input/flexbox-input.html
-       10.56%: 19106.984 -&gt; 17088.3719 unitless
-  - blink_perf.layout/multicol_nested-forced-breaks/multicol_nested-forced-breaks.html
-       10.06%: 1290.2285 -&gt; 1160.4613 unitless
-  - blink_perf.layout/attach-inlines/attach-inlines.html
-       10.00%: 164.0729 -&gt; 147.6597 unitless
-
-Regressions grouped by blink_perf.layout includes data from the following benchmarks with listed owners:
-  blink_perf.layout: ikilpatrick@chromium.org, kojii@chromium.org
-      
-
-Commits in this range:
-  Chromium Git Hash: https://chromium.googlesource.com/chromium/src/+log/ae8394782abd88dccb14ed91ea127d9335dca346..d20049bbc7a4e5fe720b02c88690e802b478b361
-  Chromium Commit Position: https://crrev.com/1290831..1290934
-  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/353397f27fce3ec3aae05b8f8be099644adae442..00a3072bd4d6631f239a7813593c4eafc14eca44
-  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/86298f7a84b13308d058c310f4d8058f2da714a5..15f40ec2fc4b64de391baff90f6318937af020bb</content>
-    </entry>
-    <entry>
-        <id>336633543</id>
-        <title>Cleanup: Unify the unique file name creation</title>
-        <author>
-            <name>dm...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336633543"/>
-        <updated>2024-04-23T22:54:53.000Z</updated>
-        <summary>-</summary>
-        <content type="html"></content>
-    </entry>
-    <entry>
-        <id>336577735</id>
-        <title>Downloading executables while Safe Browsing is turned off results in blocking almost all downloads.</title>
-        <author>
-            <name>jo...@googlemail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336577735"/>
-        <updated>2024-04-23T22:42:25.000Z</updated>
-        <summary>-</summary>
-        <content type="html"># Steps to reproduce the problem
-1. turn of Safe Browsing
-2. try to download a known safe executable (basically anything, the last one for me was Node.js)
-3. file will not download unless you additionally confirm it, with chrome saying that they block it BECAUSE they cant check the file because Safe Browsing is turned off, when the entire reason why someone would turn off Safe Browsing is to never ever ever have to deal with that exact kind of hassle.
-
-# Problem Description
-see above, this is infantilizing and incredibly annoying.
-
-# Summary
-Downloading executables while Safe Browsing is turned off results in blocking almost all downloads.
-
-# Custom Questions
-#### Example URL: 
-n/a
-
-# Additional Data
-Category: Network / Downloading \
-Chrome Channel: Stable \
-Regression: Yes</content>
-    </entry>
-    <entry>
-        <id>336628701</id>
-        <title>Devtools closes automatically</title>
-        <author>
-            <name>je...@paramount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336628701"/>
-        <updated>2024-04-23T22:34:38.000Z</updated>
-        <summary>-</summary>
-        <content type="html">Chrome Version       : &lt;from chrome://version/&gt;
-OS                   : &lt;OS version&gt;
-
-What steps will reproduce the problem?
-
-Have devtools open for 10-15min with log messages coming in.
-
-What is the expected result?
-
-devtools stays open
-
-What happens instead?
-
-devtools closes/crashes after 10-15min of use.  I'm guessing it's related to volume of console log messages, BUT this this only started happening after a Chrome update 2-3 months ago.  Previous versions of Chrome devtools were much more stable.  Chrome devtools should not get worse after an update.
-
-You can help us a lot by creating a minimal, reproducible example (https://stackoverflow.com/help/minimal-reproducible-example), e.g. on glitch.com, and/or attaching a screenshot or recording of the issue!</content>
-    </entry>
-    <entry>
-        <id>336628700</id>
-        <title>Print Preview errors are cut off</title>
-        <author>
-            <name>rb...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336628700"/>
-        <updated>2024-04-23T22:21:38.000Z</updated>
-        <summary>-</summary>
-        <content type="html">On ToT (126.0.6437.0), Print Preview's error messages are cut off. Steps to reproduce:
-(1) Open Print Preview (or chrome://print)
-(2) Either set "Copies" to 0 or open "More settings" and set scaling to something invalid (e.g., 1)
-(3) Observe red error text is cut off after the first line.
-
-Bisect points to the shared vars lit migration CL at https://chromium-review.googlesource.com/c/chromium/src/+/5459353
-
-From local inspection, it seems the adopted style sheet is prioritized over the &lt;style&gt; tag added by Print Preview's own vars file (which is using the Polymer vars template). Fix is likely to either make Print Preview's vars use the "Lit" adoptedStyleSheets template, or possibly to make all generated vars files use this template, in case there are similar regressions elsewhere.</content>
-    </entry>
-    <entry>
-        <id>336589259</id>
-        <title>Gmail: selecting text and deleting with "enter" incorrectly repositions cursor</title>
-        <author>
-            <name>kb...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336589259"/>
-        <updated>2024-04-23T21:58:32.000Z</updated>
-        <summary>-</summary>
-        <content type="html">Reproduction steps:
-
-1) Start composing an email in Gmail and position the cursor in the middle of the email
-
-2) Select some text and attempt to replace it with a newline by pressing the "enter" key
-
-Expected:
-
-The cursor should be placed after the newline that was just inserted.
-
-Actual:
-
-The cursor jumps to the end of the email.
-
-This bug causes intermittent mis-edits for me; appreciate investigation and a potential fix.
-
-Platform: 126.0.6433.1 (Official Build) canary-dcheck (arm64), on macOS on Apple Silicon. `about:version`, containing experiment state, attached.
-</content>
-    </entry>
-    <entry>
-        <id>336620323</id>
-        <title>Error when attempting to read from serial port</title>
-        <author>
-            <name>na...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336620323"/>
-        <updated>2024-04-23T21:57:06.000Z</updated>
-        <summary>-</summary>
-        <content type="html">Repro steps:
-
-1. Pair a bluetooth device with a Chromebook
-2. Call Serial.requestPort()
-3. Invoke open() on the port returned by step #2
-4. Read from the port
-
-Expected: Read is successful
-
-Actual: The following error occurs:
-`An unknown system error has occurred.`
-
-For more details and logs see: b/327064215\
-
-The error could also be occurring during a write instead of a read. Not entirely clear from the logs.</content>
-    </entry>
-    <entry>
-        <id>336592418</id>
-        <title>Clean up InputStepCurrentValueValidation feature flag</title>
-        <author>
-            <name>tc...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336592418"/>
-        <updated>2024-04-23T21:51:13.000Z</updated>
-        <summary>-</summary>
-        <content type="html">This flag can be removed in M128 assuming no issues
-
-Flag checked in:
-https://chromium-review.googlesource.com/c/chromium/src/+/5474199
-</content>
-    </entry>
-    <entry>
-        <id>336589258</id>
-        <title>Enable UsedColorSchemeRootScrollbars for overlay scrollbars</title>
-        <author>
-            <name>ga...@microsoft.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336589258"/>
-        <updated>2024-04-23T21:49:04.000Z</updated>
-        <summary>-</summary>
-        <content type="html">
-When no `color-scheme` is defined in a web page, or the value `normal` is set, the page's color scheme defaults to light mode. If users have indicated a preference for a dark theme via settings, having the root scrollbar be light when they are expecting a dark themed one used to cause confusion. This issue was solved by the now on-by-default feature `UsedColorSchemeRootScrollbars`, which changes the color scheme for root scrollbars to match the users' preferences.
-
-This feature was developed specifically for non-overlay scrollbars [[1](https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/core/paint/paint_layer_scrollable_area.cc;l=1301?q=UsedColorSchemeRootScrollbars%20-path:out)].
-
-This crbug was created to discuss the possibility to open the feature for root overlay scrollbars as well. Specifically, Fluent Overlay scrollbars are affected by the same issue that non-overlay scrollbars had before this feature was developed. Regular Overlay scrollbars have their own *overlay color theme* [[2](https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/core/scroll/scrollbar.h;l=81?q=GetScrollbarOverlayColorTheme)] which gets set to a theme independent of what the page's defaults are, but Fluent Overlay scrollbars depend entirely on the regular computation of the color scheme, which makes Fluent Overlay Scrollbar susceptible to the same issue that was addressed by `UsedColorSchemeRootScrollbars`.
-
-This issue was brought up in https://issues.chromium.org/issues/331335316</content>
-    </entry>
-    <entry>
-        <id>336611742</id>
-        <title>Icon does not convey an alternative text</title>
-        <author>
-            <name>ca...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336611742"/>
-        <updated>2024-04-23T21:40:49.000Z</updated>
-        <summary>-</summary>
-        <content type="html">This is for launch/4296344
-
-OBSERVED RESULTS:
-
-1. Icons that indicate a site is being managed is conveyed by screen reader as "blank" in the Automatic full screen subpage
-
-2. Screenshot: https://screenshot.googleplex.com/AoJE6e2cz2bdiij.png
-
-EXPECTED RESULTS:
-
-- Screen reader should be able to convey the site name, image role, and the tooltip description.
-
-Note: This was tested on Windows machine with NVDA only (video demo). Need to confirm this issue on macOS and CrOS as well.</content>
-    </entry>
-    <entry>
-        <id>336615267</id>
-        <title>UI is flashing at the corner of open NTP when swiping left/right</title>
-        <author>
-            <name>ie...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336615267"/>
-        <updated>2024-04-23T21:34:53.000Z</updated>
-        <summary>-</summary>
-        <content type="html">App Version: 125.0.6422.11 Beta
-iOS Version: iOS 17.5, 16.7.2
-Device: iPad Pro 4th Gen, iPad Mini 6th Gen (iPads only)
-
-Steps to reproduce:
-  1. Launch Chrome
-  2. Open 20+ NTPs
-  3. Start swiping left/right and observe the top right corner of the open tab
-
-Observed results:
-UI is flashing at the corner of open NTP when swiping left/right
-
-Expected results:
-UI shouldn’t be flashing at the corner of open NTP when swiping left/right
-
-Number of times you were able to reproduce: 3/5
-Bug reproducible after clean install: Yes
-Bug reproducible after clearing cache and cookies: Yes
-Bug reproducible on Chrome Mobile on Android: NA
-Bug reproducible on Safari/Firefox: Firefox: NA
-Bug reproducible on current stable build (App Version, iOS Version): New feature
-Bug reproducible on the current beta channel build (App Version, iOS Version): Yes M125
-
-Link to video:
-https://drive.google.com/file/d/1F72FNksGgAlP_ausaPYMSEVazJlE6xbg/view?usp=drive_link&amp;resourcekey=0-2T6fDuUCULdwc41JVIvf3A
-
-Link to image:
-https://drive.google.com/file/d/1wnH4mhIJNjutUa22o04RUk1ACRWNBSyr/view?usp=drive_link&amp;resourcekey=0-QwiPHiCjWpsSwDdHUr8uFw</content>
     </entry>
 </feed>
