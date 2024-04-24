@@ -3,7 +3,866 @@
     <id>https://negibokken.github.io/feeds/chromium_issue_tracker/atom.xml</id>
     <title>Chromium issue tracker feed</title>
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
-    <updated>2024-04-24T04:11:30.000Z</updated>
+    <updated>2024-04-24T08:06:14.000Z</updated>
+    <entry>
+        <id>336577744</id>
+        <title>FedCM version of One Tap hijacks first click on page</title>
+        <author>
+            <name>mi...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336577744"/>
+        <updated>2024-04-24T08:06:14.000Z</updated>
+        <summary>-</summary>
+        <content type="html">This happened to our team, but I am also seeing it out in the wild on popular sites such as stackoverflow etc:
+
+Issue: When FedCM One Tap appears on the page, it steals focus, potentially causing loss of revenue for pay-per-click oriented businesses.
+
+Expectation: FedCM version of One Tap should behave the same as the non-FedCM version. It should not steal focus when it appears.
+
+Repro Steps
+1. Visit site
+2. Observe Google One Tap FedCM version displays - do not click on anything yet
+3. Hover your mouse on a link or button on the website
+4. Try to click the link
+result: nothing happens
+expected result: You should be redirected to the button/link's location</content>
+    </entry>
+    <entry>
+        <id>336592439</id>
+        <title>Regression : Extra space is observed between elements in Chrome Settings</title>
+        <author>
+            <name>ys...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336592439"/>
+        <updated>2024-04-24T07:59:29.000Z</updated>
+        <summary>-</summary>
+        <content type="html">Chrome Version: 126.0.6437.0 (Official Build) canary (arm64)
+d8c19b20cdfc64275699e9da8aeba46189637c52-refs/branch-heads/6437@{#1}
+
+OS : Mac,Win(10,11),Linux
+
+Preconditions:
+None
+
+Steps to reproduce:
+1. Launch Chrome and open Settings
+2. Navigate through different tabs like Performance, Privacy and Security, On startup etc.
+3. Observe the abnormal extra space between elements
+
+Actual Result: Extra space is observed between elements in Chrome Settings
+
+Expected Result: Elements in Chrome Settings must be displayed normally
+
+Please find bisect info below:
+
+This is a regression issue broken in M126, and please find per revision-bisect info below:
+
+Good Build  : 126.0.6434.0 
+Bad Build :    126.0.6435.0 
+
+You are probably looking for a change made after 1290868 (known good), but no later than 1290869 (first known bad).
+
+CHANGELOG URL:
+
+The script might not always return single CL as suspect as some perf builds might get missing due to failure.
+
+https://chromium.googlesource.com/chromium/src/+log/f2b3391a6b7c3f5d8997b71e59b7d8b96cfca72a..3a5c66efc2c8e86c3a7ed4afd5f378b530dd93d3
+
+Suspect: https://chromium.googlesource.com/chromium/src/+/3a5c66efc2c8e86c3a7ed4afd5f378b530dd93d3
+
+@dpapad: Could you please check whether this is caused with respect to your change, if not please help us in assigning it to the right owner.
+
+Note
+1.Issue repro on latest Canary #126.0.6437.0
+2.Issue not repro on latest Dev #126.0.6423.2, Beta #125.0.6422.14 and Stable #124.0.6367.80
+3.Issue is reproducible on Windows and Linux.
+
+Kindly refer the screencasts attached below
+
+Good Build : https://screencast.googleplex.com/cast/NTg3ODQxMTUzMTY0OTAyNHxiOWY4N2VlYS0wNA
+
+Bad Build : https://screencast.googleplex.com/cast/NDU2NDA5ODAxMTM2NTM3Nnw2MTM0NTJiOS05Zg
+
+Thanks!</content>
+    </entry>
+    <entry>
+        <id>336706549</id>
+        <title>Lacros crashes when text is dragged from ChromeOS settings to Lacros html textbox</title>
+        <author>
+            <name>ac...@google.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336706549"/>
+        <updated>2024-04-24T07:55:42.000Z</updated>
+        <summary>-</summary>
+        <content type="html">We developed Data Leak Prevention features that may prevent copy/pasting or dnd-ing text from certain locations to others. After https://crrev.com/c/5378158 was landed we are currently experiencing issues when text is dragged from outside of Lacros to a Lacros html textbox and the drop is blocked.
+
+Stack trace:
+
+```
+2024-04-22T14:00:17.699739Z FATAL chrome[31417:31417]: [wayland_data_drag_controller.cc(205)] Check failed: IsDragSource(). 
+#0 0x56490a1e05e2 base::debug::CollectStackTrace()
+#1 0x56490a1c50ce base::debug::StackTrace::StackTrace()
+#2 0x56490a0a571c logging::LogMessage::Flush()
+#3 0x56490a0a55ed logging::LogMessage::~LogMessage()
+#4 0x56490a08963d logging::(anonymous namespace)::CheckLogMessage::~CheckLogMessage()
+#5 0x56490a0896ae logging::(anonymous namespace)::CheckLogMessage::~CheckLogMessage()
+#6 0x56490a089413 logging::CheckError::~CheckError()
+#7 0x564904f3430c ui::WaylandDataDragController::CancelSession()
+#8 0x564904f737c5 ui::WaylandWindow::CancelDrag()
+#9 0x56490d88ccce views::DesktopDragDropClientOzone::DragCancel()
+#10 0x5649043550cf base::OnceCallback&lt;&gt;::Run()
+#11 0x56490a088d97 base::CallbackListSubscription::~CallbackListSubscription()
+#12 0x56490d88dc9d base::internal::BindState&lt;&gt;::~BindState()
+#13 0x56490d88dc77 base::internal::BindState&lt;&gt;::Destroy()
+#14 0x564909428153 policy::DataTransferDlpController::ContinueDropIfAllowed()
+#15 0x564909427c0e policy::DataTransferDlpController::DropIfAllowed()
+#16 0x56490d88d713 views::DesktopDragDropClientOzone::OnDragDrop()
+#17 0x564904f3710d ui::WaylandDataDragController::OnDragDrop()
+#18 0x564904f3125a ui::WaylandDataDevice::OnDrop()
+#19 0x7b24083af5f0 ffi_call_unix64
+#20 0x7b24083aefc3 ffi_call
+#21 0x56490ba2ac3f wl_closure_invoke
+#22 0x56490ba2947f dispatch_event
+#23 0x56490ba28da8 wl_display_dispatch_queue_pending
+#24 0x564904fb2571 ui::WaylandEventWatcher::WlDisplayDispatchPendingQueueInternal()
+#25 0x564904fb3184 ui::WaylandEventWatcherFdWatch::OnFileCanReadWithoutBlocking()
+#26 0x56490a1f0405 base::MessagePumpLibevent::FdWatchController::OnFdReadable()
+#27 0x56490a1f634a base::MessagePumpEpoll::HandleEvent()
+#28 0x56490a1f57a2 base::MessagePumpEpoll::OnEpollEvent()
+#29 0x56490a1f4ec2 base::MessagePumpEpoll::WaitForEpollEvents()
+#30 0x56490a1f49c0 base::MessagePumpEpoll::Run()
+#31 0x56490a15581b base::sequence_manager::internal::ThreadControllerWithMessagePumpImpl::Run()
+#32 0x56490a0f17a5 base::RunLoop::Run()
+#33 0x564907ad0b9e content::BrowserMainLoop::RunMainMessageLoop()
+#34 0x564907ad2b9c content::BrowserMainRunnerImpl::Run()
+#35 0x564907acd334 content::BrowserMain()
+#36 0x5649093efb64 content::RunBrowserProcessMain()
+#37 0x5649093f20e6 content::ContentMainRunnerImpl::RunBrowser()
+#38 0x5649093f1825 content::ContentMainRunnerImpl::Run()
+#39 0x5649093ee931 content::RunContentProcess()
+#40 0x5649093eea6c content::ContentMain()
+#41 0x56490433f557 ChromeMain
+#42 0x7b2408116706 __libc_start_call_main
+#43 0x7b24081167c2 __libc_start_main_alias_2
+#44 0x56490433f261 _start
+```
+
+It looks like Lacros is crashing when [wayland_data_drag_controller.cc:205](https://b.corp.google.com/issues/333844407#:~:text=wayland_data_drag_controller.cc%3A205) is hit. In particular, both data_source_ and offered_exchange_data_provider_ are null in this scenario.
+
+[wayland_data_drag_controller.cc:439](https://b.corp.google.com/issues/333844407#:~:text=wayland_data_drag_controller.cc%3A439) suggests that data_source_ may be null when data is dragged from another client (see also https://b.corp.google.com/issues/41492749). Maybe the newly added CHECK is then crashing because of this.
+</content>
+    </entry>
+    <entry>
+        <id>336648774</id>
+        <title>Requirements for Widevine L1 Windows support</title>
+        <author>
+            <name>la...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336648774"/>
+        <updated>2024-04-24T07:37:26.000Z</updated>
+        <summary>-</summary>
+        <content type="html">According to https://github.com/shaka-project/shaka-player/pull/6468: "I don't think it requires anything special, as long as HEVC is supported, then it should be supported:"
+
+But using Windows 10 - Chrome 124 with Intel(R) Core(TM)2 Quad CPU Q8300@ 2.50GHz and NVIDIA GeForce 730, HEVC encrypted is not working, but HEVC clear yes.
+
+According to chrome://media-internals
+
+Hardware secure hasn't capabilities.
+
+Can the requirements for encrypted HEVC support in Chrome be defined and clarified?
+
+Thanks!
+</content>
+    </entry>
+    <entry>
+        <id>336577743</id>
+        <title>Fuzztest failing to roll into V8</title>
+        <author>
+            <name>le...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336577743"/>
+        <updated>2024-04-24T07:29:28.000Z</updated>
+        <summary>-</summary>
+        <content type="html">https://chromium-review.googlesource.com/c/v8/v8/+/5480010?tab=checks
+
+Looks like a missing dependency, the error is:
+
+```
+ERROR at //third_party/fuzztest/BUILD.gn:298:5: Unable to load "/b/s/w/ir/cache/builder/v8/third_party/protobuf/BUILD.gn".
+    "//third_party/protobuf:protobuf_lite",
+```</content>
+    </entry>
+    <entry>
+        <id>336577742</id>
+        <title>CSS property aspect-ratio: 4/1 is throwing elements of screen</title>
+        <author>
+            <name>da...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336577742"/>
+        <updated>2024-04-24T07:19:47.000Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+1. Implement a css grid with cards
+2. Set .card aspect-ratio: 4 / 1;
+3. Cards are pushed semi-offscreen
+4. Change aspect-ratio to for example 2 / 1 or 6 / 1 and everything is fine
+
+# Problem Description
+Without any changes on our end, the aspect-ratio of  4 / 1 stopped working in all of our environments since about 1-2 days. This issue is now also present in Microsoft Edge. Firefox on the other hand still works the same as expected. Something is wrong with aspect-ratio 4 / 1 not respecting widths anymore.
+
+# Summary
+CSS property aspect-ratio: 4/1 is throwing elements of screen
+
+# Additional Data
+Category: Developer Tools \
+Chrome Channel: Stable \
+Regression: Yes</content>
+    </entry>
+    <entry>
+        <id>336628720</id>
+        <title>After CORS support, Samesite=lax cannot be response Set-Cookie header by Assertion API.</title>
+        <author>
+            <name>ke...@dena.jp</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336628720"/>
+        <updated>2024-04-24T07:14:12.000Z</updated>
+        <summary>-</summary>
+        <content type="html">### summary
+The behavior of storing cookies in the UserAgent has changed in Chrome 125 after implementation of CORS support.
+
+### description
+Assertion API responses now instruct the UserAgent to store a cookie using Response Header Set-Cookie.
+Cookies with Samesite=lax were not stored.
+
+In Chrome 124, they are stored.
+
+### quesion
+Does CORS support also affect the Response Set-Cookie header?</content>
+    </entry>
+    <entry>
+        <id>336628719</id>
+        <title> [Tab Group Parity]-When changing  device orientation "Color picker" is not shown. </title>
+        <author>
+            <name>aa...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336628719"/>
+        <updated>2024-04-24T07:12:57.000Z</updated>
+        <summary>-</summary>
+        <content type="html">Chrome Version: 126.0.6436.4  
+OS: Samsung Galaxy S7 (SM-G930F) / 8.O   
+
+Pre-Conditions:  
+Mobiles : #tab-group-parity-android -Enable  
+
+What steps will reproduce the problem?  
+1.Launch Chrome and complete the FRE.  
+2.Enable the above-mentioned flag and restart Chrome twice.  
+3.Launch '3' tabs in normal mode.  
+4.Group the 1st and 2nd tab and then rotate the device into Landscape  
+5.Now from '3 button navigation' tap on minimise button twice  &gt; Observe  
+
+What happens instead?  
+1.When changing  device orientation "Color picker" is not shown.  
+
+What is the expected result?  
+1.No such behavior should be found  
+
+Frequency : 5/5  
+
+Additional Comments:  
+This issue is reproducible on:Samsung Galaxy S7 (SM-G930F) / 8.O   </content>
+    </entry>
+    <entry>
+        <id>336589275</id>
+        <title>Marybriones</title>
+        <author>
+            <name>he...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336589275"/>
+        <updated>2024-04-24T07:08:21.000Z</updated>
+        <summary>-</summary>
+        <content type="html">**NOTE**: Changing the template (or component which causes a template change) may change the access level this bug defaults to and it may no longer be confidential.
+
+Chrome Version: (copy from chrome://version)
+Lacros Version (if applicable): (copy from chrome://version)
+OS: (e.g. Win10, MacOS 10.12, etc...)
+
+What steps will reproduce the problem?
+(1)
+(2)
+(3)
+
+What is the expected result?
+
+
+What happens instead?
+
+
+
+Please use hotlists and text to provide additional information.
+
+If this is a regression (i.e., worked before), please consider using the bisect tool (https://www.chromium.org/developers/bisect-builds-py) to help us identify the root cause and more rapidly triage the issue.
+
+For graphics-related bugs, please copy/paste the contents of the about://gpu page at the end of this report.</content>
+    </entry>
+    <entry>
+        <id>336566538</id>
+        <title>LinkPreview is annoying when you drag &amp; drop links</title>
+        <author>
+            <name>re...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336566538"/>
+        <updated>2024-04-24T05:52:04.000Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+1. Go to youtube
+2. Try to drag &amp; drop a link to a video to the bookmark bar
+
+# Problem Description
+Some popup (the link-preview one) shows up for nothing. 
+And this is *not cool* for people with epileptic issues
+
+# Summary
+LinkPreview is annoying when you drag &amp; drop links
+
+# Additional Data
+Category: UI \
+Chrome Channel: Dev \
+Regression: Yes</content>
+    </entry>
+    <entry>
+        <id>336628716</id>
+        <title> Preloading triggered from new tab page Android</title>
+        <author>
+            <name>ro...@chromium.org</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336628716"/>
+        <updated>2024-04-24T05:44:38.000Z</updated>
+        <summary>-</summary>
+        <content type="html">We propose to apply preloading techniques to new tab page Android to speed-up navigations.</content>
+    </entry>
+    <entry>
+        <id>336592435</id>
+        <title>[Windows][Video Encode] Specify encoding scenario for HW accelerators</title>
+        <author>
+            <name>ji...@intel.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336592435"/>
+        <updated>2024-04-24T05:43:48.000Z</updated>
+        <summary>-</summary>
+        <content type="html">MF VEA does not provide hint to encoder about video content being encoded.
+
+We should let encoder know what type of content it is handling, for encoder to better select encode tools and tune parameters according to scenario.
+
+For example, scenario should be set to VideoConferencing for camera stream, and DisplayRemoting for screen sharing, CameraRecord for recording.</content>
+    </entry>
+    <entry>
+        <id>336628715</id>
+        <title>Not set when attributeName of svg animate element is set to fill and values is set to var(--color)</title>
+        <author>
+            <name>ju...@juner.net</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336628715"/>
+        <updated>2024-04-24T05:28:50.000Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+1. Create an svg element with a rect element that has an animate element
+    * Set an appropriate size for rect.
+2. Define --color: red as a CSS custom property.
+3. Set fill as attibuteName and var(--color) as values to the animate element.
+4. rect will be filled with black.
+
+# Problem Description
+
+sample
+https://livecodes.io/?x=id/syxfkk2jc6k
+
+# Additional Comments
+```html
+&lt;svg&gt;
+  &lt;rect x=0 y=0 height=100 width=100 fill=var(--base) /&gt;
+&lt;/svg&gt;
+&lt;svg&gt;
+  &lt;rect x=0 y=0 height=100 width=100 fill=var(--base)&gt;
+    &lt;animate attributeName=fill values=var(--color) /&gt;
+  &lt;/rect&gt;
+&lt;/svg&gt;
+&lt;style&gt;
+:root {
+  --base: green;
+  --color: red;
+  svg {
+    width: 100px;
+    height: 100px;
+  }
+}
+&lt;/style&gt;
+```
+
+# Summary
+Not set when attributeName of svg animate element is set to fill and values is set to var(--color)
+
+# Additional Data
+Category: JavaScript \
+Chrome Channel: Stable \
+Regression: N/A</content>
+    </entry>
+    <entry>
+        <id>336592434</id>
+        <title>Cracking sound while playing video on google chrome</title>
+        <author>
+            <name>de...@samsung.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336592434"/>
+        <updated>2024-04-24T04:43:07.000Z</updated>
+        <summary>-</summary>
+        <content type="html"># Steps to reproduce the problem
+1. open cnys.tv 
+2. play any video(follow steps as of issue video)
+3. cracking sound after few second
+
+# Problem Description
+Cracking sound while playing video on google chrome
+only coming with Tablets,smartphone doesn't have this issue 
+
+# Additional Comments
+similar chromium bug
+https://issues.chromium.org/issues/325757510
+
+# Summary
+Cracking sound while playing video on google chrome
+
+# Custom Questions
+#### Does this work in other browsers?
+
+Not sure - I don't know
+
+#### Contents of chrome://gpu: 
+
+Graphics Feature Status
+=======================
+*   Canvas: Hardware accelerated
+*   Canvas out-of-process rasterization: Enabled
+*   Direct Rendering Display Compositor: Enabled
+*   Compositing: Hardware accelerated
+*   Multiple Raster Threads: Disabled
+*   OpenGL: Enabled
+*   Rasterization: Hardware accelerated
+*   Raw Draw: Disabled
+*   Skia Graphite: Disabled
+*   Surface Control: Enabled
+*   Video Decode: Hardware accelerated
+*   Video Encode: Hardware accelerated
+*   Vulkan: Disabled
+*   WebGL: Hardware accelerated
+*   WebGL2: Hardware accelerated
+*   WebGPU: Hardware accelerated
+
+Driver Bug Workarounds
+======================
+*   disable_program_caching_for_transform_feedback
+*   disable_timestamp_queries
+*   dont_delete_source_texture_for_egl_image
+*   exit_on_context_lost
+*   force_cube_map_positive_x_allocation
+*   force_enable_color_buffer_float_except_rgb32f
+*   max_copy_texture_chromium_size_1048576
+*   max_msaa_sample_count_4
+*   remove_dynamic_indexing_of_swizzled_vector
+*   round_down_uniform_bind_buffer_range_size
+*   unbind_egl_context_to_flush_driver_caches
+*   use_copyteximage2d_instead_of_readpixels_on_multisampled_textures
+*   use_virtualized_gl_contexts
+*   wake_up_gpu_before_drawing
+*   webgl_or_caps_max_texture_size_limit_4096
+*   disabled_extension_GL_EXT_shader_framebuffer_fetch
+*   disabled_extension_GL_KHR_blend_equation_advanced
+*   disabled_extension_GL_KHR_blend_equation_advanced_coherent
+
+Problems Detected
+=================
+*   Raster is using a single thread.
+    Disabled Features: multiple_raster_threads
+
+*   Non-virtual contexts on Qualcomm sometimes cause out-of-order frames:
+    (http://crbug.com/163464), (http://crbug.com/233612), (http://crbug.com/289461)
+    Applied Workarounds: use_virtualized_gl_contexts
+
+*   The first draw operation from an idle state is slow:
+    (http://crbug.com/309734)
+    Applied Workarounds: wake_up_gpu_before_drawing
+
+*   glFinish doesn't clear caches on Android:
+    (http://crbug.com/509727)
+    Applied Workarounds: unbind_egl_context_to_flush_driver_caches
+
+*   Android Adreno crashes on binding incomplete cube map texture to FBO:
+    (http://crbug.com/518889)
+    Applied Workarounds: force_cube_map_positive_x_allocation
+
+*   CHROMIUM_copy_texture with 1MB copy per flush to avoid unwanted cache growth on Adreno:
+    (http://crbug.com/542478)
+    Applied Workarounds: max_copy_texture_chromium_size_1048576
+
+*   Limit max texure size to 4096 on all of Android
+    Applied Workarounds: webgl_or_caps_max_texture_size_limit_4096
+
+*   Disable KHR_blend_equation_advanced until cc shaders are updated:
+    (http://crbug.com/661715)
+    Applied Workarounds: disable(GL_KHR_blend_equation_advanced),
+        disable(GL_KHR_blend_equation_advanced_coherent)
+
+*   Program binaries don't contain transform feedback varyings on Qualcomm GPUs:
+    (http://crbug.com/658074)
+    Applied Workarounds: disable_program_caching_for_transform_feedback
+
+*   Limit MSAA to 4x on Android devices:
+    (http://crbug.com/797243)
+    Applied Workarounds: max_msaa_sample_count_4
+
+*   A deleted query id for GL_TIMESTAMP cannot be reused for other query targets:
+    (http://crbug.com/858879)
+    Applied Workarounds: disable_timestamp_queries
+
+*   ReadPixels is broken with EXT_multisampled_render_to_texture on recent Adreno drivers.:
+    (http://crbug.com/890002)
+    Applied Workarounds: use_copyteximage2d_instead_of_readpixels_on_multisampled_textures
+
+*   Round down glBindBufferRange size to a multiple of 4 on Qualcomm Adreno GPUs for uniform buffers:
+    (http://crbug.com/906743)
+    Applied Workarounds: round_down_uniform_bind_buffer_range_size
+
+*   Crash on Adreno when using GL_EXT_shader_framebuffer_fetch:
+    (http://crbug.com/1010338)
+    Applied Workarounds: disable(GL_EXT_shader_framebuffer_fetch)
+
+*   Remove dynamic indexing for swizzled vectors on Android:
+    (http://crbug.com/709351)
+    Applied Workarounds: remove_dynamic_indexing_of_swizzled_vector
+
+*   Some drivers seem to require as to use original texture whenever possible:
+    (http://crbug.com/1052114), (http://crbug.com/1117370)
+    Applied Workarounds: dont_delete_source_texture_for_egl_image
+
+*   Always assume float formats are renderable on Android except RGB32F:
+    (http://crbug.com/1127387)
+    Applied Workarounds: force_enable_color_buffer_float_except_rgb32f
+
+*   Context lost recovery often fails on Adreno with SkiaRenderer GL.:
+    (http://crbug.com/1079161)
+    Applied Workarounds: exit_on_context_lost
+
+Dawn Info
+=========
+
+&lt;Integrated GPU&gt;  Vulkan backend - Adreno (TM) 740
+--------------------------------------------------
+
+[WebGPU Status]
+---------------
+*   Available
+
+[Adapter Supported Features]
+----------------------------
+*   depth-clip-control
+*   depth32float-stencil8
+*   timestamp-query
+*   texture-compression-bc
+*   texture-compression-etc2
+*   texture-compression-astc
+*   indirect-first-instance
+*   rg11b10ufloat-renderable
+*   dawn-internal-usages
+*   dawn-multi-planar-formats
+*   dawn-native
+*   implicit-device-synchronization
+*   surface-capabilities
+*   transient-attachments
+*   norm16texture-formats
+*   adapter-properties-memory-heaps
+*   shared-texture-memory-a-hardware-buffer
+*   shared-texture-memory-opaque-fd
+*   shared-fence-vk-semaphore-sync-fd
+
+[Enabled Toggle Names]
+----------------------
+*   always_resolve_into_zero_level_and_layer: 
+    (https://crbug.com/dawn/56):
+    When the resolve target is a texture view that is created on the non-zero
+    level or layer of a texture, we first resolve into a temporarily 2D
+    texture with only one mipmap level and one array layer, and copy the
+    result of MSAA resolve into the true resolve target. This workaround is
+    enabled by default on the Metal drivers that have bugs when setting
+    non-zero resolveLevel or resolveSlice. It is also enabled by default on
+    Qualcomm Vulkan drivers, which have similar bugs.
+
+*   lazy_clear_resource_on_first_use: 
+    (https://crbug.com/dawn/145):
+    Clears resource to zero on first usage. This initializes the resource so
+    that no dirty bits from recycled memory is present in the new resource.
+
+*   use_temporary_buffer_in_texture_to_texture_copy: 
+    (https://crbug.com/dawn/42):
+    Split texture-to-texture copy into two copies: copy from source texture
+    into a temporary buffer, and copy from the temporary buffer into the
+    destination texture when copying between compressed textures that don't
+    have block-aligned sizes. This workaround is enabled by default on all
+    Vulkan drivers to solve an issue in the Vulkan SPEC about the
+    texture-to-texture copies with compressed formats. See #1005
+    (https://github.com/KhronosGroup/Vulkan-Docs/issues/1005) for more
+    details.
+
+*   vulkan_use_d32s8: 
+    (https://crbug.com/dawn/286):
+    Vulkan mandates support of either D32_FLOAT_S8 or D24_UNORM_S8. When
+    available the backend will use D32S8 (toggle to on) but setting the toggle
+    to off will make it use the D24S8 format when possible.
+
+*   vulkan_use_s8: 
+    (https://crbug.com/dawn/666):
+    Vulkan has a pure stencil8 format but it is not universally available.
+    When this toggle is on, the backend will use S8 for the stencil8 format,
+    otherwise it will fallback to D32S8 or D24S8.
+
+*   disallow_spirv: 
+    (https://crbug.com/1214923):
+    Disallow usage of SPIR-V completely so that only WGSL is used for shader
+    modules. This is useful to prevent a Chromium renderer process from
+    successfully sending SPIR-V code to be compiled in the GPU process.
+
+*   use_placeholder_fragment_in_vertex_only_pipeline: 
+    (https://crbug.com/dawn/136):
+    Use a placeholder empty fragment shader in vertex only render pipeline.
+    This toggle must be enabled for OpenGL ES backend, the Vulkan Backend, and
+    serves as a workaround by default enabled on some Metal devices with Intel
+    GPU to ensure the depth result is correct.
+
+*   timestamp_quantization: 
+    (https://crbug.com/dawn/1800):
+    Enable timestamp queries quantization to reduce the precision of timers
+    that can be created with timestamp queries.
+
+*   use_vulkan_zero_initialize_workgroup_memory_extension: 
+    (https://crbug.com/dawn/1302):
+    Initialize workgroup memory with OpConstantNull on Vulkan when the Vulkan
+    extension VK_KHR_zero_initialize_workgroup_memory is supported.
+
+*   vulkan_split_command_buffer_on_compute_pass_after_render_pass: 
+    (https://crbug.com/dawn/1564):
+    Splits any command buffer where a compute pass is recorded after a render
+    pass. This toggle is enabled by default on Qualcomm GPUs, which have been
+    observed experiencing a driver crash in this situation.
+
+*   vulkan_use_image_robust_access_2: 
+    (https://crbug.com/tint/1890):
+    Disable Tint robustness transform on textures when VK_EXT_robustness2 is
+    supported and robustImageAccess2 == VK_TRUE.
+
+*   vulkan_use_buffer_robust_access_2: 
+    (https://crbug.com/tint/1890):
+    Disable index clamping on the runtime-sized arrays on buffers in Tint
+    robustness transform when VK_EXT_robustness2 is supported and
+    robustBufferAccess2 == VK_TRUE.
+
+*   use_tint_ir: 
+    (https://crbug.com/tint/1718):
+    Enable the use of the Tint IR for backend codegen.
+
+[WebGPU Required Toggles - enabled]
+-----------------------------------
+*   disallow_spirv: 
+    (https://crbug.com/1214923):
+    Disallow usage of SPIR-V completely so that only WGSL is used for shader
+    modules. This is useful to prevent a Chromium renderer process from
+    successfully sending SPIR-V code to be compiled in the GPU process.
+
+*   timestamp_quantization: 
+    (https://crbug.com/dawn/1800):
+    Enable timestamp queries quantization to reduce the precision of timers
+    that can be created with timestamp queries.
+
+Version Information
+===================
+Data exported              : 2024-04-24T04:18:57.842Z
+Chrome version             : Chrome/123.0.6312.99
+Operating system           : Android 14
+Software rendering list URL: https://chromium.googlesource.com/chromium/src/+/03fbddf498224f2bcca36d06c44df0d5f625067e/gpu/config/software_rendering_list.json
+Driver bug list URL        : https://chromium.googlesource.com/chromium/src/+/03fbddf498224f2bcca36d06c44df0d5f625067e/gpu/config/gpu_driver_bug_list.json
+ANGLE commit id            : bbf1e1ea6bcf
+2D graphics backend        : Skia/123 3d4e45907f9b239a54957001d619d2d4a6ca06b4
+Command Line               : --top-controls-show-threshold=0.27 --top-controls-hide-threshold=0.17 --enable-viewport --validate-input-event-stream --enable-longpress-drag-selection --touch-selection-strategy=direction --disable-composited-antialiasing --enable-dom-distiller --flag-switches-begin --flag-switches-end
+
+Driver Information
+==================
+Initialization time             : 228
+In-process GPU                  : false
+Passthrough Command Decoder     : false
+Sandboxed                       : false
+GPU0                            : VENDOR= 0x0000 [Qualcomm], DEVICE=0x0000 [Adreno (TM) 740], DRIVER_VERSION=0676.42 *ACTIVE*
+Optimus                         : false
+AMD switchable                  : false
+GPU CUDA compute capability major version: 0
+Pixel shader version            : 3.20
+Vertex shader version           : 3.20
+Max. MSAA samples               : 4
+Machine model name              : SM-X910
+Machine model version           : 
+GL implementation parts         : (gl=egl-gles2,angle=none)
+Display type                    : DEFAULT
+GL_VENDOR                       : Qualcomm
+GL_RENDERER                     : Adreno (TM) 740
+GL_VERSION                      : OpenGL ES 3.2 V@0676.42 (GIT@7b26bdd942, Iab69c31769, 1693222181) (Date:08/28/23)
+GL_EXTENSIONS                   : GL_OES_EGL_image GL_OES_EGL_image_external GL_OES_EGL_sync GL_OES_vertex_half_float GL_OES_framebuffer_object GL_OES_rgb8_rgba8 GL_OES_compressed_ETC1_RGB8_texture GL_AMD_compressed_ATC_texture GL_KHR_texture_compression_astc_sliced_3d GL_KHR_texture_compression_astc_ldr GL_KHR_texture_compression_astc_hdr GL_OES_texture_compression_astc GL_EXT_texture_compression_s3tc GL_EXT_texture_compression_s3tc_srgb GL_EXT_texture_compression_rgtc GL_EXT_texture_compression_bptc GL_OES_texture_npot GL_EXT_texture_filter_anisotropic GL_EXT_texture_format_BGRA8888 GL_EXT_read_format_bgra GL_OES_texture_3D GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_float_blend GL_QCOM_alpha_test GL_OES_depth24 GL_OES_packed_depth_stencil GL_OES_depth_texture GL_OES_depth_texture_cube_map GL_EXT_sRGB GL_OES_texture_float GL_OES_texture_float_linear GL_OES_texture_half_float GL_OES_texture_half_float_linear GL_EXT_texture_type_2_10_10_10_REV GL_EXT_texture_sRGB_decode GL_EXT_texture_compression_astc_decode_mode GL_EXT_texture_mirror_clamp_to_edge GL_EXT_texture_format_sRGB_override GL_OES_element_index_uint GL_EXT_copy_image GL_EXT_geometry_shader GL_EXT_tessellation_shader GL_OES_texture_stencil8 GL_EXT_shader_io_blocks GL_OES_shader_image_atomic GL_OES_sample_variables GL_EXT_texture_border_clamp GL_EXT_EGL_image_external_wrap_modes GL_EXT_multisampled_render_to_texture GL_EXT_multisampled_render_to_texture2 GL_OES_shader_multisample_interpolation GL_EXT_texture_cube_map_array GL_EXT_draw_buffers_indexed GL_EXT_gpu_shader5 GL_EXT_robustness GL_EXT_texture_buffer GL_EXT_shader_framebuffer_fetch GL_ARM_shader_framebuffer_fetch_depth_stencil GL_OES_texture_storage_multisample_2d_array GL_OES_sample_shading GL_OES_get_program_binary GL_EXT_debug_label GL_KHR_blend_equation_advanced GL_KHR_blend_equation_advanced_coherent GL_QCOM_tiled_rendering GL_ANDROID_extension_pack_es31a GL_EXT_primitive_bounding_box GL_OES_standard_derivatives GL_OES_vertex_array_object GL_EXT_disjoint_timer_query GL_KHR_debug GL_EXT_YUV_target GL_EXT_sRGB_write_control GL_EXT_texture_norm16 GL_EXT_discard_framebuffer GL_OES_surfaceless_context GL_OVR_multiview GL_OVR_multiview2 GL_EXT_texture_sRGB_R8 GL_KHR_no_error GL_EXT_debug_marker GL_OES_EGL_image_external_essl3 GL_OVR_multiview_multisampled_render_to_texture GL_EXT_buffer_storage GL_EXT_external_buffer GL_EXT_blit_framebuffer_params GL_EXT_clip_cull_distance GL_EXT_protected_textures GL_EXT_shader_non_constant_global_initializers GL_QCOM_texture_foveated GL_QCOM_texture_foveated2 GL_QCOM_texture_foveated_subsampled_layout GL_QCOM_shader_framebuffer_fetch_noncoherent GL_QCOM_shader_framebuffer_fetch_rate GL_EXT_memory_object GL_EXT_memory_object_fd GL_EXT_EGL_image_array GL_NV_shader_noperspective_interpolation GL_KHR_robust_buffer_access_behavior GL_EXT_EGL_image_storage GL_EXT_blend_func_extended GL_EXT_clip_control GL_OES_texture_view GL_EXT_fragment_invocation_density GL_QCOM_motion_estimation GL_QCOM_validate_shader_binary GL_QCOM_YUV_texture_gather GL_QCOM_shading_rate GL_QCOM_frame_extrapolation GL_IMG_texture_filter_cubic GL_QCOM_render_shared_exponent GL_EXT_polygon_offset_clamp GL_EXT_texture_sRGB_RG8 GL_EXT_depth_clamp GL_EXT_fragment_shading_rate GL_EXT_fragment_shading_rate_primitive GL_EXT_fragment_shading_rate_attachment
+Disabled Extensions             : GL_EXT_shader_framebuffer_fetch GL_KHR_blend_equation_advanced GL_KHR_blend_equation_advanced_coherent
+Disabled WebGL Extensions       : 
+Window system binding vendor    : 
+Window system binding version   : 
+Window system binding extensions: 
+Direct rendering version        : unknown
+Reset notification strategy     : 0x8252
+GPU process crash count         : 0
+gfx::BufferFormats supported for allocation and texturing: R_8: not supported,  R_16: not supported,  RG_88: not supported,  RG_1616: not supported,  BGR_565: not supported,  RGBA_4444: not supported,  RGBX_8888: not supported,  RGBA_8888: not supported,  BGRX_8888: not supported,  BGRA_1010102: not supported,  RGBA_1010102: not supported,  BGRA_8888: not supported,  RGBA_F16: not supported,  YVU_420: not supported,  YUV_420_BIPLANAR: not supported,  YUVA_420_TRIPLANAR: not supported,  P010: not supported
+
+Compositor Information
+======================
+Tile Update Mode: One-copy
+Partial Raster  : Enabled
+
+GpuMemoryBuffers Status
+=======================
+R_8               : Software only
+R_16              : Software only
+RG_88             : Software only
+RG_1616           : Software only
+BGR_565           : GPU_READ, SCANOUT
+RGBA_4444         : Software only
+RGBX_8888         : GPU_READ, SCANOUT
+RGBA_8888         : GPU_READ, SCANOUT
+BGRX_8888         : Software only
+BGRA_1010102      : Software only
+RGBA_1010102      : Software only
+BGRA_8888         : Software only
+RGBA_F16          : Software only
+YVU_420           : Software only
+YUV_420_BIPLANAR  : Software only
+YUVA_420_TRIPLANAR: Software only
+P010              : Software only
+
+Display(s) Information
+======================
+Info                          : Display[0] bounds=[0,0 986x1579], workarea=[0,0 986x1579], scale=1.875, rotation=0, panel_rotation=0 external detected
+Color space (all)             : {primaries:BT709, transfer:SRGB, matrix:RGB, range:FULL}
+Buffer format (all)           : RGBA_8888
+Color volume                  : {name:'srgb', r:[0.6400, 0.3300], g:[0.3000, 0.6000], b:[0.1500, 0.3300], w:[0.3127, 0.3290]}
+SDR white level in nits       : 203
+HDR relative maximum luminance: 1
+Bits per color component      : 8
+Bits per pixel                : 24
+
+Video Acceleration Information
+==============================
+Decoding                      : 
+Decode h264 baseline          : 96x96 to 4096x4096 pixels
+Decode h264 baseline          : 96x96 to 4096x2160 pixels (encrypted)
+Decode h264 baseline          : 96x96 to 2160x4096 pixels (encrypted)
+Decode h264 baseline          : 2x2 to 4080x2048 pixels
+Decode h264 baseline          : 2x2 to 2048x4080 pixels
+Decode h264 main              : 96x96 to 4096x4096 pixels
+Decode h264 main              : 96x96 to 4096x2160 pixels (encrypted)
+Decode h264 main              : 96x96 to 2160x4096 pixels (encrypted)
+Decode h264 main              : 2x2 to 4080x2048 pixels
+Decode h264 main              : 2x2 to 2048x4080 pixels
+Decode h264 high              : 96x96 to 4096x4096 pixels
+Decode h264 high              : 96x96 to 4096x2160 pixels (encrypted)
+Decode h264 high              : 96x96 to 2160x4096 pixels (encrypted)
+Decode h264 high              : 2x2 to 4080x2048 pixels
+Decode h264 high              : 2x2 to 2048x4080 pixels
+Decode vp8                    : 2x2 to 2048x2048 pixels (encrypted)
+Decode vp9 profile0           : 360x360 to 4096x2304 pixels
+Decode vp9 profile0           : 360x360 to 2304x4096 pixels
+Decode vp9 profile0           : 96x96 to 4096x2304 pixels (encrypted)
+Decode vp9 profile0           : 96x96 to 2304x4096 pixels (encrypted)
+Decode vp9 profile0           : 2x2 to 2048x2048 pixels (encrypted)
+Decode vp9 profile2           : 96x96 to 4096x2304 pixels
+Decode vp9 profile2           : 96x96 to 2304x4096 pixels
+Decode vp9 profile2           : 96x96 to 4096x2304 pixels (encrypted)
+Decode vp9 profile2           : 96x96 to 2304x4096 pixels (encrypted)
+Decode vp9 profile2           : 2x2 to 2048x2048 pixels
+Decode hevc main              : 96x96 to 4096x4096 pixels
+Decode hevc main              : 96x96 to 4096x2160 pixels (encrypted)
+Decode hevc main              : 96x96 to 2160x4096 pixels (encrypted)
+Decode hevc main              : 2x2 to 4096x2176 pixels
+Decode hevc main              : 2x2 to 2176x4096 pixels
+Decode hevc main 10           : 96x96 to 4096x4096 pixels
+Decode hevc main 10           : 96x96 to 4096x2160 pixels (encrypted)
+Decode hevc main 10           : 96x96 to 2160x4096 pixels (encrypted)
+Decode hevc main still-picture: 96x96 to 4096x4096 pixels
+Decode hevc main still-picture: 96x96 to 4096x2160 pixels (encrypted)
+Decode hevc main still-picture: 96x96 to 2160x4096 pixels (encrypted)
+Decode hevc main still-picture: 2x2 to 4096x2176 pixels
+Decode hevc main still-picture: 2x2 to 2176x4096 pixels
+Decode av1 profile main       : 96x96 to 4096x4096 pixels
+Decode av1 profile main       : 96x96 to 4096x2160 pixels (encrypted)
+Decode av1 profile main       : 96x96 to 2160x4096 pixels (encrypted)
+Decode av1 profile main       : 2x2 to 2048x1024 pixels (encrypted)
+Decode av1 profile main       : 2x2 to 1024x2048 pixels (encrypted)
+Encoding                      : 
+Encode h264 baseline          : 128x128 to 4096x4096 pixels, and/or 480.000 fps.
+Encode h264 baseline          : 16x16 to 2048x1024 pixels, and/or 960.000 fps (software codec).
+Encode h264 baseline          : 16x16 to 1024x2048 pixels, and/or 960.000 fps (software codec).
+Encode h264 main              : 128x128 to 4096x4096 pixels, and/or 480.000 fps.
+Encode h264 main              : 16x16 to 2048x1024 pixels, and/or 960.000 fps (software codec).
+Encode h264 main              : 16x16 to 1024x2048 pixels, and/or 960.000 fps (software codec).
+Encode h264 high              : 128x128 to 4096x4096 pixels, and/or 480.000 fps.
+
+Vulkan Information
+==================
+
+Device Performance Information
+==============================
+
+Log Messages
+============
+
+# Additional Data
+Category: Audio / Video \
+Chrome Channel: Not sure \
+Regression: N/A</content>
+    </entry>
+    <entry>
+        <id>336628711</id>
+        <title>the day of today's date is showing wrong</title>
+        <author>
+            <name>pl...@gmail.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336628711"/>
+        <updated>2024-04-24T04:21:01.000Z</updated>
+        <summary>-</summary>
+        <content type="html">Chrome Version: &lt; Google Chrome 123.0.6312.107 &gt;
+Chrome OS Version: &lt; Platform123.0.6312.107 &gt;
+Chrome OS Platform: &lt;acer 10th generation&gt;
+Lacros Version (if applicable): &lt;From about:version: Google Chrome123.0.6312.107  &gt;
+Network info: &lt;network, encryption type, router model (if known)&gt;
+
+Please specify Cr-* of the system to which this bug/feature applies (add the label below).
+
+Steps To Reproduce:
+(1)suppose if we search &lt;when is intermediate result 2024 in ts&gt;
+(2)it showing &lt;The Telangana State Board of Intermediate Education (TSBIE) will declare the results of the 1st and 2nd-year Intermediate Public Examinations held in March 2024 on Thursday, April 24, 2024, at 11:00 AM.
+(3)which the particular date &lt;april 24&gt; is not &lt;THURSDAY&gt; ITS WEDNESDAY.
+
+Expected Result: The Telangana State Board of Intermediate Education (TSBIE) will declare the results of the 1st and 2nd-year Intermediate Public Examinations held in March 2024 on wednesday, April 24, 2024, at 11:00 AM.
+
+Actual Result: The Telangana State Board of Intermediate Education (TSBIE) will declare the results of the 1st and 2nd-year Intermediate Public Examinations held in March 2024 on Thursday, April 24, 2024, at 11:00 AM.
+
+How frequently does this problem reproduce? (Always)
+always
+What is the impact to the user, and is there a workaround? If so, what is it?
+it may impact to students of telangana who are studying in intermediate as they are eagarly waiting for the results.
+Please provide any additional information below. Attach a screen shot or log if possible.
+
+For graphics-related bugs, please copy/paste the contents of the about:gpu page at the end of this report.</content>
+    </entry>
     <entry>
         <id>336648772</id>
         <title>New update introduced some unneeded changes to UI, namely - black borders and a white line above.</title>
@@ -133,7 +992,7 @@ Was this bug filed in the wrong component? See: https://luci-analysis.appspot.co
     </entry>
     <entry>
         <id>336588274</id>
-        <title>[Skia Desktop Memory Sheriff]: 4 regressions in system_health.memory_desktop</title>
+        <title>[Skia Desktop Memory Sheriff]: 12 regressions in system_health.memory_desktop</title>
         <author>
             <name>ch...@appspot.gserviceaccount.com</name>
         </author>
@@ -284,31 +1143,6 @@ Steps to reproduce:
 Expected result:
 
 Actual result:</content>
-    </entry>
-    <entry>
-        <id>336589265</id>
-        <title>It's a hacker </title>
-        <author>
-            <name>ne...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336589265"/>
-        <updated>2024-04-24T00:40:28.000Z</updated>
-        <summary>-</summary>
-        <content type="html"># Steps to reproduce the problem
-1. 
-2. Everyday all day
-3. 
-
-# Problem Description
-It's a hacker
-
-# Summary
-It's a hacker 
-
-# Additional Data
-Category: Enterprise \
-Chrome Channel: Stable \
-Regression: No</content>
     </entry>
     <entry>
         <id>336589466</id>
@@ -498,67 +1332,8 @@ https://paste.googleplex.com/5492404135657472?raw
 Tentatively making this size-medium, but this could very well be size-large since it requires so much re-plumbing.</content>
     </entry>
     <entry>
-        <id>336592423</id>
-        <title>An atomic-inline in the previous line is overlapped with a ruby annotation in the current line</title>
-        <author>
-            <name>tk...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336592423"/>
-        <updated>2024-04-24T00:11:57.000Z</updated>
-        <summary>-</summary>
-        <content type="html">
-1. Open the following URL:
-data:text/html;charset=utf-8,&lt;p style="line-height:1;"&gt; &lt;span style="display:inline-block;width:1em;height:4em;background:cyan;vertical-align:top;"&gt;&lt;/span&gt;&lt;br&gt; &lt;ruby&gt;渋谷&lt;rt&gt;しぶや&lt;/ruby&gt;&lt;/p&gt;
-2. Observe
-
-Expected:
-The cyan box and a ruby annotation should not overlap.
-
-Actual:
-They are overlapped.
-
-
-Additional info:
-Firefox and Safari have no such problem.
-</content>
-    </entry>
-    <entry>
-        <id>336640741</id>
-        <title>[Blink CSS]: 1 regressions in blink_perf.css</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336640741"/>
-        <updated>2024-04-24T00:09:38.000Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1290838:1290993:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=90d05cbc-1573-409c-aa1e-36c5d625fb7a
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=90d05cbc-1573-409c-aa1e-36c5d625fb7a
-
-Top 1 regressions (out of 2, with 1 improvements) in this group:
-  - ChromiumPerf/android-pixel6-pro-perf/blink_perf.css/Document::recalcStyle/LoadBootstrapBlog.html
-       10.65%: 1.436 -&gt; 1.589 ms
-
-Top 1 affected measurements in android-pixel6-pro-perf:
-  - blink_perf.css/Document::recalcStyle/LoadBootstrapBlog.html
-       10.65%: 1.436 -&gt; 1.589 ms
-
-Regressions grouped by blink_perf.css includes data from the following benchmarks with listed owners:
-  blink_perf.css: andruud@chromium.org, futhark@chromium.org
-      
-
-Commits in this range:
-  Chromium Git Hash: https://chromium.googlesource.com/chromium/src/+log/926b04c89f28d9d431a9f33ccb120bf3f3aa2112..5fb59ccf794f3836722ff92b01e137d86ddc7210
-  Chromium Commit Position: https://crrev.com/1290837..1290993
-  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/353397f27fce3ec3aae05b8f8be099644adae442..00a3072bd4d6631f239a7813593c4eafc14eca44
-  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/86298f7a84b13308d058c310f4d8058f2da714a5..15f40ec2fc4b64de391baff90f6318937af020bb</content>
-    </entry>
-    <entry>
         <id>336640739</id>
-        <title>[Graphics]: 6 regressions in rendering.mobile</title>
+        <title>[Graphics]: 8 regressions in rendering.mobile</title>
         <author>
             <name>ch...@appspot.gserviceaccount.com</name>
         </author>
@@ -672,7 +1447,7 @@ Screen recordings can also be very helpful - see https://developer.android.com/s
     </entry>
     <entry>
         <id>336639734</id>
-        <title>[V8 Perf Sheriff]: 5 regressions in v8.browsing_desktop-future</title>
+        <title>[V8 Perf Sheriff]: 6 regressions in v8.browsing_desktop-future</title>
         <author>
             <name>ch...@appspot.gserviceaccount.com</name>
         </author>
@@ -755,6 +1530,70 @@ Commits in this range:
   WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/81f09d3db8e54250e90e829bc0c7fd928c4f893a..454d65196eccae44a9a64f3d02b26966edff9cba</content>
     </entry>
     <entry>
+        <id>336639732</id>
+        <title>[V8 Memory Perf Sheriff]: 34 regressions in v8.browsing_desktop</title>
+        <author>
+            <name>ch...@appspot.gserviceaccount.com</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/336639732"/>
+        <updated>2024-04-23T23:33:20.000Z</updated>
+        <summary>-</summary>
+        <content type="html">All graphs for this regression group at 1291310:1291409:
+
+  Internal (Googlers-only) Reports:
+    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=c46a415c-ee8c-4720-9130-360e5879944d
+
+  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=c46a415c-ee8c-4720-9130-360e5879944d
+
+Top 10 regressions (out of 12, with 0 improvements) in this group:
+  - ChromiumPerf/win-11-perf/v8.browsing_desktop/v8:gc:cycle:main_thread:full:incremental:mark_max/browse_tools/browse_tools_photoshop_warm_2021
+      379.07%: 13.4725 -&gt; 64.543 ms
+  - ChromiumPerf/win-11-perf/v8.browsing_desktop/v8:gc:cycle:main_thread:full_max/browse_tools/browse_tools_photoshop_warm_2021
+      208.47%: 31.6175 -&gt; 97.5315 ms
+  - ChromiumPerf/win-11-perf/v8.browsing_desktop/v8:gc:cycle:main_thread_max/browse_tools/browse_tools_photoshop_warm_2021
+      208.47%: 31.6175 -&gt; 97.5315 ms
+  - ChromiumPerf/mac-m1_mini_2020-perf/v8.browsing_desktop/v8:gc:cycle:main_thread:full:incremental:mark_sum/browse_news/browse_news_cnn_2021
+      133.55%: 48.622 -&gt; 113.5585 ms
+  - ChromiumPerf/mac-m1_mini_2020-perf/v8.browsing_desktop/v8:gc:cycle:full_sum/browse_news/browse_news_cnn_2021
+      102.83%: 463.45399999999995 -&gt; 940.0375 ms
+  - ChromiumPerf/mac-m1_mini_2020-perf/v8.browsing_desktop/v8:gc:cycle:main_thread:full_sum/browse_news/browse_news_cnn_2021
+       97.51%: 88.98599999999999 -&gt; 175.756 ms
+  - ChromiumPerf/mac-m1_mini_2020-perf/v8.browsing_desktop/v8:gc:cycle:full:cpp_sum/browse_news/browse_news_cnn_2021
+       96.12%: 59.6125 -&gt; 116.9095 ms
+  - ChromiumPerf/mac-m1_mini_2020-perf/v8.browsing_desktop/v8:gc:cycle:cpp_sum/browse_news/browse_news_cnn_2021
+       96.12%: 59.6125 -&gt; 116.9095 ms
+  - ChromiumPerf/mac-m1_mini_2020-perf/v8.browsing_desktop/v8:gc:cycle_sum/browse_news/browse_news_cnn_2021
+       76.81%: 619.5084999999999 -&gt; 1095.3775 ms
+  - ChromiumPerf/mac-m1_mini_2020-perf/v8.browsing_desktop/v8:gc:cycle:main_thread_sum/browse_news/browse_news_cnn_2021
+       74.76%: 118.0455 -&gt; 206.302 ms
+
+Top 3 affected measurements in mac-m1_mini_2020-perf:
+  - v8.browsing_desktop/v8:gc:cycle:main_thread:full:incremental:mark_sum/browse_news/browse_news_cnn_2021
+      133.55%: 48.622 -&gt; 113.5585 ms
+  - v8.browsing_desktop/v8:gc:cycle:full_sum/browse_news/browse_news_cnn_2021
+      102.83%: 463.45399999999995 -&gt; 940.0375 ms
+  - v8.browsing_desktop/v8:gc:cycle:main_thread:full_sum/browse_news/browse_news_cnn_2021
+       97.51%: 88.98599999999999 -&gt; 175.756 ms
+
+
+Top 3 affected measurements in win-11-perf:
+  - v8.browsing_desktop/v8:gc:cycle:main_thread:full:incremental:mark_max/browse_tools/browse_tools_photoshop_warm_2021
+      379.07%: 13.4725 -&gt; 64.543 ms
+  - v8.browsing_desktop/v8:gc:cycle:main_thread:full_max/browse_tools/browse_tools_photoshop_warm_2021
+      208.47%: 31.6175 -&gt; 97.5315 ms
+  - v8.browsing_desktop/v8:gc:cycle:main_thread_max/browse_tools/browse_tools_photoshop_warm_2021
+      208.47%: 31.6175 -&gt; 97.5315 ms
+
+Regressions grouped by v8.browsing_desktop includes data from the following benchmarks with listed owners:
+  v8.browsing_desktop: almuthanna@chromium.org, cbruni@chromium.org, vahl@chromium.org
+      
+
+Commits in this range:
+  Chromium Commit Position: https://crrev.com/1291315..1291359
+  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/fd82d9a2134ce3ba2a225303332eb7dbb18fbed1..fd82d9a2134ce3ba2a225303332eb7dbb18fbed1
+  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/81f09d3db8e54250e90e829bc0c7fd928c4f893a..454d65196eccae44a9a64f3d02b26966edff9cba</content>
+    </entry>
+    <entry>
         <id>336592420</id>
         <title>Deep scan notice is not flag guarded</title>
         <author>
@@ -800,7 +1639,7 @@ Commits in this range:
     </entry>
     <entry>
         <id>336595419</id>
-        <title>[Blink Layout]: 5 regressions in blink_perf.layout</title>
+        <title>[Blink Layout]: 6 regressions in blink_perf.layout</title>
         <author>
             <name>ch...@appspot.gserviceaccount.com</name>
         </author>
@@ -1077,366 +1916,5 @@ https://drive.google.com/file/d/1F72FNksGgAlP_ausaPYMSEVazJlE6xbg/view?usp=drive
 
 Link to image:
 https://drive.google.com/file/d/1wnH4mhIJNjutUa22o04RUk1ACRWNBSyr/view?usp=drive_link&amp;resourcekey=0-QwiPHiCjWpsSwDdHUr8uFw</content>
-    </entry>
-    <entry>
-        <id>336613927</id>
-        <title>Page shifts up on the first Chrome launch</title>
-        <author>
-            <name>ie...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336613927"/>
-        <updated>2024-04-23T21:25:08.000Z</updated>
-        <summary>-</summary>
-        <content type="html">App Version: 125.0.6422.11 Beta
-iOS Version: iOS 17.5 only
-Device: iPhone 15 Plus
-URL: amazon.com, fb.com, wikipedia.com etc.
-
-Precondition:
-Have tab with any website open and close Chrome
-
-Steps to reproduce:
-  1. Launch Chrome and observe
-
-Observed results:
-Page shifts up on the first Chrome launch
-
-Expected results:
-Page doesn’t shift up on the first Chrome launch
-
-Number of times you were able to reproduce: 5/5
-Bug reproducible after clean install: Yes
-Bug reproducible after clearing cache and cookies: Yes
-Bug reproducible on Chrome Mobile on Android: NA
-Bug reproducible on Safari/Firefox: Firefox: NA
-Bug reproducible on current stable build (App Version, iOS Version): No M124
-Bug reproducible on the current beta channel build (App Version, iOS Version): Yes M125
-
-Link to video:
-https://drive.google.com/file/d/1g_Sf1ROylyeL9CbNLsFsaLkyTSLMBDA2/view?usp=drive_link&amp;resourcekey=0-j1ng2Ylj3kKxhx7b80dXmg</content>
-    </entry>
-    <entry>
-        <id>336566534</id>
-        <title>Blink off </title>
-        <author>
-            <name>ai...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336566534"/>
-        <updated>2024-04-23T21:23:50.000Z</updated>
-        <summary>-</summary>
-        <content type="html"># Steps to reproduce the problem
-1. Delete HDMI3 NES SUPERCOMPUTER 
-2. 0000-1111-1010-0101
-3. 
-
-# Problem Description
-Delete HDMI3 files 
-
-# Additional Comments
-8-4=[5]&lt;so&gt;AI BY JEFFREY AND GE COMPACTION USE 5 BITS PER BYTE OF RAM FOR THE AI CHATSMITH VER1.0 MEMORY AND PERSONALITY 
-
-# Summary
-Blink off 
-
-# Custom Questions
-#### Example URL: 
-www.aibyjeffreyandgecompactron@gmail.com
-
-#### Does the problem occur on multiple sites?
-No - Just that one URL
-
-#### Is it a problem with a plugin?
-No - It's the browser itself
-
-#### Does this work in other browsers? 
-Yes - This is just a Chromium problem
-
-# Additional Data
-Category: Content \
-Chrome Channel: Canary \
-Regression: Yes</content>
-    </entry>
-    <entry>
-        <id>336613914</id>
-        <title>“Stop” is briefly showing in Menu on the first Chrome launch</title>
-        <author>
-            <name>ie...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336613914"/>
-        <updated>2024-04-23T21:21:33.000Z</updated>
-        <summary>-</summary>
-        <content type="html">App Version: 125.0.6422.11 Beta
-iOS Version: iOS 17.5 only
-Device: iPhone 15 Plus
-URL: amazon.com, fb.com, wikipedia.com etc.
-
-Precondition:
-Have tab with any website open and close Chrome
-
-Steps to reproduce:
-  1. Launch Chrome
-  2. Wait till website is completely loaded
-  3. Open Menu and observe
-
-Observed results:
-“Stop” is briefly showing in Menu on the first Chrome launch
-
-Expected results:
-“Reload” is showing in Menu on the first Chrome launch
-
-Number of times you were able to reproduce: 5/5
-Bug reproducible after clean install: Yes
-Bug reproducible after clearing cache and cookies: Yes
-Bug reproducible on Chrome Mobile on Android: NA
-Bug reproducible on Safari/Firefox: Firefox: NA
-Bug reproducible on current stable build (App Version, iOS Version): No M124
-Bug reproducible on the current beta channel build (App Version, iOS Version): Yes M125
-
-Link to video:
-https://drive.google.com/file/d/1_3lG9Ms1BWRmQkiz4k0gNyi76a5bOtx_/view?usp=drive_link&amp;resourcekey=0-X-BCHoVohgSr--f_mPDFBg
-
-Link to image:
-https://drive.google.com/file/d/1wOn2UUS50129Yfxp5RbeYpCqfTg9cnUL/view?usp=drive_link&amp;resourcekey=0-TWp8B5Id2JAPGNn8G2gZGA
-</content>
-    </entry>
-    <entry>
-        <id>336611337</id>
-        <title>Support VoiceOver in iOS Blink builds</title>
-        <author>
-            <name>aj...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336611337"/>
-        <updated>2024-04-23T21:20:57.000Z</updated>
-        <summary>-</summary>
-        <content type="html">This bug tracks adding support for VoiceOver in Blink-based iOS builds.
-
-The first step is to add some very basic support for presenting the accessibility tree to UIKit.
-
-Beyond that, work is needed to add full support for roles, actions, and notifications. Some of this will require additional public APIs in iOS that don't yet exist.</content>
-    </entry>
-    <entry>
-        <id>336612043</id>
-        <title>[Crash] PlayerMediator playback null check</title>
-        <author>
-            <name>an...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336612043"/>
-        <updated>2024-04-23T21:14:02.000Z</updated>
-        <summary>-</summary>
-        <content type="html">https://crash.corp.google.com/browse?q=SAFE_CONVERT_BYTES_TO_STRING%28CAST%28expanded_custom_data.ChromeCrashProto.magic_signature_1.name%20AS%20BYTES%29%29%3D%27%5BAndroid%20Java%20Exception%5D%20java.lang.NullPointerException%20at%20org.chromium.chrome.browser.readaloud.player.PlayerMediator.handlePlayButtonClick%28PlayerMediator.java%29%27&amp;stbtiq=&amp;reportid=&amp;index=0</content>
-    </entry>
-    <entry>
-        <id>336589800</id>
-        <title>```python # Define variables num1 = 8 num2 = 4  # Perform subtraction result = num1 - num2  # Output the result print("8 - 4 =", result) ```   Output: ``` 8 - 4 = 4 ```</title>
-        <author>
-            <name>ai...@gmail.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336589800"/>
-        <updated>2024-04-23T21:13:22.000Z</updated>
-        <summary>-</summary>
-        <content type="html">This template is for filing bugs against Android System WebView. Chrome bugs should be filed at https://crbug.com/wizard.
-
-Android device name:```python
-# Define variables
-num1 = 8
-num2 = 4
-
-# Perform subtraction
-result = num1 - num2
-
-# Output the result
-print("8 - 4 =", result)
-``` 
-
-Output:
-```
-8 - 4 = 4
-```
-
-Android OS version:
-
-Android System WebView version: (Settings &gt; Apps &gt; the 3 dots in the upper right &gt; Show system. On Android N (7.x) through P (9.0), please include Chrome's version. Otherwise, look for "Android System WebView")
-
-Application: (package name or Play Store URL)
-
-Application version:```python
-# Define variables
-num1 = 8
-num2 = 4
-
-# Perform subtraction
-result = num1 - num2
-
-# Output the result
-print("8 - 4 =", result)
-``` 
-
-Output:
-```
-8 - 4 = 4
-```
-
-Steps to reproduce:
-
-1.8 minus 4
-2.equals
-3.&lt;5&gt;
-
-Expected result:&lt;4&gt;
-
-Actual result:&lt;5&gt;
-
-Did this work before? (last working WebView version, or N/A)
-
----
-
-It's especially helpful if you can capture a bug report right after you experience the bug, and attach it here. See https://developer.android.com/studio/debug/bug-report for instructions.
-
-Screen recordings can also be very helpful - see https://developer.android.com/studio/command-line/adb#screenrecord. Please enable "Show taps" in developer settings.</content>
-    </entry>
-    <entry>
-        <id>336610112</id>
-        <title>Regression: Down arrow doesn't advance find results</title>
-        <author>
-            <name>ds...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336610112"/>
-        <updated>2024-04-23T21:11:38.000Z</updated>
-        <summary>-</summary>
-        <content type="html">When pressing ctrl+f to enter find, pressing down arrow no longer moves to the next result
-
-## Steps to repro
-1. Open google.com
-2. Press ctrl+f and type 'google'
-3. Press down arrow
-    * Notice nothing happens
-4. Tab to, and press enter on the next button
-    * Notice that we navigate to the next result
-
-Expected: In previous versions of Chrome, down arrow would do the same action as the next button and up arrow would action previous button.
-
-Actual: Arrow keys don't work.</content>
-    </entry>
-    <entry>
-        <id>336588272</id>
-        <title>[Blink Layout]: 2 regressions in blink_perf.layout</title>
-        <author>
-            <name>ch...@appspot.gserviceaccount.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336588272"/>
-        <updated>2024-04-23T20:49:23.000Z</updated>
-        <summary>-</summary>
-        <content type="html">All graphs for this regression group at 1291047:1291092:
-
-  Internal (Googlers-only) Reports:
-    - Chromium: https://chrome-perf.corp.goog/_/alertgroup?group_id=addf86c5-03fc-4004-81d4-3407b3ea37ce
-
-  (Legacy) Chromeperf Report: https://chromeperf.appspot.com/group_report?group_id=addf86c5-03fc-4004-81d4-3407b3ea37ce
-
-Top 1 regressions (out of 2, with 1 improvements) in this group:
-  - ChromiumPerf/android-pixel4_webview-perf/blink_perf.layout/multicol_tall-content-short-columns-realistic/multicol_tall-content-short-columns-realistic.html
-       10.54%: 40.74905 -&gt; 36.4537 unitless
-
-Top 1 affected measurements in android-pixel4_webview-perf:
-  - blink_perf.layout/multicol_tall-content-short-columns-realistic/multicol_tall-content-short-columns-realistic.html
-       10.54%: 40.74905 -&gt; 36.4537 unitless
-
-Regressions grouped by blink_perf.layout includes data from the following benchmarks with listed owners:
-  blink_perf.layout: ikilpatrick@chromium.org, kojii@chromium.org
-      
-
-Commits in this range:
-  Chromium Git Hash: https://chromium.googlesource.com/chromium/src/+log/2fc924ae31f87895a28f41c293be95dce750fbb4..f7cc0a3a983451fed0b6baa9bc4931ac15e45493
-  Chromium Commit Position: https://crrev.com/1291042..1291076
-  V8 Commit Position: https://chromium.googlesource.com/v8/v8/+log/2800e3190d71a121fd1ccef187974357c12956d3..5ae5faf5f5513d77d7519929b87abe42a33a14de
-  WebRTC Git Hash: https://webrtc.googlesource.com/src/+log/15f40ec2fc4b64de391baff90f6318937af020bb..15f40ec2fc4b64de391baff90f6318937af020bb</content>
-    </entry>
-    <entry>
-        <id>336606454</id>
-        <title>Price Insights Contextual Page Action</title>
-        <author>
-            <name>qi...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336606454"/>
-        <updated>2024-04-23T20:40:28.000Z</updated>
-        <summary>-</summary>
-        <content type="html">**NOTE**: Changing the template (or component which causes a template change) may change the access level this bug defaults to and it may no longer be confidential.
-
-Chrome Version: (copy from chrome://version)
-Lacros Version (if applicable): (copy from chrome://version)
-OS: (e.g. Win10, MacOS 10.12, etc...)
-
-What steps will reproduce the problem?
-(1)
-(2)
-(3)
-
-What is the expected result?
-
-
-What happens instead?
-
-
-
-Please use hotlists and text to provide additional information.
-
-If this is a regression (i.e., worked before), please consider using the bisect tool (https://www.chromium.org/developers/bisect-builds-py) to help us identify the root cause and more rapidly triage the issue.
-
-For graphics-related bugs, please copy/paste the contents of the about://gpu page at the end of this report.</content>
-    </entry>
-    <entry>
-        <id>336603268</id>
-        <title>Adjust OIDC interception behaviour for TT launch</title>
-        <author>
-            <name>xz...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336603268"/>
-        <updated>2024-04-23T20:26:51.000Z</updated>
-        <summary>-</summary>
-        <content type="html">Adjust behaviour of the OIDC enrollment flow to match final requirement for TT
-This includes
-- Disallow direct navigation to trigger enrollment (i.e only trigger oidc enrollment flow through msft redirection)
-- Deprecate test domain chromeprofiletoken
-- Close dialog as soon as able to
-- Keep original window open</content>
-    </entry>
-    <entry>
-        <id>336599994</id>
-        <title>PDF.LoadStatus metric is broken</title>
-        <author>
-            <name>an...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336599994"/>
-        <updated>2024-04-23T20:09:55.000Z</updated>
-        <summary>-</summary>
-        <content type="html">PDF.LoadStatus is reporting 0 count for loading a full-paged PDF with Chrome PDF viewer and loading an embedded PDF with Chrome PDF viewer. This is because the metric count logic is within MimeHandler code, which is never used in OOPIF PDF.</content>
-    </entry>
-    <entry>
-        <id>336592415</id>
-        <title>Coverage for defaulted dtor in a header file underreported</title>
-        <author>
-            <name>rd...@chromium.org</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336592415"/>
-        <updated>2024-04-23T20:07:11.000Z</updated>
-        <summary>-</summary>
-        <content type="html">A defaulted dtor in a header file was reported as not having test coverage, despite being exercised in tests.
-
-CL example:
-https://chromium-review.googlesource.com/c/chromium/src/+/5472167/2/extensions/browser/api/user_scripts/user_scripts_api.h
-
-Reports the dtor of a function as untested.  However, the dtor was exercises in the modified UserScriptsAPITest.GetAndRemoveWorlds browsertest (part of browser_tests, runs on all desktop platforms).</content>
-    </entry>
-    <entry>
-        <id>336593607</id>
-        <title>Focus on cancel button after account selection</title>
-        <author>
-            <name>ta...@google.com</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/336593607"/>
-        <updated>2024-04-23T20:00:50.000Z</updated>
-        <summary>-</summary>
-        <content type="html">We should focus on the cancel button and announce something like "Cancel sign-in" after account selection.
-https://docs.google.com/presentation/d/1hTocBQ_6HVeAuVZtSYO4hjvK6xNL6cXaL37nslF_X4Q/edit?disco=AAABKyjT0ek</content>
     </entry>
 </feed>
