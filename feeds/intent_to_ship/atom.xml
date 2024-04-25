@@ -4,7 +4,7 @@
   >intent to ship feed</title><link
     href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml"
     rel="self"
-  /><updated>2024-04-25T08:09:59.226Z</updated><entry><id
+  /><updated>2024-04-25T12:11:15.053Z</updated><entry><id
     >http://www.mail-archive.com/blink-dev@chromium.org/msg09376.html</id><title
     >Re: [blink-dev] Intent to Ship: Remove &#34;window-placement&#34; alias for permission and permission policy &#34;window-management&#34;</title><author
     ><name>Intent to Ship</name></author><link
@@ -15279,6 +15279,252 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAM0wra8n%2BfTnOL502H8D6e2xXWT2zQj_2-gc6_8L4oBh1GWT5A%40mail.gmail.com&#34;&#38;gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAM0wra8n%2BfTnOL502H8D6e2xXWT2zQj_2-gc6_8L4oBh1GWT5A%40mail.gmail.com&#38;lt;/a&#38;gt;.
+&#38;lt;/pre&#38;gt;
+
+&#38;lt;/div&#38;gt;</content></entry><entry><id
+    >http://www.mail-archive.com/blink-dev@chromium.org/msg10066.html</id><title
+    >[blink-dev] Intent to Ship: Stable Bare Declarations (@nest)</title><author
+    ><name>Intent to Ship</name></author><link
+      href="http://www.mail-archive.com/blink-dev@chromium.org/msg10066.html"
+    /><updated>2024-04-25T09:14:42.000Z</updated><summary
+    >[blink-dev] Intent to Ship: Stable Bare Declarations (@nest)</summary><content
+      type="html"
+    >&#38;lt;div class=&#34;msgHead&#34;&#38;gt;
+&#38;lt;h1&#38;gt;
+&#38;lt;span class=&#34;subject&#34;&#38;gt;&#38;lt;a href=&#34;/search?l=blink-dev@chromium.org&#38;amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Stable+Bare+Declarations+%5C%28%40nest%5C%29%22&#38;amp;o=newest&#34; rel=&#34;nofollow&#34;&#38;gt;&#38;lt;span itemprop=&#34;name&#34;&#38;gt;[blink-dev] Intent to Ship: Stable Bare Declarations (@nest)&#38;lt;/span&#38;gt;&#38;lt;/a&#38;gt;&#38;lt;/span&#38;gt;
+&#38;lt;/h1&#38;gt;
+&#38;lt;p class=&#34;darkgray font13&#34;&#38;gt;
+&#38;lt;span class=&#34;sender pipe&#34;&#38;gt;&#38;lt;a href=&#34;/search?l=blink-dev@chromium.org&#38;amp;q=from:%22Anders+Hartvoll+Ruud%22&#34; rel=&#34;nofollow&#34;&#38;gt;&#38;lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;http://schema.org/Person&#34;&#38;gt;&#38;lt;span itemprop=&#34;name&#34;&#38;gt;Anders Hartvoll Ruud&#38;lt;/span&#38;gt;&#38;lt;/span&#38;gt;&#38;lt;/a&#38;gt;&#38;lt;/span&#38;gt;
+&#38;lt;span class=&#34;date&#34;&#38;gt;&#38;lt;a href=&#34;/search?l=blink-dev@chromium.org&#38;amp;q=date:20240425&#34; rel=&#34;nofollow&#34;&#38;gt;Thu, 25 Apr 2024 02:14:42 -0700&#38;lt;/a&#38;gt;&#38;lt;/span&#38;gt;
+&#38;lt;/p&#38;gt;
+&#38;lt;/div&#38;gt;&#38;lt;div itemprop=&#34;articleBody&#34; class=&#34;msgBody&#34;&#38;gt;
+
+&#38;lt;pre&#38;gt;Contact emails
+
+andr...@chromium.org&#38;lt;/pre&#38;gt;&#38;lt;pre&#38;gt;
+
+Specification
+
+&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://drafts.csswg.org/css-nesting-1/#nest-rule&#34;&#38;gt;https://drafts.csswg.org/css-nesting-1/#nest-rule&#38;lt;/a&#38;gt;
+
+Summary
+
+CSS Nesting initially shipped with an interesting quirk that would cause
+bare declarations that come after a nested rule to “shift”, for example:
+
+.foo {
+
+  width: 100px;
+
+  height: 100px;
+
+  @media screen {
+
+    background-color: red;
+
+  }
+
+  background-color: green;
+
+}
+
+You would think that the background-color of &#38;lt;div class=foo&#38;gt; would be green
+here, but no, that declaration is shifted up to the main (leading) block of
+declarations during parsing:
+
+.foo {
+
+  width: 100px;
+
+  height: 100px;
+
+  background-color: green; /* I’m here now */
+
+  @media screen {
+
+    background-color: red;
+
+  }
+
+}
+
+This was at the time done intentionally for a mix of CSSOM and historical
+reasons, and all implementations of CSS Nesting currently agree on this
+behavior. However, it turns out this shifting behavior isn’t what authors
+expect (WebKit blog post
+&#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://webkit.org/blog/14571/css-nesting-and-the-cascade/#:~:text=an%20element%20selector.-,Another%20question,-There%20is%20one&#34;&#38;gt;https://webkit.org/blog/14571/css-nesting-and-the-cascade/#:~:text=an%20element%20selector.-,Another%20question,-There%20is%20one&#38;lt;/a&#38;gt;&#38;gt;),
+and the CSSWG now consider the decision a mistake. In October 2023, the
+CSSWG resolved
+&#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://github.com/w3c/csswg-drafts/issues/8738#issuecomment-1768977689&#34;&#38;gt;https://github.com/w3c/csswg-drafts/issues/8738#issuecomment-1768977689&#38;lt;/a&#38;gt;&#38;gt;
+to not do the shifting behavior anymore, without explaining how to solve
+the problems that would arise from that (Issue 9492
+&#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://github.com/w3c/csswg-drafts/issues/9492&#34;&#38;gt;https://github.com/w3c/csswg-drafts/issues/9492&#38;lt;/a&#38;gt;&#38;gt;).
+
+One promising approach, @nest (proposed by Tab
+&#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://github.com/w3c/csswg-drafts/issues/9492#issuecomment-1779739434:~:text=Add%20a%20new%20%40nest%20rule&#34;&#38;gt;https://github.com/w3c/csswg-drafts/issues/9492#issuecomment-1779739434:~:text=Add%20a%20new%20%40nest%20rule&#38;lt;/a&#38;gt;&#38;gt;),
+became the basis for my web compat investigation (Doc
+&#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://docs.google.com/document/d/1G7R-Pqk33J8ho3ad-ZpkdBIRvG2xt1ZQwQI_clPlroU/edit?usp=sharing&#34;&#38;gt;https://docs.google.com/document/d/1G7R-Pqk33J8ho3ad-ZpkdBIRvG2xt1ZQwQI_clPlroU/edit?usp=sharing&#38;lt;/a&#38;gt;&#38;gt;,
+@chromium.org), and recently I shared some good news
+&#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://github.com/w3c/csswg-drafts/issues/8738#issuecomment-2048158814&#34;&#38;gt;https://github.com/w3c/csswg-drafts/issues/8738#issuecomment-2048158814&#38;lt;/a&#38;gt;&#38;gt;
+from the use-counters with the CSSWG. This restarted the discussion, and
+while the CSSWG did agree
+&#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://github.com/w3c/csswg-drafts/issues/8738#issuecomment-2061777236&#34;&#38;gt;https://github.com/w3c/csswg-drafts/issues/8738#issuecomment-2061777236&#38;lt;/a&#38;gt;&#38;gt;
+on the underlying @nest approach, it also basically split people into two
+camps:
+
+
+   1.
+
+   @nest should be a web-exposed construct. (Currently specified, per Issue
+   8738
+   &#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://github.com/w3c/csswg-drafts/issues/8738#issuecomment-2061777236&#34;&#38;gt;https://github.com/w3c/csswg-drafts/issues/8738#issuecomment-2061777236&#38;lt;/a&#38;gt;&#38;gt;
+   ).
+   2.
+
+   @nest should as much as possible be an implementation detail,
+   unobservable to the author. (Issue 10234
+   &#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://github.com/w3c/csswg-drafts/issues/10234&#34;&#38;gt;https://github.com/w3c/csswg-drafts/issues/10234&#38;lt;/a&#38;gt;&#38;gt;).
+
+
+The apparent positions so far are that Firefox and Chrome support (1), and
+Safari (+ other prominent CSSWG members) support (2). At the time of
+writing, this is where the discussion is now.
+
+The CSSWG agrees that addressing the “bare declaration shift” is the most
+important thing, and also quite urgent, since we don’t know how long the
+window for making a change here is going to stay open. The expectation
+&#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://github.com/w3c/csswg-drafts/issues/10234#issuecomment-2067746133&#34;&#38;gt;https://github.com/w3c/csswg-drafts/issues/10234#issuecomment-2067746133&#38;lt;/a&#38;gt;&#38;gt;
+of the CSSWG seems to be that browsers first ship @nest as it’s currently
+specified (1), and then we possibly move towards (2) later. I find this
+move problematic, since moving to (2) would break the API again, and even
+if we reasonably believe it will break the API in a much less severe way,
+it may be hard to actually prove this.
+
+Despite this, I have agreed to try to ship @nest, on the condition that we
+have clear signals from Firefox and Safari that they’ll do the same. I
+don’t yet have those signals, but I’m sending the intent “early” anyway, to
+give this issue some visibility.
+
+Blink component
+
+Blink&#38;gt;CSS
+&#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS&#34;&#38;gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3ECSS&#38;lt;/a&#38;gt;&#38;gt;
+
+TAG review
+
+None
+
+TAG review status
+
+Not applicable
+
+Risks
+
+This intent is a breaking change, with two main points of breakage:
+
+
+   -
+
+   Keeping the bare declarations in place can affect the winner of the
+   cascade (the example in the introduction). This is covered by
+   CSSBareDeclarationShift
+   &#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://chromestatus.com/metrics/feature/timeline/popularity/4783&#34;&#38;gt;https://chromestatus.com/metrics/feature/timeline/popularity/4783&#38;lt;/a&#38;gt;&#38;gt;
+   (0.00027%).
+   -
+
+   Additionally, @nest will have different specificity behavior for nested
+   group rules, and this can also affect the winner of the cascade. This is
+   covered by CSSNestedGroupRuleSpecificity
+   &#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://chromestatus.com/metrics/feature/timeline/popularity/4784&#34;&#38;gt;https://chromestatus.com/metrics/feature/timeline/popularity/4784&#38;lt;/a&#38;gt;&#38;gt;
+   (0.00017%).
+
+
+Interoperability and Compatibility
+
+Gecko: No signal (&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://github.com/mozilla/standards-positions/issues/1013&#34;&#38;gt;https://github.com/mozilla/standards-positions/issues/1013&#38;lt;/a&#38;gt;)
+- Emilio seems positive, but the issue is still open.
+
+WebKit: No signal (&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://github.com/WebKit/standards-positions/issues/337&#34;&#38;gt;https://github.com/WebKit/standards-positions/issues/337&#38;lt;/a&#38;gt;)
+
+Web developers: No signals
+
+Other signals:
+
+WebView application risks
+
+Does this intent deprecate or change behavior of existing APIs, such that
+it has potentially high risk for Android WebView-based applications?
+
+None
+
+
+Debuggability
+
+None
+
+
+Will this feature be supported on all six Blink platforms (Windows, Mac,
+Linux, ChromeOS, Android, and Android WebView)?
+
+No
+
+Is this feature fully tested by web-platform-tests
+&#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&#34;&#38;gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&#38;lt;/a&#38;gt;&#38;gt;
+?
+
+Not yet.
+
+Flag name on chrome://flags
+
+None
+
+Finch feature name
+
+None (yet). I’m not yet sure whether or not this change can be done behind
+a flag.
+
+Non-finch justification
+
+None
+
+Requires code in //chrome?
+
+False
+
+Estimated milestones
+
+M126
+
+
+Anticipated spec changes
+
+Yes, a major one, as explained in the introduction: Issue 10234
+&#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://github.com/w3c/csswg-drafts/issues/10234&#34;&#38;gt;https://github.com/w3c/csswg-drafts/issues/10234&#38;lt;/a&#38;gt;&#38;gt;.
+
+I am attempting to ship despite this issue, since that’s what the CSSWG
+wants.
+
+Note also: Recently in the above issue, we are now considering a third
+approach: renaming @nest to something more generic, with the intent to
+maybe make it more useful in the future, and therefore making its
+web-exposed presence less annoying. This shows some promise in terms of
+unifying camps (1) and (2), so we’ll see how this plays out in the next few
+days.
+
+Link to entry on the Chrome Platform Status
+
+&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://chromestatus.com/feature/5123929441304576?gate=5374099609354240&#34;&#38;gt;https://chromestatus.com/feature/5123929441304576?gate=5374099609354240&#38;lt;/a&#38;gt;
+
+This intent message was generated by Chrome Platform Status
+&#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://chromestatus.com/&#34;&#38;gt;https://chromestatus.com/&#38;lt;/a&#38;gt;&#38;gt;.
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&#38;quot;blink-dev&#38;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAKFBnUoz6xu3S_V-N8NiUMtphKmXh1_-4ozaY1WT4Ko0nXLkFg%40mail.gmail.com&#34;&#38;gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAKFBnUoz6xu3S_V-N8NiUMtphKmXh1_-4ozaY1WT4Ko0nXLkFg%40mail.gmail.com&#38;lt;/a&#38;gt;.
 &#38;lt;/pre&#38;gt;
 
 &#38;lt;/div&#38;gt;</content></entry></feed>
