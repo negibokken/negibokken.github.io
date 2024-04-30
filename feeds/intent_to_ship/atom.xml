@@ -4,7 +4,7 @@
   >intent to ship feed</title><link
     href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml"
     rel="self"
-  /><updated>2024-04-30T12:11:58.936Z</updated><entry><id
+  /><updated>2024-04-30T16:09:42.679Z</updated><entry><id
     >http://www.mail-archive.com/blink-dev@chromium.org/msg09376.html</id><title
     >Re: [blink-dev] Intent to Ship: Remove &#34;window-placement&#34; alias for permission and permission policy &#34;window-management&#34;</title><author
     ><name>Intent to Ship</name></author><link
@@ -17683,6 +17683,83 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5DLy9XBAFOyPdfRHE70nUStV0fAVWVSjL1xZDG7Mr4xnFQ%40mail.gmail.com&#34;&#38;gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAGpy5DLy9XBAFOyPdfRHE70nUStV0fAVWVSjL1xZDG7Mr4xnFQ%40mail.gmail.com&#38;lt;/a&#38;gt;.
+&#38;lt;/pre&#38;gt;
+
+&#38;lt;/div&#38;gt;</content></entry><entry><id
+    >http://www.mail-archive.com/blink-dev@chromium.org/msg10095.html</id><title
+    >[blink-dev] Unable to write Serialized SkPicture into a File</title><author
+    ><name>Intent to Ship</name></author><link
+      href="http://www.mail-archive.com/blink-dev@chromium.org/msg10095.html"
+    /><updated>2024-04-30T15:59:13.000Z</updated><summary
+    >[blink-dev] Unable to write Serialized SkPicture into a File</summary><content
+      type="html"
+    >&#38;lt;div class=&#34;msgHead&#34;&#38;gt;
+&#38;lt;h1&#38;gt;
+&#38;lt;span class=&#34;subject&#34;&#38;gt;&#38;lt;a href=&#34;/search?l=blink-dev@chromium.org&#38;amp;q=subject:%22%5C%5Bblink%5C-dev%5C%5D+Unable+to+write+Serialized+SkPicture+into+a+File%22&#38;amp;o=newest&#34; rel=&#34;nofollow&#34;&#38;gt;&#38;lt;span itemprop=&#34;name&#34;&#38;gt;[blink-dev] Unable to write Serialized SkPicture into a File&#38;lt;/span&#38;gt;&#38;lt;/a&#38;gt;&#38;lt;/span&#38;gt;
+&#38;lt;/h1&#38;gt;
+&#38;lt;p class=&#34;darkgray font13&#34;&#38;gt;
+&#38;lt;span class=&#34;sender pipe&#34;&#38;gt;&#38;lt;a href=&#34;/search?l=blink-dev@chromium.org&#38;amp;q=from:%22Steven+Whelan%22&#34; rel=&#34;nofollow&#34;&#38;gt;&#38;lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;http://schema.org/Person&#34;&#38;gt;&#38;lt;span itemprop=&#34;name&#34;&#38;gt;Steven Whelan&#38;lt;/span&#38;gt;&#38;lt;/span&#38;gt;&#38;lt;/a&#38;gt;&#38;lt;/span&#38;gt;
+&#38;lt;span class=&#34;date&#34;&#38;gt;&#38;lt;a href=&#34;/search?l=blink-dev@chromium.org&#38;amp;q=date:20240430&#34; rel=&#34;nofollow&#34;&#38;gt;Tue, 30 Apr 2024 08:59:13 -0700&#38;lt;/a&#38;gt;&#38;lt;/span&#38;gt;
+&#38;lt;/p&#38;gt;
+&#38;lt;/div&#38;gt;&#38;lt;div itemprop=&#34;articleBody&#34; class=&#34;msgBody&#34;&#38;gt;
+
+&#38;lt;pre&#38;gt;Hi 
+I have modified the Serialize 
+&#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://source.chromium.org/chromium/chromium/src/+/main:cc/paint/paint_op_buffer_serializer.cc;l=5;bpv=1;bpt=1?q=paint_op_buffer_ser&#38;amp;ss=chromium%2Fchromium%2Fsrc&#34;&#38;gt;https://source.chromium.org/chromium/chromium/src/+/main:cc/paint/paint_op_buffer_serializer.cc;l=5;bpv=1;bpt=1?q=paint_op_buffer_ser&#38;amp;ss=chromium%2Fchromium%2Fsrc&#38;lt;/a&#38;gt;&#38;gt;
+ method 
+to Record all PaintOp as SKPicture. 
+I want to replay this SKPicture on a remote browser. So, I am trying to 
+save this SKPicture to a file, but I am not able to do so, since 
+file.isOpen gives false.
+Please help here&#38;lt;/pre&#38;gt;&#38;lt;pre&#38;gt;
+
+void PaintOpBufferSerializer::Serialize(const PaintOpBuffer&#38;amp; buffer,
+                                        const std::vector&#38;lt;size_t&#38;gt;* offsets,
+                                        const Preamble&#38;amp; preamble) {
+  DCHECK_EQ(serialized_op_count_, 0u);
+
+  std::unique_ptr&#38;lt;SkCanvas&#38;gt; canvas = MakeAnalysisCanvas(options_);
+  // These PlaybackParams use the initial (identity) canvas matrix, as they 
+are
+  // only used for serializing the preamble and the initial save / final 
+restore
+  // SerializeBuffer will create its own PlaybackParams based on the
+            
+ * SkPictureRecorder recorder;*
+ * SkCanvas* recordingCanvas = 
+recorder.beginRecording(canvas-&#38;gt;getLocalClipBounds());         *
+  // post-preamble canvas.
+  PlaybackParams params = MakeParams(canvas.get());
+  int save_count = canvas-&#38;gt;getSaveCount();
+  Save(canvas.get(), params);
+  SerializePreamble(canvas.get(), preamble, params);
+  SerializeBuffer(canvas.get(), buffer, offsets);
+  *SerializeBuffer(recordingCanvas, buffer, offsets);*
+  
+
+*sk_sp&#38;lt;SkPicture&#38;gt; picture = recorder.finishRecordingAsPicture();  
+SkSerialProcs sProcs;  sk_sp&#38;lt;SkData&#38;gt; readableData = 
+picture-&#38;gt;serialize(&#38;amp;sProcs);*
+  // Assuming the byte array is stored in the &#39;data&#39; field of the SkData 
+object
+  const void* data = readableData-&#38;gt;data();
+  size_t size = readableData-&#38;gt;size();
+
+* &#38;lt;HOW TO SAVE READABLE DATA TO A FILE&#38;gt;*
+  /*sk_sp&#38;lt;SkData&#38;gt; receievedData = SkData::MakeWithoutCopy(data, size);
+  sk_sp&#38;lt;SkPicture&#38;gt; copy =
+      SkPicture::MakeFromData(receievedData-&#38;gt;data(), receievedData-&#38;gt;size());
+  copy-&#38;gt;playback(recordingCanvas);*/
+  RestoreToCount(canvas.get(), save_count, params);
+}
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&#38;quot;blink-dev&#38;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/97946d8b-27dc-43c4-a262-e4f6288be9d6n%40chromium.org&#34;&#38;gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/97946d8b-27dc-43c4-a262-e4f6288be9d6n%40chromium.org&#38;lt;/a&#38;gt;.
 &#38;lt;/pre&#38;gt;
 
 &#38;lt;/div&#38;gt;</content></entry></feed>
