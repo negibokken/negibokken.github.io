@@ -4,7 +4,7 @@
   >intent to ship feed</title><link
     href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml"
     rel="self"
-  /><updated>2024-05-06T12:13:23.588Z</updated><entry><id
+  /><updated>2024-05-06T16:09:27.024Z</updated><entry><id
     >http://www.mail-archive.com/blink-dev@chromium.org/msg09376.html</id><title
     >Re: [blink-dev] Intent to Ship: Remove &#34;window-placement&#34; alias for permission and permission policy &#34;window-management&#34;</title><author
     ><name>Intent to Ship</name></author><link
@@ -21813,6 +21813,215 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOmohSLm4jwwqN8F4JKsXw9O8Tco_%3DQNy7BZE4hsN31%3Dqj8N3w%40mail.gmail.com&#34;&#38;gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOmohSLm4jwwqN8F4JKsXw9O8Tco_%3DQNy7BZE4hsN31%3Dqj8N3w%40mail.gmail.com&#38;lt;/a&#38;gt;.
+&#38;lt;/pre&#38;gt;
+
+&#38;lt;/div&#38;gt;</content></entry><entry><id
+    >http://www.mail-archive.com/blink-dev@chromium.org/msg10149.html</id><title
+    >Re: [blink-dev] Unable to write Serialized SkPicture into a File</title><author
+    ><name>Intent to Ship</name></author><link
+      href="http://www.mail-archive.com/blink-dev@chromium.org/msg10149.html"
+    /><updated>2024-05-06T15:22:07.000Z</updated><summary
+    >Re: [blink-dev] Unable to write Serialized SkPicture into a File</summary><content
+      type="html"
+    >&#38;lt;div class=&#34;msgHead&#34;&#38;gt;
+&#38;lt;h1&#38;gt;
+&#38;lt;span class=&#34;subject&#34;&#38;gt;&#38;lt;a href=&#34;/search?l=blink-dev@chromium.org&#38;amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Unable+to+write+Serialized+SkPicture+into+a+File%22&#38;amp;o=newest&#34; rel=&#34;nofollow&#34;&#38;gt;&#38;lt;span itemprop=&#34;name&#34;&#38;gt;Re: [blink-dev] Unable to write Serialized SkPicture into a File&#38;lt;/span&#38;gt;&#38;lt;/a&#38;gt;&#38;lt;/span&#38;gt;
+&#38;lt;/h1&#38;gt;
+&#38;lt;p class=&#34;darkgray font13&#34;&#38;gt;
+&#38;lt;span class=&#34;sender pipe&#34;&#38;gt;&#38;lt;a href=&#34;/search?l=blink-dev@chromium.org&#38;amp;q=from:%22%27Vladimir+Levin%27+via+blink%5C-dev%22&#34; rel=&#34;nofollow&#34;&#38;gt;&#38;lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;http://schema.org/Person&#34;&#38;gt;&#38;lt;span itemprop=&#34;name&#34;&#38;gt;&#39;Vladimir Levin&#39; via blink-dev&#38;lt;/span&#38;gt;&#38;lt;/span&#38;gt;&#38;lt;/a&#38;gt;&#38;lt;/span&#38;gt;
+&#38;lt;span class=&#34;date&#34;&#38;gt;&#38;lt;a href=&#34;/search?l=blink-dev@chromium.org&#38;amp;q=date:20240506&#34; rel=&#34;nofollow&#34;&#38;gt;Mon, 06 May 2024 08:22:07 -0700&#38;lt;/a&#38;gt;&#38;lt;/span&#38;gt;
+&#38;lt;/p&#38;gt;
+&#38;lt;/div&#38;gt;&#38;lt;div itemprop=&#34;articleBody&#34; class=&#34;msgBody&#34;&#38;gt;
+
+&#38;lt;pre&#38;gt;Hey Steven,
+
+The path to convert information necessary for rendering into SkPictures may
+or may not exist in the Chromium codebase, but it&#39;s certainly not actively
+maintained or developed. Ultimately all information is available, but it
+may come from several different sources.&#38;lt;/pre&#38;gt;&#38;lt;pre&#38;gt;
+
+For images, for example, it&#39;s likely that the Skia information stores them
+in an encoded format backed by one of the decoders in Blink. The cc
+codebase has classes that extracts the encoded information and schedules
+decoding and upload which is then rasterized and presented as necessary. It
+isn&#39;t necessarily trivial to convert this whole process to a few Skia
+commands, and largely depends on what you&#39;re looking to accomplish.
+
+Here&#39;s a thread from skia-discuss@ roughly talking about the same thing:
+&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://groups.google.com/g/skia-discuss/c/hd1ZCRkM4OA&#34;&#38;gt;https://groups.google.com/g/skia-discuss/c/hd1ZCRkM4OA&#38;lt;/a&#38;gt;. As Brian mentions
+there, SkPictures are an important primitive (as are other Skia commands)
+but it&#39;s not the only thing. Chromium uses display lists and paint ops to
+draw its contents. You can probably look at the serialization code as the
+closest thing that does all the right serialization (this is used in Out of
+Process Rasterization):
+&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://source.chromium.org/chromium/chromium/src/+/main:cc/paint/paint_op_buffer_serializer.h;l=21;drc=e09826065bb5964f247be565890dcabda54ac9e3&#34;&#38;gt;https://source.chromium.org/chromium/chromium/src/+/main:cc/paint/paint_op_buffer_serializer.h;l=21;drc=e09826065bb5964f247be565890dcabda54ac9e3&#38;lt;/a&#38;gt;.
+As I mentioned previously in a different thread, this won&#39;t help you with
+images. Those need to be either decoded and serialized or serialized in
+encoded form and dealt with on the client side.
+
+As Ken also mentioned, graphics-dev (and also skia-discuss) may be better
+forums for this type of discussion
+
+Thanks,
+Vlad
+
+On Mon, May 6, 2024 at 3:32 AM Steven Whelan &#38;lt;stevenwhela...@gmail.com&#38;gt;
+wrote:
+
+&#38;gt; Hi,
+&#38;gt; Also found out that through paint_op_helper&#39;s tostring method
+&#38;gt; &#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://source.chromium.org/chromium/chromium/src/+/main:cc/test/paint_op_helper.cc;l=5;drc=6d5b8a58bbad4174871fb25c4f0fab5fb44771e1;bpv=1;bpt=1?q=paint_op_helper&#38;amp;sq=&#38;amp;ss=chromium%2Fchromium%2Fsrc&#34;&#38;gt;https://source.chromium.org/chromium/chromium/src/+/main:cc/test/paint_op_helper.cc;l=5;drc=6d5b8a58bbad4174871fb25c4f0fab5fb44771e1;bpv=1;bpt=1?q=paint_op_helper&#38;amp;sq=&#38;amp;ss=chromium%2Fchromium%2Fsrc&#38;lt;/a&#38;gt;&#38;gt;
+&#38;gt; , all the PaintOps related information can be printed. It includes all the
+&#38;gt; information- coordinates, paint info etc.
+&#38;gt; Wondering, can these be converted directly into SKIA commands to render
+&#38;gt; the page?
+&#38;gt; Please help me finalize the correct approach.
+&#38;gt;
+&#38;gt;
+&#38;gt; On Sun, May 5, 2024 at 3:49 AM Ken Russell &#38;lt;k...@chromium.org&#38;gt; wrote:
+&#38;gt;
+&#38;gt;&#38;gt; I&#39;m not sure exactly how SkPicture recording works - please join
+&#38;gt;&#38;gt; &#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://groups.google.com/a/chromium.org/g/graphics-dev&#34;&#38;gt;https://groups.google.com/a/chromium.org/g/graphics-dev&#38;lt;/a&#38;gt; and email
+&#38;gt;&#38;gt; graphics-...@chromium.org .
+&#38;gt;&#38;gt;
+&#38;gt;&#38;gt; -Ken
+&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;
+&#38;gt;&#38;gt; On Sat, May 4, 2024 at 6:21 AM Steven Whelan &#38;lt;stevenwhela...@gmail.com&#38;gt;
+&#38;gt;&#38;gt; wrote:
+&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; Hi I am able to write the serialized SKData (captured from Serialize
+&#38;gt;&#38;gt;&#38;gt; method of  paint_op_buffer_serializer
+&#38;gt;&#38;gt;&#38;gt; &#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://source.chromium.org/chromium/chromium/src/+/main:cc/paint/paint_op_buffer_serializer.cc;l=5;bpv=1;bpt=1?q=paint_op_buffer_serializer&#38;amp;ss=chromium%2Fchromium%2Fsrc&#34;&#38;gt;https://source.chromium.org/chromium/chromium/src/+/main:cc/paint/paint_op_buffer_serializer.cc;l=5;bpv=1;bpt=1?q=paint_op_buffer_serializer&#38;amp;ss=chromium%2Fchromium%2Fsrc&#38;lt;/a&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;  as
+&#38;gt;&#38;gt;&#38;gt; shown in the first mail) to a file and was also able to use this file for
+&#38;gt;&#38;gt;&#38;gt; playback on canvas.
+&#38;gt;&#38;gt;&#38;gt; However, it only played back the text. How do I ensure that images also
+&#38;gt;&#38;gt;&#38;gt; get captured in my SKPicture recording? Do I have to have multiple
+&#38;gt;&#38;gt;&#38;gt; SKPictureRecording at multiple places?
+&#38;gt;&#38;gt;&#38;gt; Goal : To record everything being written on a canvas while loading  a
+&#38;gt;&#38;gt;&#38;gt; page so that it can be played back on another browser.
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; Thanks
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; On Thursday, May 2, 2024 at 5:34:48 AM UTC+5:30 k...@chromium.org wrote:
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt; Yes - you can confirm this yourself - but we strongly recommend against
+&#38;gt;&#38;gt;&#38;gt;&#38;gt; disabling the renderer sandbox.
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt; On Tue, Apr 30, 2024 at 10:46 PM Steven Whelan &#38;lt;stevenw...@gmail.com&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt; wrote:
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; Yes, trying to do this in renderer process. Would it work if I run
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; Chromium with --nosandbox flag.
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; On Tue, Apr 30, 2024, 21:58 Ken Russell &#38;lt;k...@chromium.org&#38;gt; wrote:
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; Are you trying to do this within Chrome&#39;s renderer or GPU processes?
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; If so, the sandbox will prevent you from touching the local disk. You 
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; would
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; need to extend the sandbox policies to allow writing to a directory on 
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; disk
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; - some place that will not collide with other programs, so that if a bad
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; actor causes data to be written to that directory, no harm will be 
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; caused.
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; See
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; &#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://source.chromium.org/chromium/chromium/src/+/main:sandbox/policy/mac/&#34;&#38;gt;https://source.chromium.org/chromium/chromium/src/+/main:sandbox/policy/mac/&#38;lt;/a&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; for the macOS sandbox policies.
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; -Ken
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; On Tue, Apr 30, 2024 at 8:59 AM Steven Whelan &#38;lt;stevenw...@gmail.com&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; wrote:
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; Hi
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; I have modified the Serialize
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; &#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://source.chromium.org/chromium/chromium/src/+/main:cc/paint/paint_op_buffer_serializer.cc;l=5;bpv=1;bpt=1?q=paint_op_buffer_ser&#38;amp;ss=chromium%2Fchromium%2Fsrc&#34;&#38;gt;https://source.chromium.org/chromium/chromium/src/+/main:cc/paint/paint_op_buffer_serializer.cc;l=5;bpv=1;bpt=1?q=paint_op_buffer_ser&#38;amp;ss=chromium%2Fchromium%2Fsrc&#38;lt;/a&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;  method
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; to Record all PaintOp as SKPicture.
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; I want to replay this SKPicture on a remote browser. So, I am trying
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; to save this SKPicture to a file, but I am not able to do so, since
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; file.isOpen gives false.
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; Please help here
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; void PaintOpBufferSerializer::Serialize(const PaintOpBuffer&#38;amp; buffer,
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;                                         const std::vector&#38;lt;size_t&#38;gt;*
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; offsets,
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;                                         const Preamble&#38;amp; preamble) {
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;   DCHECK_EQ(serialized_op_count_, 0u);
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;   std::unique_ptr&#38;lt;SkCanvas&#38;gt; canvas = MakeAnalysisCanvas(options_);
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;   // These PlaybackParams use the initial (identity) canvas matrix,
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; as they are
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;   // only used for serializing the preamble and the initial save /
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; final restore
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;   // SerializeBuffer will create its own PlaybackParams based on the
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;  * SkPictureRecorder recorder;*
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;  * SkCanvas* recordingCanvas =
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; recorder.beginRecording(canvas-&#38;gt;getLocalClipBounds());         *
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;   // post-preamble canvas.
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;   PlaybackParams params = MakeParams(canvas.get());
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;   int save_count = canvas-&#38;gt;getSaveCount();
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;   Save(canvas.get(), params);
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;   SerializePreamble(canvas.get(), preamble, params);
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;   SerializeBuffer(canvas.get(), buffer, offsets);
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;   *SerializeBuffer(recordingCanvas, buffer, offsets);*
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; *sk_sp&#38;lt;SkPicture&#38;gt; picture = recorder.finishRecordingAsPicture();
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; SkSerialProcs sProcs;  sk_sp&#38;lt;SkData&#38;gt; readableData =
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; picture-&#38;gt;serialize(&#38;amp;sProcs);*
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;   // Assuming the byte array is stored in the &#39;data&#39; field of the
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; SkData object
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;   const void* data = readableData-&#38;gt;data();
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;   size_t size = readableData-&#38;gt;size();
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; * &#38;lt;HOW TO SAVE READABLE DATA TO A FILE&#38;gt;*
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;   /*sk_sp&#38;lt;SkData&#38;gt; receievedData = SkData::MakeWithoutCopy(data,
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; size);
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;   sk_sp&#38;lt;SkPicture&#38;gt; copy =
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;       SkPicture::MakeFromData(receievedData-&#38;gt;data(),
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; receievedData-&#38;gt;size());
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;   copy-&#38;gt;playback(recordingCanvas);*/
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;   RestoreToCount(canvas.get(), save_count, params);
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; }
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; --
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; You received this message because you are subscribed to the Google
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; Groups &#38;quot;blink-dev&#38;quot; group.
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; To unsubscribe from this group and stop receiving emails from it,
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; send an email to blink-dev+...@chromium.org.
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; To view this discussion on the web visit
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; &#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/97946d8b-27dc-43c4-a262-e4f6288be9d6n%40chromium.org&#34;&#38;gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/97946d8b-27dc-43c4-a262-e4f6288be9d6n%40chromium.org&#38;lt;/a&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; &#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/97946d8b-27dc-43c4-a262-e4f6288be9d6n%40chromium.org?utm_medium=email&#38;amp;utm_source=footer&#34;&#38;gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/97946d8b-27dc-43c4-a262-e4f6288be9d6n%40chromium.org?utm_medium=email&#38;amp;utm_source=footer&#38;lt;/a&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; .
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; --
+&#38;gt; You received this message because you are subscribed to the Google Groups
+&#38;gt; &#38;quot;blink-dev&#38;quot; group.
+&#38;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&#38;gt; email to blink-dev+unsubscr...@chromium.org.
+&#38;gt; To view this discussion on the web visit
+&#38;gt; &#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAO%2BCLgAgnWdtj1%3D2-rksbcVr5CjsKMn3e-k_sYYCJEr%2BrU%3D0ew%40mail.gmail.com&#34;&#38;gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAO%2BCLgAgnWdtj1%3D2-rksbcVr5CjsKMn3e-k_sYYCJEr%2BrU%3D0ew%40mail.gmail.com&#38;lt;/a&#38;gt;
+&#38;gt; &#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAO%2BCLgAgnWdtj1%3D2-rksbcVr5CjsKMn3e-k_sYYCJEr%2BrU%3D0ew%40mail.gmail.com?utm_medium=email&#38;amp;utm_source=footer&#34;&#38;gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAO%2BCLgAgnWdtj1%3D2-rksbcVr5CjsKMn3e-k_sYYCJEr%2BrU%3D0ew%40mail.gmail.com?utm_medium=email&#38;amp;utm_source=footer&#38;lt;/a&#38;gt;&#38;gt;
+&#38;gt; .
+&#38;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&#38;quot;blink-dev&#38;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADsXd2P_jf45nSN5xEfkTYr3rQ%2BNXT9Ua28Uv0YntXme73uEfg%40mail.gmail.com&#34;&#38;gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CADsXd2P_jf45nSN5xEfkTYr3rQ%2BNXT9Ua28Uv0YntXme73uEfg%40mail.gmail.com&#38;lt;/a&#38;gt;.
 &#38;lt;/pre&#38;gt;
 
 &#38;lt;/div&#38;gt;</content></entry></feed>
