@@ -4,7 +4,7 @@
   >intent to ship feed</title><link
     href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml"
     rel="self"
-  /><updated>2024-05-08T00:28:06.184Z</updated><entry><id
+  /><updated>2024-05-08T04:07:19.511Z</updated><entry><id
     >http://www.mail-archive.com/blink-dev@chromium.org/msg09376.html</id><title
     >Re: [blink-dev] Intent to Ship: Remove &#34;window-placement&#34; alias for permission and permission policy &#34;window-management&#34;</title><author
     ><name>Intent to Ship</name></author><link
@@ -23581,6 +23581,232 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAE-AwAo5R747uZ4V5Ff9JhkLjuftBrvDVDjjwGuz4Z6knaTKbg%40mail.gmail.com&#34;&#38;gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAE-AwAo5R747uZ4V5Ff9JhkLjuftBrvDVDjjwGuz4Z6knaTKbg%40mail.gmail.com&#38;lt;/a&#38;gt;.
+&#38;lt;/pre&#38;gt;
+
+&#38;lt;/div&#38;gt;</content></entry><entry><id
+    >http://www.mail-archive.com/blink-dev@chromium.org/msg10164.html</id><title
+    >Re: [blink-dev] Intent to Ship: Tabbed web apps</title><author><name
+      >Intent to Ship</name></author><link
+      href="http://www.mail-archive.com/blink-dev@chromium.org/msg10164.html"
+    /><updated>2024-05-08T01:25:21.000Z</updated><summary
+    >Re: [blink-dev] Intent to Ship: Tabbed web apps</summary><content
+      type="html"
+    >&#38;lt;div class=&#34;msgHead&#34;&#38;gt;
+&#38;lt;h1&#38;gt;
+&#38;lt;span class=&#34;subject&#34;&#38;gt;&#38;lt;a href=&#34;/search?l=blink-dev@chromium.org&#38;amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Tabbed+web+apps%22&#38;amp;o=newest&#34; rel=&#34;nofollow&#34;&#38;gt;&#38;lt;span itemprop=&#34;name&#34;&#38;gt;Re: [blink-dev] Intent to Ship: Tabbed web apps&#38;lt;/span&#38;gt;&#38;lt;/a&#38;gt;&#38;lt;/span&#38;gt;
+&#38;lt;/h1&#38;gt;
+&#38;lt;p class=&#34;darkgray font13&#34;&#38;gt;
+&#38;lt;span class=&#34;sender pipe&#34;&#38;gt;&#38;lt;a href=&#34;/search?l=blink-dev@chromium.org&#38;amp;q=from:%22Matt+Giuca%22&#34; rel=&#34;nofollow&#34;&#38;gt;&#38;lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;http://schema.org/Person&#34;&#38;gt;&#38;lt;span itemprop=&#34;name&#34;&#38;gt;Matt Giuca&#38;lt;/span&#38;gt;&#38;lt;/span&#38;gt;&#38;lt;/a&#38;gt;&#38;lt;/span&#38;gt;
+&#38;lt;span class=&#34;date&#34;&#38;gt;&#38;lt;a href=&#34;/search?l=blink-dev@chromium.org&#38;amp;q=date:20240507&#34; rel=&#34;nofollow&#34;&#38;gt;Tue, 07 May 2024 18:25:21 -0700&#38;lt;/a&#38;gt;&#38;lt;/span&#38;gt;
+&#38;lt;/p&#38;gt;
+&#38;lt;/div&#38;gt;&#38;lt;div itemprop=&#34;articleBody&#34; class=&#34;msgBody&#34;&#38;gt;
+
+&#38;lt;pre&#38;gt;Hi Yoav,
+
+The API was specifically designed to allow developers to customize the
+fallback, so the short answer is &#38;quot;whatever fallback they want&#38;quot;.&#38;lt;/pre&#38;gt;&#38;lt;pre&#38;gt;
+
+Since the &#38;quot;display&#38;quot; Manifest member only allows for a single string, adding
+a new value there would break backwards compatibility for any site that
+used the new value. That is why we do not allow &#38;quot;tabbed&#38;quot; and other new
+display modes in that member; they can only be used in the new
+&#38;quot;display_override&#38;quot; member which is a list of display modes representing a
+developer-supplied fallback chain, with the final fallback being the value
+of the old &#38;quot;display&#38;quot; member.
+
+So developers can generally choose between two configurations:
+
+   1. &#38;quot;display_override&#38;quot;: [&#38;quot;tabbed&#38;quot;], &#38;quot;display&#38;quot;: &#38;quot;standalone&#38;quot;
+   2. &#38;quot;display_override&#38;quot;: [&#38;quot;tabbed&#38;quot;], &#38;quot;display&#38;quot;: &#38;quot;browser&#38;quot;
+
+If they choose #1, non-supported platforms will fall back to a standalone
+non-tabbed window (feeling like an app but not having a tabbed experience).
+If they choose #2, non-supported platforms will fall back to not having a
+separate window and just opening the content in the browser (giving the
+user a tabbed experience but not feeling like an app).
+
+We would recommend that developers fall back to whatever they are already
+using. That way, tabbed mode is an additive experience (currently only on
+ChromeOS but automatically upgrading to that experience on any platform
+that supports it in the future), with a graceful degradation to the status
+quo.
+
+Therefore, we don&#39;t think cross platform support for this feature is
+necessary, though of course it has been designed for this as a future
+possibility. Also there is nothing ChromeOS-specific about this design, as
+Marijn pointed out, it just hasn&#39;t been prioritized by the engineering team
+outside of ChromeOS.
+
+Regards
+
+Matt
+
+On Tue, 7 May 2024 at 19:24, Yoav Weiss (@Shopify) &#38;lt;yoavwe...@chromium.org&#38;gt;
+wrote:
+
+&#38;gt; Can you elaborate on the cross-platform story here? What kind of fallback
+&#38;gt; do we expect developers to use in non-supporting platforms?
+&#38;gt;
+&#38;gt; On Tue, May 7, 2024 at 12:34 AM Marijn Kruisselbrink &#38;lt;m...@chromium.org&#38;gt;
+&#38;gt; wrote:
+&#38;gt;
+&#38;gt;&#38;gt; I don&#39;t think there are major technical reasons, no. With some rough
+&#38;gt;&#38;gt; edges the flagged implementation should more or less work on other
+&#38;gt;&#38;gt; desktop platforms as well. My understanding is that this is largely a
+&#38;gt;&#38;gt; product choice and a choice not to prioritize the remaining engineering
+&#38;gt;&#38;gt; needed to clean up the rough edges on other desktop platforms.
+&#38;gt;&#38;gt;
+&#38;gt;&#38;gt; On Mon, May 6, 2024 at 3:29 PM Daniel Herr &#38;lt;danielherrsoftw...@gmail.com&#38;gt;
+&#38;gt;&#38;gt; wrote:
+&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; May I ask why? I&#39;ve tried out the flagged implementation on Chrome OS,
+&#38;gt;&#38;gt;&#38;gt; and I think it is a pretty nice UI paradigm. I don&#39;t see any technical
+&#38;gt;&#38;gt;&#38;gt; reason it shouldn&#39;t be available on other platforms.
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; On Monday, May 6, 2024 at 10:30:58 AM UTC-4 Brett Wilson wrote:
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt; On Mon, May 6, 2024 at 3:02 AM Yoav Weiss (@Shopify) &#38;lt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt; yoav...@chromium.org&#38;gt; wrote:
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; On Fri, May 3, 2024 at 7:28 PM Brett Wilson &#38;lt;bre...@chromium.org&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; wrote:
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; Contact emailsbre...@chromium.org, alanc...@chromium.org,
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; mgi...@chromium.org, loub...@google.com
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; Explainer
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; &#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://github.com/WICG/manifest-incubations/blob/gh-pages/tabbed-mode-explainer.md&#34;&#38;gt;https://github.com/WICG/manifest-incubations/blob/gh-pages/tabbed-mode-explainer.md&#38;lt;/a&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; Specification&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://wicg.github.io/manifest-incubations/#dfn-tabbed&#34;&#38;gt;https://wicg.github.io/manifest-incubations/#dfn-tabbed&#38;lt;/a&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; Summary
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; Allow web app windows to have a tab strip. This adds a new display
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; mode &#38;quot;tabbed&#38;quot; and a new manifest field to allow customizations to the tab
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; strip.
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; Blink componentBlink&#38;gt;AppManifest
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; &#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EAppManifest&#34;&#38;gt;https://bugs.chromium.org/p/chromium/issues/list?q=component:Blink%3EAppManifest&#38;lt;/a&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; TAG review&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://github.com/w3ctag/design-reviews/issues/841&#34;&#38;gt;https://github.com/w3ctag/design-reviews/issues/841&#38;lt;/a&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; TAG review statusIssues addressed
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; Chromium Trial NameWebAppTabStrip
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; Link to origin trial feedback summary
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; &#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://github.com/WICG/manifest-incubations/issues&#34;&#38;gt;https://github.com/WICG/manifest-incubations/issues&#38;lt;/a&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; Origin Trial documentation link
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; &#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://github.com/WICG/manifest-incubations/blob/gh-pages/tabbed-mode-explainer.md&#34;&#38;gt;https://github.com/WICG/manifest-incubations/blob/gh-pages/tabbed-mode-explainer.md&#38;lt;/a&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; Risks
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; Interoperability and Compatibility
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; *Gecko*: Defer (
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; &#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://github.com/mozilla/standards-positions/issues/811&#34;&#38;gt;https://github.com/mozilla/standards-positions/issues/811&#38;lt;/a&#38;gt;)
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; *WebKit*: No signal (
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; &#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://github.com/WebKit/standards-positions/issues/195&#34;&#38;gt;https://github.com/WebKit/standards-positions/issues/195&#38;lt;/a&#38;gt;)
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; *Web developers*: Positive (
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; &#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://github.com/w3c/manifest/issues/737&#34;&#38;gt;https://github.com/w3c/manifest/issues/737&#38;lt;/a&#38;gt;)
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; *Other signals*:
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; WebView application risks
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; Does this intent deprecate or change behavior of existing APIs, such
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; that it has potentially high risk for Android WebView-based applications?
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; N/A
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; Debuggability
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; chrome://web-app-internals can be used for debugging, and the new
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; manifest field could also be added to the DevTools Application pane.
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; Will this feature be supported on all six Blink platforms (Windows,
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; Mac, Linux, ChromeOS, Android, and Android WebView)?No
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; The origin trial is available on ChromeOS only. Support for other
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; desktop platforms is planned.
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; Is this feature fully tested by web-platform-tests
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; &#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&#34;&#38;gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&#38;lt;/a&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; ?Yes
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; &#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://github.com/web-platform-tests/wpt/tree/master/appmanifest/display-override-member&#34;&#38;gt;https://github.com/web-platform-tests/wpt/tree/master/appmanifest/display-override-member&#38;lt;/a&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; Flag name on chrome://flags
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; chrome://flags/#enable-desktop-pwas-tab-strip
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; Finch feature nameDesktopPWAsTabStrip
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; Requires code in //chrome?True
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; Tracking bug&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://issuetracker.google.com/issues/40598974&#34;&#38;gt;https://issuetracker.google.com/issues/40598974&#38;lt;/a&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; Launch bug&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://launch.corp.google.com/launch/4253814&#34;&#38;gt;https://launch.corp.google.com/launch/4253814&#38;lt;/a&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; MeasurementLaunch.WebAppDisplayMode: Tabbed
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; Availability expectationFeature is available only on
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; Chrome-on-ChromeOS for the foreseeable future.
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; This seems a bit contradictory with &#38;quot;Support for other desktop
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; platforms is planned&#38;quot; above. Are there plans for support beyond CrOS?
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt; &#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABiGVV9MstA8bLmUTLkkfTjeYK8bb7fkhyKL_OMt_d7UzavRTA%40mail.gmail.com?utm_medium=email&#38;amp;utm_source=footer&#34;&#38;gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CABiGVV9MstA8bLmUTLkkfTjeYK8bb7fkhyKL_OMt_d7UzavRTA%40mail.gmail.com?utm_medium=email&#38;amp;utm_source=footer&#38;lt;/a&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt; Sorry, the first part was a mistake. Chrome team has requested this not
+&#38;gt;&#38;gt;&#38;gt;&#38;gt; be on other platforms now.
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;&#38;gt; Brett
+&#38;gt;&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; --
+&#38;gt;&#38;gt;&#38;gt; You received this message because you are subscribed to the Google
+&#38;gt;&#38;gt;&#38;gt; Groups &#38;quot;blink-dev&#38;quot; group.
+&#38;gt;&#38;gt;&#38;gt; To unsubscribe from this group and stop receiving emails from it, send
+&#38;gt;&#38;gt;&#38;gt; an email to blink-dev+unsubscr...@chromium.org.
+&#38;gt;&#38;gt;&#38;gt; To view this discussion on the web visit
+&#38;gt;&#38;gt;&#38;gt; &#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/670da4b2-f0f9-4774-96a9-5cd5f96d168cn%40chromium.org&#34;&#38;gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/670da4b2-f0f9-4774-96a9-5cd5f96d168cn%40chromium.org&#38;lt;/a&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; &#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/670da4b2-f0f9-4774-96a9-5cd5f96d168cn%40chromium.org?utm_medium=email&#38;amp;utm_source=footer&#34;&#38;gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/670da4b2-f0f9-4774-96a9-5cd5f96d168cn%40chromium.org?utm_medium=email&#38;amp;utm_source=footer&#38;lt;/a&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; .
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt; --
+&#38;gt; You received this message because you are subscribed to the Google Groups
+&#38;gt; &#38;quot;blink-dev&#38;quot; group.
+&#38;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&#38;gt; email to blink-dev+unsubscr...@chromium.org.
+&#38;gt; To view this discussion on the web visit
+&#38;gt; &#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOmohSJ%2BqhpnANLEHdz4auCwS4Mu6P--%2B5p6A0pmHe2k2Ep5PA%40mail.gmail.com&#34;&#38;gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOmohSJ%2BqhpnANLEHdz4auCwS4Mu6P--%2B5p6A0pmHe2k2Ep5PA%40mail.gmail.com&#38;lt;/a&#38;gt;
+&#38;gt; &#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOmohSJ%2BqhpnANLEHdz4auCwS4Mu6P--%2B5p6A0pmHe2k2Ep5PA%40mail.gmail.com?utm_medium=email&#38;amp;utm_source=footer&#34;&#38;gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOmohSJ%2BqhpnANLEHdz4auCwS4Mu6P--%2B5p6A0pmHe2k2Ep5PA%40mail.gmail.com?utm_medium=email&#38;amp;utm_source=footer&#38;lt;/a&#38;gt;&#38;gt;
+&#38;gt; .
+&#38;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&#38;quot;blink-dev&#38;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAHqYdcbh%2BkNhR225FvzVYEBziQYQiSVthjB-KMdWWpwcj7L6Fg%40mail.gmail.com&#34;&#38;gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAHqYdcbh%2BkNhR225FvzVYEBziQYQiSVthjB-KMdWWpwcj7L6Fg%40mail.gmail.com&#38;lt;/a&#38;gt;.
 &#38;lt;/pre&#38;gt;
 
 &#38;lt;/div&#38;gt;</content></entry></feed>
