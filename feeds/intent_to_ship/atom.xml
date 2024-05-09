@@ -4,7 +4,7 @@
   >intent to ship feed</title><link
     href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml"
     rel="self"
-  /><updated>2024-05-09T08:10:32.148Z</updated><entry><id
+  /><updated>2024-05-09T12:13:01.356Z</updated><entry><id
     >http://www.mail-archive.com/blink-dev@chromium.org/msg09376.html</id><title
     >Re: [blink-dev] Intent to Ship: Remove &#34;window-placement&#34; alias for permission and permission policy &#34;window-management&#34;</title><author
     ><name>Intent to Ship</name></author><link
@@ -24551,6 +24551,112 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAO%2BCLgBrr%3Dx2Jot60NipZNLu-aVY5zmroXx%2Bs%3DaY%3D8W5bRiuew%40mail.gmail.com&#34;&#38;gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAO%2BCLgBrr%3Dx2Jot60NipZNLu-aVY5zmroXx%2Bs%3DaY%3D8W5bRiuew%40mail.gmail.com&#38;lt;/a&#38;gt;.
+&#38;lt;/pre&#38;gt;
+
+&#38;lt;/div&#38;gt;</content></entry><entry><id
+    >http://www.mail-archive.com/blink-dev@chromium.org/msg10191.html</id><title
+    >Re: [blink-dev] Intent to Ship: CSSPageRule to inherit from CSSGroupingRule</title><author
+    ><name>Intent to Ship</name></author><link
+      href="http://www.mail-archive.com/blink-dev@chromium.org/msg10191.html"
+    /><updated>2024-05-09T10:16:26.000Z</updated><summary
+    >Re: [blink-dev] Intent to Ship: CSSPageRule to inherit from CSSGroupingRule</summary><content
+      type="html"
+    >&#38;lt;div class=&#34;msgHead&#34;&#38;gt;
+&#38;lt;h1&#38;gt;
+&#38;lt;span class=&#34;subject&#34;&#38;gt;&#38;lt;a href=&#34;/search?l=blink-dev@chromium.org&#38;amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+CSSPageRule+to+inherit+from+CSSGroupingRule%22&#38;amp;o=newest&#34; rel=&#34;nofollow&#34;&#38;gt;&#38;lt;span itemprop=&#34;name&#34;&#38;gt;Re: [blink-dev] Intent to Ship: CSSPageRule to inherit from CSSGroupingRule&#38;lt;/span&#38;gt;&#38;lt;/a&#38;gt;&#38;lt;/span&#38;gt;
+&#38;lt;/h1&#38;gt;
+&#38;lt;p class=&#34;darkgray font13&#34;&#38;gt;
+&#38;lt;span class=&#34;sender pipe&#34;&#38;gt;&#38;lt;a href=&#34;/search?l=blink-dev@chromium.org&#38;amp;q=from:%22Morten+Stenshorne%22&#34; rel=&#34;nofollow&#34;&#38;gt;&#38;lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;http://schema.org/Person&#34;&#38;gt;&#38;lt;span itemprop=&#34;name&#34;&#38;gt;Morten Stenshorne&#38;lt;/span&#38;gt;&#38;lt;/span&#38;gt;&#38;lt;/a&#38;gt;&#38;lt;/span&#38;gt;
+&#38;lt;span class=&#34;date&#34;&#38;gt;&#38;lt;a href=&#34;/search?l=blink-dev@chromium.org&#38;amp;q=date:20240509&#34; rel=&#34;nofollow&#34;&#38;gt;Thu, 09 May 2024 03:16:26 -0700&#38;lt;/a&#38;gt;&#38;lt;/span&#38;gt;
+&#38;lt;/p&#38;gt;
+&#38;lt;/div&#38;gt;&#38;lt;div itemprop=&#34;articleBody&#34; class=&#34;msgBody&#34;&#38;gt;
+
+&#38;lt;pre&#38;gt;On Wed, 8 May 2024 at 17:18, Mike Taylor &#38;lt;miketa...@chromium.org&#38;gt; wrote:&#38;lt;/pre&#38;gt;&#38;lt;pre&#38;gt;
+
+&#38;gt; On 5/8/24 3:37 AM, Morten Stenshorne wrote:
+&#38;gt;
+&#38;gt; Interoperability and Compatibility
+&#38;gt;
+&#38;gt; Low risk. The one possible issue is if an author uses &#38;quot;instanceof
+&#38;gt; CSSGroupingRule&#38;quot; or &#38;quot;instanceof CSSRule&#38;quot; with a page rule object and makes
+&#38;gt; incorrect assumptions based on that. However, given that this is already
+&#38;gt; shipping in Firefox (and also that in Firefox, even CSSStyleRule inherits
+&#38;gt; from CSSGroupingRule, as the spec says - whereas Blink still doesn&#39;t), the
+&#38;gt; risk should be very low.
+&#38;gt;
+&#38;gt; I agree the risk is likely very low, or contained to just a few
+&#38;gt; sites/applications - have you done any investigation to try to find any
+&#38;gt; problematic code examples that you mention (via GitHub search or
+&#38;gt; HTTPArchive)?
+&#38;gt;
+
+There&#39;s a use counter -
+&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://chromestatus.com/metrics/feature/timeline/popularity/4862&#34;&#38;gt;https://chromestatus.com/metrics/feature/timeline/popularity/4862&#38;lt;/a&#38;gt; - for
+CSSPageRule, but I&#39;m not sure how useful it is, since it will count as long
+as someone e.g. iterates over the rules in a style sheet and there happens
+to be an @page rule in there. The use is currently at 0.07, but the number
+isn&#39;t that useful, apart from being an absolute worst-case number.
+
+Here&#39;s a constructed problematic case if CSSPageRule suddenly inherits from
+CSSGroupingRule:
+
+```
+&#38;lt;style&#38;gt;
+  @media screen {
+    div {
+      color: hotpink;
+    }
+  }
+  @page {
+    margin: 1in;
+    @top-center {
+      content: &#38;quot;Header&#38;quot;;
+    }
+  }
+&#38;lt;/style&#38;gt;
+&#38;lt;script&#38;gt;
+  for (const rule of document.styleSheets[0].cssRules) {
+    if (rule instanceof CSSGroupingRule) {
+      // Aha! You&#39;re a media rule! (d&#39;oh!)
+      // ...
+    }
+  }
+&#38;lt;/script&#38;gt;
+```
+
+How likely is that, though?
+
+
+&#38;gt; *Gecko*: Shipped/Shipping (
+&#38;gt; &#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://bugzilla.mozilla.org/show_bug.cgi?id=1868215&#34;&#38;gt;https://bugzilla.mozilla.org/show_bug.cgi?id=1868215&#38;lt;/a&#38;gt;)
+&#38;gt;
+&#38;gt; Noting that the patch should ship to Firefox release channel (126) in
+&#38;gt; about a week, per &#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://whattrainisitnow.com/calendar/&#34;&#38;gt;https://whattrainisitnow.com/calendar/&#38;lt;/a&#38;gt;.
+&#38;gt;
+
+Ah, right. Pretty recent change.
+
+On that note, earlier (some time in 2023), Firefox changed CSSStyleRule to
+inherit from CSSGroupingRule -
+&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://github.com/w3c/csswg-drafts/issues/8940#issuecomment-1747351690&#34;&#38;gt;https://github.com/w3c/csswg-drafts/issues/8940#issuecomment-1747351690&#38;lt;/a&#38;gt;
+That sounds like a much riskyisher change, but allegedly it went just fine.
+
+&#38;gt;
+&#38;gt; *WebKit*: No signal
+&#38;gt;
+&#38;gt; Can we request a signal? Or do we have any other indications about their
+&#38;gt; intentions here?
+&#38;gt;
+
+Done. &#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://github.com/WebKit/standards-positions/issues/346&#34;&#38;gt;https://github.com/WebKit/standards-positions/issues/346&#38;lt;/a&#38;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&#38;quot;blink-dev&#38;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAKWZFm6%3DGmh8StgzS11dUBgCeEEZFkS3sv%3DUxqpjherxO50v9A%40mail.gmail.com&#34;&#38;gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAKWZFm6%3DGmh8StgzS11dUBgCeEEZFkS3sv%3DUxqpjherxO50v9A%40mail.gmail.com&#38;lt;/a&#38;gt;.
 &#38;lt;/pre&#38;gt;
 
 &#38;lt;/div&#38;gt;</content></entry></feed>
