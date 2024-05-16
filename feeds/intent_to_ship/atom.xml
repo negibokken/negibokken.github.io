@@ -4,7 +4,7 @@
   >intent to ship feed</title><link
     href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml"
     rel="self"
-  /><updated>2024-05-16T12:13:37.146Z</updated><entry><id
+  /><updated>2024-05-16T16:08:54.497Z</updated><entry><id
     >http://www.mail-archive.com/blink-dev@chromium.org/msg09376.html</id><title
     >Re: [blink-dev] Intent to Ship: Remove &#34;window-placement&#34; alias for permission and permission policy &#34;window-management&#34;</title><author
     ><name>Intent to Ship</name></author><link
@@ -28816,6 +28816,223 @@ To unsubscribe from this group and stop receiving emails from it, send an email
 to blink-dev+unsubscr...@chromium.org.
 To view this discussion on the web visit 
 &#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOmohS%2Bj7O%3D6%3DAJu%2BkXiAezz%2BbZc%3DjsfAWUiT%2B%3DWQAvO6w82_g%40mail.gmail.com&#34;&#38;gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOmohS%2Bj7O%3D6%3DAJu%2BkXiAezz%2BbZc%3DjsfAWUiT%2B%3DWQAvO6w82_g%40mail.gmail.com&#38;lt;/a&#38;gt;.
+&#38;lt;/pre&#38;gt;
+
+&#38;lt;/div&#38;gt;</content></entry><entry><id
+    >http://www.mail-archive.com/blink-dev@chromium.org/msg10294.html</id><title
+    >Re: [blink-dev] Intent to Ship: Deprecate Mutation Events</title><author
+    ><name>Intent to Ship</name></author><link
+      href="http://www.mail-archive.com/blink-dev@chromium.org/msg10294.html"
+    /><updated>2024-05-16T15:56:54.000Z</updated><summary
+    >Re: [blink-dev] Intent to Ship: Deprecate Mutation Events</summary><content
+      type="html"
+    >&#38;lt;div class=&#34;msgHead&#34;&#38;gt;
+&#38;lt;h1&#38;gt;
+&#38;lt;span class=&#34;subject&#34;&#38;gt;&#38;lt;a href=&#34;/search?l=blink-dev@chromium.org&#38;amp;q=subject:%22Re%5C%3A+%5C%5Bblink%5C-dev%5C%5D+Intent+to+Ship%5C%3A+Deprecate+Mutation+Events%22&#38;amp;o=newest&#34; rel=&#34;nofollow&#34;&#38;gt;&#38;lt;span itemprop=&#34;name&#34;&#38;gt;Re: [blink-dev] Intent to Ship: Deprecate Mutation Events&#38;lt;/span&#38;gt;&#38;lt;/a&#38;gt;&#38;lt;/span&#38;gt;
+&#38;lt;/h1&#38;gt;
+&#38;lt;p class=&#34;darkgray font13&#34;&#38;gt;
+&#38;lt;span class=&#34;sender pipe&#34;&#38;gt;&#38;lt;a href=&#34;/search?l=blink-dev@chromium.org&#38;amp;q=from:%22Mason+Freed%22&#34; rel=&#34;nofollow&#34;&#38;gt;&#38;lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;http://schema.org/Person&#34;&#38;gt;&#38;lt;span itemprop=&#34;name&#34;&#38;gt;Mason Freed&#38;lt;/span&#38;gt;&#38;lt;/span&#38;gt;&#38;lt;/a&#38;gt;&#38;lt;/span&#38;gt;
+&#38;lt;span class=&#34;date&#34;&#38;gt;&#38;lt;a href=&#34;/search?l=blink-dev@chromium.org&#38;amp;q=date:20240516&#34; rel=&#34;nofollow&#34;&#38;gt;Thu, 16 May 2024 08:56:54 -0700&#38;lt;/a&#38;gt;&#38;lt;/span&#38;gt;
+&#38;lt;/p&#38;gt;
+&#38;lt;/div&#38;gt;&#38;lt;div itemprop=&#34;articleBody&#34; class=&#34;msgBody&#34;&#38;gt;
+
+&#38;lt;pre&#38;gt;On Wed, May 15, 2024 at 9:36 PM Vladimir Levin &#38;lt;vmp...@chromium.org&#38;gt; wrote:&#38;lt;/pre&#38;gt;&#38;lt;pre&#38;gt;
+
+&#38;gt; I recall that some of this usage was feature detected: if mutation events
+&#38;gt; are supported, use them; otherwise, use something else. Unfortunately, that
+&#38;gt; makes it difficult to estimate the expected number of breakages. I agree
+&#38;gt; though that it would be nice to understand the type of usage that still
+&#38;gt; exists and the likelihood of real breakage
+&#38;gt;
+
+That&#39;s right - some of the usage is definitely feature-detected. I also
+believe other usage simply doesn&#39;t matter to the functioning of the site.
+I.e a listener is attached (which triggers the use counter) but it is
+either never fired or doesn&#39;t do anything material if it does fire. See
+below for a comment on breakage.
+
+P.S. Congrats on being added to the API owners. Thanks for your service. :-)
+
+
+&#38;gt; On Wed, May 15, 2024 at 9:27 PM Yoav Weiss (@Shopify) &#38;lt;
+&#38;gt; yoavwe...@chromium.org&#38;gt; wrote:
+&#38;gt;
+&#38;gt;&#38;gt; 1% is a *lot*. Did UKM reveal anything interesting about this usage? Do
+&#38;gt;&#38;gt; we know if all of it is driven by site content, vs e.g. extensions?
+&#38;gt;&#38;gt;
+&#38;gt;
+I totally agree, 1% is a ton of usage, so it&#39;s right to be very careful and
+concerned about this deprecation. Note that deprecating things with this
+level of usage isn&#39;t unprecedented, as my team and I have successfully (and
+without major breakage) removed Web Components v0 with &#38;gt;2% usage, and
+event.path with close to 20% usage. But still, let&#39;s be sure we&#39;re taking
+all due precaution.
+
+I looked into the UKM data about three months ago, before I started the
+experiment to disable all mutation events on Canary/Dev/Beta. I looked at
+the top ~30 UKM hits and dug into the site&#39;s code to see what the usage
+was. Many (~40% or so?) of the top sites usage was due to quilljs
+&#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://github.com/quilljs/quill/issues/3806&#34;&#38;gt;https://github.com/quilljs/quill/issues/3806&#38;lt;/a&#38;gt;&#38;gt; which has since updated
+their code to not rely on mutation events. Another maybe 10% was due
+to a Sharepoint
+2016 mquery.js utility
+&#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://techcommunity.microsoft.com/t5/sharepoint/sharepoint-2016-server-mquery-js-event-deprecation/m-p/3947764&#34;&#38;gt;https://techcommunity.microsoft.com/t5/sharepoint/sharepoint-2016-server-mquery-js-event-deprecation/m-p/3947764&#38;lt;/a&#38;gt;&#38;gt;,
+for which several folks have requested support from MS, but it&#39;s a bit
+unclear what the plan is. The rest of the sites appeared to have bespoke
+code looking at mutation events.
+
+You asked about extensions, which is a good question. I don&#39;t have a great
+way to track extensions via UKM, at least that I know of. Let me know if
+you do! I did receive one bug report
+&#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://issues.chromium.org/issues/330413279&#34;&#38;gt;https://issues.chromium.org/issues/330413279&#38;lt;/a&#38;gt;&#38;gt; that an extension was using
+mutation events, and the extension author quickly patched the extension.
+
+Very importantly, on literally none of the sites I investigated did I find
+any broken functionality. That includes the quilljs and mquery sites I
+mentioned above. Of course, I&#39;m not an expert on those particular sites,
+and some aren&#39;t in my native language. But I could not find the effect of
+turning off mutation events. Similarly, I&#39;ve been running my own browser
+with mutation events disabled for over a year now, and I have yet to find
+any site with broken functionality. And again, most convincingly to me,
+I&#39;ve had these events disabled for all of Canary, Dev, and Beta for the
+better part of three months, and I&#39;ve only received the one bug mentioned
+above about an extension. While that&#39;s not a guarantee that nothing will
+break, of course, I view it as a very strong sign that the effect of
+turning off these events will be less than what the 1% use counter would
+suggest.
+
+And finally, of course, assuming I&#39;m approved to disable in M127, I&#39;ll be
+very mindful of breakage and will flip the events back on immediately in
+the case that there is more breakage than I&#39;m expecting.
+
+Let me know if anything else would help make the case that we should go
+forward with this.
+
+Thanks,
+Mason
+
+
+
+
+&#38;gt; Chrome has shipped an experiment since M124 that disables all Mutation
+&#38;gt;&#38;gt;&#38;gt; Events for 99% of users of Canary, Dev, and Beta versions of Chrome. Very
+&#38;gt;&#38;gt;&#38;gt; few bugs have been filed in the intervening months, and all that were filed
+&#38;gt;&#38;gt;&#38;gt; have been resolved quickly via the site owner making changes to not rely on
+&#38;gt;&#38;gt;&#38;gt; the deprecated events.
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt; This gives me significant confidence that removing the events will not be
+&#38;gt;&#38;gt;&#38;gt; as big of a deal as the use counters would suggest. Still, due to the
+&#38;gt;&#38;gt;&#38;gt; still-high numbers, extreme care will be taken in the removal process. I
+&#38;gt;&#38;gt;&#38;gt; plan to disable the events via Finch only, so that if issues are
+&#38;gt;&#38;gt;&#38;gt; encountered, Finch will be a safe way to re-enable the events.
+&#38;gt;&#38;gt;&#38;gt; Additionally, there are the deprecation trial and enterprise policies to
+&#38;gt;&#38;gt;&#38;gt; offer an easy relief valve for affected sites.
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; *Gecko*: Positive (
+&#38;gt;&#38;gt;&#38;gt; &#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://github.com/mozilla/standards-positions/issues/807&#34;&#38;gt;https://github.com/mozilla/standards-positions/issues/807&#38;lt;/a&#38;gt;) &#38;quot;very strong
+&#38;gt;&#38;gt;&#38;gt; positive position&#38;quot;
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; *WebKit*: No signal (
+&#38;gt;&#38;gt;&#38;gt; &#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://github.com/WebKit/standards-positions/issues/192&#34;&#38;gt;https://github.com/WebKit/standards-positions/issues/192&#38;lt;/a&#38;gt;)
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; *Web developers*: No signals
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; *Other signals*:
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; Activation
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; This npm package attempts to polyfill Mutation Events using Mutation
+&#38;gt;&#38;gt;&#38;gt; Observer: &#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://www.npmjs.com/package/mutation-events&#34;&#38;gt;https://www.npmjs.com/package/mutation-events&#38;lt;/a&#38;gt;.
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; WebView application risks
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; Does this intent deprecate or change behavior of existing APIs, such
+&#38;gt;&#38;gt;&#38;gt; that it has potentially high risk for Android WebView-based applications?
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; None
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; Debuggability
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; Will this feature be supported on all six Blink platforms (Windows, Mac,
+&#38;gt;&#38;gt;&#38;gt; Linux, ChromeOS, Android, and Android WebView)?Yes
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; Is this feature fully tested by web-platform-tests
+&#38;gt;&#38;gt;&#38;gt; &#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&#34;&#38;gt;https://chromium.googlesource.com/chromium/src/+/main/docs/testing/web_platform_tests.md&#38;lt;/a&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; ?No
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; Flag name on chrome://flagsmutation-events
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; Finch feature nameMutationEvents
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; Requires code in //chrome?False
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; Tracking bug&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://crbug.com/1446498&#34;&#38;gt;https://crbug.com/1446498&#38;lt;/a&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; Estimated milestones
+&#38;gt;&#38;gt;&#38;gt; Shipping on desktop 127
+&#38;gt;&#38;gt;&#38;gt; Origin trial desktop first 124
+&#38;gt;&#38;gt;&#38;gt; Origin trial desktop last 134
+&#38;gt;&#38;gt;&#38;gt; Shipping on Android 127
+&#38;gt;&#38;gt;&#38;gt; OriginTrial Android last 134
+&#38;gt;&#38;gt;&#38;gt; OriginTrial Android first 124
+&#38;gt;&#38;gt;&#38;gt; Shipping on WebView 127
+&#38;gt;&#38;gt;&#38;gt; OriginTrial webView last 134
+&#38;gt;&#38;gt;&#38;gt; OriginTrial webView first 124
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; Anticipated spec changes
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; Open questions about a feature may be a source of future web compat or
+&#38;gt;&#38;gt;&#38;gt; interop issues. Please list open issues (e.g. links to known github issues
+&#38;gt;&#38;gt;&#38;gt; in the project for the feature specification) whose resolution may
+&#38;gt;&#38;gt;&#38;gt; introduce web compat/interop risk (e.g., changing to naming or structure of
+&#38;gt;&#38;gt;&#38;gt; the API in a non-backward-compatible way).
+&#38;gt;&#38;gt;&#38;gt; None
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; Link to entry on the Chrome Platform Status
+&#38;gt;&#38;gt;&#38;gt; &#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://chromestatus.com/feature/5083947249172480?gate=5111010140094464&#34;&#38;gt;https://chromestatus.com/feature/5083947249172480?gate=5111010140094464&#38;lt;/a&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; Links to previous Intent discussionsIntent to Deprecate:
+&#38;gt;&#38;gt;&#38;gt; &#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://groups.google.com/a/chromium.org/g/blink-dev/c/qDsKRU-cQ_4/m/isA1mZ_aAAAJ&#34;&#38;gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/qDsKRU-cQ_4/m/isA1mZ_aAAAJ&#38;lt;/a&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; Intent to Experiment:
+&#38;gt;&#38;gt;&#38;gt; &#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://groups.google.com/a/chromium.org/g/blink-dev/c/z-VIfSOco4k/m/KDz9c_goAAAJ&#34;&#38;gt;https://groups.google.com/a/chromium.org/g/blink-dev/c/z-VIfSOco4k/m/KDz9c_goAAAJ&#38;lt;/a&#38;gt;
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; This intent message was generated by Chrome Platform Status
+&#38;gt;&#38;gt;&#38;gt; &#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://chromestatus.com/&#34;&#38;gt;https://chromestatus.com/&#38;lt;/a&#38;gt;&#38;gt;.
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; --
+&#38;gt;&#38;gt;&#38;gt; You received this message because you are subscribed to the Google
+&#38;gt;&#38;gt;&#38;gt; Groups &#38;quot;blink-dev&#38;quot; group.
+&#38;gt;&#38;gt;&#38;gt; To unsubscribe from this group and stop receiving emails from it, send
+&#38;gt;&#38;gt;&#38;gt; an email to blink-dev+unsubscr...@chromium.org.
+&#38;gt;&#38;gt;&#38;gt; To view this discussion on the web visit
+&#38;gt;&#38;gt;&#38;gt; &#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAM%3DNeDjonGju3YX1WkXtEJrMGLo4bH9AqtwV0QoqvopdGNioAg%40mail.gmail.com&#34;&#38;gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAM%3DNeDjonGju3YX1WkXtEJrMGLo4bH9AqtwV0QoqvopdGNioAg%40mail.gmail.com&#38;lt;/a&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; &#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAM%3DNeDjonGju3YX1WkXtEJrMGLo4bH9AqtwV0QoqvopdGNioAg%40mail.gmail.com?utm_medium=email&#38;amp;utm_source=footer&#34;&#38;gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAM%3DNeDjonGju3YX1WkXtEJrMGLo4bH9AqtwV0QoqvopdGNioAg%40mail.gmail.com?utm_medium=email&#38;amp;utm_source=footer&#38;lt;/a&#38;gt;&#38;gt;
+&#38;gt;&#38;gt;&#38;gt; .
+&#38;gt;&#38;gt;&#38;gt;
+&#38;gt;&#38;gt; --
+&#38;gt;&#38;gt; You received this message because you are subscribed to the Google Groups
+&#38;gt;&#38;gt; &#38;quot;blink-dev&#38;quot; group.
+&#38;gt;&#38;gt; To unsubscribe from this group and stop receiving emails from it, send an
+&#38;gt;&#38;gt; email to blink-dev+unsubscr...@chromium.org.
+&#38;gt;&#38;gt; To view this discussion on the web visit
+&#38;gt;&#38;gt; &#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOmohSJzmUKZo5K0TwixDRx0J5JfcNzugO3C%2BPVac-sB-3M-0g%40mail.gmail.com&#34;&#38;gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOmohSJzmUKZo5K0TwixDRx0J5JfcNzugO3C%2BPVac-sB-3M-0g%40mail.gmail.com&#38;lt;/a&#38;gt;
+&#38;gt;&#38;gt; &#38;lt;&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOmohSJzmUKZo5K0TwixDRx0J5JfcNzugO3C%2BPVac-sB-3M-0g%40mail.gmail.com?utm_medium=email&#38;amp;utm_source=footer&#34;&#38;gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAOmohSJzmUKZo5K0TwixDRx0J5JfcNzugO3C%2BPVac-sB-3M-0g%40mail.gmail.com?utm_medium=email&#38;amp;utm_source=footer&#38;lt;/a&#38;gt;&#38;gt;
+&#38;gt;&#38;gt; .
+&#38;gt;&#38;gt;
+&#38;gt;
+
+-- 
+You received this message because you are subscribed to the Google Groups 
+&#38;quot;blink-dev&#38;quot; group.
+To unsubscribe from this group and stop receiving emails from it, send an email 
+to blink-dev+unsubscr...@chromium.org.
+To view this discussion on the web visit 
+&#38;lt;a  rel=&#34;nofollow&#34; href=&#34;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAM%3DNeDgfmwE9%3DKjAuKSZKEw_3CQ9tWenNa0yfLo8QXG6EyZ5uw%40mail.gmail.com&#34;&#38;gt;https://groups.google.com/a/chromium.org/d/msgid/blink-dev/CAM%3DNeDgfmwE9%3DKjAuKSZKEw_3CQ9tWenNa0yfLo8QXG6EyZ5uw%40mail.gmail.com&#38;lt;/a&#38;gt;.
 &#38;lt;/pre&#38;gt;
 
 &#38;lt;/div&#38;gt;</content></entry></feed>
