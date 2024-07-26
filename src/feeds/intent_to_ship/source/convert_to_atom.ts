@@ -37,7 +37,7 @@ export function uniqueJoinAtomFeedEntries(currentAtom: AtomFeed, entries: AtomEn
                 content: sanitize(entry.content._text),
             }
         )
-    }).slice(0, opt?.length ?? DEFAULT_LENGTH);
+    }).reverse().slice(0, opt?.length ?? DEFAULT_LENGTH);
 
     const atomFeed = new AtomFeed({
         id: currentAtom.id,
