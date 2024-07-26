@@ -1,8 +1,7 @@
 import { ItemClass, XMLResponse } from "./item";
 import { Result, err, ok } from 'neverthrow';
-import { request } from 'undici';
 import { parse } from 'node-html-parser';
-import { sanitize, sleep } from "../../modules";
+import { sleep } from "../../modules";
 
 const axios = require('axios').default;
 const parseStringPromise = require('xml2js').parseStringPromise;
@@ -51,7 +50,8 @@ async function fetchDescription(url: string): Promise<string> {
 
 async function fetchContent(url: string): Promise<string> {
     try {
-        return (await request(url, { maxRedirections: 3 })).body.text();
+        const response = await fetch(url);
+        return response.text();
     } catch (e) {
         console.error(e);
     }
