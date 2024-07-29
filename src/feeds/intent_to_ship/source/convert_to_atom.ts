@@ -29,12 +29,12 @@ export function uniqueJoinAtomFeedEntries(currentAtom: AtomFeed, entries: AtomEn
     const slicedEntries = joinedEntries.map((entry) => {
         return new AtomEntry(
             {
-                title: sanitize(entry.title), author: entry.author,
+                title: sanitize(entry.title ?? ""), author: entry.author,
                 summary: sanitize(entry.title),
                 id: entry.id,
                 link: entry.link._attr.href,
                 updated: entry.updated,
-                content: sanitize(entry.content._text),
+                content: sanitize(entry.content._text ?? ""),
             }
         )
     }).reverse().slice(0, opt?.length ?? DEFAULT_LENGTH);
