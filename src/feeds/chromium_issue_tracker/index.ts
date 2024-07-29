@@ -4,6 +4,7 @@ import convert from 'xml-js';
 
 import { request } from 'undici';
 import { AtomEntryProps, AtomFeed, AtomEntry } from '../modules/atom/atom';
+import { CITResult } from './playwright/tests/example.spec';
 
 // Response from the API contains unnecessary symbols so we need to remove them.
 function trimPrefix(text: string) {
@@ -17,19 +18,31 @@ function sanitize(str: string) {
         .replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("&", "&#38;").replaceAll("'", "&#39;").replaceAll("\"", "&#34;");
 }
 
-async function fetchContent(url: string): Promise<string> {
-    try {
-        return (await request(url, { maxRedirections: 3 })).body.text();
-    } catch (e) {
-        console.error(e);
-    }
-    return "";
-}
-
 async function sleep(time: number): Promise<void> {
     return new Promise((resolve) => {
         setTimeout(() => resolve(), time);
     });
+}
+
+interface IssueJSON {
+    id: number;
+    title: string;
+    link: string;
+    updated: string;
+    content: string;
+}
+
+function loadIssueJSON(): Array<IssueJSON> {
+    const jsonPath = "./src/feeds/chromium_issue_tracker/playwright/result.json";
+    const issueJSON = fs.readFileSync(jsonPath).toString();
+    const jsons = JSON.parse(issueJSON) as Array<CITResult>;
+    return jsons.map((json: CITResult) => ({
+        id: json.id,
+        title: `${json.title} | ${json.component}`,
+        link: json.link,
+        updated: json.created,
+        content: `${json.title} | ${json.component}`,
+    }));
 }
 
 (async () => {
@@ -40,82 +53,26 @@ async function sleep(time: number): Promise<void> {
 
         if (!currentAtom.feed.entry) currentAtom.feed.entry = [];
 
+        const issues = loadIssueJSON();
 
-        console.log('fetching list');
-        const listRes = await fetch("https://issues.chromium.org/action/issues/list", {
-            "headers": {
-                "accept": "application/json, text/plain, */*",
-                "accept-language": "en-US,en;q=0.9,ja-JP;q=0.8,ja;q=0.7",
-                "content-type": "application/json",
-            },
-            "body": "[\"status:open\",50,\"created_time:desc\",1,null,[\"157\"]]",
-            "method": "POST"
-        });
-
-
-        const formatedResponse = trimPrefix(await listRes.text());
-        const json = JSON.parse(formatedResponse)
-        const filteredResponses = json[0][1].map((arr: any) => {
-            const id = arr[22][1];
-            // Maybe the meaning of numbers are below:
-            // 1: Bug
-            // 2: Feature Request
-            // 11: Feature
-            const type = arr[22][2][1];
-            const title = arr[22][2][5];
-            return {
-                id, title
-            }
-        });
-
-        console.log('fetching each issue');
-        const entries: AtomEntry[] = [];
-        let flag = true;
-        for await (const entry of filteredResponses) {
-            try {
-                const issueRes = await fetch(`https://issues.chromium.org/action/issues/${entry.id}?currentTrackerId=157`, {
-                    "headers": {
-                        "accept": "application/json, text/plain, */*",
-                        "accept-language": "en-US,en;q=0.9,ja-JP;q=0.8,ja;q=0.7",
-                    },
-                    "body": null,
-                    "method": "GET"
-                });
-
-                const formattedIssue = trimPrefix(await issueRes.text());
-                const issueJson = JSON.parse(formattedIssue)
-
-                // The below site is useful to check the index of array:
-                // https://jsonformatter.org/json-viewer
-                const body = issueJson[0][1][22][43][0];
-                const author = issueJson[0][1][22][2][6][1];
-                const createdAt = new Date(Number(issueJson[0][1][22][4][0]) * 1000);
-                const atomentry: AtomEntryProps = {
-                    author: { name: author },
-                    content: body ? Buffer.from(body).toString('base64') : "-",
-                    id: entry.id,
-                    title: sanitize(entry.title),
-                    link: `https://issues.chromium.org/issues/${entry.id}`,
-                    updated: createdAt.toISOString(),
-                    summary: '-',
-                }
-                if (!body && flag) {
-                    console.log(JSON.stringify(issueJson, null, '  '));
-                    flag = false;
-                }
-                entries.push(new AtomEntry(atomentry));
-            } catch(e) {
-                console.error(e);
-            }
-            await sleep(250);
-        }
-
-        if (entries.length === 0) {
+        if (issues.length === 0) {
             console.log('Updates nothing');
             return;
         }
 
-        const latest = entries[0];
+        const entries = issues.map((issue) => {
+            return new AtomEntry({
+                id: issue.id.toString(),
+                title: issue.title,
+                author: { name: "Chromium issue tracker" },
+                updated: issue.updated,
+                link: issue.link,
+                summary: issue.content,
+                content: issue.content
+            });
+        });
+
+        const latest = issues[0];
         const link = 'https://negibokken.github.io/feeds/chromium_issue_tracker/atom.xml'
         const feed = new AtomFeed({ id: link, title: "Chromium issue tracker feed", link, updated: latest.updated, entries });
 
