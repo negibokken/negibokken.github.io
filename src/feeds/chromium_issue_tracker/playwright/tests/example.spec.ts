@@ -6,11 +6,14 @@ const TIME_TO_WAIT = 0.5 * 1000;
 
 const COLUMN_TITLES = ["ID", "TITLE", "COMPONENT", "CREATED"];
 
+const CHROMIUM_ISSUE_TRACKER_URL_BASE = "https://issues.chromium.org"
+
 export interface CITResult {
     id: number;
     title: string;
     component: string;
     created: string;
+    link: string;
 }
 
 test('Visit Chromium issue tracker and get the information', async ({ page }) => {
@@ -45,7 +48,7 @@ test('Visit Chromium issue tracker and get the information', async ({ page }) =>
     const theadLocator = tableLocator.locator('thead');
 
     let i = 0;
-    const columnIndexMap = {};
+    const columnIndexMap: Record<string, number> = {};
     for (const th of await theadLocator.locator('th').all()) {
         const label = await th.innerText()
         if (COLUMN_TITLES.includes(label)) {
@@ -60,7 +63,7 @@ test('Visit Chromium issue tracker and get the information', async ({ page }) =>
      * the number is replaced with the true value.
      **/
     const watchDog = page.waitForFunction(() => {
-        const cellText = Number(document.querySelectorAll("tbody tr .componentPath-cell")[0].innerText);
+        const cellText = Number(document.querySelectorAll("tbody tr .componentPath-cell")[0]?.innerText);
         return Number.isNaN(Number(cellText));
     });
 
@@ -76,17 +79,17 @@ test('Visit Chromium issue tracker and get the information', async ({ page }) =>
         const rowLocator = rowsLocator.nth(i); // i番目の行を取得
         const cellsLocator = rowLocator.locator('td'); // セルとヘッダーのlocator
 
-        const res = {};
+        const res: Record<string, any> = {};
         for (const key of Object.keys(columnIndexMap)) {
             const idx = columnIndexMap[key];
             const cellLocator = cellsLocator.nth(idx);
             const cellText = await cellLocator.innerText();
             res[key.toLowerCase()] = cellText;
         }
+        res["link"] = `${CHROMIUM_ISSUE_TRACKER_URL_BASE}/issues/${res["id"]}`
         results.push(res);
     }
 
     writeFileSync("result.json", JSON.stringify(results));
 
 });
-
