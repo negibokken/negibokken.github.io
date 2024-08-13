@@ -38,10 +38,10 @@ function loadIssueJSON(): Array<IssueJSON> {
     const jsons = JSON.parse(issueJSON) as Array<CITResult>;
     return jsons.map((json: CITResult) => ({
         id: json.id,
-        title: `${json.title} | ${json.component}`,
+        title: `【${json.component}】 ${json.title}`,
         link: json.link,
         updated: json.created,
-        content: `${json.title} | ${json.component}`,
+        content: "Click to view details",
     }));
 }
 
