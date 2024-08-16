@@ -28,7 +28,7 @@ test('Visit Chromium issue tracker and get the information', async ({ page }) =>
     await page.waitForTimeout(TIME_TO_WAIT);
     await page.getByText('Add column right').click();
     await page.waitForTimeout(TIME_TO_WAIT);
-    await page.getByText('Created').click();
+    await page.getByRole('menuitem', { name: 'Created' }).click();
     await page.waitForTimeout(TIME_TO_WAIT);
 
     await page.locator('div[aria-label="Last modified column configuration"]').click();
