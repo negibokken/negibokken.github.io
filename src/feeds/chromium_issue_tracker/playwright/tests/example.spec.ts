@@ -1,20 +1,12 @@
 import { test, expect } from '@playwright/test';
 import { writeFileSync } from 'node:fs';
+import { CITResult } from '../../../modules/cit-types';
 
-const ONE_SEC = 1 * 1000;
 const TIME_TO_WAIT = 0.5 * 1000;
 
 const COLUMN_TITLES = ["ID", "TITLE", "COMPONENT", "CREATED"];
 
 const CHROMIUM_ISSUE_TRACKER_URL_BASE = "https://issues.chromium.org"
-
-export interface CITResult {
-    id: number;
-    title: string;
-    component: string;
-    created: string;
-    link: string;
-}
 
 test('Visit Chromium issue tracker and get the information', async ({ page }) => {
     await page.goto('https://issues.chromium.org/issues?q=status:open');
@@ -89,6 +81,9 @@ test('Visit Chromium issue tracker and get the information', async ({ page }) =>
         res["link"] = `${CHROMIUM_ISSUE_TRACKER_URL_BASE}/issues/${res["id"]}`
         results.push(res);
     }
+
+    // TODO: validate that results is CITResult[].
+
 
     writeFileSync("result.json", JSON.stringify(results));
 

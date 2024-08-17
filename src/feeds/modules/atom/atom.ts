@@ -129,6 +129,11 @@ export class AtomFeed {
     }
 }
 
+function sanitize(str: string) {
+    return str.replaceAll("&lt;", "<").replaceAll("&gt;", ">").replaceAll("&#38;", "&").replaceAll("&#39;", "'").replaceAll("&#34;", "\"")
+        .replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("&", "&#38;").replaceAll("'", "&#39;").replaceAll("\"", "&#34;");
+}
+
 function transformToXML(obj: any): string {
     let attr = "";
     if (typeof obj === 'object' && '_attr' in obj) {
@@ -154,7 +159,10 @@ function transformToXML(obj: any): string {
         } else if (typeof value === 'object') {
             xml += transformToXML({ _name: key, ...value });
         } else {
-            xml += `<${key}>${value}</${key}>`;
+            if (typeof value !== 'string') {
+                throw new Error(`Unexpected value: ${value}`);
+            }
+            xml += `<${key}>${sanitize(value)}</${key}>`;
         }
     }
     xml += obj._name ? `</${obj._name}>` : '';

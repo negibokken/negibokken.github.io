@@ -1,59 +1,19 @@
 import fs from 'fs';
-
 import convert from 'xml-js';
 
-import { request } from 'undici';
-import { AtomEntryProps, AtomFeed, AtomEntry } from '../modules/atom/atom';
-import { CITResult } from './playwright/tests/example.spec';
-
-// Response from the API contains unnecessary symbols so we need to remove them.
-function trimPrefix(text: string) {
-    const firstRowEndPos = text.indexOf('\n', 0);
-    const formatedResponse = text.slice(firstRowEndPos);
-    return formatedResponse;
-}
-
-function sanitize(str: string) {
-    return str.replaceAll("&lt;", "<").replaceAll("&gt;", ">").replaceAll("&#38;", "&").replaceAll("&#39;", "'").replaceAll("&#34;", "\"")
-        .replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("&", "&#38;").replaceAll("'", "&#39;").replaceAll("\"", "&#34;");
-}
-
-async function sleep(time: number): Promise<void> {
-    return new Promise((resolve) => {
-        setTimeout(() => resolve(), time);
-    });
-}
-
-interface IssueJSON {
-    id: number;
-    title: string;
-    link: string;
-    updated: string;
-    content: string;
-}
-
-function loadIssueJSON(): Array<IssueJSON> {
-    const jsonPath = "./src/feeds/chromium_issue_tracker/playwright/result.json";
-    const issueJSON = fs.readFileSync(jsonPath).toString();
-    const jsons = JSON.parse(issueJSON) as Array<CITResult>;
-    return jsons.map((json: CITResult) => ({
-        id: json.id,
-        title: `【${json.component}】 ${json.title}`,
-        link: json.link,
-        updated: json.created,
-        content: "Click to view details",
-    }));
-}
+import { AtomFeed, AtomEntry } from '../modules/atom/atom';
+import { xml2json } from '../modules/xml2json';
+import { loadIssueJSON } from '../modules/load-issue-json';
 
 (async () => {
     try {
         const xmlPath = "./feeds/chromium_issue_tracker/atom.xml";
         const atomXML = fs.readFileSync(xmlPath).toString();
-        var currentAtom = JSON.parse(convert.xml2json(atomXML, { compact: true, spaces: 4 }));
+        var currentAtom = xml2json(atomXML);
 
         if (!currentAtom.feed.entry) currentAtom.feed.entry = [];
 
-        const issues = loadIssueJSON();
+        const issues = loadIssueJSON("./src/feeds/chromium_issue_tracker/playwright/result.json");
 
         if (issues.length === 0) {
             console.log('Updates nothing');
@@ -78,7 +38,7 @@ function loadIssueJSON(): Array<IssueJSON> {
 
         let newAtom: any;
         try {
-            newAtom = JSON.parse(convert.xml2json(feed.toXML(), { compact: true, spaces: 4 }));
+            newAtom = xml2json(feed.toXML());
         } catch (e) {
             console.error(e);
             console.error(JSON.stringify(feed, null, '  '));
