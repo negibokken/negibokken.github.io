@@ -3,7 +3,247 @@
     <id>https://negibokken.github.io/feeds/chromium_issue_tracker/atom.xml</id>
     <title>Chromium issue tracker feed</title>
     <link href="https://negibokken.github.io/feeds/intent_to_ship/atom.xml" rel="self"/>
-    <updated>Mar 2, 2026 08:19AM</updated>
+    <updated>Mar 2, 2026 12:46PM</updated>
+    <entry>
+        <id>488948351</id>
+        <title>【Chromium &amp;gt; PDFium】 Highlight Rects For Formulas are not correct</title>
+        <author>
+            <name>Chromium issue tracker</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/488948351"/>
+        <updated>Mar 2, 2026 12:46PM</updated>
+        <summary>Click to view details</summary>
+        <content type="html">
+X���/��z֢�</content>
+    </entry>
+    <entry>
+        <id>488980784</id>
+        <title>【Chromium &amp;gt; Mobile &amp;gt; iOSWebView】 All data</title>
+        <author>
+            <name>Chromium issue tracker</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/488980784"/>
+        <updated>Mar 2, 2026 12:36PM</updated>
+        <summary>Click to view details</summary>
+        <content type="html">
+X���/��z֢�</content>
+    </entry>
+    <entry>
+        <id>488928986</id>
+        <title>【Chromium】 Get off</title>
+        <author>
+            <name>Chromium issue tracker</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/488928986"/>
+        <updated>Mar 2, 2026 12:31PM</updated>
+        <summary>Click to view details</summary>
+        <content type="html">
+X���/��z֢�</content>
+    </entry>
+    <entry>
+        <id>488948349</id>
+        <title>【Chromium &amp;gt; Internals &amp;gt; Media &amp;gt; Video】 Chromium currently lacks support for Stateful V4L2 hardware video decoding on generic Linux desktops</title>
+        <author>
+            <name>Chromium issue tracker</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/488948349"/>
+        <updated>Mar 2, 2026 12:29PM</updated>
+        <summary>Click to view details</summary>
+        <content type="html">
+X���/��z֢�</content>
+    </entry>
+    <entry>
+        <id>488953930</id>
+        <title>【Chromium &amp;gt; Blink &amp;gt; JavaScript】 [V8 JavaScript Perf]: [1] regressions in speedometer3</title>
+        <author>
+            <name>Chromium issue tracker</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/488953930"/>
+        <updated>Mar 2, 2026 12:18PM</updated>
+        <summary>Click to view details</summary>
+        <content type="html">
+X���/��z֢�</content>
+    </entry>
+    <entry>
+        <id>489010856</id>
+        <title>【Chromium &amp;gt; UI &amp;gt; Browser &amp;gt; WebAppInstalls &amp;gt; Isolated】 unframed window crashes when calling window.setResizable</title>
+        <author>
+            <name>Chromium issue tracker</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/489010856"/>
+        <updated>Mar 2, 2026 12:04PM</updated>
+        <summary>Click to view details</summary>
+        <content type="html">
+X���/��z֢�</content>
+    </entry>
+    <entry>
+        <id>488948347</id>
+        <title>【Chromium &amp;gt; UI】 From 335e63f3463714b5c49c330987c667fd1958d247 Mon Sep 17 00:00:00 2001 From: Andrew Grieve &amp;lt;agrieve@chromium.org&amp;gt; Date: Fri, 06 Feb 2026 10:51:42 -0800 Subject: [PATCH] Enable dwarf5 for target_os="android" is_official_build=false Some timings &amp; size metrics in linked bug. Tested that stack traces still work for failed CHECK()s. Bug: 479802735 Change-Id: If638c89e5fe42ec743b464a1f47ac0adcefde95b Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/7533136 Reviewed-by: Nico Weber &amp;lt;thakis@chromium.org&amp;gt; Auto-Submit: Andrew Grieve &amp;lt;agrieve@chromium.org&amp;gt; Commit-Queue: Andrew Grieve &amp;lt;agrieve@chromium.org&amp;gt; Cr-Commit-Position: refs/heads/main@{#1580982} --- diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn index 11c361d0..3caedeb 100644 --- a/build/config/compiler/BUILD.gn +++ b/build/config/compiler/BUILD.gn @@ -161,7 +161,8 @@ use_text_section_splitting = is_chromeos # Enable DWARF v5. - use_dwarf5 = false + # See analysis for is_android at https://crbug.com/479802735 + use_dwarf5 = is_android &amp;&amp; !is_official_build # Untested on official builds. # Override this to put full paths to PDBs in Windows PE files. This helps # windbg and Windows Performance Analyzer with finding the PDBs in some local- @@ -3156,16 +3157,26 @@ asmflags = cflags ldflags = [] - _enable_gdb_index = symbol_level == 2 &amp;&amp; !is_apple &amp;&amp; use_lld &amp;&amp; !is_wasm - if (_enable_gdb_index) { - if (is_clang) { - # This flag enables the GNU-format pubnames and pubtypes sections, - # which lld needs in order to generate a correct GDB index. - # TODO(pcc): Try to make lld understand non-GNU-format pubnames - # sections (llvm.org/PR34820). - cflags += [ "-ggnu-pubnames" ] + # Disable debugger index for Android, which uses lldb. lldb can create (and + # cache) its own index in about 20 seconds, so there's no need to pay the + # price of an index on every link. + _add_symbol_index = + symbol_level == 2 &amp;&amp; !is_apple &amp;&amp; use_lld &amp;&amp; !is_wasm &amp;&amp; !is_android + if (_add_symbol_index) { + if (use_dwarf5) { + cflags += [ "-gpubnames" ] + } else { + if (is_clang) { + # This flag enables the GNU-format pubnames and pubtypes sections, + # which lld needs in order to generate a correct GDB index. + # TODO(pcc): Try to make lld understand non-GNU-format pubnames + # sections (llvm.org/PR34820). + cflags += [ "-ggnu-pubnames" ] + } + ldflags += [ "-Wl,--gdb-index" ] } - ldflags += [ "-Wl,--gdb-index" ] + } else { + cflags += [ "-gno-pubnames" ] } }</title>
+        <author>
+            <name>Chromium issue tracker</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/488948347"/>
+        <updated>Mar 2, 2026 11:58AM</updated>
+        <summary>Click to view details</summary>
+        <content type="html">
+X���/��z֢�</content>
+    </entry>
+    <entry>
+        <id>488925413</id>
+        <title>【Chromium &amp;gt; Blink &amp;gt; JavaScript &amp;gt; Compiler &amp;gt; Turbofan】 TurboFan: Late scheduling sinks StringConcat into loop, causing repeated String::Flatten and 200x slowdown</title>
+        <author>
+            <name>Chromium issue tracker</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/488925413"/>
+        <updated>Mar 2, 2026 11:50AM</updated>
+        <summary>Click to view details</summary>
+        <content type="html">
+X���/��z֢�</content>
+    </entry>
+    <entry>
+        <id>488980782</id>
+        <title>【Chromium &amp;gt; Internals &amp;gt; GPU】 Treat shader cache keys as opaque blobs rather than strings</title>
+        <author>
+            <name>Chromium issue tracker</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/488980782"/>
+        <updated>Mar 2, 2026 11:49AM</updated>
+        <summary>Click to view details</summary>
+        <content type="html">
+X���/��z֢�</content>
+    </entry>
+    <entry>
+        <id>488948340</id>
+        <title>【Chromium &amp;gt; UI &amp;gt; Browser &amp;gt; Passwords】 Detecting passkeys in 3P PWM is unstable</title>
+        <author>
+            <name>Chromium issue tracker</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/488948340"/>
+        <updated>Mar 2, 2026 11:02AM</updated>
+        <summary>Click to view details</summary>
+        <content type="html">
+X���/��z֢�</content>
+    </entry>
+    <entry>
+        <id>488937347</id>
+        <title>【Chromium &amp;gt; Blink &amp;gt; Scroll】 `overscroll-behavior: contain` on elements without overflow enables rubber-banding effect</title>
+        <author>
+            <name>Chromium issue tracker</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/488937347"/>
+        <updated>Mar 2, 2026 10:56AM</updated>
+        <summary>Click to view details</summary>
+        <content type="html">
+X���/��z֢�</content>
+    </entry>
+    <entry>
+        <id>488994258</id>
+        <title>【Chromium &amp;gt; UI &amp;gt; Browser &amp;gt; Mobile】 Tests are failing: org.chromium.base.test.transit.TravelException: StationToStationTrip 4 (from &amp;lt;S3: WebPageStation&amp;gt; to &amp;lt;S4: IncognitoTabSwitcherStation&amp;gt;): trigger th...</title>
+        <author>
+            <name>Chromium issue tracker</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/488994258"/>
+        <updated>Mar 2, 2026 10:56AM</updated>
+        <summary>Click to view details</summary>
+        <content type="html">
+X���/��z֢�</content>
+    </entry>
+    <entry>
+        <id>488988291</id>
+        <title>【Chromium &amp;gt; UI &amp;gt; Browser &amp;gt; Profiles】 Customization bubble is not updated with selected color</title>
+        <author>
+            <name>Chromium issue tracker</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/488988291"/>
+        <updated>Mar 2, 2026 10:35AM</updated>
+        <summary>Click to view details</summary>
+        <content type="html">
+X���/��z֢�</content>
+    </entry>
+    <entry>
+        <id>488975473</id>
+        <title>【Chromium &amp;gt; Blink &amp;gt; WebAuthentication】 Improve metrics of opportunistic retrieval</title>
+        <author>
+            <name>Chromium issue tracker</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/488975473"/>
+        <updated>Mar 2, 2026 10:00AM</updated>
+        <summary>Click to view details</summary>
+        <content type="html">
+X���/��z֢�</content>
+    </entry>
+    <entry>
+        <id>488948337</id>
+        <title>【Chromium &amp;gt; UI &amp;gt; Browser &amp;gt; New Tab Page (use subcomponent) &amp;gt; Desktop】 Chrome NTP: Google login fails with 400 Bad Request via chrome-untrusted URL</title>
+        <author>
+            <name>Chromium issue tracker</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/488948337"/>
+        <updated>Mar 2, 2026 09:58AM</updated>
+        <summary>Click to view details</summary>
+        <content type="html">
+X���/��z֢�</content>
+    </entry>
+    <entry>
+        <id>488905210</id>
+        <title>【Chromium】 UAF / dangling raw_ptr in GlobalAcceleratorListenerLinux::BoundCommand after extension unload on Linux</title>
+        <author>
+            <name>Chromium issue tracker</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/488905210"/>
+        <updated>Mar 2, 2026 09:32AM</updated>
+        <summary>Click to view details</summary>
+        <content type="html">
+X���/��z֢�</content>
+    </entry>
+    <entry>
+        <id>488967828</id>
+        <title>【Chromium &amp;gt; Programs &amp;gt; PMO &amp;gt; Browser &amp;gt; Release &amp;gt; Merge Request】 [Merge M146] Add metrics for WaaP experiment</title>
+        <author>
+            <name>Chromium issue tracker</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/488967828"/>
+        <updated>Mar 2, 2026 09:01AM</updated>
+        <summary>Click to view details</summary>
+        <content type="html">
+X���/��z֢�</content>
+    </entry>
+    <entry>
+        <id>488925406</id>
+        <title>【Chromium &amp;gt; Blink &amp;gt; WebGL】 Tag microsoft doesn't work in gpu test expectation files</title>
+        <author>
+            <name>Chromium issue tracker</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/488925406"/>
+        <updated>Mar 2, 2026 08:52AM</updated>
+        <summary>Click to view details</summary>
+        <content type="html">
+X���/��z֢�</content>
+    </entry>
+    <entry>
+        <id>488946641</id>
+        <title>【Chromium &amp;gt; Blink &amp;gt; JavaScript】 [V8 JavaScript Perf]: [1] regressions in jetstream2</title>
+        <author>
+            <name>Chromium issue tracker</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/488946641"/>
+        <updated>Mar 2, 2026 08:47AM</updated>
+        <summary>Click to view details</summary>
+        <content type="html">
+X���/��z֢�</content>
+    </entry>
+    <entry>
+        <id>488905209</id>
+        <title>【Chromium &amp;gt; Blink &amp;gt; DataTransfer】 Use dynamically-sized buffer for DragQueryFileW in GetFilenames</title>
+        <author>
+            <name>Chromium issue tracker</name>
+        </author>
+        <link href="https://issues.chromium.org/issues/488905209"/>
+        <updated>Mar 2, 2026 08:44AM</updated>
+        <summary>Click to view details</summary>
+        <content type="html">
+X���/��z֢�</content>
+    </entry>
     <entry>
         <id>488928979</id>
         <title>【Chromium &amp;gt; Blink &amp;gt; Input &amp;gt; PointerLock】 Pointer lock: silent re-lock never works for short lock/unlock cycles, and earned silent permission is reset by next short cycle</title>
@@ -48,18 +288,6 @@ X���/��z֢�</content>
         </author>
         <link href="https://issues.chromium.org/issues/488925402"/>
         <updated>Mar 2, 2026 07:50AM</updated>
-        <summary>Click to view details</summary>
-        <content type="html">
-X���/��z֢�</content>
-    </entry>
-    <entry>
-        <id>488911558</id>
-        <title>【Chromium &amp;gt; Blink &amp;gt; JavaScript】 [V8 JavaScript Perf]: [3] regressions in jetstream2</title>
-        <author>
-            <name>Chromium issue tracker</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/488911558"/>
-        <updated>Mar 2, 2026 07:48AM</updated>
         <summary>Click to view details</summary>
         <content type="html">
 X���/��z֢�</content>
@@ -150,7 +378,7 @@ X���/��z֢�</content>
     </entry>
     <entry>
         <id>488900373</id>
-        <title>【Chromium &amp;gt; Speed &amp;gt; Regressions】 [Blink Parser]: [1] regressions in blink_perf.parser</title>
+        <title>【Chromium &amp;gt; Blink &amp;gt; HTML &amp;gt; Parser】 [Blink Parser]: [1] regressions in blink_perf.parser</title>
         <author>
             <name>Chromium issue tracker</name>
         </author>
@@ -245,18 +473,6 @@ X���/��z֢�</content>
 X���/��z֢�</content>
     </entry>
     <entry>
-        <id>488851801</id>
-        <title>【Chromium &amp;gt; Blink &amp;gt; HTML &amp;gt; Parser】 [Blink Parser]: [1] regressions in blink_perf.parser</title>
-        <author>
-            <name>Chromium issue tracker</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/488851801"/>
-        <updated>Mar 2, 2026 04:03AM</updated>
-        <summary>Click to view details</summary>
-        <content type="html">
-X���/��z֢�</content>
-    </entry>
-    <entry>
         <id>488819148</id>
         <title>【Chromium &amp;gt; Blink &amp;gt; Bindings】 [Blink Bindings Perf Regressions]: [1] regressions in blink_perf.bindings</title>
         <author>
@@ -288,30 +504,6 @@ X���/��z֢�</content>
         </author>
         <link href="https://issues.chromium.org/issues/488114765"/>
         <updated>Mar 2, 2026 01:39AM</updated>
-        <summary>Click to view details</summary>
-        <content type="html">
-X���/��z֢�</content>
-    </entry>
-    <entry>
-        <id>488731430</id>
-        <title>【Chromium &amp;gt; Platform &amp;gt; DevTools &amp;gt; UX】 my devtools is auto open evrytime i write e x p</title>
-        <author>
-            <name>Chromium issue tracker</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/488731430"/>
-        <updated>Mar 2, 2026 12:09AM</updated>
-        <summary>Click to view details</summary>
-        <content type="html">
-X���/��z֢�</content>
-    </entry>
-    <entry>
-        <id>488386210</id>
-        <title>【Chromium &amp;gt; Mobile &amp;gt; WebView】 User reported crash</title>
-        <author>
-            <name>Chromium issue tracker</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/488386210"/>
-        <updated>Mar 1, 2026 11:28PM</updated>
         <summary>Click to view details</summary>
         <content type="html">
 X���/��z֢�</content>
@@ -408,198 +600,6 @@ X���/��z֢�</content>
         </author>
         <link href="https://issues.chromium.org/issues/488713946"/>
         <updated>Mar 1, 2026 07:10PM</updated>
-        <summary>Click to view details</summary>
-        <content type="html">
-X���/��z֢�</content>
-    </entry>
-    <entry>
-        <id>488794132</id>
-        <title>【Chromium &amp;gt; Internals &amp;gt; Network &amp;gt; Cookies】 [VT Expire Notice] Virtual test suite port-bound-cookies expired on Mar 1, 2026, action required</title>
-        <author>
-            <name>Chromium issue tracker</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/488794132"/>
-        <updated>Mar 1, 2026 07:10PM</updated>
-        <summary>Click to view details</summary>
-        <content type="html">
-X���/��z֢�</content>
-    </entry>
-    <entry>
-        <id>488729188</id>
-        <title>【Chromium &amp;gt; Blink &amp;gt; Loader】 [VT Expire Notice] Virtual test suite low-priority-async-script-execution expired on Mar 1, 2026, action required</title>
-        <author>
-            <name>Chromium issue tracker</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/488729188"/>
-        <updated>Mar 1, 2026 07:10PM</updated>
-        <summary>Click to view details</summary>
-        <content type="html">
-X���/��z֢�</content>
-    </entry>
-    <entry>
-        <id>488756535</id>
-        <title>【Chromium &amp;gt; UI &amp;gt; Browser &amp;gt; Import】 [Linux] Cannot import profiles from new XDG-style Firefox data folder</title>
-        <author>
-            <name>Chromium issue tracker</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/488756535"/>
-        <updated>Mar 1, 2026 06:43PM</updated>
-        <summary>Click to view details</summary>
-        <content type="html">
-X���/��z֢�</content>
-    </entry>
-    <entry>
-        <id>488819313</id>
-        <title>【Chromium &amp;gt; UI &amp;gt; Browser &amp;gt; 1745565 &amp;gt; VR】 Tests are failing: xr_browser_test.cc(449): Failed\nTimed out waiting for JavaScript step to finish. JavaScript testharness reported failure reason: PASS test_webxr_d...</title>
-        <author>
-            <name>Chromium issue tracker</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/488819313"/>
-        <updated>Mar 1, 2026 06:41PM</updated>
-        <summary>Click to view details</summary>
-        <content type="html">
-X���/��z֢�</content>
-    </entry>
-    <entry>
-        <id>488770311</id>
-        <title>【Chromium】 disney+</title>
-        <author>
-            <name>Chromium issue tracker</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/488770311"/>
-        <updated>Mar 1, 2026 06:37PM</updated>
-        <summary>Click to view details</summary>
-        <content type="html">
-X���/��z֢�</content>
-    </entry>
-    <entry>
-        <id>488762975</id>
-        <title>【Chromium】 IDM Crack with Internet Download Manager 6.42 Build 26</title>
-        <author>
-            <name>Chromium issue tracker</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/488762975"/>
-        <updated>Mar 1, 2026 06:22PM</updated>
-        <summary>Click to view details</summary>
-        <content type="html">
-X���/��z֢�</content>
-    </entry>
-    <entry>
-        <id>488736409</id>
-        <title>【Chromium】 Lookalike warning false positive: securecloud.de incorrectly flagged as cloud.microsoft</title>
-        <author>
-            <name>Chromium issue tracker</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/488736409"/>
-        <updated>Mar 1, 2026 06:09PM</updated>
-        <summary>Click to view details</summary>
-        <content type="html">
-X���/��z֢�</content>
-    </entry>
-    <entry>
-        <id>488709783</id>
-        <title>【Chromium &amp;gt; Blink &amp;gt; Bindings】 [Blink Bindings Perf Regressions]: [1] regressions in blink_perf.bindings</title>
-        <author>
-            <name>Chromium issue tracker</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/488709783"/>
-        <updated>Mar 1, 2026 06:01PM</updated>
-        <summary>Click to view details</summary>
-        <content type="html">
-X���/��z֢�</content>
-    </entry>
-    <entry>
-        <id>488762974</id>
-        <title>【Chromium &amp;gt; BoringSSL &amp;gt; Infra】 Check for global constructors and destructors on CI</title>
-        <author>
-            <name>Chromium issue tracker</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/488762974"/>
-        <updated>Mar 1, 2026 05:02PM</updated>
-        <summary>Click to view details</summary>
-        <content type="html">
-X���/��z֢�</content>
-    </entry>
-    <entry>
-        <id>488731426</id>
-        <title>【Chromium &amp;gt; Blink &amp;gt; Storage &amp;gt; IndexedDB】 IDB BucketDurability tests flaky on mac</title>
-        <author>
-            <name>Chromium issue tracker</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/488731426"/>
-        <updated>Mar 1, 2026 04:12PM</updated>
-        <summary>Click to view details</summary>
-        <content type="html">
-X���/��z֢�</content>
-    </entry>
-    <entry>
-        <id>488762973</id>
-        <title>【Chromium &amp;gt; Platform &amp;gt; DevTools &amp;gt; Elements】 On pages with CSS variables, DevTools is slow over the session time until it becomes unresponsive</title>
-        <author>
-            <name>Chromium issue tracker</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/488762973"/>
-        <updated>Mar 1, 2026 03:42PM</updated>
-        <summary>Click to view details</summary>
-        <content type="html">
-X���/��z֢�</content>
-    </entry>
-    <entry>
-        <id>488648846</id>
-        <title>【Chromium &amp;gt; Infra &amp;gt; SDK】 Nfc</title>
-        <author>
-            <name>Chromium issue tracker</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/488648846"/>
-        <updated>Mar 1, 2026 03:05PM</updated>
-        <summary>Click to view details</summary>
-        <content type="html">
-X���/��z֢�</content>
-    </entry>
-    <entry>
-        <id>488731425</id>
-        <title>【Chromium &amp;gt; Blink &amp;gt; Storage &amp;gt; DOMStorage】 Sandboxed SQLite VFS needs work</title>
-        <author>
-            <name>Chromium issue tracker</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/488731425"/>
-        <updated>Mar 1, 2026 02:41PM</updated>
-        <summary>Click to view details</summary>
-        <content type="html">
-X���/��z֢�</content>
-    </entry>
-    <entry>
-        <id>488731424</id>
-        <title>【Chromium &amp;gt; UI &amp;gt; Browser &amp;gt; TopChrome &amp;gt; TabStrip】 UI Filtering in Job Search Triggers Redundant API Calls and Causes Visual Glitch</title>
-        <author>
-            <name>Chromium issue tracker</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/488731424"/>
-        <updated>Mar 1, 2026 02:03PM</updated>
-        <summary>Click to view details</summary>
-        <content type="html">
-X���/��z֢�</content>
-    </entry>
-    <entry>
-        <id>488755563</id>
-        <title>【Chromium &amp;gt; Blink &amp;gt; Storage &amp;gt; IndexedDB】 SQLite testing VFS doesn't work on Fuchsia</title>
-        <author>
-            <name>Chromium issue tracker</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/488755563"/>
-        <updated>Mar 1, 2026 01:56PM</updated>
-        <summary>Click to view details</summary>
-        <content type="html">
-X���/��z֢�</content>
-    </entry>
-    <entry>
-        <id>488755561</id>
-        <title>【Chromium &amp;gt; Blink &amp;gt; Loader】 Implement Inline Script Cache</title>
-        <author>
-            <name>Chromium issue tracker</name>
-        </author>
-        <link href="https://issues.chromium.org/issues/488755561"/>
-        <updated>Mar 1, 2026 01:28PM</updated>
         <summary>Click to view details</summary>
         <content type="html">
 X���/��z֢�</content>
